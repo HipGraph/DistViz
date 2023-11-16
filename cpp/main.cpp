@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 
   auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);
 
-  std::cout << duration_index_building/1000000 << std::endl;
+  std::cout << duration_index_building.count()/1000000 << std::endl;
 //  std::cout << distances.transpose() << std::endl;
 
 }
