@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
   Mrpt mrpt(X);
   mrpt.grow_autotune(target_recall, k);
 
-
+#pragma omp parallel for schedule (static)
   for(int i=0;i<X.cols();i++){
     Eigen::VectorXi tempRow(k);
     mrpt.query(X.col(i), tempRow.data());
