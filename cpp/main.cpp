@@ -29,6 +29,9 @@ int main(int argc, char* argv[]) {
 
   Eigen::MatrixXf X = file_reader.load_data(input_path);
 
+  std::cout << "Number of Rows: " << X.rows() << std::endl;
+  std::cout << "Number of Columns: " << X.cols() << std::endl;
+
 //
 //  Mrpt::exact_knn(q, X, k, indices_exact.data());
 //  std::cout << indices_exact.transpose() << std::endl;
