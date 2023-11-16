@@ -26,7 +26,6 @@ Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path, int n
   n_cols = reverse_int(n_cols);
 
 
-
   int chunk_size = number_of_images / world_size;
    if (rank == world_size - 1) {
     chunk_size = no_of_images - chunk_size * (world_size - 1);
@@ -38,11 +37,10 @@ Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path, int n
       for (int c = 0; c < n_cols; ++c) {
         unsigned char temp = 0;
         file.read((char *)&temp, sizeof(temp));
-        if (i >= rank * chunk_size and i < (rank + 1) * chunk_size and
-            rank < world_size - 1) {
-          matrix[i - rank * chunk_size][(n_rows * r) + c] = (float)temp;
+        if (i >= rank * chunk_size and i < (rank + 1) * chunk_size and rank < world_size - 1) {
+          matrix(i - rank * chunk_size,(n_rows * r) + c) = (float)temp;
         } else if (rank == world_size - 1 && i >= (rank)*chunk_size) {
-          matrix[i - rank * chunk_size][(n_rows * r) + c] = (float)temp;
+          matrix(i - rank * chunk_size,(n_rows * r) + c) = (float)temp;
         }
       }
     }
