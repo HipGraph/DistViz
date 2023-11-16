@@ -42,6 +42,6 @@ int main(int argc, char* argv[]) {
 
 
   mrpt.query(X.row(0), indices.data());
-  std::cout << indices << std::endl;
+  std::cout << indices.transpose() << std::endl;
 
 }
