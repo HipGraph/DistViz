@@ -2,10 +2,9 @@
 
 Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path) {
   // Read the file
-  std::ifstream file(filePath, std::ios::binary);
+  std::ifstream file(file_path, std::ios::binary);
   if (!file.is_open()) {
-    std::cerr << "Error: Could not open the file." << std::endl;
-    return 1;
+    std::cout << "Error: Could not open the file." << std::endl;
   }
 
   // Read the dimensions of the matrix (assuming it's a 2D matrix)
