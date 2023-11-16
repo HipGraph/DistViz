@@ -6,10 +6,10 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-  int n = 10000, d = 200, k = 10;
+//  int n = 10000, d = 200, k = 10;
   double target_recall = 0.9;
-  Eigen::MatrixXf X = Eigen::MatrixXf::Random(d, n);
-  Eigen::MatrixXf q = Eigen::VectorXf::Random(d);
+//  Eigen::MatrixXf X = Eigen::MatrixXf::Random(d, n);
+//  Eigen::MatrixXf q = Eigen::VectorXf::Random(d);
 
   Eigen::VectorXi indices(k), indices_exact(k);
 

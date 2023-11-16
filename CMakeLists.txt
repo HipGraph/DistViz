@@ -34,8 +34,13 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 #add_subdirectory(core)
 #add_subdirectory(embedding)
 
-add_library(disviz_lib INTERFACE)
-target_include_directories(disviz_lib INTERFACE cpp/lib)
+#add_library(disviz_lib INTERFACE)
+#target_include_directories(disviz_lib INTERFACE cpp/lib)
+
+add_library(disviz_lib SHARED
+             cpp/io/file_reader.hpp
+             cpp/io/file_reader.cpp
+             cpp/lib/Mrpt.h)
 
 SET(BUILD_TESTS "" ON)
 
