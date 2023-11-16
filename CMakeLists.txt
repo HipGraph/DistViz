@@ -34,8 +34,8 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 #add_subdirectory(core)
 #add_subdirectory(embedding)
 
-add_library(disviz_lib SHARED
-        cpp/lib/Mrpt.h)
+add_library(disviz_lib INTERFACE)
+target_include_directories(disviz_lib INTERFACE cpp/lib)
 
 SET(BUILD_TESTS "" ON)
 
@@ -53,7 +53,7 @@ target_compile_options(distviz PRIVATE  -std=c++11 -Ofast -march=native -Icpp -I
 #target_link_options(distembed PRIVATE -L$ENV{MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_ilp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl)
 #
 #
-target_link_libraries(distviz disviz_lib)
+target_link_libraries(distviz PRIVATE disviz_lib)
 
 target_link_libraries(distviz MPI::MPI_CXX)
 target_link_libraries(distviz OpenMP::OpenMP_CXX)
