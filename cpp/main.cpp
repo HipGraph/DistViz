@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
   hipgraph::distviz::FileReader file_reader;
   Eigen::MatrixXi indices(k);
 
-  Eigen::MatrixXf* X = file_reader.load_data(input_path);
+  Eigen::MatrixXf X = file_reader.load_data(input_path);
 
 //
 //  Mrpt::exact_knn(q, X, k, indices_exact.data());

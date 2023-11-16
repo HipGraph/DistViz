@@ -2,12 +2,12 @@
 #include <iostream>
 #include <fstream>
 
-Eigen::MatrixXf* hipgraph::distviz::FileReader::load_data(string file_path) {
+Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path) {
   // Read the file
   std::ifstream file(file_path, std::ios::binary);
   if (!file.is_open()) {
     std::cout << "Error: Could not open the file." << std::endl;
-    return nullptr;
+    return Eigen::MatrixXf();
   }
 
   // Read the dimensions of the matrix (assuming it's a 2D matrix)
@@ -24,6 +24,6 @@ Eigen::MatrixXf* hipgraph::distviz::FileReader::load_data(string file_path) {
   // Close the file
   file.close();
 
-  return &matrix;
+  return matrix;
 
 }
