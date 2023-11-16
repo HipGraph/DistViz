@@ -6,6 +6,7 @@ Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path, int n
                                                          int dimension, int rank, int world_size) {
   // Read the file
   std::ifstream file(file_path, std::ios::binary);
+
   if (!file.is_open()) {
     std::cout << "Error: Could not open the file." << std::endl;
     return Eigen::MatrixXf();
@@ -16,13 +17,13 @@ Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path, int n
   int n_rows = 0;
   int n_cols = 0;
   file.read((char *)&magic_number, sizeof(magic_number));
-  magic_number = this->reverse_int(magic_number);
+  magic_number = reverse_int(magic_number);
   file.read((char *)&number_of_images, sizeof(number_of_images));
-  number_of_images = this->reverse_int(number_of_images);
+  number_of_images = reverse_int(number_of_images);
   file.read((char *)&n_rows, sizeof(n_rows));
-  n_rows = this->reverse_int(n_rows);
+  n_rows = reverse_int(n_rows);
   file.read((char *)&n_cols, sizeof(n_cols));
-  n_cols = this->reverse_int(n_cols);
+  n_cols = reverse_int(n_cols);
 
 
 
@@ -39,9 +40,9 @@ Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path, int n
         file.read((char *)&temp, sizeof(temp));
         if (i >= rank * chunk_size and i < (rank + 1) * chunk_size and
             rank < world_size - 1) {
-          matrix[i - rank * chunk_size][(n_rows * r) + c] = (VALUE_TYPE)temp;
+          matrix[i - rank * chunk_size][(n_rows * r) + c] = (float)temp;
         } else if (rank == world_size - 1 && i >= (rank)*chunk_size) {
-          matrix[i - rank * chunk_size][(n_rows * r) + c] = (VALUE_TYPE)temp;
+          matrix[i - rank * chunk_size][(n_rows * r) + c] = (float)temp;
         }
       }
     }
@@ -51,3 +52,14 @@ Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path, int n
   // Create Eigen::MatrixXf
   return matrix;
 }
+
+int hipgraph::distviz::FileReader::reverse_int (int i)
+{
+  unsigned char ch1, ch2, ch3, ch4;
+  ch1 = i & 255;
+  ch2 = (i >> 8) & 255;
+  ch3 = (i >> 16) & 255;
+  ch4 = (i >> 24) & 255;
+  return ((int) ch1 << 24) + ((int) ch2 << 16) + ((int) ch3 << 8) + ch4;
+}
+
