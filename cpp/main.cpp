@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
   for(int i=0;i<X.cols();i++){
     Eigen::VectorXi tempRow = neighbours.row(i);
-    mrpt.query(X.row(i), tempRow.data());
+    mrpt.query(X.col(i), tempRow.data());
   }
 
   std::cout << neighbours.row(0).transpose() << std::endl;
