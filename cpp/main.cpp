@@ -48,10 +48,11 @@ int main(int argc, char* argv[]) {
 
 
   for(int i=0;i<X.cols();i++){
-    mrpt.query(X.row(i), neighbours(i).data());
+    Eigen::VectorXi tempRow = neighbours.row(i);
+    mrpt.query(X.row(i), tempRow.data());
   }
 
-  std::cout << neighbours(0).transpose() << std::endl;
+  std::cout << neighbours.row(0).transpose() << std::endl;
 //  std::cout << distances.transpose() << std::endl;
 
 }
