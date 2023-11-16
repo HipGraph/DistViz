@@ -10,7 +10,7 @@ namespace hipgraph::distviz {
 class FileReader {
 
 public:
- static Eigen::MatrixXf load_data(string file_path);
+ static Eigen::MatrixXf load_data(string file_path,int dimension);
 };
 }
 
