@@ -4,11 +4,13 @@
 #include "Eigen/Dense"
 #include <string>
 
+using namespace std;
+
 namespace hipgraph::distviz {
 class FileReader {
 
 public:
-  Eigen::MatrixXf load_data(string file_path);
+ static Eigen::MatrixXf load_data(string file_path);
 };
 }
 
