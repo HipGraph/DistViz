@@ -43,6 +43,7 @@ int main(int argc, char* argv[]) {
 //  Mrpt::exact_knn(X.row(0), X, k, indices_exact.data());
 //  std::cout << indices_exact.transpose() << std::endl;
 
+  auto start_index_buildling = high_resolution_clock::now();
   Mrpt mrpt(X);
   mrpt.grow_autotune(target_recall, k);
 
@@ -51,10 +52,13 @@ int main(int argc, char* argv[]) {
     Eigen::VectorXi tempRow(k);
     mrpt.query(X.col(i), tempRow.data());
     neighbours.row(i) = tempRow;
-    std::cout << neighbours.row(i).transpose() << std::endl;
   }
 
-//  std::cout << neighbours.row(0).transpose() << std::endl;
+  auto stop_index_building = high_resolution_clock::now();
+
+  auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);
+
+  std::cout << duration_index_building/1000000 << std::endl;
 //  std::cout << distances.transpose() << std::endl;
 
 }
