@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 
 
   hipgraph::distviz::FileReader file_reader;
-  Eigen::MatrixXi indices(k);
+  Eigen::VectorXi indices(k);
 
   Eigen::MatrixXf X = file_reader.load_data(input_path);
 
