@@ -49,7 +49,7 @@ SET(SOURCES cpp/main.cpp)
 add_executable(distviz ${SOURCES})
 
 
-target_compile_options(distembed PRIVATE  -std=c++11 -Ofast -march=native -Icpp  -fopenmp -lgomp)
+target_compile_options(distviz PRIVATE  -std=c++11 -Ofast -march=native -Icpp  -fopenmp -lgomp)
 #target_link_options(distembed PRIVATE -L$ENV{MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_ilp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl)
 #
 #
