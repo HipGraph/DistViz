@@ -26,6 +26,7 @@ int main(int argc, char* argv[]) {
 
   hipgraph::distviz::FileReader file_reader;
   Eigen::VectorXi indices(k),  indices_exact(k);
+  Eigen::VectorXf distances(k);
 
   std::cout << "calling data loading"<< std::endl;
   Eigen::MatrixXf X_trans = file_reader.load_data(input_path,60000,784,0,1);
@@ -35,17 +36,15 @@ int main(int argc, char* argv[]) {
   std::cout << "Number of Rows: " << X.rows() << std::endl;
   std::cout << "Number of Columns: " << X.cols() << std::endl;
 
-  std::cout << X.row(0) << std::endl;
 
-//
-  Mrpt::exact_knn(X.row(0), X, k, indices_exact.data());
-  std::cout << indices_exact.transpose() << std::endl;
+//  Mrpt::exact_knn(X.row(0), X, k, indices_exact.data());
+//  std::cout << indices_exact.transpose() << std::endl;
 
   Mrpt mrpt(X);
   mrpt.grow_autotune(target_recall, k);
 
 
-  mrpt.query(X.row(0), indices.data());
+  mrpt.query(X.row(0), indices.data(),distances.data());
   std::cout << indices.transpose() << std::endl;
 
 }
