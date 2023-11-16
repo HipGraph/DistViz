@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(DistEmbed)
+project(DistViz)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -57,7 +57,7 @@ SET(BUILD_TESTS "" ON)
 #    message(STATUS "Building tests ....")
 #endif ()
 
-SET(SOURCES cpp/lib/Mrpt.h)
+SET(SOURCES cpp/lib/Mrpt.hpp)
 
 add_executable(distviz ${SOURCES})
 
