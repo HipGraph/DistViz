@@ -15,9 +15,11 @@ Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path) {
   file.read(reinterpret_cast<char*>(&rows), sizeof(int));
   file.read(reinterpret_cast<char*>(&cols), sizeof(int));
 
+  cout<<" dimension reading completed "<<rows<<"*"<<cols<<endl;
   // Create Eigen::MatrixXf
   Eigen::MatrixXf matrix(rows, cols);
 
+  cout<<" dimension reading started "<<endl;
   // Read the data into the matrix
   file.read(reinterpret_cast<char*>(matrix.data()), rows * cols * sizeof(float));
 

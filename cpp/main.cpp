@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
   hipgraph::distviz::FileReader file_reader;
   Eigen::VectorXi indices(k);
 
+  std::cout << "calling data loading"<< std::endl;
   Eigen::MatrixXf X = file_reader.load_data(input_path);
 
   std::cout << "Number of Rows: " << X.rows() << std::endl;
