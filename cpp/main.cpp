@@ -46,5 +46,6 @@ int main(int argc, char* argv[]) {
 
   mrpt.query(X.row(0), indices.data(),distances.data());
   std::cout << indices.transpose() << std::endl;
+  std::cout << distances.transpose() << std::endl;
 
 }
