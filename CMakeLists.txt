@@ -34,21 +34,8 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 #add_subdirectory(core)
 #add_subdirectory(embedding)
 
-#add_library(disembed_lib SHARED
-#        cpp/core/common.h
-#        cpp/core/common.cpp
-#        cpp/core/distributed_mat.hpp
-#        cpp/core/sparse_mat.hpp
-#        cpp/core/mpi_type_creator.hpp
-#        cpp/io/parrallel_IO.cpp
-#        cpp/io/parrallel_IO.hpp
-#        cpp/net/process_3D_grid.cpp
-#        cpp/net/process_3D_grid.hpp
-#        cpp/net/data_comm.hpp
-#        cpp/algo/algo.hpp
-#        cpp/core/json.hpp
-#        cpp/partition/partitioner.cpp
-#        cpp/partition/partitioner.hpp)
+add_library(disviz_lib SHARED
+        cpp/lib/Mrpt.h)
 
 SET(BUILD_TESTS "" ON)
 
@@ -57,7 +44,7 @@ SET(BUILD_TESTS "" ON)
 #    message(STATUS "Building tests ....")
 #endif ()
 
-SET(SOURCES cpp/lib/Mrpt.hpp)
+SET(SOURCES cpp/main.cpp)
 
 add_executable(distviz ${SOURCES})
 
@@ -66,7 +53,7 @@ add_executable(distviz ${SOURCES})
 #target_link_options(distembed PRIVATE -L$ENV{MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_ilp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl)
 #
 #
-#target_link_libraries(distembed disembed_lib)
+target_link_libraries(distviz disviz_lib)
 
 target_link_libraries(distviz MPI::MPI_CXX)
 target_link_libraries(distviz OpenMP::OpenMP_CXX)
