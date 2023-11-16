@@ -1,5 +1,6 @@
 #include "file_reader.hpp"
 #include <iostream>
+#include <fstream>
 
 Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path) {
   // Read the file
