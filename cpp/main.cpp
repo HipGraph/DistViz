@@ -48,8 +48,8 @@ int main(int argc, char* argv[]) {
 
 
   for(int i=0;i<X.cols();i++){
-    Eigen::VectorXi* tempRow = neighbours.row(i).data();
-    mrpt.query(X.col(i), tempRow);
+    Eigen::VectorXi tempRow(neighbours.row(i));
+    mrpt.query(X.col(i), tempRow.data());
 //    std::cout << tempRow.transpose() << std::endl;
   }
 
