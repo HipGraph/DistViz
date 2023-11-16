@@ -2,7 +2,8 @@
 #include <fstream>
 #include <iostream>
 
-Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path, int dimension) {
+Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path, int no_of_images,
+                                                         int dimension, int rank, int world_size) {
   // Read the file
   std::ifstream file(file_path, std::ios::binary);
   if (!file.is_open()) {

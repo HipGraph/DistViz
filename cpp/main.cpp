@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
   Eigen::VectorXi indices(k);
 
   std::cout << "calling data loading"<< std::endl;
-  Eigen::MatrixXf X = file_reader.load_data(input_path);
+  Eigen::MatrixXf X = file_reader.load_data(input_path,60000,784,0,1);
 
   std::cout << "Number of Rows: " << X.rows() << std::endl;
   std::cout << "Number of Columns: " << X.cols() << std::endl;
