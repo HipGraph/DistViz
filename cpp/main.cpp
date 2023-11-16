@@ -36,7 +36,8 @@ int main(int argc, char* argv[]) {
   Mrpt mrpt(X);
   mrpt.grow_autotune(target_recall, k);
 
-  mrpt.query(X, indices.data());
+
+  mrpt.query(X.row(0), indices.data());
   std::cout << indices << std::endl;
 
 }
