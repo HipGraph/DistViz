@@ -79,12 +79,12 @@ public:
     int* receive = this->receive_random_seeds(1);
 
     // build global sparse random project matrix for all trees
-    VALUE_TYPE* B = mathOp_ptr.get()->.build_sparse_projection_matrix(grid->rank_in_col, grid->col_world_size, this->data_dimension,
+    VALUE_TYPE* B = mathOp_ptr.get()->build_sparse_projection_matrix(grid->rank_in_col, grid->col_world_size, this->data_dimension,
                                                           global_tree_depth * this->ntrees, density, receive[0]);
 
     // get the matrix projection
     // P= X.R
-    VALUE_TYPE* P = mathOp_ptr.get()->.multiply_mat(row_data_array, B, this->data_dimension,
+    VALUE_TYPE* P = mathOp_ptr.get()->multiply_mat(row_data_array, B, this->data_dimension,
                                         global_tree_depth * this->ntrees,
                                         this->local_data_set_size,
                                         1.0);
@@ -99,23 +99,23 @@ public:
                                                     this->global_data_set_size);
 
 
-    cout << " rank " << rank << " starting growing trees" << endl;
+    cout << " rank " << grid.get()->rank_in_col << " starting growing trees" << endl;
     // start growing global tree
     drpt_global.grow_global_tree(original_data);
-    cout << " rank " << rank << " completing growing trees" << endl;
+    cout << " rank " << grid.get()->rank_in_col << " completing growing trees" << endl;
 
     //
     //	//calculate locality optimization to improve data locality
     if (use_locality_optimization)
     {
-      cout << " rank " << rank << " starting tree leaf correlation " << endl;
+      cout << " rank " << grid.get()->rank_in_col << " starting tree leaf correlation " << endl;
       drpt_global.calculate_tree_leaf_correlation();
-      cout << " rank " << rank << "  tree leaf correlation completed " << endl;
+      cout << " rank " << grid.get()->rank_in_col << "  tree leaf correlation completed " << endl;
     }
 
     vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>> leaf_nodes_of_trees(ntrees);
 
-    cout << " rank " << rank << " running  datapoint collection  "<< endl;
+    cout << " rank " << grid.get()->rank_in_col << " running  datapoint collection  "<< endl;
     // running the similar datapoint collection
     for (int i = 0; i < ntrees; i++)
     {

@@ -27,6 +27,8 @@ using namespace hipgraph::distviz::knng;
 using namespace hipgraph::distviz::io;
 int main(int argc, char* argv[]) {
 
+  string input_path;
+  string output_path;
   long data_set_size = 0;
   int dimension = 0;
   int ntrees = 10;
