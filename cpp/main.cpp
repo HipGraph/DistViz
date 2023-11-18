@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
 
   double* execution_times_global = new double[2];
 
-  execution_times[0] = (io_time.count() + duration_file_writing.count()) / 1000;
+  execution_times[0] = (io_time.count()) / 1000;
   execution_times[1] = duration_index_building.count() / 1000;
 //  execution_times[2] = duration_query.count() / 1000;
 
