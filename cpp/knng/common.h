@@ -1,7 +1,12 @@
 #ifndef DISTVIZ_CPP_CORE_COMMON_H_
 #define DISTVIZ_CPP_CORE_COMMON_H_
 
+#define MPI_VALUE_TYPE MPI_FLOAT
+#define MPI_INDEX_TYPE MPI_INT
+
 namespace hipgraph::distviz::knng {
+
+
 
 struct LeafPriority {
   int leaf_index;

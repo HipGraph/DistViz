@@ -11,7 +11,7 @@ using namespace std;
 
 namespace hipgraph::distviz::knng {
 
-template <typename VALUE_TYPE,typename MPI_VALUE_TYPE>
+template <typename VALUE_TYPE>
 class MathOp {
  public:
   VALUE_TYPE *multiply_mat(VALUE_TYPE *A, VALUE_TYPE *B, int A_rows, int B_cols,

@@ -19,7 +19,7 @@ using namespace  hipgraph::distviz::net;
 
 namespace hipgraph::distviz::knng {
 
-template<typename INDEX_TYPE,typename MPI_INDEX_TYPE, typename VALUE_TYPE, typename MPI_VALUE_TYPE>
+template<typename INDEX_TYPE,typename VALUE_TYPE>
 class GlobalTreeHandler {
 
 private:
