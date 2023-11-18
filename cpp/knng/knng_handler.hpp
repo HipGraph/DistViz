@@ -63,8 +63,12 @@ public:
     this->grid = grid;
     this->ntrees = ntrees;
     this->tree_depth_ratio = tree_depth_ratio;
+    cout<<" rank "<<grid->rank_in_col<<" basic assignment done"<<endl;
     this->trees_leaf_all = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
+    cout<<" rank "<<grid->rank_in_col<<" trees_leaf_all completed"<<endl;
     this->index_distribution = vector<set<int>>(grid->col_world_size);
+
+    cout<<" rank "<<grid->rank_in_col<<" index_distribution done "<<endl;
     this->local_tree_offset = local_tree_offset;
   }
 
