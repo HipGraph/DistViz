@@ -127,7 +127,7 @@ public:
     return -1;
   }
 
-  void grow_global_tree(vector<vector<VALUE_TYPE>>* data_points) {
+  void grow_global_tree(vector<vector<VALUE_TYPE>> &data_points) {
 
     if (tree_depth <= 0 || tree_depth > log2(local_dataset_size))
     {
@@ -291,7 +291,7 @@ public:
             if (depth == this->tree_depth - 2)
             {
               //keep track of respective leaf of selected_index
-              (*index_to_tree_leaf_mapper)[selected_index][tree] = selected_leaf_right;
+              (*index_to_tree_leaf_mapper_ptr)[selected_index][tree] = selected_leaf_right;
             }
           }
         }
@@ -386,7 +386,7 @@ public:
       {
         for (int c = 0; c < ntrees; c++)
         {
-          vector <DataNode<INDEX_TYPE,VALUE_TYPE>> data_points = (*trees_leaf_first_indices)[tree][leaf];
+          vector <DataNode<INDEX_TYPE,VALUE_TYPE>> data_points = (*trees_leaf_first_indices_ptr)[tree][leaf];
           vector<float> result = 	vector<float> (total_leaf_size, 0);
           int size = data_points.size ();
           std::transform (correlation_matrix[tree][leaf][c].begin (), correlation_matrix[tree][leaf][c].end (),
@@ -631,8 +631,8 @@ public:
     {
 
       vector <DataNode<INDEX_TYPE,VALUE_TYPE>> all_points = (use_data_locality_optimization)
-                                         ? (*trees_leaf_first_indices_rearrange)[tree][i]
-                                         : (*trees_leaf_first_indices)[tree][i];
+                                         ? (*trees_leaf_first_indices_rearrange_ptr)[tree][i]
+                                         : (*trees_leaf_first_indices_ptr)[tree][i];
 
       //      cout<<" rank "<<rank <<" leaf "<<i<<" leaf size "<<all_points.size()<<endl;
 

@@ -112,8 +112,7 @@ public:
       cout << " rank " << grid->rank_in_col << "  tree leaf correlation completed " << endl;
     }
 
-    vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>> leaf_nodes_of_trees =
-        new vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
+    vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>> leaf_nodes_of_trees(ntrees);
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
     // running the similar datapoint collection
