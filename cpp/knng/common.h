@@ -6,7 +6,11 @@
 
 namespace hipgraph::distviz::knng {
 
-
+struct index_distance_pair
+{
+  float distance;
+  int index;
+};
 
 struct LeafPriority {
   int leaf_index;
@@ -75,6 +79,12 @@ void sortByFreq (std::vector<T> &v, std::vector<X> &vec, int world_size)
     leaf_priority.leaf_index = v[i];
     vec[v[i]] = leaf_priority;
   }
+}
+
+template<typename T>
+bool all_equal(std::vector<T> const& v)
+{
+  return std::adjacent_find(v.begin(), v.end(), std::not_equal_to<T>()) == v.end();
 }
 
 
