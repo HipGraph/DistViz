@@ -56,6 +56,7 @@ public:
   KNNGHandler(int ntrees, int tree_depth, double tree_depth_ratio,
         int local_tree_offset, int total_data_set_size, int local_data_set_size,
         int dimension, Process3DGrid* grid) {
+    cout<<" calling constructor"<<endl;
     this->data_dimension = dimension;
     this->tree_depth = tree_depth;
     this->global_data_set_size = total_data_set_size;
