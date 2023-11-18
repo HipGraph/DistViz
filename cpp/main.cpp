@@ -160,21 +160,29 @@ int main(int argc, char* argv[]) {
   Eigen::VectorXi indices(k),  indices_exact(k);
 
 //  Eigen::VectorXf distances(k);
-
+  auto start_io_index = high_resolution_clock::now();
   std::cout << "calling data loading"<< std::endl;
   vector<vector<float>> data_matrix = FileReader<float>::
       load_data_into_2D_vector(input_path,60000,784,grid.get()->rank_in_col,grid.get()->col_world_size);
+  MPI_Barrier(MPI_COMM_WORLD);
+  auto stop_io_index = high_resolution_clock::now();
+  auto io_time = duration_cast<microseconds>(stop_io_index - start_io_index);
 
   auto rows = data_matrix[0].size();
   auto cols = data_matrix.size();
 
-
+  auto start_index_buildling = high_resolution_clock::now();
   auto knng_handler = unique_ptr<KNNGHandler<int,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
                                                                                        local_tree_offset,  data_set_size,  cols,
                                                                                        rows,  grid.get()));
 
 
   knng_handler.get()->grow_trees(data_matrix,density,false,10);
+
+  auto stop_index_building = high_resolution_clock::now();
+
+  auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);
+
 
 
 //  Eigen::MatrixXf X = X_trans.transpose();
@@ -199,11 +207,29 @@ int main(int argc, char* argv[]) {
 //    neighbours.row(i) = tempRow;
 //  }
 
-//  auto stop_index_building = high_resolution_clock::now();
+  double* execution_times = new double[2];
+
+  double* execution_times_global = new double[2];
+
+  execution_times[0] = (io_time.count() + duration_file_writing.count()) / 1000;
+  execution_times[1] = duration_index_building.count() / 1000;
+//  execution_times[2] = duration_query.count() / 1000;
+
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  MPI_Allreduce(execution_times, execution_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+  if(rank==0)
+  {
+//    cout << "IO Time (s)" << execution_times_global[0]/(size*1000) << " Index building (s) "
+//         << execution_times_global[1]/(size*1000) <<" Querying Time (s) "<< execution_times_global[2]/(size*1000)<< endl;
 //
-//  auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);
-//
-//  std::cout << duration_index_building.count()/1000000 << std::endl;
-//  std::cout << distances.transpose() << std::endl;
+    cout << "IO Time (s)" << execution_times_global[0]/(size*1000) << " Index building (s) "<< execution_times_global[1]/(size*1000) << endl;
+  }
+
+  delete[] execution_times;
+  delete[] execution_times_global;
+
+  MPI_Finalize();
 
 }
