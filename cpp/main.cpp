@@ -163,25 +163,19 @@ int main(int argc, char* argv[]) {
   auto start_io_index = high_resolution_clock::now();
   std::cout << "calling data loading"<< std::endl;
   vector<vector<float>> data_matrix = FileReader<float>::
-      load_data_into_2D_vector(input_path,60000,784,grid.get()->rank_in_col,grid.get()->col_world_size);
+      load_data_into_2D_vector(input_path,data_set_size,dimension,grid.get()->rank_in_col,grid.get()->col_world_size);
   MPI_Barrier(MPI_COMM_WORLD);
   auto stop_io_index = high_resolution_clock::now();
   auto io_time = duration_cast<microseconds>(stop_io_index - start_io_index);
-
-  auto rows = data_matrix[0].size();
-  auto cols = data_matrix.size();
-
-  auto start_index_buildling = high_resolution_clock::now();
   auto knng_handler = unique_ptr<KNNGHandler<int,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
-                                                                                       local_tree_offset,  data_set_size,  cols,
-                                                                                       rows,  grid.get()));
+                                                                                       local_tree_offset,  data_set_size,  data_matrix.size(),
+                                                                                      dimension,  grid.get()));
 
-
-  knng_handler.get()->grow_trees(data_matrix,density,false,10);
+  knng_handler.get()->grow_trees(data_matrix,density,use_locality_optimization,nn);
 
   auto stop_index_building = high_resolution_clock::now();
 
-  auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);
+  auto duration_index_building = duration_cast<microseconds>(stop_index_building - stop_io_index);
 
 
 
