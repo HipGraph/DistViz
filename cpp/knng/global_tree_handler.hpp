@@ -119,7 +119,7 @@ public:
     return -1;
   }
 
-  void hipgraph::distviz::knng::GlobalTreeHandler::grow_global_tree(vector<vector<VALUE_TYPE>> &data_points) {
+  void grow_global_tree(vector<vector<VALUE_TYPE>> &data_points) {
 
     if (this->tree_depth <= 0 || this->tree_depth > log2(this->local_dataset_size))
     {
@@ -136,7 +136,7 @@ public:
     int total_split_size = 1 << (this->tree_depth + 1);
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-    cout << " rank " << grid->row_in_rank << " start initial tree growing" << endl;
+    cout << " rank " << grid->rank_in_row << " start initial tree growing" << endl;
 
     this->index_to_tree_leaf_mapper = vector<vector<INDEX_TYPE>>(this->local_dataset_size);
 
@@ -174,7 +174,7 @@ public:
       }
     }
 
-    cout << " rank " << grid->row_in_rank << " completed image data storing for all trees" << endl;
+    cout << " rank " << grid->rank_in_row << " completed image data storing for all trees" << endl;
 
 
     for (int k = 0; k < this->ntrees; k++)
@@ -655,10 +655,10 @@ public:
     }
 
     MPI_Alltoallv (send_indices, send_indices_count, disps_indices_count, MPI_INDEX_TYPE, receive_indices,
-                  recev_indices_count, recev_disps_count, MPI_INDEX_TYPE, MPI_COMM_WORLD);
+                  recev_indices_count, recev_disps_count, MPI_INDEX_TYPE, grid->row_world);
 
     MPI_Alltoallv (send_values, send_values_count, disps_values_count, MPI_VALUE_TYPE, receive_values,
-                  recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, MPI_COMM_WORLD);
+                  recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, grid->row_world);
 
     my_start_count = leafs_per_node * grid->rank_in_row;
     if (grid->rank_in_row < grid->row_world_size - 1)
