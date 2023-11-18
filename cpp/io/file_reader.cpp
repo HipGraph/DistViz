@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 
-Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path, int no_of_images,
+Eigen::MatrixXf hipgraph::distviz::io::FileReader::load_data(string file_path, int no_of_images,
                                                          int dimension, int rank, int world_size) {
   // Read the file
   std::ifstream file(file_path, std::ios::binary);
@@ -51,7 +51,7 @@ Eigen::MatrixXf hipgraph::distviz::FileReader::load_data(string file_path, int n
   return matrix;
 }
 
-int hipgraph::distviz::FileReader::reverse_int (int i)
+int hipgraph::distviz::io::FileReader::reverse_int (int i)
 {
   unsigned char ch1, ch2, ch3, ch4;
   ch1 = i & 255;
