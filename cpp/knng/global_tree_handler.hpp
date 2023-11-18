@@ -64,7 +64,7 @@ public:
     this->trees_leaf_first_indices_rearrange = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE> > >>(ntrees);
     this->trees_leaf_first_indices_all = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
 
-    this->starting_data_index = (this->global_data_set_size / grid->row_world_size) * grid->rank_in_row;
+    this->starting_data_index = (this->global_data_set_size / grid->col_world_size) * grid->rank_in_col;
 
     this->grid = grid;
   }
@@ -136,7 +136,7 @@ public:
     int total_split_size = 1 << (this->tree_depth + 1);
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-    cout << " rank " << grid->rank_in_row << " start initial tree growing" << endl;
+    cout << " rank " << grid->rank_in_col << " start initial tree growing" << endl;
 
     this->index_to_tree_leaf_mapper = vector<vector<INDEX_TYPE>>(this->local_dataset_size);
 
@@ -174,7 +174,7 @@ public:
       }
     }
 
-    cout << " rank " << grid->rank_in_row << " completed image data storing for all trees" << endl;
+    cout << " rank " << grid->rank_in_col << " completed image data storing for all trees" << endl;
 
 
     for (int k = 0; k < this->ntrees; k++)
@@ -240,7 +240,7 @@ public:
     VALUE_TYPE *result = mathOp_ptr.get()->distributed_median (data, local_data_row_count, current_nodes,
                                                    global_data_row_count,
                                                    no_of_bins,
-                                                   StorageFormat::RAW, grid->rank_in_row);
+                                                   StorageFormat::RAW, grid->rank_in_col);
 
     for (int i = 0; i < current_nodes; i++)
     {
@@ -329,16 +329,16 @@ public:
     int total_sending = this->ntrees * total_leaf_size * this->ntrees;
     int *my_sending_leafs = new int[total_sending] ();
 
-    int total_receiving = this->ntrees * total_leaf_size * this->ntrees * grid->row_world_size;
+    int total_receiving = this->ntrees * total_leaf_size * this->ntrees * grid->col_world_size;
 
     int *total_receiving_leafs = new int[total_receiving] ();
 
-    int *send_count = new int[grid->row_world_size] ();
-    int *disps_send = new int[grid->row_world_size] ();
-    int *recieve_count = new int[grid->row_world_size] ();
-    int *disps_recieve = new int[grid->row_world_size] ();
+    int *send_count = new int[grid->col_world_size] ();
+    int *disps_send = new int[grid->col_world_size] ();
+    int *recieve_count = new int[grid->col_world_size] ();
+    int *disps_recieve = new int[grid->col_world_size] ();
 
-    for (int i = 0; i < grid->row_world_size; i++)
+    for (int i = 0; i < grid->col_world_size; i++)
     {
       send_count[i] = total_sending;
       disps_send[i] = 0;
@@ -431,13 +431,13 @@ public:
       }
 
       vector<int> vec;
-      for (int p = 0; p < grid->row_world_size; p++)
+      for (int p = 0; p < grid->col_world_size; p++)
       {
         int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
         int value = total_receiving_leafs[id];
         vec.push_back (value);
       }
-      sortByFreq (vec, candidate_mapping[j][k][m], grid->row_world_size);
+      sortByFreq (vec, candidate_mapping[j][k][m], grid->col_world_size);
     }
 
 
@@ -481,19 +481,19 @@ public:
   void derive_global_datavector_sizes(vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>> &child_data_tracker,
                                       vector<int> &global_size_vector,int current_nodes, int next_split) {
     // Displacements in the receive buffer for MPI_GATHERV
-    int *disps = new int[grid->row_world_size];
+    int *disps = new int[grid->col_world_size];
 
     // Displacement for the first chunk of data - 0
-    for (int i = 0; i < grid->row_world_size; i++)
+    for (int i = 0; i < grid->col_world_size; i++)
     {
       disps[i] = (i > 0) ? (disps[i - 1] + 2 * current_nodes) : 0;
     }
 
-    int *total_counts = new int[2 * grid->row_world_size * current_nodes]();
+    int *total_counts = new int[2 * grid->col_world_size * current_nodes]();
 
-    int *process_counts = new int[grid->row_world_size]();
+    int *process_counts = new int[grid->col_world_size]();
 
-    for (int k = 0; k < grid->row_world_size; k++)
+    for (int k = 0; k < grid->col_world_size; k++)
     {
       process_counts[k] = 2 * current_nodes;
     }
@@ -511,7 +511,7 @@ public:
       int left_totol = 0;
       int right_total = 0;
       int id = (next_split + 2 * j);
-      for (int k = 0; k < grid->row_world_size; k++)
+      for (int k = 0; k < grid->col_world_size; k++)
       {
 
         left_totol = left_totol + total_counts[2 * j + k * current_nodes * 2];
@@ -534,7 +534,7 @@ public:
     int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
 
-    int leafs_per_node = total_leaf_size / grid->row_world_size;
+    int leafs_per_node = total_leaf_size / grid->col_world_size;
 
 
     //  cout<<" rank "<<rank<<" total_leaf_size "<<total_leaf_size<< " leafs per node "<<leafs_per_node<<endl;
@@ -549,10 +549,10 @@ public:
 
     int sum_per_node = 0;
     int process = 0;
-    int *send_indices_count = new int[grid->row_world_size]();
-    int *disps_indices_count = new int[grid->row_world_size]();
-    int *send_values_count = new int[grid->row_world_size]();
-    int *disps_values_count = new int[grid->row_world_size]();
+    int *send_indices_count = new int[grid->col_world_size]();
+    int *disps_indices_count = new int[grid->col_world_size]();
+    int *send_values_count = new int[grid->col_world_size]();
+    int *disps_values_count = new int[grid->col_world_size]();
 
     int my_total = 0;
     for (int i = 0; i < total_leaf_size; i++)
@@ -580,16 +580,16 @@ public:
                  MPI_INT, MPI_COMM_WORLD);
 
     int *total_leaf_count = new int[leafs_per_node]();
-    int *recev_indices_count = new int[grid->row_world_size]();
-    int *recev_values_count = new int[grid->row_world_size]();
-    int *recev_disps_count = new int[grid->row_world_size]();
-    int *recev_disps_values_count = new int[grid->row_world_size]();
+    int *recev_indices_count = new int[grid->col_world_size]();
+    int *recev_values_count = new int[grid->col_world_size]();
+    int *recev_disps_count = new int[grid->col_world_size]();
+    int *recev_disps_values_count = new int[grid->col_world_size]();
 
     int total_sum = 0;
     for (int j = 0; j < leafs_per_node; j++)
     {
       int count = 0;
-      for (int i = 0; i < grid->row_world_size; i++)
+      for (int i = 0; i < grid->col_world_size; i++)
       {
         count += recv_counts[j + i * leafs_per_node];
       }
@@ -597,7 +597,7 @@ public:
       total_sum += count;
     }
 
-    for (int i = 0; i < grid->row_world_size; i++)
+    for (int i = 0; i < grid->col_world_size; i++)
     {
       int count = 0;
       for (int j = 0; j < leafs_per_node; j++)
@@ -609,7 +609,7 @@ public:
 
     }
 
-    for (int i = 0; i < grid->row_world_size; i++)
+    for (int i = 0; i < grid->col_world_size; i++)
     {
       disps_indices_count[i] = (i > 0) ? (disps_indices_count[i - 1] + send_indices_count[i - 1]) : 0;
       recev_disps_count[i] = (i > 0) ? (recev_disps_count[i - 1] + recev_indices_count[i - 1]) : 0;
@@ -654,30 +654,30 @@ public:
     }
 
     MPI_Alltoallv (send_indices, send_indices_count, disps_indices_count, MPI_INDEX_TYPE, receive_indices,
-                  recev_indices_count, recev_disps_count, MPI_INDEX_TYPE, grid->row_world);
+                  recev_indices_count, recev_disps_count, MPI_INDEX_TYPE, grid->col_world);
 
     MPI_Alltoallv (send_values, send_values_count, disps_values_count, MPI_VALUE_TYPE, receive_values,
-                  recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, grid->row_world);
+                  recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, grid->col_world);
 
-    my_start_count = leafs_per_node * grid->rank_in_row;
-    if (grid->rank_in_row < grid->row_world_size - 1)
+    my_start_count = leafs_per_node * grid->rank_in_col;
+    if (grid->rank_in_col < grid->col_world_size - 1)
     {
-      end_count = leafs_per_node * (grid->rank_in_row + 1);
+      end_count = leafs_per_node * (grid->rank_in_col + 1);
     }
     else
     {
       end_count = total_leaf_size;
     }
 
-    vector<int> process_read_offsets (grid->row_world_size);
-    vector<int> process_read_offsets_value (grid->row_world_size);
+    vector<int> process_read_offsets (grid->col_world_size);
+    vector<int> process_read_offsets_value (grid->col_world_size);
     vector <vector<DataNode<INDEX_TYPE,VALUE_TYPE>>> all_leaf_nodes (leafs_per_node);
 
     for (int i = 0; i < leafs_per_node; i++)
     {
       vector <DataNode<INDEX_TYPE,VALUE_TYPE>> datavec (total_leaf_count[i]);
       int testcr = 0;
-      for (int j = 0; j < grid->row_world_size; j++)
+      for (int j = 0; j < grid->col_world_size; j++)
       {
         int count_per_leaf_per_node = recv_counts[i + j * leafs_per_node];
         int read_offset = recev_disps_count[j];

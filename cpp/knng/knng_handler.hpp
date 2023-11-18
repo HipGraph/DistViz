@@ -36,17 +36,17 @@ private:
   std::map<int, vector<VALUE_TYPE>> datamap;
 
   int *receive_random_seeds(int seed) {
-    int* receive = new int[grid->row_world_size]();
-    if (grid->rank_in_row== 0) {
-      for (int i = 0; i < size; i++)
+    int* receive = new int[grid->col_world_size]();
+    if (grid->rank_in_col== 0) {
+      for (int i = 0; i < grid->col_world_size; i++)
       {
         std::random_device rd;
         int seed = rd();
         receive[i] = seed;
       }
-      MPI_Bcast(receive, size, MPI_INT, grid->rank_in_row, grid->row_world);
+      MPI_Bcast(receive, grid->col_world_size, MPI_INT, grid->rank_in_col, grid->col_world);
     } else {
-      MPI_Bcast(receive, size, MPI_INT, NULL, grid->row_world);
+      MPI_Bcast(receive, grid->col_world_size, MPI_INT, NULL, grid->col_world);
     }
     return receive;
   }
@@ -64,7 +64,7 @@ public:
     this->ntrees = ntrees;
     this->tree_depth_ratio = tree_depth_ratio;
     this->trees_leaf_all = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
-    this->index_distribution = vector<set<int>>(grid->row_world_size);
+    this->index_distribution = vector<set<int>>(grid->col_world_size);
     this->local_tree_offset = local_tree_offset;
   }
 
@@ -79,7 +79,7 @@ public:
     int* receive = this->receive_random_seeds(1);
 
     // build global sparse random project matrix for all trees
-    VALUE_TYPE* B = mathOp_ptr.get()->.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
+    VALUE_TYPE* B = mathOp_ptr.get()->.build_sparse_projection_matrix(grid->rank_in_col, grid->col_world_size, this->data_dimension,
                                                           global_tree_depth * this->ntrees, density, receive[0]);
 
     // get the matrix projection
