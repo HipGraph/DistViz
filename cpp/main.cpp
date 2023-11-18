@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
   auto stop_io_index = high_resolution_clock::now();
   auto io_time = duration_cast<microseconds>(stop_io_index - start_io_index);
   auto knng_handler = unique_ptr<KNNGHandler<int,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
-                                                                                       local_tree_offset,  data_set_size,  data_matrix.size(),
+                                                                                       local_tree_offset,  data_set_size,  data_matrix->size(),
                                                                                       dimension,  grid.get()));
 
   knng_handler.get()->grow_trees(data_matrix,density,use_locality_optimization,nn);
