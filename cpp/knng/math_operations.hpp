@@ -67,7 +67,8 @@ class MathOp {
 
   }
 
-  VALUE_TYPE *convert_to_row_major_format(vector <vector<VALUE_TYPE>>* data) {
+  VALUE_TYPE *convert_to_row_major_format(vector<vector<VALUE_TYPE>>* data) {
+    cout<<": calling data "<<cols<<endl;
     if (data->empty()) {
       return (VALUE_TYPE *)malloc(0);
     }
@@ -98,6 +99,7 @@ class MathOp {
     }
     return arr;
   }
+
   VALUE_TYPE *distributed_mean(vector<VALUE_TYPE> &data, vector<int> local_rows,
 							   int local_cols,
 							   vector<int> total_elements_per_col,
