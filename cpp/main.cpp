@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 //  Eigen::MatrixXf q = Eigen::VectorXf::Random(d);
 
 
-  hipgraph::distviz::FileReader file_reader;
+  hipgraph::distviz::io::FileReader file_reader;
   Eigen::VectorXi indices(k),  indices_exact(k);
 
 //  Eigen::VectorXf distances(k);
