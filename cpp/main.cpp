@@ -172,6 +172,7 @@ int main(int argc, char* argv[]) {
                                                                                        local_tree_offset,  data_set_size,  data_matrix->size(),
                                                                                       dimension,  grid.get()));
 
+  std::cout << "calling grow trees"<< rank<< " "<<std::endl;
   knng_handler.get()->grow_trees(data_matrix,density,use_locality_optimization,nn);
 
   auto stop_index_building = high_resolution_clock::now();
