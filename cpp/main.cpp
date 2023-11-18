@@ -3,6 +3,7 @@
 #include "Eigen/Dense"
 #include "io/file_reader.hpp"
 #include <chrono>
+#include "knng/global_tree_handler.hpp"
 using namespace std;
 using namespace std::chrono;
 
