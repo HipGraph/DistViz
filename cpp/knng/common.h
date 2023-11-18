@@ -15,7 +15,7 @@ struct DataNode {
   vector<VALUE_TYPE> image_data;
 };
 
-template <typename VALUE_TYPE>
+template <typename INDEX_TYPE, typename VALUE_TYPE>
 struct  EdgeNode {
   INDEX_TYPE src_index;
   INDEX_TYPE dst_index;
