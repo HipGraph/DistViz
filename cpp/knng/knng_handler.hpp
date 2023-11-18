@@ -112,7 +112,8 @@ public:
       cout << " rank " << grid->rank_in_col << "  tree leaf correlation completed " << endl;
     }
 
-    vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>> leaf_nodes_of_trees(ntrees);
+    vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>> leaf_nodes_of_trees =
+        new vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
     // running the similar datapoint collection
@@ -122,6 +123,7 @@ public:
                                                                        this->index_distribution,this->datamap);
 
     }
+
 
     // get the global minimum value of a leaf
 //    int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
