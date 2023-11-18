@@ -62,7 +62,7 @@ public:
  }
 
 static void load_data_into_2D_vector(string file_path,ValueVector<VALUE_TYPE>* datamatrix,
-                                      int dimension, int rank, int world_size){
+                                      int no_of_datapoints,int dimension, int rank, int world_size){
 
   ifstream file (file_path, ios::binary);
   if (file.is_open ())
@@ -87,7 +87,7 @@ static void load_data_into_2D_vector(string file_path,ValueVector<VALUE_TYPE>* d
     }
     else if (rank == world_size - 1)
     {
-      chunk_size = no_of_images - chunk_size * (world_size - 1);
+      chunk_size = no_of_datapoints - chunk_size * (world_size - 1);
       datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dimension));
     }
 
@@ -112,7 +112,6 @@ static void load_data_into_2D_vector(string file_path,ValueVector<VALUE_TYPE>* d
     }
   }
   file.close ();
-  return &arr;
 }
 
 
