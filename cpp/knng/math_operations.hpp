@@ -137,7 +137,7 @@ class MathOp {
   }
 
   VALUE_TYPE *distributed_variance(vector<VALUE_TYPE> &data,vector<int> local_rows,
-                                   int cols,vector<int> total_elements_per_col,
+                                   int local_cols,vector<int> total_elements_per_col,
                                    StorageFormat format, int rank){
     VALUE_TYPE *means = this->distributed_mean (data, local_rows, local_cols, total_elements_per_col, format, rank);
     VALUE_TYPE *var = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * local_cols);
@@ -175,7 +175,7 @@ class MathOp {
 
   }
 
-  VALUE_TYPE *distributed_median(vector<VALUE_TYPE> &data,vector<int> local_rows, int cols,vector<int> total_elements_per_col,
+  VALUE_TYPE *distributed_median(vector<VALUE_TYPE> &data,vector<int> local_rows, int local_cols,vector<int> total_elements_per_col,
                                  int no_of_bins, StorageFormat format,int rank) {
 
 

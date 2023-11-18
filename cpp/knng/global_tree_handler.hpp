@@ -207,7 +207,7 @@ public:
     }
 
     //object for math operations
-    unique_ptr<MathOp<VALUE_TYPE,MPI_VALUE_TYPE>> mathOp_ptr;
+    unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr;
 
     vector<VALUE_TYPE> data(this->local_dataset_size);
 
@@ -259,7 +259,7 @@ public:
       //store median in tree_splits
       this->trees_splits[tree][split_starting_index + i] = median;
 
-      auto start_loop_compute_index = high_resolution_clock::now ();
+
       vector <DataNode<INDEX_TYPE,VALUE_TYPE>> left_childs_global;
       vector <DataNode<INDEX_TYPE,VALUE_TYPE>> right_childs_global;
       vector <DataNode<INDEX_TYPE,VALUE_TYPE>> data_vector = child_data_tracker[split_starting_index + i];
