@@ -119,7 +119,7 @@ public:
     return -1;
   }
 
-  void hipgraph::distviz::GlobalTreeHandler::grow_global_tree(vector<vector<VALUE_TYPE>> &data_points) {
+  void hipgraph::distviz::knng::GlobalTreeHandler::grow_global_tree(vector<vector<VALUE_TYPE>> &data_points) {
 
     if (this->tree_depth <= 0 || this->tree_depth > log2(this->local_dataset_size))
     {
@@ -136,7 +136,7 @@ public:
     int total_split_size = 1 << (this->tree_depth + 1);
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-    cout << " rank " << rank << " start initial tree growing" << endl;
+    cout << " rank " << grid->row_in_rank << " start initial tree growing" << endl;
 
     this->index_to_tree_leaf_mapper = vector<vector<INDEX_TYPE>>(this->local_dataset_size);
 
@@ -174,7 +174,7 @@ public:
       }
     }
 
-    cout << " rank " << rank << " completed image data storing for all trees" << endl;
+    cout << " rank " << grid->row_in_rank << " completed image data storing for all trees" << endl;
 
 
     for (int k = 0; k < this->ntrees; k++)
@@ -195,7 +195,7 @@ public:
   }
 
   void grow_global_subtree(vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>> &child_data_tracker,
-                           vector<int> &total_size_vector, int depth, int tree) {
+                           vector<int> &global_size_vector, int depth, int tree) {
     int current_nodes = (1 << (depth));
     int split_starting_index = (1 << (depth)) - 1;
     int next_split = (1 << (depth + 1)) - 1;
@@ -271,7 +271,7 @@ public:
           int index = data_vector[k].index;
 
           int selected_index = index - this->starting_data_index;
-          DataPoint selected_data = this->trees_data[tree][depth + 1][selected_index];
+          DataNode<INDEX_TYPE,VALUE_TYPE> selected_data = this->trees_data[tree][depth + 1][selected_index];
 
           if (data_vector[k].value <= median)
           {
@@ -701,7 +701,7 @@ public:
 
         for (int k = read_offset; k < process_read_offsets[j]; k++)
         {
-          DataPoint dataPoint;
+          DataNode<INDEX_TYPE,VALUE_TYPE> dataPoint;
           dataPoint.index = receive_indices[k];
 
           index_distribution[j].insert(dataPoint.index);
