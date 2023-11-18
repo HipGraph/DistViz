@@ -157,7 +157,7 @@ public:
 //    }
 
     // storing projected data
-#pragma  omp parallel for
+//#pragma  omp parallel for
     for (INDEX_TYPE j = 0; j < this->local_dataset_size; j++)
     {
 //      (*index_to_tree_leaf_mapper_ptr)[j] = vector<int> (ntrees);
@@ -170,7 +170,9 @@ public:
 
           dataPoint.value = projected_matrix[index];
           dataPoint.index = j + this->starting_data_index;
+          cout << " rank " << grid->rank_in_col << " before storing " << endl;
           (*trees_data_ptr)[k][i][j] = dataPoint;
+          cout << " rank " << grid->rank_in_col << " after storing " << endl;
         }
       }
     }
