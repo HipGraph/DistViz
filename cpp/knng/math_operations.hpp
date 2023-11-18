@@ -146,7 +146,7 @@ class MathOp {
     {
       var[i] = 0.0;
     }
-    if (format == drpt::StorageFormat::RAW)
+    if (format == StorageFormat::RAW)
     {
       int data_count_prev = 0;
       for (int i = 0; i < local_cols; i++)
@@ -176,7 +176,7 @@ class MathOp {
   }
 
   VALUE_TYPE *distributed_median(vector<VALUE_TYPE> &data,vector<int> local_rows, int cols,vector<int> total_elements_per_col,
-                                 int no_of_bins, drpt::StorageFormat format,int rank) {
+                                 int no_of_bins, StorageFormat format,int rank) {
 
 
     VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements_per_col, format, rank);

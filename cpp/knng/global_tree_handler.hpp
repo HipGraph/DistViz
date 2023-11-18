@@ -12,6 +12,7 @@
 #include <vector>
 #include "common.h"
 #include "math_operations.hpp"
+#include <memory>
 
 using namespace hipgraph::distviz::knng;
 using namespace  hipgraph::distviz::net;
