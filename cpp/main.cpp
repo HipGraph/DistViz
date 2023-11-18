@@ -7,6 +7,7 @@
 using namespace std;
 using namespace std::chrono;
 
+using namespace hipgraph::distviz::io;
 int main(int argc, char* argv[]) {
 
   string input_path = "";
@@ -27,13 +28,12 @@ int main(int argc, char* argv[]) {
 //  Eigen::MatrixXf q = Eigen::VectorXf::Random(d);
 
 
-  hipgraph::distviz::io::FileReader file_reader;
   Eigen::VectorXi indices(k),  indices_exact(k);
 
 //  Eigen::VectorXf distances(k);
 
   std::cout << "calling data loading"<< std::endl;
-  Eigen::MatrixXf X_trans = file_reader.load_data(input_path,60000,784,0,1);
+  Eigen::MatrixXf X_trans = FileReader<float>::load_data(input_path,60000,784,0,1);
 
   Eigen::MatrixXf X = X_trans.transpose();
 
