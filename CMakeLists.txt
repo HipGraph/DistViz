@@ -44,7 +44,8 @@ add_library(disviz_lib SHARED
              cpp/knng/common.h
              cpp/knng/global_tree_handler.hpp
              cpp/net/process_3D_grid.hpp
-             cpp/net/process_3D_grid.cpp)
+             cpp/net/process_3D_grid.cpp
+             cpp/knng/math_operations.hpp)
 
 SET(BUILD_TESTS "" ON)
 
