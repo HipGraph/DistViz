@@ -60,7 +60,7 @@ public:
    return matrix;
  }
 
-static vector<vector<VALUE_TYPE>> load_data_into_2D_vector(string file_path, int no_of_images,
+static vector<vector<VALUE_TYPE>>* load_data_into_2D_vector(string file_path, int no_of_images,
                                              int dimension, int rank, int world_size){
   vector <vector<VALUE_TYPE>> arr;
 
@@ -112,7 +112,7 @@ static vector<vector<VALUE_TYPE>> load_data_into_2D_vector(string file_path, int
     }
   }
   file.close ();
-  return arr;
+  return &arr;
 }
 
 

@@ -127,7 +127,7 @@ public:
     return -1;
   }
 
-  void grow_global_tree(vector<vector<VALUE_TYPE>> &data_points) {
+  void grow_global_tree(vector<vector<VALUE_TYPE>>* data_points) {
 
     if (tree_depth <= 0 || tree_depth > log2(local_dataset_size))
     {
