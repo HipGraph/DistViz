@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <vector>
 #include "common.h"
+#include "math_operations.hpp"
 
 using namespace hipgraph::distviz::knng;
 using namespace  hipgraph::distviz::net;
@@ -205,7 +206,7 @@ public:
     }
 
     //object for math operations
-    MathOp mathOp;
+    unique_ptr<MathOp<VALUE_TYPE,MPI_VALUE_TYPE>> mathOp_ptr;
 
     vector<VALUE_TYPE> data(this->local_dataset_size);
 
@@ -237,10 +238,10 @@ public:
     int no_of_bins = 7;
 
     //calculation of distributed median
-    VALUE_TYPE *result = mathOp.distributed_median (data, local_data_row_count, current_nodes,
+    VALUE_TYPE *result = mathOp_ptr.get()->distributed_median (data, local_data_row_count, current_nodes,
                                                    global_data_row_count,
                                                    no_of_bins,
-                                                   drpt::StorageFormat::RAW, grid->rank_in_row);
+                                                   StorageFormat::RAW, grid->rank_in_row);
 
     for (int i = 0; i < current_nodes; i++)
     {
@@ -530,7 +531,6 @@ public:
 
   vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>> collect_similar_data_points(int tree, bool use_data_locality_optimization,
                               vector<set<INDEX_TYPE>> &index_distribution,std::map<INDEX_TYPE, vector<VALUE_TYPE>> &datamap) {
-    drpt::MathOp mathOp;
 
     int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 

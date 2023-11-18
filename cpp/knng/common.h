@@ -30,6 +30,7 @@ vector <T> slice (vector<T> const &v, int m, int n) {
   return vec;
 }
 
+enum class StorageFormat { RAW, COLUMN };
 
 template<class T, class X>
 void sortByFreq (std::vector<T> &v, std::vector<X> &vec, int world_size)
