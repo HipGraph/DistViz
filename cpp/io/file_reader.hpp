@@ -66,7 +66,7 @@ static vector<vector<VALUE_TYPE>> load_data_into_2D_vector(string file_path, int
                                              int dimension, int rank, int world_size){
   vector <vector<VALUE_TYPE>> arr;
 
-  ifstream file (path, ios::binary);
+  ifstream file (file_path, ios::binary);
   if (file.is_open ())
   {
     int magic_number = 0;
@@ -118,7 +118,14 @@ static vector<vector<VALUE_TYPE>> load_data_into_2D_vector(string file_path, int
 }
 
 
-static int reverse_int (int i);
+static int reverse_int (int i){
+  unsigned char ch1, ch2, ch3, ch4;
+  ch1 = i & 255;
+  ch2 = (i >> 8) & 255;
+  ch3 = (i >> 16) & 255;
+  ch4 = (i >> 24) & 255;
+  return ((int) ch1 << 24) + ((int) ch2 << 16) + ((int) ch3 << 8) + ch4;
+}
 
 };
 }
