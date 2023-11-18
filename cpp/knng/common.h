@@ -6,6 +6,14 @@
 
 namespace hipgraph::distviz::knng {
 
+template <typename INDEX_TYPE, typename VALUE_TYPE>
+using DataNodeVector = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>;
+
+template <typename VALUE_TYPE>
+using ValueVector = vector<vector<VALUE_TYPE>>;
+
+using IntVector = vector<vector<int>>;
+
 struct index_distance_pair
 {
   float distance;

@@ -3,9 +3,10 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include "../knng/common.h"
 
 using namespace std;
-
+using namespace hipgraph::distviz::knng;
 namespace hipgraph::distviz::io {
 template <typename VALUE_TYPE>
 class FileReader {
@@ -60,9 +61,8 @@ public:
    return matrix;
  }
 
-static vector<vector<VALUE_TYPE>>* load_data_into_2D_vector(string file_path, int no_of_images,
-                                             int dimension, int rank, int world_size){
-  vector <vector<VALUE_TYPE>> arr;
+static void load_data_into_2D_vector(string file_path,ValueVector* datamatrix,
+                                      int dimension, int rank, int world_size){
 
   ifstream file (file_path, ios::binary);
   if (file.is_open ())
@@ -83,12 +83,12 @@ static vector<vector<VALUE_TYPE>>* load_data_into_2D_vector(string file_path, in
     int chunk_size = number_of_images / world_size;
     if (rank < world_size - 1)
     {
-      arr.resize (chunk_size, vector<VALUE_TYPE> (dimension));
+      datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dimension));
     }
     else if (rank == world_size - 1)
     {
       chunk_size = no_of_images - chunk_size * (world_size - 1);
-      arr.resize (chunk_size, vector<VALUE_TYPE> (dimension));
+      datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dimension));
     }
 
     for (int i = 0; i < number_of_images; ++i)
@@ -101,11 +101,11 @@ static vector<vector<VALUE_TYPE>>* load_data_into_2D_vector(string file_path, in
           file.read ((char *) &temp, sizeof (temp));
           if (i >= rank * chunk_size and i < (rank + 1) * chunk_size and rank < world_size - 1)
           {
-            arr[i - rank * chunk_size][(n_rows * r) + c] = (VALUE_TYPE) temp;
+            (*datamatrix)[i - rank * chunk_size][(n_rows * r) + c] = (VALUE_TYPE) temp;
           }
           else if (rank == world_size - 1 && i >= (rank) * chunk_size)
           {
-            arr[i - rank * chunk_size][(n_rows * r) + c] = (VALUE_TYPE) temp;
+            (*datamatrix)[i - rank * chunk_size][(n_rows * r) + c] = (VALUE_TYPE) temp;
           }
         }
       }

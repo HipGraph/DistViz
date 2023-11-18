@@ -162,20 +162,22 @@ int main(int argc, char* argv[]) {
 //  Eigen::VectorXf distances(k);
   auto start_io_index = high_resolution_clock::now();
   std::cout << "calling data loading"<< rank<< " "<<std::endl;
-  vector<vector<float>>* data_matrix = FileReader<float>::
-      load_data_into_2D_vector(input_path,data_set_size,dimension,grid.get()->rank_in_col,grid.get()->col_world_size);
+  unique_ptr<vector<vector<float>>> data_matrix_ptr= make_unique<ValueVector<float>>();;
+  vector<vector<float>>* data_matrix_ptr = FileReader<float>::
+      load_data_into_2D_vector(input_path,data_matrix_ptr.get(),data_set_size,dimension,grid.get()->rank_in_col,grid.get()->col_world_size);
   MPI_Barrier(MPI_COMM_WORLD);
   std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
   auto stop_io_index = high_resolution_clock::now();
   auto io_time = duration_cast<microseconds>(stop_io_index - start_io_index);
-  data_matrix->size();
+  data_matrix_ptr.get()->size();
   std::cout << "calling KNNGHandler "<<rank<<" size  "<<data_matrix->size()<<std::endl;
   auto knng_handler = unique_ptr<KNNGHandler<int,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
-                                                                                       local_tree_offset,  data_set_size,  data_matrix->size(),
+                                                                                       local_tree_offset,  data_set_size,
+                                                                                      data_matrix_ptr.get()->size(),
                                                                                       dimension,  grid.get()));
 
   std::cout << "calling grow trees"<< rank<< " "<<std::endl;
-  knng_handler.get()->grow_trees(data_matrix,density,use_locality_optimization,nn);
+  knng_handler.get()->grow_trees(data_matrix_ptr.get(),density,use_locality_optimization,nn);
 
   auto stop_index_building = high_resolution_clock::now();
 
