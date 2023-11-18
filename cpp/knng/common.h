@@ -4,6 +4,8 @@
 #define MPI_VALUE_TYPE MPI_FLOAT
 #define MPI_INDEX_TYPE MPI_INT
 
+#include <vector>
+using namespace std;
 namespace hipgraph::distviz::knng {
 
 template <typename INDEX_TYPE, typename VALUE_TYPE>
