@@ -13,7 +13,7 @@
 #include "common.h"
 
 using namespace hipgraph::distviz::knng;
-using namespace  hipgraph::distviz::grid;
+using namespace  hipgraph::distviz::net;
 
 namespace hipgraph::distviz::knng {
 
