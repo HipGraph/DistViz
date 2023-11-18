@@ -8,14 +8,6 @@
 using namespace std;
 namespace hipgraph::distviz::knng {
 
-template <typename INDEX_TYPE, typename VALUE_TYPE>
-using DataNodeVector = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>;
-
-template <typename VALUE_TYPE>
-using ValueVector = vector<vector<VALUE_TYPE>>;
-
-using IntVector = vector<vector<int>>;
-
 struct index_distance_pair
 {
   float distance;
@@ -97,7 +89,13 @@ bool all_equal(std::vector<T> const& v)
   return std::adjacent_find(v.begin(), v.end(), std::not_equal_to<T>()) == v.end();
 }
 
+template <typename INDEX_TYPE, typename VALUE_TYPE>
+using DataNodeVector = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>;
 
+template <typename VALUE_TYPE>
+using ValueVector = vector<vector<VALUE_TYPE>>;
+
+using IntVector = vector<vector<int>>;
 
 }
 
