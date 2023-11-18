@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace hipgraph::distviz {
+namespace hipgraph::distviz::io {
 class FileReader {
 
 public:

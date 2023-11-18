@@ -40,7 +40,11 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 add_library(disviz_lib SHARED
              cpp/io/file_reader.hpp
              cpp/io/file_reader.cpp
-             cpp/lib/Mrpt.h)
+             cpp/lib/Mrpt.h
+             cpp/knng/common.h
+             cpp/knng/global_tree_handler.hpp
+             cpp/net/process_3D_grid.hpp
+             cpp/net/process_3D_grid.cpp)
 
 SET(BUILD_TESTS "" ON)
 
