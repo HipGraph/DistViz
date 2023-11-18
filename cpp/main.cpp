@@ -161,10 +161,11 @@ int main(int argc, char* argv[]) {
 
 //  Eigen::VectorXf distances(k);
   auto start_io_index = high_resolution_clock::now();
-  std::cout << "calling data loading"<< std::endl;
+  std::cout << "calling data loading"<< rank<< " "<<std::endl;
   vector<vector<float>>* data_matrix = FileReader<float>::
       load_data_into_2D_vector(input_path,data_set_size,dimension,grid.get()->rank_in_col,grid.get()->col_world_size);
   MPI_Barrier(MPI_COMM_WORLD);
+  std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
   auto stop_io_index = high_resolution_clock::now();
   auto io_time = duration_cast<microseconds>(stop_io_index - start_io_index);
   auto knng_handler = unique_ptr<KNNGHandler<int,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
