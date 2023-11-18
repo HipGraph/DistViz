@@ -74,13 +74,13 @@ static vector<vector<VALUE_TYPE>> load_data_into_2D_vector(string file_path, int
     int n_rows = 0;
     int n_cols = 0;
     file.read ((char *) &magic_number, sizeof (magic_number));
-    magic_number = this->reverse_int (magic_number);
+    magic_number = reverse_int (magic_number);
     file.read ((char *) &number_of_images, sizeof (number_of_images));
-    number_of_images = this->reverse_int (number_of_images);
+    number_of_images = reverse_int (number_of_images);
     file.read ((char *) &n_rows, sizeof (n_rows));
-    n_rows = this->reverse_int (n_rows);
+    n_rows = reverse_int (n_rows);
     file.read ((char *) &n_cols, sizeof (n_cols));
-    n_cols = this->reverse_int (n_cols);
+    n_cols = reverse_int (n_cols);
 
     int chunk_size = number_of_images / world_size;
     if (rank < world_size - 1)
