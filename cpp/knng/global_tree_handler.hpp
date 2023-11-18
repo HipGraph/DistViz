@@ -141,26 +141,26 @@ public:
 
     index_to_tree_leaf_mapper_ptr = make_unique<vector<vector<int>>>(local_dataset_size);
 
-//    for (int k = 0; k < this->ntrees; k++)
-//    {
-//      this->trees_splits[k] = vector<VALUE_TYPE> (total_split_size);
-//      this->trees_data[k] = vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>(this->tree_depth);
-//      this->trees_leaf_first_indices[k] = vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>> (total_child_size);
-//      this->trees_leaf_first_indices_all[k] = vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>> (total_child_size);
-//      this->trees_leaf_first_indices_rearrange[k] = vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE> >> (total_child_size);
-//
-//#pragma  omp parallel for
-//      for (int i = 0; i < this->tree_depth; i++)
-//      {
-//        this->trees_data[k][i] = vector<DataNode<INDEX_TYPE,VALUE_TYPE>> (this->local_dataset_size);
-//      }
-//    }
+    for (int k = 0; k < this->ntrees; k++)
+    {
+      (*trees_splits_ptr)[k] = vector<VALUE_TYPE> (total_split_size);
+      (*trees_data_ptr)[k] = vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>(this->tree_depth);
+      (*trees_leaf_first_indices_ptr)[k] = vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>> (total_child_size);
+      (*trees_leaf_first_indices_all_ptr)[k] = vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>> (total_child_size);
+      (*trees_leaf_first_indices_rearrange_ptr)[k] = vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE> >> (total_child_size);
+
+#pragma  omp parallel for
+      for (int i = 0; i < this->tree_depth; i++)
+      {
+        (*trees_data_ptr)[k][i] = vector<DataNode<INDEX_TYPE,VALUE_TYPE>> (this->local_dataset_size);
+      }
+    }
 
     // storing projected data
-//#pragma  omp parallel for
+#pragma  omp parallel for
     for (INDEX_TYPE j = 0; j < this->local_dataset_size; j++)
     {
-//      (*index_to_tree_leaf_mapper_ptr)[j] = vector<int> (ntrees);
+      (*index_to_tree_leaf_mapper_ptr)[j] = vector<int> (ntrees);
       for (int k = 0; k < ntrees; k++)
       {
         for (int i = 0; i < tree_depth; i++)
