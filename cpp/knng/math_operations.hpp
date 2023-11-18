@@ -67,13 +67,13 @@ class MathOp {
 
   }
 
-  VALUE_TYPE *convert_to_row_major_format(vector <vector<VALUE_TYPE>> &data) {
+  VALUE_TYPE *convert_to_row_major_format(vector <vector<VALUE_TYPE>>* data) {
     if (data.empty()) {
       return (VALUE_TYPE *)malloc(0);
     }
 
-    int cols = data.size();
-    int rows = data[0].size();
+    int cols = data->size();
+    int rows = (*data)[0].size();
     int total_size = cols * rows;
 
     VALUE_TYPE *arr = (VALUE_TYPE *)malloc(sizeof(VALUE_TYPE) * total_size);
@@ -88,7 +88,7 @@ class MathOp {
 #pragma omp parallel for
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        arr[j + i * cols] = data[j][i];
+        arr[j + i * cols] = (*data)[j][i];
       }
     }
     return arr;
