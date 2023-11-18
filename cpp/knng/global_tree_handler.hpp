@@ -64,7 +64,7 @@ public:
     this->trees_leaf_first_indices_rearrange = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE> > >>(ntrees);
     this->trees_leaf_first_indices_all = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
 
-    this->starting_data_index = (this->global_data_set_size / grid->col_world_size) * grid->rank_in_col;
+    this->starting_data_index = (this->global_dataset_size / grid->col_world_size) * grid->rank_in_col;
 
     this->grid = grid;
   }
@@ -449,7 +449,7 @@ public:
       {
         int current_tree = m == 0 ? 0 : m - 1;
         prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
-                                          total_leaf_size, this->rank);
+                                          total_leaf_size, grid->rank_in_col);
       }
     }
 
@@ -500,8 +500,8 @@ public:
     for (int j = 0; j < current_nodes; j++)
     {
       int id = (next_split + 2 * j);
-      total_counts[2 * j + this->rank * current_nodes * 2] = child_data_tracker[id].size ();
-      total_counts[2 * j + 1 + this->rank * current_nodes * 2] = child_data_tracker[id + 1].size ();
+      total_counts[2 * j + grid->rank_in_col * current_nodes * 2] = child_data_tracker[id].size ();
+      total_counts[2 * j + 1 + grid->rank_in_col * current_nodes * 2] = child_data_tracker[id + 1].size ();
     }
 
     MPI_Allgatherv (MPI_IN_PLACE, 0, MPI_INT, total_counts, process_counts, disps, MPI_INT, MPI_COMM_WORLD);
