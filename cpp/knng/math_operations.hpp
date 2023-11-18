@@ -68,7 +68,7 @@ class MathOp {
   }
 
   VALUE_TYPE *convert_to_row_major_format(vector <vector<VALUE_TYPE>>* data) {
-    if (data.empty()) {
+    if (data->empty()) {
       return (VALUE_TYPE *)malloc(0);
     }
 

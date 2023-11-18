@@ -45,7 +45,7 @@ private:
   unique_ptr<vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>> trees_leaf_first_indices_all_ptr;
   unique_ptr<vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>> trees_leaf_first_indices_ptr;
 
-  shared_ptr<vector<vector<VALUE_TYPE>>> data_points_ptr;
+  vector<vector<VALUE_TYPE>>* data_points_ptr;
 
   unique_ptr<vector<vector<int>>> index_to_tree_leaf_mapper_ptr;
 
@@ -360,7 +360,7 @@ public:
       {
         correlation_matrix[tree][leaf] = vector < vector < float >> (ntrees);
         candidate_mapping[tree][leaf] = vector < vector < LeafPriority >> (ntrees);
-        vector <DataNode<INDEX_TYPE,VALUE_TYPE>> data_points = this->trees_leaf_first_indices[tree][leaf];
+        vector <DataNode<INDEX_TYPE,VALUE_TYPE>> data_points = (*trees_leaf_first_indices_ptr)[tree][leaf];
         for (int j = 0; j < ntrees; j++)
         {
           correlation_matrix[tree][leaf][j] = vector<float> (total_leaf_size, 0);
@@ -463,7 +463,7 @@ public:
       {
         int leaf_index = final_tree_leaf_mapping[k][i];
         //clustered data is stored in the rearranged tree leaves.
-        this->trees_leaf_first_indices_rearrange[i][k] = (*trees_leaf_first_indices_ptr)[i][leaf_index];
+        (*trees_leaf_first_indices_rearrange_ptr)[i][k] = (*trees_leaf_first_indices_ptr)[i][leaf_index];
       }
     }
 
@@ -727,7 +727,7 @@ public:
       }
 
       int id = i + my_start_count;
-      this->trees_leaf_first_indices_all[tree][id] = datavec;
+      (*trees_leaf_first_indices_all_ptr)[tree][id] = datavec;
       all_leaf_nodes[i] = datavec;
     }
 
