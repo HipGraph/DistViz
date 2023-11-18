@@ -69,7 +69,7 @@ public:
   }
 
   void grow_trees(vector<vector<VALUE_TYPE>>* original_data, float density, bool use_locality_optimization, int nn) {
-
+    cout << " rank " << grid->rank_in_col << " calling grow trees" << endl;
     unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr; //class uses for math operations
     VALUE_TYPE* row_data_array = mathOp_ptr.get()->convert_to_row_major_format(original_data); // this algorithm assumes row major format for operations
     cout << " rank " << grid->rank_in_col << " row major conversion completed" << endl;
