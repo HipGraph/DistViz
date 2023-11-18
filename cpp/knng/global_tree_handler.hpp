@@ -1,6 +1,4 @@
-#ifndef DISTRIBUTED_MRPT_DRPT_GLOBAL_H
-#define DISTRIBUTED_MRPT_DRPT_GLOBAL_H
-
+#pragma once
 #include "../net/process_3D_grid.hpp"
 #include <cblas.h>
 #include <map>
@@ -746,4 +744,3 @@ public:
 };
 }
 
-#endif // DISTRIBUTED_MRPT_DRPT_GLOBAL_H

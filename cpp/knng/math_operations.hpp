@@ -1,5 +1,4 @@
-#ifndef DISTRIBUTED_MRPT_MATRIX_MULTIPLY_H
-#define DISTRIBUTED_MRPT_MATRIX_MULTIPLY_H
+#pragma once
 #include <cblas.h>
 #include <mpi.h>
 #include <omp.h>
@@ -315,5 +314,3 @@ class MathOp {
 
 };
 }
-
-#endif // DISTRIBUTED_MRPT_MATRIX_MULTIPLY_H

@@ -1,6 +1,4 @@
-#ifndef DISTVIZ_CPP_FILE_READER_H_
-#define DISTVIZ_CPP_FILE_READER_H_
-
+#pragma once
 #include "Eigen/Dense"
 #include <string>
 #include <fstream>
@@ -130,4 +128,3 @@ static int reverse_int (int i){
 };
 }
 
-#endif // DISTVIZ_CPP_FILE_READER_H_

@@ -1,6 +1,4 @@
-#ifndef DISTRIBUTED_MRPT_MDRPT_H
-#define DISTRIBUTED_MRPT_MDRPT_H
-
+#pragma once
 #include "../net/process_3D_grid.hpp"
 #include "global_tree_handler.hpp"
 #include <algorithm>
@@ -136,4 +134,4 @@ public:
 };
 } // namespace hipgraph::distviz::knng
 
-#endif // DISTRIBUTED_MRPT_MDRPT_H
+
