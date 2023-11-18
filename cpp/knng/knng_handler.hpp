@@ -89,7 +89,7 @@ public:
                                         1.0);
 
     // creating DRPTGlobal class
-    GlobalTreeHandler<INDEX_TYPE,VALUE_TYPE> drpt_global = GlobalTreeHandler(P,
+    GlobalTreeHandler<INDEX_TYPE,VALUE_TYPE> drpt_global = GlobalTreeHandler<INDEX_TYPE,VALUE_TYPE>(P,
                                                     B,this->grid,
                                                     this->local_data_set_size,
                                                     this->data_dimension,
@@ -124,7 +124,7 @@ public:
     }
 
     // get the global minimum value of a leaf
-    int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
+//    int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
 
     //        cout << " rank " << rank << " global_minimum  "<<global_minimum<< endl;
 
