@@ -73,10 +73,12 @@ class MathOp {
     }
 
     int cols = data->size();
-    cout<<": size "<<cols<endl;
+    cout<<": size "<<cols<<endl;
 
     int rows = (*data)[0].size();
-    cout<<": rows "<<rows<endl;
+
+    cout<<": rows "<<rows<<endl;
+
     int total_size = cols * rows;
 
     VALUE_TYPE *arr = (VALUE_TYPE *)malloc(sizeof(VALUE_TYPE) * total_size);
