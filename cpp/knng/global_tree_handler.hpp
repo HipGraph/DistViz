@@ -170,9 +170,7 @@ public:
 
           dataPoint.value = projected_matrix[index];
           dataPoint.index = j + this->starting_data_index;
-          cout << " rank " << grid->rank_in_col << " before storing " << endl;
           (*trees_data_ptr)[k][i][j] = dataPoint;
-          cout << " rank " << grid->rank_in_col << " after storing " << endl;
         }
       }
     }

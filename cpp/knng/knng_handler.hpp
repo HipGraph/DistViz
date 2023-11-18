@@ -56,7 +56,7 @@ public:
   KNNGHandler(int ntrees, int tree_depth, double tree_depth_ratio,
         int local_tree_offset, int total_data_set_size, int local_data_set_size,
         int dimension, Process3DGrid* grid) {
-    cout<<" calling constructor"<<endl;
+
     this->data_dimension = dimension;
     this->tree_depth = tree_depth;
     this->global_data_set_size = total_data_set_size;
@@ -64,20 +64,17 @@ public:
     this->grid = grid;
     this->ntrees = ntrees;
     this->tree_depth_ratio = tree_depth_ratio;
-    cout<<" rank "<<grid->rank_in_col<<" basic assignment done"<<endl;
+
     this->trees_leaf_all = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
-    cout<<" rank "<<grid->rank_in_col<<" trees_leaf_all completed"<<endl;
+
     this->index_distribution = vector<set<int>>(grid->col_world_size);
 
-    cout<<" rank "<<grid->rank_in_col<<" index_distribution done "<<endl;
     this->local_tree_offset = local_tree_offset;
   }
 
   void grow_trees(vector<vector<VALUE_TYPE>>* original_data, float density, bool use_locality_optimization, int nn) {
-    cout << " rank " << grid->rank_in_col << " calling grow trees" << endl;
     unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr; //class uses for math operations
     VALUE_TYPE* row_data_array = mathOp_ptr.get()->convert_to_row_major_format(original_data); // this algorithm assumes row major format for operations
-    cout << " rank " << grid->rank_in_col << " row major conversion completed" << endl;
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
 
     // generate random seed at process 0 and broadcast it to multiple processes.
