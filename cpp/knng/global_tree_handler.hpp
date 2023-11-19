@@ -776,7 +776,7 @@ public:
 
 
     for (int i=0;i<grid->col_world_size;i++){
-      cout<<" rank "<<grid->rank_in_col<<" sending amount "<<(*process_to_index_set_ptr)[i].size();
+      cout<<" rank "<<grid->rank_in_col<<" sending  "<<(*process_to_index_set_ptr)[i].size()<<" to rank "<<i<" "<<endl;
     }
   }
 };
