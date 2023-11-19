@@ -758,8 +758,9 @@ public:
     unique_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr =
         make_unique<vector<set<INDEX_TYPE>>>(grid->col_world_size);
 
-    int process = 0;
+
     for (int tree = 0; tree < ntrees; tree++) {
+      int process = 0;
       for (int i = 0; i < total_leaf_size; i++) {
         if (i > 0 && i % leafs_per_node == 0) {
           process++;
