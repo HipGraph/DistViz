@@ -656,6 +656,18 @@ public:
     MPI_Alltoallv (send_values, send_values_count, disps_values_count, MPI_VALUE_TYPE, receive_values,
                   recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, grid->col_world);
 
+
+    int total_receive_count;
+    int total_send_count;
+    for(int i=0;i<grid->col_world;i++){
+      total_send_count +=send_indices_count[i];
+      total_receive_count += recev_indices_count[i];
+    }
+    cout<<" rank "<<grid->rank_in_col<<" sending "<<total_send_count<<endl;
+    cout<<" rank "<<grid->rank_in_col<<" receiving "<<total_receive_count<<endl;
+
+
+
     my_start_count = leafs_per_node * grid->rank_in_col;
     if (grid->rank_in_col < grid->col_world_size - 1)
     {

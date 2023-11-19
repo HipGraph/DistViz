@@ -124,18 +124,6 @@ public:
                                                                        this->index_distribution,this->datamap,&leaf_nodes_of_trees_ptr->at(i));
     }
 
-     int received_total_data;
-
-    if (grid->rank_in_col ==0){
-      for (int i = 0; i < ntrees; i++){
-        for(int j=0;j<(*leaf_nodes_of_trees_ptr)[i].size();j++) {
-          received_total_data += (*leaf_nodes_of_trees_ptr)[i][j].size();
-        }
-      }
-    }
-
-    cout<<"total data transferred "<<received_total_data<<endl;
-
     delete[] receive;
   }
 };
