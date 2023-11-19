@@ -526,7 +526,7 @@ public:
 
   void collect_similar_data_points(int tree, bool use_data_locality_optimization,
                               vector<set<INDEX_TYPE>> &index_distribution,std::map<INDEX_TYPE, vector<VALUE_TYPE>> &datamap,
-                                   vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>* output_data) {
+                                   vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>* output_data) {
 
     int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
 
