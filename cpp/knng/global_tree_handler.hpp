@@ -745,6 +745,39 @@ public:
     delete[] recev_disps_values_count;
 
   }
+
+
+
+  void collect_similar_data_points_of_all_trees(bool use_data_locality_optimization,
+                                   vector<set<INDEX_TYPE>> &index_distribution,
+                                   std::map<INDEX_TYPE, vector<VALUE_TYPE>>* datamap) {
+
+    int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
+
+    unique_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr =
+        make_unique<vector<set<INDEX_TYPE>>>(grid->col_world_size);
+
+
+    for (int tree = 0; tree < ntrees; tree++) {
+      for (int i = 0; i < total_leaf_size; i++) {
+        if (i > 0 && i % leafs_per_node == 0) {
+          process++;
+        }
+        vector<DataNode<INDEX_TYPE, VALUE_TYPE>> all_points =
+            (use_data_locality_optimization)? (*trees_leaf_first_indices_rearrange_ptr)[tree][i]:(*trees_leaf_first_indices_ptr)[tree][i];
+
+        std::set<INDEX_TYPE>& firstSet = (*process_to_index_set_ptr)[process];
+        for (int j=0;j<all_points.size();j++){
+          firstSet.insert(all_points[j].index);
+        }
+      }
+    }
+
+
+    for (int i=0;i<grid->col_world_size;i++){
+      cout<<" rank "<<grid->rank_in_col<<" sending amount "<<(*process_to_index_set_ptr)[i].size();
+    }
+  }
 };
 }
 

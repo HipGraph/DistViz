@@ -33,7 +33,8 @@ private:
   int leafs_per_node;
   int my_leaf_start_index;
   int my_leaf_end_index;
-  std::map<int, vector<VALUE_TYPE>> datamap;
+  std::shared_ptr<std::map<int, vector<VALUE_TYPE>>> datamap_ptr = std::make_shared<std::map<int, vector<VALUE_TYPE>>>();
+
 
   int *receive_random_seeds(int seed) {
     int* receive = new int[grid->col_world_size]();
@@ -118,11 +119,12 @@ public:
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
     // running the similar datapoint collection
-    for (int i = 0; i < ntrees; i++)
-    {
-      drpt_global.collect_similar_data_points(i, use_locality_optimization,
-                                                                       this->index_distribution,this->datamap,&leaf_nodes_of_trees_ptr->at(i));
-    }
+//    for (int i = 0; i < ntrees; i++)
+//    {
+//      drpt_global.collect_similar_data_points(i, use_locality_optimization,
+//                                                                       this->index_distribution,this->datamap,&leaf_nodes_of_trees_ptr->at(i));
+//    }
+    drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,index_distribution,datamap_ptr.get())
 
     delete[] receive;
   }
