@@ -753,11 +753,12 @@ public:
                                    std::map<INDEX_TYPE, vector<VALUE_TYPE>>* datamap) {
 
     int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
+    int leafs_per_node = total_leaf_size / grid->col_world_size;
 
     unique_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr =
         make_unique<vector<set<INDEX_TYPE>>>(grid->col_world_size);
 
-
+    int process = 0;
     for (int tree = 0; tree < ntrees; tree++) {
       for (int i = 0; i < total_leaf_size; i++) {
         if (i > 0 && i % leafs_per_node == 0) {

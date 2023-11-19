@@ -124,7 +124,7 @@ public:
 //      drpt_global.collect_similar_data_points(i, use_locality_optimization,
 //                                                                       this->index_distribution,this->datamap,&leaf_nodes_of_trees_ptr->at(i));
 //    }
-    drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,index_distribution,datamap_ptr.get())
+    drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,index_distribution,datamap_ptr.get());
 
     delete[] receive;
   }
