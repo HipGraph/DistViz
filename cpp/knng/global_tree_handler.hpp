@@ -33,16 +33,16 @@ private:
   Process3DGrid* grid;
 
   // multiple trees
-  unique_ptr<vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>> trees_data_ptr;
-  unique_ptr<vector<vector<VALUE_TYPE>>> trees_splits_ptr;
-  unique_ptr<vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>> trees_leaf_first_indices_all_ptr;
-  unique_ptr<vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>> trees_leaf_first_indices_ptr;
+  unique_ptr<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>> trees_data_ptr;
+  unique_ptr<ValueType2DVector<VALUE_TYPE>> trees_splits_ptr;
+  unique_ptr<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>> trees_leaf_first_indices_all_ptr;
+  unique_ptr<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>> trees_leaf_first_indices_ptr;
 
-  vector<vector<VALUE_TYPE>>* data_points_ptr;
+  ValueType2DVector<VALUE_TYPE>* data_points_ptr;
 
-  unique_ptr<vector<vector<int>>> index_to_tree_leaf_mapper_ptr;
+  unique_ptr<ValueType2DVector<int>> index_to_tree_leaf_mapper_ptr;
 
-  unique_ptr<vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>> trees_leaf_first_indices_rearrange_ptr;
+  unique_ptr<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>> trees_leaf_first_indices_rearrange_ptr;
 
 public:
 
@@ -59,11 +59,11 @@ public:
 
     this->ntrees = ntrees;
 
-    this->trees_data_ptr = make_unique<DataNodeVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
-    this->trees_splits_ptr = make_unique<ValueVector<VALUE_TYPE>>(ntrees);
-    this->trees_leaf_first_indices_ptr =  make_unique<DataNodeVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
-    this->trees_leaf_first_indices_rearrange_ptr =  make_unique<DataNodeVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
-    this->trees_leaf_first_indices_all_ptr =  make_unique<DataNodeVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
+    this->trees_data_ptr = make_unique<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
+    this->trees_splits_ptr = make_unique<ValueType2DVector<VALUE_TYPE>>(ntrees);
+    this->trees_leaf_first_indices_ptr =  make_unique<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
+    this->trees_leaf_first_indices_rearrange_ptr =  make_unique<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
+    this->trees_leaf_first_indices_all_ptr =  make_unique<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
 
     this->starting_data_index = (this->global_dataset_size / grid->col_world_size) * grid->rank_in_col;
 
@@ -139,7 +139,7 @@ public:
 
     cout << " rank " << grid->rank_in_col << " start initial tree growing" << endl;
 
-    index_to_tree_leaf_mapper_ptr = make_unique<vector<vector<int>>>(local_dataset_size);
+    index_to_tree_leaf_mapper_ptr = make_unique<ValueType2DVector<int>>(local_dataset_size);
 
     for (int k = 0; k < this->ntrees; k++)
     {

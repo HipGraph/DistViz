@@ -61,7 +61,7 @@ public:
    return matrix;
  }
 
-static void load_data_into_2D_vector(string file_path,ValueVector<VALUE_TYPE>* datamatrix,
+static void load_data_into_2D_vector(string file_path,ValueType2DVector<VALUE_TYPE>* datamatrix,
                                       int no_of_datapoints,int dimension, int rank, int world_size){
 
   ifstream file (file_path, ios::binary);

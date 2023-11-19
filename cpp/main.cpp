@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
 //  Eigen::VectorXf distances(k);
   auto start_io_index = high_resolution_clock::now();
   std::cout << "calling data loading"<< rank<< " "<<std::endl;
-  unique_ptr<vector<vector<float>>> data_matrix_ptr= make_unique<ValueVector<float>>();;
+  unique_ptr<vector<vector<float>>> data_matrix_ptr= make_unique<ValueType2DVector<float>>();;
    FileReader<float>::load_data_into_2D_vector(input_path,data_matrix_ptr.get(),data_set_size,dimension,grid.get()->rank_in_col,grid.get()->col_world_size);
   MPI_Barrier(MPI_COMM_WORLD);
   std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
