@@ -659,7 +659,7 @@ public:
 
     int total_receive_count=0;
     int total_send_count=0;
-    for(int i=0;i<grid->col_world;i++){
+    for(int i=0;i<grid->col_world_size;i++){
       total_send_count +=send_indices_count[i];
       total_receive_count += recev_indices_count[i];
     }
