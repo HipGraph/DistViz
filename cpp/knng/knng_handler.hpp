@@ -121,7 +121,7 @@ public:
     for (int i = 0; i < ntrees; i++)
     {
       drpt_global.collect_similar_data_points(i, use_locality_optimization,
-                                                                       this->index_distribution,this->datamap,(*leaf_nodes_of_trees_ptr)[i]);
+                                                                       this->index_distribution,this->datamap,&leaf_nodes_of_trees_ptr->at(i));
     }
 
 
