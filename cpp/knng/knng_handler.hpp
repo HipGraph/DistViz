@@ -124,15 +124,12 @@ public:
                                                                        this->index_distribution,this->datamap,&leaf_nodes_of_trees_ptr->at(i));
     }
 
+     int received_total_data;
+
     if (grid->rank_in_col ==0){
       for (int i = 0; i < ntrees; i++){
-        cout<<" tree "<<i<<endl;
         for(int j=0;j<(*leaf_nodes_of_trees_ptr)[i].size();j++) {
-          cout<<" leaf "<<j<<endl;
-          for(int k=0;k<(*leaf_nodes_of_trees_ptr)[i][j].size();k++){
-            cout<<(*leaf_nodes_of_trees_ptr)[i][j][k].index<<endl;
-          }
-
+          received_total_data += (*leaf_nodes_of_trees_ptr)[i][j].size();
         }
       }
     }
