@@ -114,7 +114,7 @@ public:
       cout << " rank " << grid->rank_in_col << "  tree leaf correlation completed " << endl;
     }
 
-    shared_ptr<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>>* leaf_nodes_of_trees_ptr =  make_shared<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
+    shared_ptr<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>> leaf_nodes_of_trees_ptr =  make_shared<DataNode3DVector<INDEX_TYPE, VALUE_TYPE>>(ntrees);
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
     // running the similar datapoint collection
@@ -122,7 +122,6 @@ public:
     {
       drpt_global.collect_similar_data_points(i, use_locality_optimization,
                                                                        this->index_distribution,this->datamap,(*leaf_nodes_of_trees_ptr)[i]);
-
     }
 
 
