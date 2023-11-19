@@ -660,13 +660,9 @@ public:
     int total_receive_count=0;
     int total_send_count=0;
     for(int i=0;i<grid->col_world_size;i++){
-      total_send_count +=send_indices_count[i];
-      total_receive_count += recev_indices_count[i];
+      cout<<" rank "<<grid->rank_in_col<<" sending "<<send_indices_count[i]<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" receiving "<<recev_indices_count[i]<<endl;
     }
-    cout<<" rank "<<grid->rank_in_col<<" sending "<<total_send_count<<endl;
-    cout<<" rank "<<grid->rank_in_col<<" receiving "<<total_receive_count<<endl;
-
-
 
     my_start_count = leafs_per_node * grid->rank_in_col;
     if (grid->rank_in_col < grid->col_world_size - 1)
