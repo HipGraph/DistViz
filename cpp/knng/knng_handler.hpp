@@ -134,6 +134,7 @@ public:
       }
     }
 
+    cout<<"total data transferred "<<received_total_data<<endl;
 
     delete[] receive;
   }
