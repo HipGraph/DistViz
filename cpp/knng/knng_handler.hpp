@@ -128,7 +128,11 @@ public:
       for (int i = 0; i < ntrees; i++){
         cout<<" tree "<<i<<endl;
         for(int j=0;j<(*leaf_nodes_of_trees_ptr)[i].size();j++) {
-          cout<<" leaf "<<j<<" index: "<<(*leaf_nodes_of_trees_ptr)[i][j].index<<endl;
+          cout<<" leaf "<<j<<endl;
+          for(int k=0;k<(*leaf_nodes_of_trees_ptr)[i][j].size();k++){
+            cout<<(*leaf_nodes_of_trees_ptr)[i][j][k].index<<endl;
+          }
+
         }
       }
     }
