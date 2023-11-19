@@ -524,8 +524,9 @@ public:
   }
 
 
-  vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>> collect_similar_data_points(int tree, bool use_data_locality_optimization,
-                              vector<set<INDEX_TYPE>> &index_distribution,std::map<INDEX_TYPE, vector<VALUE_TYPE>> &datamap) {
+  void collect_similar_data_points(int tree, bool use_data_locality_optimization,
+                              vector<set<INDEX_TYPE>> &index_distribution,std::map<INDEX_TYPE, vector<VALUE_TYPE>> &datamap,
+                                                                               DataNode3DVector<INDEX_TYPE,VALUE_TYPE>* output_data) {
 
     int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
 
@@ -667,7 +668,7 @@ public:
 
     vector<int> process_read_offsets (grid->col_world_size);
     vector<int> process_read_offsets_value (grid->col_world_size);
-    vector <vector<DataNode<INDEX_TYPE,VALUE_TYPE>>> all_leaf_nodes (leafs_per_node);
+    output_data->resize(leafs_per_node);
 
     for (int i = 0; i < leafs_per_node; i++)
     {
@@ -721,7 +722,7 @@ public:
 
       int id = i + my_start_count;
       (*trees_leaf_first_indices_all_ptr)[tree][id] = datavec;
-      all_leaf_nodes[i] = datavec;
+      (*output_data)[i] = datavec;
     }
 
     delete[] send_counts;
@@ -735,7 +736,6 @@ public:
     delete[] recev_disps_count;
     delete[] recev_disps_values_count;
 
-    return all_leaf_nodes;
   }
 };
 }

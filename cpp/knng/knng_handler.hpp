@@ -114,14 +114,14 @@ public:
       cout << " rank " << grid->rank_in_col << "  tree leaf correlation completed " << endl;
     }
 
-    vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>> leaf_nodes_of_trees(ntrees);
+    shared_ptr<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>>* leaf_nodes_of_trees_ptr(ntrees);
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
     // running the similar datapoint collection
     for (int i = 0; i < ntrees; i++)
     {
-      leaf_nodes_of_trees[i] = drpt_global.collect_similar_data_points(i, use_locality_optimization,
-                                                                       this->index_distribution,this->datamap);
+      drpt_global.collect_similar_data_points(i, use_locality_optimization,
+                                                                       this->index_distribution,this->datamap,(*leaf_nodes_of_trees_ptr)[i]);
 
     }
 
