@@ -657,8 +657,8 @@ public:
                   recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, grid->col_world);
 
 
-    int total_receive_count;
-    int total_send_count;
+    int total_receive_count=0;
+    int total_send_count=0;
     for(int i=0;i<grid->col_world;i++){
       total_send_count +=send_indices_count[i];
       total_receive_count += recev_indices_count[i];
