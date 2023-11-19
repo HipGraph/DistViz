@@ -124,11 +124,15 @@ public:
                                                                        this->index_distribution,this->datamap,&leaf_nodes_of_trees_ptr->at(i));
     }
 
+    if (grid->rank_in_col ==0){
+      for (int i = 0; i < ntrees; i++){
+        cout<<" tree "<<i<<endl;
+        for(int j=0;j<(*leaf_nodes_of_trees_ptr)[i].size();j++) {
+          cout<<" leaf "<<j<<" index: "<<(*leaf_nodes_of_trees_ptr)[i][j].index<<endl;
+        }
+      }
+    }
 
-    // get the global minimum value of a leaf
-//    int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
-
-    //        cout << " rank " << rank << " global_minimum  "<<global_minimum<< endl;
 
     delete[] receive;
   }
