@@ -749,7 +749,7 @@ public:
 
 
 
-  Eigen::MatrixXf* collect_similar_data_points_of_all_trees(bool use_data_locality_optimization,
+  Eigen::MatrixXf collect_similar_data_points_of_all_trees(bool use_data_locality_optimization,
                                    vector<set<INDEX_TYPE>> &index_distribution, map<INDEX_TYPE,INDEX_TYPE>* global_to_local_index_map) {
 
     int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
@@ -853,14 +853,15 @@ public:
 
 
     auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
-    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
+//    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
 
+    Eigen::MatrixXf data_matrix(rows, data_dimension);
     auto total_data_count=0;
     for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[i].end(); ++it) {
       for(int j=0;j<data_dimension;j++){
         auto index_trying = (*it) - starting_data_index
         VALUE_TYPE val =    (*receive_indices_ptr)[access_index];
-        (*matrixPtr)(total_data_count,j)= (*data_points_ptr)[index_trying][j];
+        data_matrix(total_data_count,j)= (*data_points_ptr)[index_trying][j];
       }
       (*global_to_local_index_map)[*it]=total_data_count;
       total_data_count++;
@@ -871,10 +872,10 @@ public:
       (*global_to_local_index_map)[receive_index]=total_data_count+i;
       for(int j=0;j<data_dimension;j++){
         auto access_index = i*data_dimension+j;
-        (*matrixPtr)(total_data_count+i,j) =  (*receive_values_ptr)[access_index];
+        data_matrix(total_data_count+i,j) =  (*receive_values_ptr)[access_index];
       }
     }
-    return matrixPtr.get();
+    return data_matrix;
   }
 };
 }
