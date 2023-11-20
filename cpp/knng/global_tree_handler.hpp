@@ -832,7 +832,7 @@ public:
 //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
 
       auto index_trying = *it - starting_data_index;
-      if (grid->rank_in_col ==0) cout<<" I am accessing data "<<index_trying<<endl;
+        cout<<"my rank "<<grid->rank_in_col<<" I am accessing data "<<index_trying<<endl;
       (*data_points_ptr)[*it - starting_data_index];
 
       for (int k = 0; k < data_dimension; ++k) {
