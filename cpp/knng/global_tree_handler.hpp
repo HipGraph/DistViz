@@ -13,6 +13,7 @@
 #include <memory>
 
 using namespace hipgraph::distviz::knng;
+using namespace hipgraph::distviz::common;
 using namespace  hipgraph::distviz::net;
 
 namespace hipgraph::distviz::knng {
