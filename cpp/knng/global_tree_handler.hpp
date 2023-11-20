@@ -818,37 +818,37 @@ public:
     unique_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_unique<vector<INDEX_TYPE>>(total_receive_count);
     unique_ptr<vector<INDEX_TYPE>> receive_values_ptr =  make_unique<vector<INDEX_TYPE>>(total_receive_count*data_dimension);
 
+
     for(int i=0;i<grid->col_world_size;i++) {
-    auto it = (*process_to_index_set_ptr)[i].begin();  // iterator to the beginning of the set
+      if (i != grid->rank_in_col) {
+        auto it = (*process_to_index_set_ptr)[i].begin(); // iterator to the beginning of the set
 
-    for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
-      auto access_index = (i > 0) ? (*send_disps_indices_count_ptr)[i - 1] + j : j;
-      auto access_index_dim = access_index * data_dimension;
+        for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
+          auto access_index =
+              (i > 0) ? (*send_disps_indices_count_ptr)[i - 1] + j : j;
+          auto access_index_dim = access_index * data_dimension;
 
-//      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" trying to acccess index "<< access_index<<" actuall index"<<*it << endl;
-      (*send_indices_ptr)[access_index] = *it;
-      (*send_indices_ptr)[access_index] = 0;
-//      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
+          //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" trying to acccess index "<< access_index<<" actuall index"<<*it << endl;
+          (*send_indices_ptr)[access_index] = *it;
+          //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
 
-      auto index_trying = (*it) - starting_data_index;
+          auto index_trying = (*it) - starting_data_index;
 
-      if ((*data_points_ptr).size() <= index_trying){
-        cout<<"my rank "<<grid->rank_in_col<<" I am accessing out of data "<<index_trying<<" size "<< (*data_points_ptr).size()<<endl;
+          if ((*data_points_ptr).size() <= index_trying) {
+            cout << "my rank " << grid->rank_in_col
+                 << " I am accessing out of data " << index_trying << " size "
+                 << (*data_points_ptr).size() << endl;
+          }
+
+          for (int k = 0; k < data_dimension; ++k) {
+            auto access_index_dim_d = access_index_dim + k;
+          }
+
+            (*send_values_ptr)[access_index_dim_d] = (*data_points_ptr)[index_trying][k];
+        }
+        //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " data loading completed " << *it << endl;
       }
-
-      for (int k = 0; k < data_dimension; ++k) {
-        auto access_index_dim_d = access_index_dim + k;
-         if ((*data_points_ptr)[index_trying][k] == -784){
-         cout<<"access invalid"<<endl;
-         }
-      }
-
-//        (*send_values_ptr)[access_index_dim_d] = (*data_points_ptr)[7499].size();
-
-      }
-//      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " data loading completed " << *it << endl;
     }
-
 
   }
 };
