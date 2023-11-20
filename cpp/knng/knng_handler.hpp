@@ -135,7 +135,7 @@ public:
 
     #pragma omp parallel for schedule (static)
       for(int i=0;i<data_matrix.cols();i++){
-        Eigen::VectorXi tempRow(k);
+        Eigen::VectorXi tempRow(10);
         mrpt.query(data_matrix.col(i), tempRow.data());
         neighbours.row(i) = tempRow;
       }
