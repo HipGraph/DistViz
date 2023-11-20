@@ -831,11 +831,11 @@ public:
       (*send_indices_ptr)[access_index] = 0;
 //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
 
-      auto index_trying = *it - starting_data_index;
+      auto index_trying = (*it) - starting_data_index;
 
-      if (7500 <= index_trying){
-        cout<<"my rank "<<grid->rank_in_col<<" I am accessing out of data "<<index_trying<<endl;
-      }
+//      if (7500 <= index_trying){
+        cout<<"my rank "<<grid->rank_in_col<<" I am accessing out of data "<<index_trying<<" size "<< (*data_points_ptr).size()<<endl;
+//      }
 
       for (int k = 0; k < data_dimension; ++k) {
         auto access_index_dim_d = access_index_dim + k;
