@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <cstdint> // int64_t
 #include <iostream>
+#include <mkl_spblas.h>
 #include <mpi.h>
 #include <random>
 #include <vector>
@@ -99,7 +100,7 @@ void sortByFreq (std::vector<T> &v, std::vector<X> &vec, int world_size)
   {
     float priority = static_cast<float>(count[v[i]] / world_size);
 
-    hipgraph::distviz::knng::LeafPriority leaf_priority;
+    hipgraph::distviz::common::LeafPriority leaf_priority;
     leaf_priority.priority = priority;
     leaf_priority.leaf_index = v[i];
     vec[v[i]] = leaf_priority;

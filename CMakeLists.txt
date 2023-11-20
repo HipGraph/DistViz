@@ -46,6 +46,8 @@ add_library(disviz_lib SHARED
              cpp/net/process_3D_grid.hpp
              cpp/net/process_3D_grid.cpp
              cpp/knng/math_operations.hpp
+             cpp/common/mpi_type_creator.hpp
+             cpp/common/json.hpp
              cpp/knng/knng_handler.hpp)
 
 SET(BUILD_TESTS "" ON)
@@ -60,7 +62,9 @@ SET(SOURCES cpp/main.cpp)
 add_executable(distviz ${SOURCES})
 
 
-target_compile_options(distviz PRIVATE  -std=c++11 -Ofast -march=native -Icpp -Icpp/lib -fopenmp -lgomp)
+
+target_compile_options(distviz PRIVATE -std=c++11 -Ofast -march=native -Icpp -Icpp/lib -DMKL_ILP64  -m64 -fopenmp -I$ENV{MKLROOT}/include -lgomp)
+target_link_options(distviz PRIVATE -L$ENV{MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_ilp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl)
 #target_link_options(distembed PRIVATE -L$ENV{MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_ilp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl)
 #
 #
