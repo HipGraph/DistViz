@@ -832,9 +832,9 @@ public:
 
       auto index_trying = (*it) - starting_data_index;
 
-//      if (7500 <= index_trying){
+      if ((*data_points_ptr).size() <= index_trying){
         cout<<"my rank "<<grid->rank_in_col<<" I am accessing out of data "<<index_trying<<" size "<< (*data_points_ptr).size()<<endl;
-//      }
+      }
 
       for (int k = 0; k < data_dimension; ++k) {
         auto access_index_dim_d = access_index_dim + k;
