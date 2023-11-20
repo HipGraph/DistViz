@@ -819,11 +819,11 @@ public:
               auto access_index = (i>0)?(*send_disps_indices_count_ptr)[i-1]:0 +j;
             auto access_index_dim = access_index*data_dimension;
             (*send_indices_count_ptr)[access_index] = *it;
+            cout<<" index "<<*it<<endl;
             for (int k=0;k<data_dimension;k++) {
               auto access_index_dim_d = access_index_dim + k;
               INDEX_TYPE local_index = *it - starting_data_index;
-              (*send_values_count_ptr)[access_index_dim_d] =
-                  (*data_points_ptr)[local_index][k];
+              (*send_values_count_ptr)[access_index_dim_d] = (*data_points_ptr)[local_index][k];
             }
       }
     }
