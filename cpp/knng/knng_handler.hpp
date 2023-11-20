@@ -124,7 +124,7 @@ public:
 //      drpt_global.collect_similar_data_points(i, use_locality_optimization,
 //                                                                       this->index_distribution,this->datamap,&leaf_nodes_of_trees_ptr->at(i));
 //    }
-   Eigen::Matrixf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,index_distribution,datamap_ptr.get());
+    Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,index_distribution,datamap_ptr.get());
    cout<<"rank "<<grid->rank_in_col<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
 
     delete[] receive;
