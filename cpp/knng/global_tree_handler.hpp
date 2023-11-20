@@ -842,9 +842,9 @@ public:
 
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
-          }
 
-            (*send_values_ptr)[access_index_dim_d] = (*data_points_ptr)[index_trying][k];
+            (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
+          }
         }
         //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " data loading completed " << *it << endl;
       }
