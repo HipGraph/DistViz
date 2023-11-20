@@ -791,10 +791,8 @@ public:
     for(int i=0;i<grid->col_world_size;i++){
       if (i!= grid->rank_in_col){
         (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
-        (*send_values_count_ptr)[i]= (*process_to_index_set_ptr)[i].size()*data_dimension;
       }else {
         (*send_indices_count_ptr)[i] = 0;
-        (*send_values_count_ptr)[i]=0;
       }
       total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
@@ -829,12 +827,12 @@ public:
       auto access_index_dim = access_index * data_dimension;
 
       if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" trying to acccess index "<< access_index<<" actuall index"<<*it << endl;
-      (*send_indices_count_ptr)[access_index] = *it;
+      (*send_indices_ptr)[access_index] = *it;
       if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
 
       for (int k = 0; k < data_dimension; ++k) {
         auto access_index_dim_d = access_index_dim + k;
-        (*send_values_count_ptr)[access_index_dim_d] = (*data_points_ptr)[*it - starting_data_index][k];
+        (*send_values_ptr)[access_index_dim_d] = (*data_points_ptr)[*it - starting_data_index][k];
       }
       if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " data loading completed " << *it << endl;
     }
