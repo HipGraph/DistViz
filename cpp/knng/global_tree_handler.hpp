@@ -779,10 +779,12 @@ public:
 
     unique_ptr<vector<INDEX_TYPE>> send_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> send_disps_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> send_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> send_disps_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
     unique_ptr<vector<INDEX_TYPE>> receive_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> receive_disps_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> receive_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> receive_disps_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
 
@@ -791,9 +793,11 @@ public:
     for(int i=0;i<grid->col_world_size;i++){
       if (i!= grid->rank_in_col){
         (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
+
       }else {
         (*send_indices_count_ptr)[i] = 0;
       }
+      (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
       total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
       (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
@@ -809,6 +813,7 @@ public:
       (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
       total_receive_count += (*receive_indices_count_ptr)[i];
       (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
+      (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
     }
 
 
@@ -840,7 +845,7 @@ public:
       }
     }
 
-    MPI_Alltoallv ((*send_indices_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, MPI_COMM_WORLD);
+    MPI_Alltoallv ((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, MPI_COMM_WORLD);
     MPI_Alltoallv ((*send_values_ptr).data(),(*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(), (*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
 
