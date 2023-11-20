@@ -838,7 +838,7 @@ public:
 
       for (int k = 0; k < data_dimension; ++k) {
         auto access_index_dim_d = access_index_dim + k;
-         if ((*data_points_ptr)[7499].size()!= 784){
+         if ((*data_points_ptr)[index_trying].size()!= 784){
          cout<<"access invalid"<<endl;
          }
       }
