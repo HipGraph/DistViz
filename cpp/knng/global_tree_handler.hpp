@@ -776,8 +776,27 @@ public:
     }
 
 
-    for (int i=0;i<grid->col_world_size;i++){
-      cout<<" rank "<<grid->rank_in_col<<" sending  "<<(*process_to_index_set_ptr)[i].size()<<" to rank "<<i<<" "<<endl;
+    unique_ptr<vector<INDEX_TYPE>> send_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> send_disps_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> send_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> disps_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+
+    unique_ptr<vector<INDEX_TYPE>> receive_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> receive_disps_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> receive_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> receive_disps_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+
+
+
+    int total_send_count=0;
+    for(int i=0;i<grid->col_world_size;i++){
+      if (i!= grid->rank_in_col){
+        (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
+      }else {
+        (*send_indices_count_ptr)[i] = 0;
+      }
+      (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
+      cout<<" rank "<<grid->rank_in_col<<" disps "<<(*send_disps_indices_count_ptr)[i]<<" count "<<(*send_indices_count_ptr)[i]<<endl;
     }
   }
 };
