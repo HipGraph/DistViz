@@ -12,6 +12,7 @@
 #include "../common/common.h"
 #include "math_operations.hpp"
 #include <memory>
+#include "lib/Mrpt.h"
 
 namespace hipgraph::distviz::knng {
 
@@ -125,9 +126,22 @@ public:
 //                                                                       this->index_distribution,this->datamap,&leaf_nodes_of_trees_ptr->at(i));
 //    }
     Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,index_distribution,datamap_ptr.get());
-   cout<<"rank "<<grid->rank_in_col<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
+    cout<<"rank "<<grid->rank_in_col<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
 
-    delete[] receive;
+    Mrpt mrpt(data_matrix);
+    mrpt.grow_autotune(0.9, 10);
+
+  Eigen::MatrixXi neighbours(data_matrix.cols(),10);
+
+    #pragma omp parallel for schedule (static)
+      for(int i=0;i<data_matrix.cols();i++){
+        Eigen::VectorXi tempRow(k);
+        mrpt.query(data_matrix.col(i), tempRow.data());
+        neighbours.row(i) = tempRow;
+      }
+
+
+      cout<<" rank "<<grid->rank_in_row<<" vec "<<neighbours.row(0)<<endl;
   }
 };
 } // namespace hipgraph::distviz::knng

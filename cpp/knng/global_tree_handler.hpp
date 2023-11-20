@@ -855,13 +855,13 @@ public:
     auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
 //    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
 
-    Eigen::MatrixXf data_matrix(rows, data_dimension);
+    Eigen::MatrixXf data_matrix(data_dimension, rows);
     auto total_data_count=0;
     for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
       for(int j=0;j<data_dimension;j++){
         auto index_trying = (*it) - starting_data_index;
         VALUE_TYPE val =    (*receive_indices_ptr)[index_trying];
-        data_matrix(total_data_count,j)= (*data_points_ptr)[index_trying][j];
+        data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
       }
       (*global_to_local_index_map)[*it]=total_data_count;
       total_data_count++;
@@ -869,10 +869,11 @@ public:
 
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
-      (*global_to_local_index_map)[receive_index]=total_data_count+i;
+      (*global_to_local_index_map)[receive_index]=
+          +i;
       for(int j=0;j<data_dimension;j++){
         auto access_index = i*data_dimension+j;
-        data_matrix(total_data_count+i,j) =  (*receive_values_ptr)[access_index];
+        data_matrix(j,total_data_count+i) =  (*receive_values_ptr)[access_index];
       }
     }
     return data_matrix;
