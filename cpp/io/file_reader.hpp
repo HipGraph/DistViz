@@ -6,7 +6,7 @@
 #include "../common/common.h"
 
 using namespace std;
-using namespace hipgraph::distviz::knng;
+using namespace hipgraph::distviz::common;
 namespace hipgraph::distviz::io {
 template <typename VALUE_TYPE>
 class FileReader {
