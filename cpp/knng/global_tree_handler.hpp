@@ -820,12 +820,13 @@ public:
         auto access_index_dim = access_index * data_dimension;
 
         (*send_indices_count_ptr)[access_index] = *it;
-        cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
+        if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
 
         for (int k = 0; k < data_dimension; ++k) {
           auto access_index_dim_d = access_index_dim + k;
           (*send_values_count_ptr)[access_index_dim_d] = (*data_points_ptr)[*it - starting_data_index][k];
         }
+        if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " data loading completed " << *it << endl;
       }
     }
 
