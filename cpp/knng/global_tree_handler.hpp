@@ -779,17 +779,15 @@ public:
 
     unique_ptr<vector<INDEX_TYPE>> send_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> send_disps_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> send_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> disps_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
     unique_ptr<vector<INDEX_TYPE>> receive_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> receive_disps_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> receive_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> receive_disps_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
 
 
-    int total_send_count=0;
+    auto total_send_count=0;
     for(int i=0;i<grid->col_world_size;i++){
       if (i!= grid->rank_in_col){
         (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
@@ -798,6 +796,7 @@ public:
         (*send_indices_count_ptr)[i] = 0;
         (*send_values_count_ptr)[i]=0;
       }
+      total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
       (*disps_values_count_ptr)[i]=(i>0)?(*disps_values_count_ptr)[i-1]+(*send_values_count_ptr)[i-1]:0;
 //      cout<<" rank "<<grid->rank_in_col<<" disps "<<(*send_disps_indices_count_ptr)[i]<<" count "<<(*send_indices_count_ptr)[i]<<endl;
@@ -807,29 +806,38 @@ public:
     //send indices count
     MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,(*receive_indices_count_ptr).data(), 1,MPI_INDEX_TYPE, MPI_COMM_WORLD);
 
-
+    auto total_receive_count=0;
     for(int i=0;i<grid->col_world_size;i++) {
       cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< endl;
       (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
-      (*receive_values_count_ptr)[i]= (*receive_indices_count_ptr)[i]*data_dimension;
-      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_values_count_ptr)[i-1]:0;
+      total_receive_count += (*receive_indices_count_ptr)[i];
+      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
+    }
 
-      auto it = (*process_to_index_set_ptr)[i].begin();  // iterator to the beginning of the set
 
-      for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
-        auto access_index = (i > 0) ? (*send_disps_indices_count_ptr)[i - 1] + j : j;
-        auto access_index_dim = access_index * data_dimension;
+    unique_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_unique<vector<INDEX_TYPE>>(total_send_count);
+    unique_ptr<vector<INDEX_TYPE>> send_values_ptr =  make_unique<vector<INDEX_TYPE>>(total_send_count*data_dimension);
 
-        if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" trying to acccess index "<< access_index<<" actuall index"<<*it << endl;
-        (*send_indices_count_ptr)[access_index] = *it;
-        if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
+    unique_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_unique<vector<INDEX_TYPE>>(total_receive_count);
+    unique_ptr<vector<INDEX_TYPE>> receive_values_ptr =  make_unique<vector<INDEX_TYPE>>(total_receive_count*data_dimension);
 
-        for (int k = 0; k < data_dimension; ++k) {
-          auto access_index_dim_d = access_index_dim + k;
-          (*send_values_count_ptr)[access_index_dim_d] = (*data_points_ptr)[*it - starting_data_index][k];
-        }
-        if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " data loading completed " << *it << endl;
+    for(int i=0;i<grid->col_world_size;i++) {
+    auto it = (*process_to_index_set_ptr)[i].begin();  // iterator to the beginning of the set
+
+    for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
+      auto access_index = (i > 0) ? (*send_disps_indices_count_ptr)[i - 1] + j : j;
+      auto access_index_dim = access_index * data_dimension;
+
+      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" trying to acccess index "<< access_index<<" actuall index"<<*it << endl;
+      (*send_indices_count_ptr)[access_index] = *it;
+      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
+
+      for (int k = 0; k < data_dimension; ++k) {
+        auto access_index_dim_d = access_index_dim + k;
+        (*send_values_count_ptr)[access_index_dim_d] = (*data_points_ptr)[*it - starting_data_index][k];
       }
+      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " data loading completed " << *it << endl;
+    }
     }
 
   }
