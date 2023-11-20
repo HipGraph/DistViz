@@ -833,7 +833,7 @@ public:
 
       auto index_trying = *it - starting_data_index;
 
-      if ((data_points_ptr)->size()>index_trying){
+      if ((data_points_ptr)->size()<=index_trying){
         cout<<"my rank "<<grid->rank_in_col<<" I am accessing out of data "<<index_trying<<endl;
       }
 
