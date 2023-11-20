@@ -857,10 +857,10 @@ public:
 
     Eigen::MatrixXf data_matrix(rows, data_dimension);
     auto total_data_count=0;
-    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[i].end(); ++it) {
+    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
       for(int j=0;j<data_dimension;j++){
-        auto index_trying = (*it) - starting_data_index
-        VALUE_TYPE val =    (*receive_indices_ptr)[access_index];
+        auto index_trying = (*it) - starting_data_index;
+        VALUE_TYPE val =    (*receive_indices_ptr)[index_trying];
         data_matrix(total_data_count,j)= (*data_points_ptr)[index_trying][j];
       }
       (*global_to_local_index_map)[*it]=total_data_count;
