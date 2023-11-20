@@ -806,7 +806,6 @@ public:
 
     auto total_receive_count=0;
     for(int i=0;i<grid->col_world_size;i++) {
-      cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< endl;
       (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
       total_receive_count += (*receive_indices_count_ptr)[i];
       (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
@@ -839,14 +838,17 @@ public:
 
       for (int k = 0; k < data_dimension; ++k) {
         auto access_index_dim_d = access_index_dim + k;
+         if ((*data_points_ptr)[7499].size()!= 784){
+         cout<<"access invalid"<<endl
+         }
+      }
 
-
-        (*send_values_ptr)[access_index_dim_d] = (*data_points_ptr)[7499].size();
+//        (*send_values_ptr)[access_index_dim_d] = (*data_points_ptr)[7499].size();
 
       }
 //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " data loading completed " << *it << endl;
     }
-    }
+
 
   }
 };
