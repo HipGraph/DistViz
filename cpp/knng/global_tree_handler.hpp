@@ -800,7 +800,7 @@ public:
       }
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
       (*disps_values_count_ptr)[i]=(i>0)?(*disps_values_count_ptr)[i-1]+(*send_values_count_ptr)[i-1]:0;
-//      cout<<" rank "<<grid->rank_in_col<<" disps "<<(*send_disps_indices_count_ptr)[i]<<" count "<<(*send_indices_count_ptr)[i]<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" disps "<<(*send_disps_indices_count_ptr)[i]<<" count "<<(*send_indices_count_ptr)[i]<<endl;
     }
 
 
