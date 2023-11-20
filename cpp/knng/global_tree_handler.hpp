@@ -827,18 +827,9 @@ public:
           auto access_index =
               (i > 0) ? (*send_disps_indices_count_ptr)[i - 1] + j : j;
           auto access_index_dim = access_index * data_dimension;
-
-          //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" trying to acccess index "<< access_index<<" actuall index"<<*it << endl;
           (*send_indices_ptr)[access_index] = *it;
-          //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
 
           auto index_trying = (*it) - starting_data_index;
-
-          if ((*data_points_ptr).size() <= index_trying) {
-            cout << "my rank " << grid->rank_in_col
-                 << " I am accessing out of data " << index_trying << " size "
-                 << (*data_points_ptr).size() << endl;
-          }
 
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
@@ -846,9 +837,12 @@ public:
             (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
           }
         }
-        //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " data loading completed " << *it << endl;
       }
     }
+
+    MPI_Alltoallv ((*send_indices_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, MPI_COMM_WORLD);
+    MPI_Alltoallv ((*send_values_ptr).data(),(*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(), (*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, MPI_COMM_WORLD);
+
 
   }
 };
