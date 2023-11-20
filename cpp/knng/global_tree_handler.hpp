@@ -820,7 +820,7 @@ public:
         auto access_index = (i > 0) ? (*send_disps_indices_count_ptr)[i - 1] + j : j;
         auto access_index_dim = access_index * data_dimension;
 
-        if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" trying to acccess index "<< access_index << endl;
+        if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" trying to acccess index "<< access_index<<" actuall index"<<*it << endl;
         (*send_indices_count_ptr)[access_index] = *it;
         if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
 
