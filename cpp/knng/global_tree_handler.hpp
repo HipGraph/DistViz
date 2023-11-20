@@ -827,7 +827,7 @@ public:
       auto access_index_dim = access_index * data_dimension;
 
 //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" trying to acccess index "<< access_index<<" actuall index"<<*it << endl;
-//      (*send_indices_ptr)[access_index] = *it;
+      (*send_indices_ptr)[access_index] = *it;
       (*send_indices_ptr)[access_index] = 0;
 //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " index " << *it << endl;
 
