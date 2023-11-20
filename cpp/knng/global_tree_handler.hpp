@@ -792,12 +792,26 @@ public:
     for(int i=0;i<grid->col_world_size;i++){
       if (i!= grid->rank_in_col){
         (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
+        (*send_values_count_ptr)[i]= (*process_to_index_set_ptr)[i].size()*data_dimesion;
       }else {
         (*send_indices_count_ptr)[i] = 0;
+        (*send_values_count_ptr)[i]=0;
       }
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
-      cout<<" rank "<<grid->rank_in_col<<" disps "<<(*send_disps_indices_count_ptr)[i]<<" count "<<(*send_indices_count_ptr)[i]<<endl;
+      (*disps_values_count_ptr)[i]=(i>0)?(*disps_values_count_ptr)[i-1]+(*send_values_count_ptr)[i-1]:0;
+//      cout<<" rank "<<grid->rank_in_col<<" disps "<<(*send_disps_indices_count_ptr)[i]<<" count "<<(*send_indices_count_ptr)[i]<<endl;
     }
+
+
+    MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,
+                 (*receive_indices_count_ptr).data(), 1,
+                 MPI_INDEX_TYPE, MPI_COMM_WORLD);
+
+    for(int i=0;i<grid->col_world_size;i++) {
+      cout<<" rank "<<grid->rank_in_col<<" to rank "<<i<<" send count "<<(*send_indices_count_ptr)[i]<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" from rank "<<i<<" receive count "<<(*receive_indices_count_ptr)[i]<<endl;
+    }
+
   }
 };
 }
