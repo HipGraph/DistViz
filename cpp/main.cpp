@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
   std::cout << "calling data loading"<< rank<< " "<<std::endl;
   unique_ptr<ValueType2DVector<float>> data_matrix_ptr= make_unique<ValueType2DVector<float>>();;
    FileReader<float>::load_data_into_2D_vector(input_path,data_matrix_ptr.get(),data_set_size,dimension,grid.get()->rank_in_col,grid.get()->col_world_size);
-   cout<<"rank "<<grid->rank_in_col<<" data_matrix_ptr size "<<data_matrix_ptr.get()->size()<<endl;
+   cout<<"rank "<<grid->rank_in_col<<" data_matrix_ptr size "<<data_matrix_ptr.get()->size()<<"* "<<(*data_matrix_ptr.get())[7499].size()<<endl;
   MPI_Barrier(MPI_COMM_WORLD);
   std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
   auto stop_io_index = high_resolution_clock::now();
