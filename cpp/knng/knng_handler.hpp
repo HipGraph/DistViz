@@ -12,7 +12,7 @@
 #include "../common/common.h"
 #include "math_operations.hpp"
 #include <memory>
-#include "lib/Mrpt.h"
+#include "../lib/Mrpt.h"
 
 namespace hipgraph::distviz::knng {
 
