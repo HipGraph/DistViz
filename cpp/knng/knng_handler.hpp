@@ -33,7 +33,7 @@ private:
   int leafs_per_node;
   int my_leaf_start_index;
   int my_leaf_end_index;
-  std::shared_ptr<std::map<int, vector<VALUE_TYPE>>> datamap_ptr = std::make_shared<std::map<int, vector<VALUE_TYPE>>>();
+  std::shared_ptr<std::map<int, int>> datamap_ptr = std::make_shared<std::map<int, int>>();
 
 
   int *receive_random_seeds(int seed) {

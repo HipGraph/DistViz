@@ -749,9 +749,8 @@ public:
 
 
 
-  void collect_similar_data_points_of_all_trees(bool use_data_locality_optimization,
-                                   vector<set<INDEX_TYPE>> &index_distribution,
-                                   std::map<INDEX_TYPE, vector<VALUE_TYPE>>* datamap) {
+  Eigen::MatrixXf* collect_similar_data_points_of_all_trees(bool use_data_locality_optimization,
+                                   vector<set<INDEX_TYPE>> &index_distribution, map<INDEX_TYPE,INDEX_TYPE>* global_to_local_index_map) {
 
     int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
     int leafs_per_node = total_leaf_size / grid->col_world_size;
@@ -847,10 +846,35 @@ public:
 
     MPI_Alltoallv ((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
                   (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, MPI_COMM_WORLD);
+
     MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
-                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(), (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, MPI_COMM_WORLD);
+                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
+                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
 
+    auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
+    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
+
+    auto total_data_count=0;
+    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[i].end(); ++it) {
+      for(int j=0;j<data_dimension;j++){
+        auto index_trying = (*it) - starting_data_index
+        VALUE_TYPE val =    (*receive_indices_ptr)[access_index];
+        (*matrixPtr)(total_data_count,j)= (*data_points_ptr)[index_trying][j];
+      }
+      (*global_to_local_index_map)[*it]=total_data_count;
+      total_data_count++;
+    }
+
+    for(auto i=0;i<total_receive_count;i++) {
+      INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
+      (*global_to_local_index_map)[receive_index]=total_data_count+i;
+      for(int j=0;j<data_dimension;j++){
+        auto access_index = i*data_dimension+j;
+        (*matrixPtr)(total_data_count+i,j) =  (*receive_values_ptr)[access_index];
+      }
+    }
+    return matrixPtr.get();
   }
 };
 }
