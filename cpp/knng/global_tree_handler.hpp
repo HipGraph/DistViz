@@ -792,7 +792,7 @@ public:
     for(int i=0;i<grid->col_world_size;i++){
       if (i!= grid->rank_in_col){
         (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
-        (*send_values_count_ptr)[i]= (*process_to_index_set_ptr)[i].size()*data_dimesion;
+        (*send_values_count_ptr)[i]= (*process_to_index_set_ptr)[i].size()*data_dimension;
       }else {
         (*send_indices_count_ptr)[i] = 0;
         (*send_values_count_ptr)[i]=0;
