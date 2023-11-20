@@ -833,6 +833,10 @@ public:
 
       for (int k = 0; k < data_dimension; ++k) {
         auto access_index_dim_d = access_index_dim + k;
+         auto index_trying = *it - starting_data_index;
+
+         if (grid->rank_in_col ==0) cout<<" I am accessing data "<<index_trying<<endl;
+
 //        (*send_values_ptr)[access_index_dim_d] = (*data_points_ptr)[*it - starting_data_index][k];
         (*send_values_ptr)[access_index_dim_d] = 0;
       }
