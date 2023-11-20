@@ -841,7 +841,7 @@ public:
         auto access_index_dim_d = access_index_dim + k;
 
 
-        (*send_values_ptr)[access_index_dim_d] = (*data_points_ptr)[*it - starting_data_index].size();
+        (*send_values_ptr)[access_index_dim_d] = (*data_points_ptr)[7499].size();
 
       }
 //      if (grid->rank_in_col ==0) cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< " data loading completed " << *it << endl;
