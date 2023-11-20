@@ -779,7 +779,7 @@ public:
 
     unique_ptr<vector<INDEX_TYPE>> send_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> send_disps_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> disps_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> send_disps_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
     unique_ptr<vector<INDEX_TYPE>> receive_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> receive_disps_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
@@ -796,7 +796,7 @@ public:
       }
       total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
-      (*disps_values_count_ptr)[i]=(i>0)?(*disps_values_count_ptr)[i-1]+(*send_values_count_ptr)[i-1]:0;
+      (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
 //      cout<<" rank "<<grid->rank_in_col<<" disps "<<(*send_disps_indices_count_ptr)[i]<<" count "<<(*send_indices_count_ptr)[i]<<endl;
     }
 
