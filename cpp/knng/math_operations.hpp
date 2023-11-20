@@ -4,7 +4,7 @@
 #include <omp.h>
 #include <string>
 #include <vector>
-#include "common.h"
+#include "../common/common.h"
 
 using namespace std;
 

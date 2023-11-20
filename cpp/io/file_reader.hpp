@@ -3,7 +3,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include "../knng/common.h"
+#include "../common/common.h"
 
 using namespace std;
 using namespace hipgraph::distviz::knng;

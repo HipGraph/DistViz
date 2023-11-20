@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "common.h"
+#include "../common/common.h"
 #include "math_operations.hpp"
 #include <memory>
 
@@ -808,8 +808,7 @@ public:
                  MPI_INDEX_TYPE, MPI_COMM_WORLD);
 
     for(int i=0;i<grid->col_world_size;i++) {
-      cout<<" rank "<<grid->rank_in_col<<" to rank "<<i<<" send count "<<(*send_indices_count_ptr)[i]<<endl;
-      cout<<" rank "<<grid->rank_in_col<<" from rank "<<i<<" receive count "<<(*receive_indices_count_ptr)[i]<<endl;
+
     }
 
   }
