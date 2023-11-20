@@ -800,16 +800,31 @@ public:
       }
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
       (*disps_values_count_ptr)[i]=(i>0)?(*disps_values_count_ptr)[i-1]+(*send_values_count_ptr)[i-1]:0;
-      cout<<" rank "<<grid->rank_in_col<<" disps "<<(*send_disps_indices_count_ptr)[i]<<" count "<<(*send_indices_count_ptr)[i]<<endl;
+//      cout<<" rank "<<grid->rank_in_col<<" disps "<<(*send_disps_indices_count_ptr)[i]<<" count "<<(*send_indices_count_ptr)[i]<<endl;
     }
 
 
-    MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,
-                 (*receive_indices_count_ptr).data(), 1,
-                 MPI_INDEX_TYPE, MPI_COMM_WORLD);
+    //send indices count
+    MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,(*receive_indices_count_ptr).data(), 1,MPI_INDEX_TYPE, MPI_COMM_WORLD);
+
 
     for(int i=0;i<grid->col_world_size;i++) {
+      (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
+      (*receive_values_count_ptr)[i]= (*receive_indices_count_ptr)[i].size()*data_dimension;
+      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_values_count_ptr)[i-1]:0;
 
+      for (INDEX_TYPE j=0;j<(*process_to_index_set_ptr)[i].size();j++){
+            auto access_index = (i>0)?(*send_disps_indices_count_ptr)[i-1]:0 +j;
+            auto access_index_dim = access_index*data_dimension;
+            (*send_indices_count_ptr)[access_index] = (*process_to_index_set_ptr)[i][j];
+            for (int k=0;k<data_dimension;k++) {
+              auto access_index_dim_d = access_index_dim + k;
+              INDEX_TYPE local_index =
+                  (*process_to_index_set_ptr)[i][j] - starting_data_index;
+              (*send_values_count_ptr)[access_index_dim_d] =
+                  (*data_points_ptr)[local_index][k];
+            }
+      }
     }
 
   }
