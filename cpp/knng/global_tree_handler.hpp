@@ -809,6 +809,7 @@ public:
 
 
     for(int i=0;i<grid->col_world_size;i++) {
+      cout <<"rank "<<grid->rank_in_col<<" processing rank "<<i<< endl;
       (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
       (*receive_values_count_ptr)[i]= (*receive_indices_count_ptr)[i]*data_dimension;
       (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_values_count_ptr)[i-1]:0;
