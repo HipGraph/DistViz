@@ -170,7 +170,7 @@ public:
     int total_receving = 0;
 
     //send distance threshold to original data owner
-    index_distance_pair<INDEX_TYPE> *out_index_dis = send_min_max_distance_to_data_owner(local_nns,receiving_indices_count.get(),disps_receiving_indices.get(),send_count,total_receving,nn);
+    vector<index_distance_pair<INDEX_TYPE>> *out_index_dis = send_min_max_distance_to_data_owner(local_nns,receiving_indices_count.get(),disps_receiving_indices.get(),send_count,total_receving,nn);
 
 
 //    vector<index_distance_pair<INDEX_TYPE>> final_sent_indices_to_rank_map(local_data_set_size);
@@ -253,7 +253,7 @@ public:
 
     //distribute minimum maximum distance threshold (for k=nn)
     MPI_Alltoallv((*in_index_dis).data(), (*sending_indices_count_ptr).data(), (*disps_sending_indices_ptr).data(), MPI_FLOAT_INT,(*out_index_dis).data(),
-                  (*receiving_indices_count), (*disps_receiving_indices).data(), MPI_FLOAT_INT, MPI_COMM_WORLD);
+                  (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_FLOAT_INT, MPI_COMM_WORLD);
 
     return out_index_dis.get();
 
