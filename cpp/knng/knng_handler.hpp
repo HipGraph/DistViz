@@ -234,11 +234,11 @@ public:
     for (int i = 0;i < grid->col_world_size;i++)
     {
       total_receiving += (*receiving_indices_count)[i];
-      (*disps_receiving_indices)[i] = (i > 0) ? (*disps_receiving_indices[i - 1] + (*receiving_indices_count)[i - 1]) : 0;
+      (*disps_receiving_indices)[i] = (i > 0) ? (*disps_receiving_indices)[i - 1] + (*receiving_indices_count)[i - 1] : 0;
     }
 //
-    unique_ptr<index_distance_pair<INDEX_TYPE>> in_index_dis = make_unique<index_distance_pair<INDEX_TYPE>>(send_count);
-    shared_ptr<index_distance_pair<INDEX_TYPE>> out_index_dis =  make_shared<index_distance_pair<INDEX_TYPE>>(total_receiving);
+    unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> in_index_dis = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(send_count);
+    shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> out_index_dis =  make_shared<vector<index_distance_pair<INDEX_TYPE>>>(total_receiving);
     int co_process = 0;
     for (int i = 0;i < grid->col_world_size;i++)
     {
@@ -252,7 +252,7 @@ public:
     }
 
     //distribute minimum maximum distance threshold (for k=nn)
-    MPI_Alltoallv(in_index_dis.get(), (*sending_indices_count_ptr).data(), (*disps_sending_indices_ptr).data(), MPI_FLOAT_INT,out_index_dis.get(),
+    MPI_Alltoallv((*in_index_dis).data(), (*sending_indices_count_ptr).data(), (*disps_sending_indices_ptr).data(), MPI_FLOAT_INT,(*out_index_dis).data(),
                   (*receiving_indices_count), (*disps_receiving_indices).data(), MPI_FLOAT_INT, MPI_COMM_WORLD);
 
     return out_index_dis.get();
