@@ -751,7 +751,7 @@ public:
 
   Eigen::MatrixXf collect_similar_data_points_of_all_trees(bool use_data_locality_optimization,
                                    vector<set<INDEX_TYPE>> &index_distribution,
-                                                           map<INDEX_TYPE,INDEX_TYPE>* global_to_local_index_map,
+                                                           map<INDEX_TYPE,INDEX_TYPE>* local_to_global_map,
                                                            map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nn_map) {
 
     int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
@@ -865,13 +865,15 @@ public:
         VALUE_TYPE val =    (*receive_indices_ptr)[index_trying];
         data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
       }
-      (*global_to_local_index_map)[*it]=total_data_count;
+      (*local_to_global_map)[total_data_count]=*it;
+      (*local_nn_map_ptr)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
       total_data_count++;
     }
 
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
-      (*global_to_local_index_map)[receive_index]= total_data_count+i;
+      (*local_to_global_map)[total_data_count+i]= receive_index;
+      (*local_nn_map_ptr)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
       for(int j=0;j<data_dimension;j++){
         auto access_index = i*data_dimension+j;
         data_matrix(j,total_data_count+i) =  (*receive_values_ptr)[access_index];
