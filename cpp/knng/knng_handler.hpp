@@ -159,26 +159,26 @@ public:
     int total_receving = 0;
 
     //send distance threshold to original data owner
-    index_distance_pair *out_index_dis = send_min_max_distance_to_data_owner(local_nns,receiving_indices_count,disps_receiving_indices,send_count,total_receving,nn);
+    index_distance_pair<INDEX_TYPE> *out_index_dis = send_min_max_distance_to_data_owner(local_nns,receiving_indices_count,disps_receiving_indices,send_count,total_receving,nn);
 
 
-    vector<index_distance_pair> final_sent_indices_to_rank_map(local_data_set_size);
+    vector<index_distance_pair<INDEX_TYPE>> final_sent_indices_to_rank_map(local_data_set_size);
     //
     //	//finalize data owners based on data owner having minimum distance threshold.
     this->finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
     //
     //	//announce the selected dataowner to all interesting data holders
-    vector<vector<index_distance_pair>> final_indices_allocation =  announce_final_dataowner(total_receving,
+    vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation =  announce_final_dataowner(total_receving,
                                                                                                   receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
     //
     //
-    std::map<int, vector<DataPoint>>final_nn_sending_map;
-    std::map<int, vector<DataPoint>>final_nn_map;
+    std::map<int, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>final_nn_sending_map;
+    std::map<int, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>final_nn_map;
     //
-    int* sending_selected_indices_count = new int[this->world_size]();
-    int* sending_selected_indices_nn_count = new int[this->world_size]();
+    int* sending_selected_indices_count = new int[grid->col_world_size]();
+    int* sending_selected_indices_nn_count = new int[grid->col_world_size]();
     //
-    int* receiving_selected_indices_count = new int[this->world_size]();
+    int* receiving_selected_indices_count = new int[grid->col_world_size]();
     int* receiving_selected_indices_nn_count = new int[this->world_size]();
     //
     //	//select final nns to be forwared to dataowners
@@ -281,7 +281,7 @@ public:
     }
   }
 //
-  vector<vector<index_distance_pair>> announce_final_dataowner(int total_receving,
+  vector<vector<index_distance_pair<INDEX_TYPE>>> announce_final_dataowner(int total_receving,
                                                                int *receiving_indices_count,
                                                                int *disps_receiving_indices,
                                                                index_distance_pair<INDEX_TYPE> *out_index_dis,
@@ -362,7 +362,7 @@ public:
   }
 //
   void select_final_forwarding_nns(vector<vector<index_distance_pair<INDEX_TYPE>>> &final_indices_allocation,
-                                                map<INDEX_TYPE, vector<>>* local_nns,
+                                                map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
                                                 map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_sending_map,
                                                 map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>*  final_nn_map,
                                                 int* sending_selected_indices_count,
