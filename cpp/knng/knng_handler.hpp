@@ -210,9 +210,9 @@ public:
                                       sending_selected_indices_count.get(),
                                       sending_selected_indices_nn_count.get());
 
-//    send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
-//                   receiving_selected_indices_count,final_nn_map.get(),
-//             final_nn_sending_map.get(),final_indices_allocation);
+    send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
+                   receiving_selected_indices_count,final_nn_map.get(),
+             final_nn_sending_map.get(),final_indices_allocation);
 
 
     return final_nn_map.get();
@@ -441,22 +441,21 @@ public:
 
   }
 //
-  void send_nns(int *sending_selected_indices_count,int *sending_selected_indices_nn_count,int *receiving_selected_indices_count,
+  void send_nns(vector<INDEX_TYPE> *sending_selected_indices_count,vector<INDEX_TYPE> *sending_selected_indices_nn_count,vector<INDEX_TYPE> *receiving_selected_indices_count,
                              std::map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_map,
                              std::map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_sending_map,
-                             vector<vector<index_distance_pair<INDEX_TYPE>>> &final_indices_allocation) {
+                             vector<vector<index_distance_pair<INDEX_TYPE>>>* final_indices_allocation) {
 
     int total_receiving_count = 0;
 
     int total_receiving_nn_count = 0;
 
-    MPI_Alltoall(sending_selected_indices_count,
-                 1, MPI_INT, receiving_selected_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Alltoall((*sending_selected_indices_count).data(),1, MPI_INT, (*receiving_selected_indices_count).data(), 1, MPI_INT, MPI_COMM_WORLD);
 
-    int* disps_receiving_selected_indices = new int[grid->col_world_size]();
-    int* disps_sending_selected_indices = new int[grid->col_world_size]();
-    int* disps_sending_selected_nn_indices = new int[grid->col_world_size]();
-    int* disps_receiving_selected_nn_indices = new int[grid->col_world_size]();
+    unique_ptr<vector<INDEX_TYPE>> disps_receiving_selected_indices = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> disps_sending_selected_indices =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> disps_sending_selected_nn_indices =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> disps_receiving_selected_nn_indices =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
 
     int total_selected_indices_count=0;
@@ -465,31 +464,31 @@ public:
 
     for (int i = 0;i < grid->col_world_size;i++)
     {
-      disps_receiving_selected_indices[i] = (i > 0) ? (disps_receiving_selected_indices[i - 1] +
-                                                       receiving_selected_indices_count[i - 1]) : 0;
-      disps_sending_selected_indices[i] = (i > 0) ? (disps_sending_selected_indices[i - 1] +
-                                                     sending_selected_indices_count[i - 1]) : 0;
-      disps_sending_selected_nn_indices[i] = (i > 0) ? (disps_sending_selected_nn_indices[i - 1] +
-                                                        sending_selected_indices_nn_count[i - 1]) : 0;
+      (*disps_receiving_selected_indices)[i] = (i > 0) ? (*disps_receiving_selected_indices)[i - 1] +
+                                                             (*receiving_selected_indices_count)[i - 1] : 0;
+      (*disps_sending_selected_indices)[i] = (i > 0) ? (*disps_sending_selected_indices)[i - 1] +
+                                                           (*sending_selected_indices_count)[i - 1] : 0;
+      (*disps_sending_selected_nn_indices)[i] = (i > 0) ? (*disps_sending_selected_nn_indices)[i - 1] +
+                                                              (*sending_selected_indices_nn_count)[i - 1] : 0;
 
-      total_selected_indices_count += sending_selected_indices_count[i];
-      total_selected_indices_nn_count += sending_selected_indices_nn_count[i];
+      total_selected_indices_count += (*sending_selected_indices_count)[i];
+      total_selected_indices_nn_count += (*sending_selected_indices_nn_count)[i];
     }
 
-    int* sending_selected_indices = new int[total_selected_indices_count]();
+    unique_ptr<vector<INDEX_TYPE>> sending_selected_indices = make_unique<vector<INDEX_TYPE>>(total_selected_indices_count);
 
-    int* sending_selected_nn_count_for_each_index = new int[total_selected_indices_count]();
+    unique_ptr<vector<INDEX_TYPE>> sending_selected_nn_count_for_each_index = make_unique<vector<INDEX_TYPE>>(total_selected_indices_count);
 
-    index_distance_pair<INDEX_TYPE>* sending_selected_nn = new index_distance_pair<INDEX_TYPE>[total_selected_indices_nn_count];
+    unique_vector<vector<index_distance_pair<INDEX_TYPE>> sending_selected_nn = make_unique<vector<index_distance_pair<INDEX_TYPE>>(total_selected_indices_nn_count);
 
     int inc = 0;
     int selected_nn = 0;
     for (int i = 0;i < grid->col_world_size;i++)
     {
-      total_receiving_count += receiving_selected_indices_count[i];
+      total_receiving_count += (*receiving_selected_indices_count)[i];
       if (i != grid->rank_in_col)
       {
-        vector<index_distance_pair<INDEX_TYPE>> final_indices = final_indices_allocation[i];
+        vector<index_distance_pair<INDEX_TYPE>> final_indices = (*final_indices_allocation)[i];
         for (int j = 0;j < final_indices.size();j++)
         {
           if ((*final_nn_sending_map).find(final_indices[j].index) != (*final_nn_sending_map).end())
@@ -497,17 +496,16 @@ public:
             vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> nn_sending = (*final_nn_sending_map)[final_indices[j].index];
             if (nn_sending.size()> 0)
             {
-              sending_selected_indices[inc] = final_indices[j].index;
+              (*sending_selected_indices)[inc] = final_indices[j].index;
               for (int k = 0;k < nn_sending.size();k++)
               {
-                sending_selected_nn[selected_nn].
+                (*sending_selected_nn)[selected_nn].
                     index = nn_sending[k].dst_index;
-                sending_selected_nn[selected_nn].
+                (*sending_selected_nn)[selected_nn].
                     distance = nn_sending[k].distance;
                 selected_nn++;
               }
-              sending_selected_nn_count_for_each_index[inc] = nn_sending.
-                                                              size();
+              (*sending_selected_nn_count_for_each_index)[inc] = nn_sending.size();
               inc++;
             }
           }
@@ -515,58 +513,56 @@ public:
       }
     }
 
-    int* receiving_selected_nn_indices_count = new int[total_receiving_count]();
+    unique_ptr<vector<INDEX_TYPE>> receiving_selected_nn_indices_count = make_unique<vector<INDEX_TYPE>>(total_receiving_count);
+    unique_ptr<vector<INDEX_TYPE>> receiving_selected_indices = make_unique<vector<INDEX_TYPE>>(total_receiving_count);
 
-    int* receiving_selected_indices = new int[total_receiving_count]();
 
-    MPI_Alltoallv(sending_selected_nn_count_for_each_index, sending_selected_indices_count,
-                  disps_sending_selected_indices, MPI_INT, receiving_selected_nn_indices_count,
-                  receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
-    );
+    MPI_Alltoallv((*sending_selected_nn_count_for_each_index).data(), (*sending_selected_indices_count).data(),
+                  (*disps_sending_selected_indices).data(), MPI_INDEX_TYPE, (*receiving_selected_nn_indices_count).data(),
+                  (*receiving_selected_indices_count).data(), (*disps_receiving_selected_indices).data(), MPI_INDEX_TYPE, grid->col_world);
 
-    MPI_Alltoallv(sending_selected_indices, sending_selected_indices_count, disps_sending_selected_indices, MPI_INT,
-                  receiving_selected_indices,
-                  receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
-    );
+    MPI_Alltoallv((*sending_selected_indices).data(), (*sending_selected_indices_count).data(), (*disps_sending_selected_indices).data(), MPI_INDEX_TYPE,
+                  (*receiving_selected_indices).data(),
+                  (*receiving_selected_indices_count).data(), (*disps_receiving_selected_indices).data(), MPI_INDEX_TYPE, grid->col_world);
 
-    int* receiving_selected_nn_indices_count_process = new int[grid->col_world_size]();
+    unique_ptr<vector<INDEX_TYPE>> receiving_selected_nn_indices_count_process = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
     for (int i = 0;i < grid->col_world_size;i++)
     {
-      int co = receiving_selected_indices_count[i];
-      int offset = disps_receiving_selected_indices[i];
+      int co = (*receiving_selected_indices_count)[i];
+      int offset = (*disps_receiving_selected_indices)[i];
 
       for (int k = offset;k < (co + offset); k++)
       {
-        receiving_selected_nn_indices_count_process[i] += receiving_selected_nn_indices_count[k];
+        (*receiving_selected_nn_indices_count_process)[i] += (*receiving_selected_nn_indices_count)[k];
       }
-      total_receiving_nn_count += receiving_selected_nn_indices_count_process[i];
+      total_receiving_nn_count += (*receiving_selected_nn_indices_count_process)[i];
 
-      disps_receiving_selected_nn_indices[i] = (i > 0) ? (disps_receiving_selected_nn_indices[i - 1] +
-                                                          receiving_selected_nn_indices_count_process[i - 1]) : 0;
+      (*disps_receiving_selected_nn_indices)[i] = (i > 0) ? (*disps_receiving_selected_nn_indices)[i - 1] +
+                                                                (*receiving_selected_nn_indices_count_process)[i - 1] : 0;
     }
 
-    index_distance_pair<INDEX_TYPE>* receving_selected_nn = new index_distance_pair<INDEX_TYPE>[total_receiving_nn_count];
+    unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> receving_selected_nn = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_receiving_nn_count);
 
 
 
 
-    MPI_Alltoallv(sending_selected_nn, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
+    MPI_Alltoallv((*sending_selected_nn).data(), (*sending_selected_indices_nn_count).data(), (*disps_sending_selected_nn_indices).data(),
                   MPI_FLOAT_INT,
-                  receving_selected_nn,
-                  receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_FLOAT_INT,
-                  MPI_COMM_WORLD);
+                  (*receving_selected_nn).data(),
+                  (*receiving_selected_nn_indices_count_process).data(), (*disps_receiving_selected_nn_indices).data(), MPI_FLOAT_INT,
+                  grid->col_world);
 
     int nn_index = 0;
     for (int i = 0;i < total_receiving_count;i++)
     {
-      int src_index = receiving_selected_indices[i];
-      int nn_count = receiving_selected_nn_indices_count[i];
+      auto src_index = (*receiving_selected_indices)[i];
+      auto nn_count = (*receiving_selected_nn_indices_count)[i];
       vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> vec;
       for (int j = 0;j < nn_count;j++)
       {
-        int nn_indi = receving_selected_nn[nn_index].index;
-        VALUE_TYPE distance = receving_selected_nn[nn_index].distance;
+        auto nn_indi = (*receving_selected_nn)[nn_index].index;
+        VALUE_TYPE distance = (*receving_selected_nn)[nn_index].distance;
         EdgeNode<INDEX_TYPE,VALUE_TYPE> dataPoint;
         dataPoint.src_index = src_index;
         dataPoint.dst_index = nn_indi;
@@ -596,8 +592,7 @@ public:
                    {
                      return lhs.distance < rhs.distance;
                    });
-        dst.
-            erase(unique(dst.begin(), dst.end(), [](const EdgeNode<INDEX_TYPE,VALUE_TYPE>& lhs,
+        dst.erase(unique(dst.begin(), dst.end(), [](const EdgeNode<INDEX_TYPE,VALUE_TYPE>& lhs,
                                                     const EdgeNode<INDEX_TYPE,VALUE_TYPE>& rhs)
                          {
                            return lhs.dst_index == rhs.dst_index;
