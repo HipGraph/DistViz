@@ -176,15 +176,16 @@ public:
     shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> final_sent_indices_to_rank_map = make_shared<vector<index_distance_pair<INDEX_TYPE>>>(local_data_set_size);
     //
     //	//finalize data owners based on data owner having minimum distance threshold.
+
     finalize_final_dataowner(receiving_indices_count.get(),
                              disps_receiving_indices.get(),
                              out_index_dis,
                              final_sent_indices_to_rank_map.get());
     //
     //	//announce the selected dataowner to all interesting data holders
-    vector<vector<index_distance_pair<INDEX_TYPE>>>* final_indices_allocation =  announce_final_dataowner(total_receving,
-                                                                                                  receiving_indices_count.get(), disps_receiving_indices.get(),
-                                                                                                        out_index_dis,final_sent_indices_to_rank_map.get());
+//    vector<vector<index_distance_pair<INDEX_TYPE>>>* final_indices_allocation =  announce_final_dataowner(total_receving,
+//                                                                                                  receiving_indices_count.get(), disps_receiving_indices.get(),
+//                                                                                                        out_index_dis,final_sent_indices_to_rank_map.get());
     //
     //
 
