@@ -149,6 +149,9 @@ public:
       }
     }
 
+    communicate_nns((local_nn_map_ptr).get(),nn);
+
+
   }
 
   map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,int nn) {
