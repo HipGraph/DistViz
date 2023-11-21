@@ -207,7 +207,7 @@ public:
   }
 ////
 ////
-  index_distance_pair<INDEX_TYPE>* send_min_max_distance_to_data_owner(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
+  vector<index_distance_pair<INDEX_TYPE>>* send_min_max_distance_to_data_owner(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
                                                                                       vector<INDEX_TYPE>* receiving_indices_count,
                                                                                       vector<INDEX_TYPE>* disps_receiving_indices,
                                                                                      int &send_count,int &total_receiving, int nn) {
