@@ -382,9 +382,6 @@ public:
         }
       }
     }
-
-    return final_indices_allocation.get();
-
   }
 //
   void select_final_forwarding_nns(vector<vector<index_distance_pair<INDEX_TYPE>>> &final_indices_allocation,
