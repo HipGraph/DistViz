@@ -242,7 +242,7 @@ public:
     for (int i = 0;i < grid->col_world_size;i++)
     {
       set<INDEX_TYPE> process_se_indexes = (*process_se_indexes_ptr)[i];
-      for (set<INDEX_TYPE>::iterator it = process_se_indexes.begin();it != process_se_indexes.end();it++)
+      for (auto it = process_se_indexes.begin();it != process_se_indexes.end();it++)
       {
         in_index_dis[co_process].index = (*it);
         in_index_dis[co_process].distance = (*local_nns)[(*it)][nn - 1].distance;
