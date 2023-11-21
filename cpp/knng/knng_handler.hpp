@@ -277,7 +277,7 @@ public:
 
     cout<<"rank "<<grid->rank_in_col<<" size: "<<out_index_dis->size()<<endl;
     if (out_index_dis->size()>0) {
-      //#pragma omp parallel for
+      #pragma omp parallel for
       for (int i = starting_data_index; i < my_end_index; i++) {
         int selected_rank = -1;
         int search_index = i;
@@ -320,8 +320,7 @@ public:
     for (int i = 0;i < total_receving;i++)
     {
       (*minimal_index_distance)[i].index = (*out_index_dis)[i].index;
-//      (*minimal_index_distance)[i].
-//          distance = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].distance;
+      (*minimal_index_distance)[i].distance = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].distance;
 //      (*minimal_selected_rank_sending)[i] = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].index; //TODO: replace
     }
 
