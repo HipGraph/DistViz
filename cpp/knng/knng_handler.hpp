@@ -210,9 +210,9 @@ public:
                                       sending_selected_indices_count.get(),
                                       sending_selected_indices_nn_count.get());
 
-    send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
-                   receiving_selected_indices_count,final_nn_map.get(),
-             final_nn_sending_map.get(),final_indices_allocation);
+    send_nns(sending_selected_indices_count.get(),sending_selected_indices_nn_count.get(),
+                   receiving_selected_indices_count.get(),final_nn_map.get(),
+             final_nn_sending_map.get(),final_indices_allocation.get());
 
 
     return final_nn_map.get();
