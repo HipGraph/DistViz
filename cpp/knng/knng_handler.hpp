@@ -220,8 +220,8 @@ public:
       disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
     }
 
-    index_distance_pair *in_index_dis = new index_distance_pair[send_count];
-    index_distance_pair *out_index_dis =  new index_distance_pair[total_receiving];
+    index_distance_pair<INDEX_TYPE> *in_index_dis = new index_distance_pair<INDEX_TYPE>[send_count];
+    index_distance_pair<INDEX_TYPE> *out_index_dis =  new index_distance_pair<INDEX_TYPE>[total_receiving];
     int co_process = 0;
     for (int i = 0;i < this->world_size;i++)
     {
@@ -314,7 +314,7 @@ public:
     }
 
     int* minimal_selected_rank_reciving = new int[total_receivce_back]();
-    index_distance_pair minimal_index_distance_receiv[total_receivce_back];
+    index_distance_pair<INDEX_TYPE> minimal_index_distance_receiv[total_receivce_back];
 
 
     MPI_Alltoallv(minimal_index_distance, receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT,
@@ -374,7 +374,7 @@ public:
 #pragma omp parallel for
       for (int j = 0;j < final_indices_allocation[i].size();j++)
       {
-        index_distance_pair in_dis = final_indices_allocation[i][j];
+        index_distance_pair<INDEX_TYPE> in_dis = final_indices_allocation[i][j];
         int selected_index = in_dis.index;
         float dst_th = in_dis.distance;
         if (i != this->rank)
@@ -456,7 +456,7 @@ public:
 
     int* sending_selected_nn_count_for_each_index = new int[total_selected_indices_count]();
 
-    index_distance_pair* sending_selected_nn = new index_distance_pair[total_selected_indices_nn_count];
+    index_distance_pair<INDEX_TYPE>* sending_selected_nn = new index_distance_pair<INDEX_TYPE>[total_selected_indices_nn_count];
 
     int inc = 0;
     int selected_nn = 0;
@@ -522,7 +522,7 @@ public:
                                                           receiving_selected_nn_indices_count_process[i - 1]) : 0;
     }
 
-    index_distance_pair<INDEX_TYPE>* receving_selected_nn = new index_distance_pair[total_receiving_nn_count];
+    index_distance_pair<INDEX_TYPE>* receving_selected_nn = new index_distance_pair<INDEX_TYPE>[total_receiving_nn_count];
 
 
 
@@ -538,7 +538,7 @@ public:
     {
       int src_index = receiving_selected_indices[i];
       int nn_count = receiving_selected_nn_indices_count[i];
-      vector<EdgeNode> vec;
+      vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> vec;
       for (int j = 0;j < nn_count;j++)
       {
         int nn_indi = receving_selected_nn[nn_index].index;
@@ -558,23 +558,23 @@ public:
       }
       else
       {
-        vector<EdgeNode> dst;
-        vector<EdgeNode> ex_vec = its->second;
+        vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> dst;
+        vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> ex_vec = its->second;
         sort(vec.begin(), vec.end(),
-             [](const EdgeNode& lhs,const EdgeNode& rhs)
+             [](const EdgeNode<INDEX_TYPE,VALUE_TYPE>& lhs,const EdgeNode<INDEX_TYPE,VALUE_TYPE>& rhs)
              {
                return lhs.distance < rhs.distance;
              });
         std::merge(ex_vec.begin(), ex_vec.end(), vec.begin(),
                    vec.end(), std::back_inserter(dst),
-                   [](const EdgeNode& lhs,const EdgeNode& rhs
+                   [](const EdgeNode<INDEX_TYPE,VALUE_TYPE>& lhs,const EdgeNode<INDEX_TYPE,VALUE_TYPE>& rhs
                    )
                    {
                      return lhs.distance < rhs.distance;
                    });
         dst.
-            erase(unique(dst.begin(), dst.end(), [](const EdgeNode& lhs,
-                                                    const EdgeNode& rhs)
+            erase(unique(dst.begin(), dst.end(), [](const EdgeNod<INDEX_TYPE,VALUE_TYPE>>& lhs,
+                                                    const EdgeNode<INDEX_TYPE,VALUE_TYPE>& rhs)
                          {
                            return lhs.dst_index == rhs.dst_index;
                          }),
