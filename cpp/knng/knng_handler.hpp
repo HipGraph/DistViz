@@ -140,7 +140,8 @@ public:
       EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
       edge.src_index=global_index;
       for(int k=0;k<nn;k++){
-       edge.dst_index = (*datamap_ptr)[tempRow[k]];
+//       edge.dst_index = (*datamap_ptr)[tempRow[k]];
+       edge.dst_index = tempRow[k];
        edge.distance = tempDis[k];
 //       (*local_nn_map_ptr)[global_index][k]=edge;
       }
