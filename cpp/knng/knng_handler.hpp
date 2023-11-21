@@ -479,7 +479,7 @@ public:
 
     unique_ptr<vector<INDEX_TYPE>> sending_selected_nn_count_for_each_index = make_unique<vector<INDEX_TYPE>>(total_selected_indices_count);
 
-    unique_vector<vector<index_distance_pair<INDEX_TYPE>>> sending_selected_nn = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_selected_indices_nn_count);
+    unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> sending_selected_nn = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_selected_indices_nn_count);
 
     int inc = 0;
     int selected_nn = 0;
