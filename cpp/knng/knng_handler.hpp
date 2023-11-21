@@ -320,9 +320,9 @@ public:
     for (int i = 0;i < total_receving;i++)
     {
       (*minimal_index_distance)[i].index = (*out_index_dis)[i].index;
-      (*minimal_index_distance)[i].
-          distance = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].distance;
-      (*minimal_selected_rank_sending)[i] = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].index; //TODO: replace
+//      (*minimal_index_distance)[i].
+//          distance = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].distance;
+//      (*minimal_selected_rank_sending)[i] = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].index; //TODO: replace
     }
 
 //    unique_ptr<vector<INDEX_TYPE>> receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
