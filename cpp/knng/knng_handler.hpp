@@ -163,13 +163,14 @@ public:
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 
 
-    int* receiving_indices_count = new int[grid->col_world_size]();
-    int* disps_receiving_indices = new int[grid->col_world_size]();
+    shared_ptr<vector<INDEX_TYPE>> receiving_indices_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> disps_receiving_indices = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+
     int send_count = 0;
     int total_receving = 0;
 
     //send distance threshold to original data owner
-    index_distance_pair<INDEX_TYPE> *out_index_dis = send_min_max_distance_to_data_owner(local_nns,receiving_indices_count,disps_receiving_indices,send_count,total_receving,nn);
+    index_distance_pair<INDEX_TYPE> *out_index_dis = send_min_max_distance_to_data_owner(local_nns,receiving_indices_count.get(),disps_receiving_indices.get(),send_count,total_receving,nn);
 
 
 //    vector<index_distance_pair<INDEX_TYPE>> final_sent_indices_to_rank_map(local_data_set_size);
