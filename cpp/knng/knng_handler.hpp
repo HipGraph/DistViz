@@ -173,14 +173,15 @@ public:
     vector<index_distance_pair<INDEX_TYPE>> *out_index_dis = send_min_max_distance_to_data_owner(local_nns,receiving_indices_count.get(),disps_receiving_indices.get(),send_count,total_receving,nn);
 
 
-    vector<index_distance_pair<INDEX_TYPE>> final_sent_indices_to_rank_map(local_data_set_size);
+    shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> final_sent_indices_to_rank_map = make_shared<vector<index_distance_pair<INDEX_TYPE>>>(local_data_set_size);
     //
     //	//finalize data owners based on data owner having minimum distance threshold.
-    finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
+    finalize_final_dataowner(receiving_indices_count.get(),disps_receiving_indices.get(),out_index_dis.get(),final_sent_indices_to_rank_map.get());
     //
     //	//announce the selected dataowner to all interesting data holders
     vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation =  announce_final_dataowner(total_receving,
-                                                                                                  receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
+                                                                                                  receiving_indices_count.get(), disps_receiving_indices.get(),
+                                                                                                        out_index_dis.get(),final_sent_indices_to_rank_map.get());
     //
     //
 
@@ -325,7 +326,7 @@ public:
     {
       total_receivce_back += (*receiving_indices_count_back)[i];
       (*disps_receiving_indices_count_back)[i] = (i > 0) ?
-                                                      (*disps_receiving_indices_count_back)[i - 1] + (*receiving_indices_count_back)[i - 1]) : 0;
+                                                      (*disps_receiving_indices_count_back)[i - 1] + (*receiving_indices_count_back)[i - 1] : 0;
     }
 
     unique_ptr<vector<INDEX_TYPE>> minimal_selected_rank_reciving =  make_unique<vector<INDEX_TYPE>>(total_receivce_back);
