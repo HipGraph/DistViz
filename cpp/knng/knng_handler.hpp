@@ -243,6 +243,7 @@ public:
 //
     unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> in_index_dis = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(send_count);
     shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> out_index_dis =  make_shared<vector<index_distance_pair<INDEX_TYPE>>>(total_receiving);
+    cout<<" rank "<<grid->rank_in_col<<" before  total_receiving  "<<total_receiving<<endl;
     int co_process = 0;
     for (int i = 0;i < grid->col_world_size;i++)
     {
