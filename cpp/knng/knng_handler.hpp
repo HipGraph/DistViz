@@ -212,13 +212,14 @@ public:
 
     for (int i = 0;i < grid->col_world_size;i++)
     {
-      sending_indices_count[i] = (*process_to_index_set_ptr)[i].size();
+//      sending_indices_count[i] = (*process_to_index_set_ptr)[i].size();
+      sending_indices_count[i] = 30000;
       send_count += sending_indices_count[i];
       disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;
     }
 
     //sending back received data during collect similar data points to original process
-//    MPI_Alltoall(sending_indices_count,1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Alltoall(sending_indices_count,1, MPI_INDEX_TYPE, receiving_indices_count, 1, MPI_INDEX_TYPE, grid->col_world);
 //
 //    for (int i = 0;i < grid->col_world_size;i++)
 //    {
