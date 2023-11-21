@@ -121,7 +121,7 @@ public:
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
 
-    Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,index_distribution,datamap_ptr.get(),local_nn_map_ptr.get());
+    Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,index_distribution,datamap_ptr.get(),local_nn_map_ptr.get(),nn);
 
     cout<<"rank "<<grid->rank_in_col<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
 
