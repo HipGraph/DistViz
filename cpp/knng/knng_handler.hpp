@@ -173,18 +173,18 @@ public:
     vector<index_distance_pair<INDEX_TYPE>> *out_index_dis = send_min_max_distance_to_data_owner(local_nns,receiving_indices_count.get(),disps_receiving_indices.get(),send_count,total_receving,nn);
 
 
-//    vector<index_distance_pair<INDEX_TYPE>> final_sent_indices_to_rank_map(local_data_set_size);
-//    //
-//    //	//finalize data owners based on data owner having minimum distance threshold.
-//    this->finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
-//    //
-//    //	//announce the selected dataowner to all interesting data holders
-//    vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation =  announce_final_dataowner(total_receving,
-//                                                                                                  receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
-//    //
-//    //
-//
-//    //
+    vector<index_distance_pair<INDEX_TYPE>> final_sent_indices_to_rank_map(local_data_set_size);
+    //
+    //	//finalize data owners based on data owner having minimum distance threshold.
+    finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
+    //
+    //	//announce the selected dataowner to all interesting data holders
+    vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation =  announce_final_dataowner(total_receving,
+                                                                                                  receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
+    //
+    //
+
+    //
 //    int* sending_selected_indices_count = new int[grid->col_world_size]();
 //    int* sending_selected_indices_nn_count = new int[grid->col_world_size]();
 //    //
@@ -205,8 +205,7 @@ public:
 
     return final_nn_map.get();
   }
-////
-////
+
   vector<index_distance_pair<INDEX_TYPE>>* send_min_max_distance_to_data_owner(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
                                                                                       vector<INDEX_TYPE>* receiving_indices_count,
                                                                                       vector<INDEX_TYPE>* disps_receiving_indices,
@@ -260,8 +259,8 @@ public:
   }
 //
 //
-  void finalize_final_dataowner(int *receiving_indices_count,int *disps_receiving_indices,
-                                             index_distance_pair<INDEX_TYPE> *out_index_dis,vector<index_distance_pair<INDEX_TYPE>> &final_sent_indices_to_rank_map) {
+  void finalize_final_dataowner(vector<INDEX_TYPE>* receiving_indices_count,vector<INDEX_TYPE> *disps_receiving_indices,
+                                             vector<index_distance_pair<INDEX_TYPE>> *out_index_dis,vector<index_distance_pair<INDEX_TYPE>> *final_sent_indices_to_rank_map) {
 
     int my_end_index = starting_data_index + local_data_set_size;
 
@@ -270,20 +269,20 @@ public:
     {
       int selected_rank = -1;
       int search_index = i;
-      float minium_distance = std::numeric_limits<float>::max();
+      float minium_distance = std::numeric_limits<float>::max(); //tight bound
 
       for (int j = 0;j < grid->col_world_size;j++)
       {
-        int amount = receiving_indices_count[j];
-        int offset = disps_receiving_indices[j];
+        int amount = (*receiving_indices_count)[j];
+        int offset = (*disps_receiving_indices)[j];
 
         for (int k = offset;k < (offset + amount); k++)
         {
-          if (search_index == out_index_dis[k].index)
+          if (search_index == (*out_index_dis)[k].index)
           {
-            if (minium_distance > out_index_dis[k].distance)
+            if (minium_distance > (*out_index_dis)[k].distance)
             {
-              minium_distance = out_index_dis[k].distance;
+              minium_distance = (*out_index_dis)[k].distance;
               selected_rank = j;
             }
             break;
@@ -293,57 +292,57 @@ public:
       index_distance_pair<INDEX_TYPE> rank_distance;
       rank_distance.index = selected_rank;  //TODO: replace with rank
       rank_distance.distance = minium_distance;
-      final_sent_indices_to_rank_map[search_index - starting_data_index] = rank_distance;
+      (*final_sent_indices_to_rank_map)[search_index - starting_data_index] = rank_distance;
     }
   }
 //
-  vector<vector<index_distance_pair<INDEX_TYPE>>> announce_final_dataowner(int total_receving,
-                                                               int *receiving_indices_count,
-                                                               int *disps_receiving_indices,
-                                                               index_distance_pair<INDEX_TYPE> *out_index_dis,
-                                                               vector<index_distance_pair<INDEX_TYPE>> &final_sent_indices_to_rank_map) {
+  vector<vector<index_distance_pair<INDEX_TYPE>>>* announce_final_dataowner(int total_receving,
+                                                               vector<INDEX_TYPE> *receiving_indices_count,
+                                                               vector<INDEX_TYPE> *disps_receiving_indices,
+                                                               vector<index_distance_pair<INDEX_TYPE>> *out_index_dis,
+                                                               vector<index_distance_pair<INDEX_TYPE>> *final_sent_indices_to_rank_map) {
 
-    int* minimal_selected_rank_sending = new int[total_receving]();
-    index_distance_pair<INDEX_TYPE> minimal_index_distance[total_receving];
+    unique_ptr<vector<INDEX_TYPE>> minimal_selected_rank_sending = make_unique<vector<INDEX_TYPE>>(total_receving);
+    unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> minimal_index_distance = make_unique<vector<INDEX_TYPE>>(total_receving);
 
 #pragma omp parallel for
     for (int i = 0;i < total_receving;i++)
     {
-      minimal_index_distance[i].index = out_index_dis[i].index;
-      minimal_index_distance[i].
-          distance = final_sent_indices_to_rank_map[out_index_dis[i].index - starting_data_index].distance;
-      minimal_selected_rank_sending[i] = final_sent_indices_to_rank_map[out_index_dis[i].index - starting_data_index].index; //TODO: replace
+      (*minimal_index_distance)[i].index = (*out_index_dis)[i].index;
+      (*minimal_index_distance)[i].
+          distance = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].distance;
+      (*minimal_selected_rank_sending)[i] = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].index; //TODO: replace
     }
 
-    int* receiving_indices_count_back = new int[grid->col_world_size]();
-    int* disps_receiving_indices_count_back = new int[grid->col_world_size]();
+    unique_ptr<vector<INDEX_TYPE>> receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> disps_receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
     // we recalculate how much we are receiving for minimal dst distribution
-    MPI_Alltoall(receiving_indices_count,1, MPI_INT, receiving_indices_count_back, 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Alltoall((*receiving_indices_count).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count_back).data(), 1, MPI_INDEX_TYPE, grid->col_world);
 
     int total_receivce_back = 0;
     for (int i = 0;i < grid->col_world_size;i++)
     {
-      total_receivce_back += receiving_indices_count_back[i];
-      disps_receiving_indices_count_back[i] = (i > 0) ?
-                                                      (disps_receiving_indices_count_back[i - 1] + receiving_indices_count_back[i - 1]) : 0;
+      total_receivce_back += (*receiving_indices_count_back)[i];
+      (*disps_receiving_indices_count_back)[i] = (i > 0) ?
+                                                      (*disps_receiving_indices_count_back)[i - 1] + (*receiving_indices_count_back)[i - 1]) : 0;
     }
 
-    int* minimal_selected_rank_reciving = new int[total_receivce_back]();
-    index_distance_pair<INDEX_TYPE> minimal_index_distance_receiv[total_receivce_back];
+    unique_ptr<vector<INDEX_TYPE>> minimal_selected_rank_reciving =  make_unique<vector<INDEX_TYPE>>(total_receivce_back);
+    unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> minimal_index_distance_receiv = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_receivce_back);
 
 
-    MPI_Alltoallv(minimal_index_distance, receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT,
-                  minimal_index_distance_receiv,
-                  receiving_indices_count_back, disps_receiving_indices_count_back, MPI_FLOAT_INT, MPI_COMM_WORLD);
+    MPI_Alltoallv((*minimal_index_distance).data(), (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_FLOAT_INT,
+                  (*minimal_index_distance_receiv).data(),
+                  (*receiving_indices_count_back).data(), (*disps_receiving_indices_count_back).data(), MPI_FLOAT_INT,  grid->col_world);
 
 
-    MPI_Alltoallv(minimal_selected_rank_sending, receiving_indices_count, disps_receiving_indices, MPI_INT,
-                  minimal_selected_rank_reciving,
-                  receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD);
+    MPI_Alltoallv((*minimal_selected_rank_sending).data(), (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_INT,
+                  (*minimal_selected_rank_reciving).data(),
+                  (*receiving_indices_count_back).data(), (*disps_receiving_indices_count_back).data(), MPI_INT, MPI_COMM_WORLD);
 
 
-    vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation(grid->col_world_size);
+    shared_ptr<vector<vector<index_distance_pair<INDEX_TYPE>>>> final_indices_allocation = make_shared<vector<vector<index_distance_pair<INDEX_TYPE>>>>(grid->col_world_size);
 
 #pragma omp parallel
     {
@@ -353,11 +352,9 @@ public:
       for (int i = 0;i < total_receivce_back;i++)
       {
         index_distance_pair<INDEX_TYPE> distance_pair;
-        distance_pair.
-            index = minimal_index_distance_receiv[i].index;
-        distance_pair.
-            distance = minimal_index_distance_receiv[i].distance;
-        final_indices_allocation_local[minimal_selected_rank_reciving[i]].
+        distance_pair.index = (*minimal_index_distance_receiv)[i].index;
+        distance_pair.distance = (*minimal_index_distance_receiv)[i].distance;
+        final_indices_allocation_local[(*minimal_selected_rank_reciving)[i]].
             push_back(distance_pair);
 
       }
@@ -366,14 +363,14 @@ public:
       {
         for (int i = 0;i < grid->col_world_size;i++)
         {
-          final_indices_allocation[i].insert(final_indices_allocation[i].end(),
+          (*final_indices_allocation)[i].insert((*final_indices_allocation)[i].end(),
                                              final_indices_allocation_local[i].begin(),
                                              final_indices_allocation_local[i].end());
         }
       }
     }
 
-    return final_indices_allocation;
+    return final_indices_allocation.get();
 
   }
 //
