@@ -143,17 +143,17 @@ public:
        edge.src_index=global_index;
        edge.dst_index = (*datamap_ptr)[tempRow[k]];
        edge.distance = tempDis[k];
-       (*local_nn_map_ptr)[global_index][k]=edge;
+//       (*local_nn_map_ptr)[global_index][k]=edge;
       }
     }
 
-    for (const auto& entry : (*local_nn_map_ptr)) {
-      if (grid->rank_in_col==0) {
-        std::cout << "src: " << entry.first
-                  << ", dst: " << entry.second[1].dst_index
-                  << ", distance: " << entry.second[1].distance << std::endl;
-      }
-    }
+//    for (const auto& entry : (*local_nn_map_ptr)) {
+//      if (grid->rank_in_col==0) {
+//        std::cout << "src: " << entry.first
+//                  << ", dst: " << entry.second[1].dst_index
+//                  << ", distance: " << entry.second[1].distance << std::endl;
+//      }
+//    }
 
   }
 };
