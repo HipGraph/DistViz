@@ -197,7 +197,7 @@ public:
   }
 ////
 ////
-  index_distance_pair<INDEX_TYPE>* send_min_max_distance_to_data_owner(map<INDEX_TYPE, vector<>>* local_nns,
+  index_distance_pair<INDEX_TYPE>* send_min_max_distance_to_data_owner(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
                                                                                      int* receiving_indices_count,
                                                                                      int* disps_receiving_indices,
                                                                                      int &send_count,int &total_receiving, int nn) {
@@ -245,7 +245,7 @@ public:
 //
 //
   void finalize_final_dataowner(int *receiving_indices_count,int *disps_receiving_indices,
-                                             index_distance_pair *out_index_dis,vector<index_distance_pair> &final_sent_indices_to_rank_map) {
+                                             index_distance_pair<INDEX_TYPE> *out_index_dis,vector<index_distance_pair<INDEX_TYPE>> &final_sent_indices_to_rank_map) {
 
     int my_end_index = starting_data_index + local_data_set_size;
 
@@ -274,7 +274,7 @@ public:
           }
         }
       }
-      index_distance_pair rank_distance;
+      index_distance_pair<INDEX_TYPE> rank_distance;
       rank_distance.index = selected_rank;  //TODO: replace with rank
       rank_distance.distance = minium_distance;
       final_sent_indices_to_rank_map[search_index - starting_data_index] = rank_distance;
@@ -284,19 +284,19 @@ public:
   vector<vector<index_distance_pair>> announce_final_dataowner(int total_receving,
                                                                int *receiving_indices_count,
                                                                int *disps_receiving_indices,
-                                                               index_distance_pair *out_index_dis,
-                                                               vector<index_distance_pair> &final_sent_indices_to_rank_map) {
+                                                               index_distance_pair<INDEX_TYPE> *out_index_dis,
+                                                               vector<index_distance_pair<INDEX_TYPE>> &final_sent_indices_to_rank_map) {
 
     int* minimal_selected_rank_sending = new int[total_receving]();
-    index_distance_pair minimal_index_distance[total_receving];
+    index_distance_pair<INDEX_TYPE> minimal_index_distance[total_receving];
 
 #pragma omp parallel for
     for (int i = 0;i < total_receving;i++)
     {
       minimal_index_distance[i].index = out_index_dis[i].index;
       minimal_index_distance[i].
-          distance = final_sent_indices_to_rank_map[out_index_dis[i].index - this->starting_data_index].distance;
-      minimal_selected_rank_sending[i] = final_sent_indices_to_rank_map[out_index_dis[i].index - this->starting_data_index].index; //TODO: replace
+          distance = final_sent_indices_to_rank_map[out_index_dis[i].index - starting_data_index].distance;
+      minimal_selected_rank_sending[i] = final_sent_indices_to_rank_map[out_index_dis[i].index - starting_data_index].index; //TODO: replace
     }
 
     int* receiving_indices_count_back = new int[grid->col_world_size]();
@@ -327,16 +327,16 @@ public:
                   receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD);
 
 
-    vector<vector<index_distance_pair>> final_indices_allocation(grid->col_world_size);
+    vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation(grid->col_world_size);
 
 #pragma omp parallel
     {
-      vector<vector<index_distance_pair>> final_indices_allocation_local(grid->col_world_size);
+      vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation_local(grid->col_world_size);
 
 #pragma omp  for nowait
       for (int i = 0;i < total_receivce_back;i++)
       {
-        index_distance_pair distance_pair;
+        index_distance_pair<INDEX_TYPE> distance_pair;
         distance_pair.
             index = minimal_index_distance_receiv[i].index;
         distance_pair.
@@ -361,7 +361,7 @@ public:
 
   }
 //
-  void select_final_forwarding_nns(vector<vector<index_distance_pair>> &final_indices_allocation,
+  void select_final_forwarding_nns(vector<vector<index_distance_pair<INDEX_TYPE>>> &final_indices_allocation,
                                                 map<INDEX_TYPE, vector<>>* local_nns,
                                                 map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_sending_map,
                                                 map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>*  final_nn_map,
@@ -420,7 +420,7 @@ public:
   void send_nns(int *sending_selected_indices_count,int *sending_selected_indices_nn_count,int *receiving_selected_indices_count,
                              std::map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_map,
                              std::map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_sending_map,
-                             vector<vector<index_distance_pair>> &final_indices_allocation) {
+                             vector<vector<index_distance_pair<INDEX_TYPE>>> &final_indices_allocation) {
 
     int total_receiving_count = 0;
 
@@ -465,7 +465,7 @@ public:
       total_receiving_count += receiving_selected_indices_count[i];
       if (i != grid->rank_in_col)
       {
-        vector<index_distance_pair> final_indices = final_indices_allocation[i];
+        vector<index_distance_pair<INDEX_TYPE>> final_indices = final_indices_allocation[i];
         for (int j = 0;j < final_indices.size();j++)
         {
           if ((*final_nn_sending_map).find(final_indices[j].index) != (*final_nn_sending_map).end())
@@ -522,7 +522,7 @@ public:
                                                           receiving_selected_nn_indices_count_process[i - 1]) : 0;
     }
 
-    index_distance_pair* receving_selected_nn = new index_distance_pair[total_receiving_nn_count];
+    index_distance_pair<INDEX_TYPE>* receving_selected_nn = new index_distance_pair[total_receiving_nn_count];
 
 
 
