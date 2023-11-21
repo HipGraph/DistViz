@@ -246,7 +246,8 @@ public:
 //
 //    delete [] sending_indices_count;
 //    delete [] disps_sending_indices;
-    return out_index_dis;
+//    return out_index_dis;
+    return nullptr;
   }
 //
 //
