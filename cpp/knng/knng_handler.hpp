@@ -151,7 +151,7 @@ public:
 
   }
 
-  map<INDEX_TYPE, vector<EdgeNode<INDEX<TYPE,VALUE_TYPE>>>* communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX<TYPE,VALUE_TYPE>>>* local_nns,int nn) {
+  map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,int nn) {
 
     int* receiving_indices_count = new int[grid->col_world_size]();
     int* disps_receiving_indices = new int[grid->col_world_size]();
