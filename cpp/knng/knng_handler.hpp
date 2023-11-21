@@ -128,34 +128,466 @@ public:
     Mrpt mrpt(data_matrix);
     mrpt.grow_autotune(target_recall, nn);
 
-//    Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
-//    Eigen::MatrixXf distances(data_matrix.cols(),nn);
+    Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
+    Eigen::MatrixXf distances(data_matrix.cols(),nn);
 
     #pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
       Eigen::VectorXi tempRow(nn);
       Eigen::VectorXf tempDis(nn);
       mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
-      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
+      neighbours.row(i)=tempRow;
+      distances.row(i)=distances;
+//      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
       EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
       edge.src_index=global_index;
       for(int k=0;k<nn;k++){
 //       edge.dst_index = (*datamap_ptr)[tempRow[k]];
        edge.dst_index = tempRow[k];
        edge.distance = tempDis[k];
-//       (*local_nn_map_ptr)[global_index][k]=edge;
+       (*local_nn_map_ptr)[global_index].push_back(edge);
       }
     }
 
-//    for (const auto& entry : (*local_nn_map_ptr)) {
-//      if (grid->rank_in_col==0) {
-//        std::cout << "src: " << entry.first
-//                  << ", dst: " << entry.second[1].dst_index
-//                  << ", distance: " << entry.second[1].distance << std::endl;
+  }
+
+//  std::map<int,vector<drpt::DataPoint>> drpt::MDRPT::communicate_nns(map<int, vector<drpt::DataPoint>> &local_nns,
+//                                                                      set<int> &keys,int nn) {
+//
+//    int* receiving_indices_count = new int[this->world_size]();
+//    int* disps_receiving_indices = new int[this->world_size]();
+//    int send_count = 0;
+//    int total_receving = 0;
+//
+//    //send distance threshold to original data owner
+//    index_distance_pair *out_index_dis = this->send_min_max_distance_to_data_owner(local_nns,
+//                                                                                   receiving_indices_count,disps_receiving_indices,send_count,total_receving,nn);
+//
+//
+//    vector<index_distance_pair> final_sent_indices_to_rank_map(this->local_data_set_size);
+//    //
+//    //	//finalize data owners based on data owner having minimum distance threshold.
+//    this->finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
+//    //
+//    //	//announce the selected dataowner to all interesting data holders
+//    vector<vector<index_distance_pair>> final_indices_allocation =  this->announce_final_dataowner(total_receving,
+//                                                                                                  receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
+//    //
+//    //
+//    std::map<int, vector<DataPoint>>final_nn_sending_map;
+//    std::map<int, vector<DataPoint>>final_nn_map;
+//    //
+//    int* sending_selected_indices_count = new int[this->world_size]();
+//    int* sending_selected_indices_nn_count = new int[this->world_size]();
+//    //
+//    int* receiving_selected_indices_count = new int[this->world_size]();
+//    int* receiving_selected_indices_nn_count = new int[this->world_size]();
+//    //
+//    //	//select final nns to be forwared to dataowners
+//    this->select_final_forwarding_nns(final_indices_allocation,
+//                                      local_nns,
+//                                      final_nn_sending_map,final_nn_map,
+//                                      sending_selected_indices_count,
+//                                      sending_selected_indices_nn_count);
+//    //
+//    //
+//    this->send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
+//                   receiving_selected_indices_count,final_nn_map,final_nn_sending_map,final_indices_allocation);
+//
+//
+//    return final_nn_map;
+//  }
+//
+//
+//  drpt::MDRPT::index_distance_pair* drpt::MDRPT::send_min_max_distance_to_data_owner(map<int, vector<drpt::DataPoint>>& local_nns,
+//                                                                                     int* receiving_indices_count,int* disps_receiving_indices,
+//                                                                                     int &send_count,int &total_receiving, int nn) {
+//    int* sending_indices_count = new int[this->world_size]();
+//    int* disps_sending_indices = new int[this->world_size]();
+//
+//    for (int i = 0;i < this->world_size;i++)
+//    {
+//      sending_indices_count[i] = this->index_distribution[i].size();
+//      send_count += sending_indices_count[i];
+//      disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;
+//    }
+//
+//    //sending back received data during collect similar data points to original process
+//    MPI_Alltoall(sending_indices_count,1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
+//
+//    for (int i = 0;i < this->world_size;i++)
+//    {
+//      total_receiving += receiving_indices_count[i];
+//      disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
+//    }
+//
+//    index_distance_pair *in_index_dis = new index_distance_pair[send_count];
+//    index_distance_pair *out_index_dis =  new index_distance_pair[total_receiving];
+//    int co_process = 0;
+//    for (int i = 0;i < this->world_size;i++)
+//    {
+//      set<int> process_se_indexes = this->index_distribution[i];
+//      for (set<int>::iterator it = process_se_indexes.begin();it != process_se_indexes.end();it++)
+//      {
+//        in_index_dis[co_process].index = (*it);
+//        in_index_dis[co_process].distance = local_nns[(*it)][nn - 1].distance;
+//        co_process++;
 //      }
 //    }
+//
+//    //distribute minimum maximum distance threshold (for k=nn)
+//    MPI_Alltoallv(in_index_dis, sending_indices_count, disps_sending_indices, MPI_FLOAT_INT,out_index_dis,
+//                  receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT, MPI_COMM_WORLD);
+//
+//    delete [] sending_indices_count;
+//    delete [] disps_sending_indices;
+//    return out_index_dis;
+//  }
+//
+//
+//  void drpt::MDRPT::finalize_final_dataowner(int *receiving_indices_count,int *disps_receiving_indices,
+//                                             index_distance_pair *out_index_dis,vector<index_distance_pair> &final_sent_indices_to_rank_map) {
+//
+//    int my_end_index = this->starting_data_index + this->local_data_set_size;
+//
+//#pragma omp parallel for
+//    for (int i = this->starting_data_index;i < my_end_index;i++)
+//    {
+//      int selected_rank = -1;
+//      int search_index = i;
+//      float minium_distance = std::numeric_limits<float>::max();
+//
+//      for (int j = 0;j < this->world_size;j++)
+//      {
+//        int amount = receiving_indices_count[j];
+//        int offset = disps_receiving_indices[j];
+//
+//        for (int k = offset;k < (offset + amount); k++)
+//        {
+//          if (search_index == out_index_dis[k].index)
+//          {
+//            if (minium_distance > out_index_dis[k].distance)
+//            {
+//              minium_distance = out_index_dis[k].distance;
+//              selected_rank = j;
+//            }
+//            break;
+//          }
+//        }
+//      }
+//      index_distance_pair rank_distance;
+//      rank_distance.index = selected_rank;  //TODO: replace with rank
+//      rank_distance.distance = minium_distance;
+//      final_sent_indices_to_rank_map[search_index - this->starting_data_index] = rank_distance;
+//    }
+//  }
+//
+//  vector<vector<drpt::MDRPT::index_distance_pair>> drpt::MDRPT::announce_final_dataowner(int total_receving, int *receiving_indices_count, int *disps_receiving_indices,
+//                                                                                         drpt::MDRPT::index_distance_pair *out_index_dis, vector<index_distance_pair> &final_sent_indices_to_rank_map) {
+//
+//    int* minimal_selected_rank_sending = new int[total_receving]();
+//    index_distance_pair minimal_index_distance[total_receving];
+//
+//#pragma omp parallel for
+//    for (int i = 0;i < total_receving;i++)
+//    {
+//      minimal_index_distance[i].index = out_index_dis[i].index;
+//      minimal_index_distance[i].
+//          distance = final_sent_indices_to_rank_map[out_index_dis[i].index - this->starting_data_index].distance;
+//      minimal_selected_rank_sending[i] = final_sent_indices_to_rank_map[out_index_dis[i].index - this->starting_data_index].
+//                                         index; //TODO: replace
+//    }
+//
+//    int* receiving_indices_count_back = new int[this->world_size]();
+//    int* disps_receiving_indices_count_back = new int[this->world_size]();
+//
+//    // we recalculate how much we are receiving for minimal dst distribution
+//    MPI_Alltoall(receiving_indices_count,
+//                 1, MPI_INT, receiving_indices_count_back, 1, MPI_INT, MPI_COMM_WORLD);
+//
+//    int total_receivce_back = 0;
+//    for (int i = 0;i < this->world_size;i++)
+//    {
+//      total_receivce_back += receiving_indices_count_back[i];
+//      disps_receiving_indices_count_back[i] = (i > 0) ?
+//                                                      (disps_receiving_indices_count_back[i - 1] + receiving_indices_count_back[i - 1]) : 0;
+//    }
+//
+//    int* minimal_selected_rank_reciving = new int[total_receivce_back]();
+//    index_distance_pair minimal_index_distance_receiv[total_receivce_back];
+//
+//
+//    MPI_Alltoallv(minimal_index_distance, receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT,
+//                  minimal_index_distance_receiv,
+//                  receiving_indices_count_back, disps_receiving_indices_count_back, MPI_FLOAT_INT, MPI_COMM_WORLD);
+//
+//
+//    MPI_Alltoallv(minimal_selected_rank_sending, receiving_indices_count, disps_receiving_indices, MPI_INT,
+//                  minimal_selected_rank_reciving,
+//                  receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD);
+//
+//
+//    vector<vector<index_distance_pair>> final_indices_allocation(this->world_size);
+//
+//#pragma omp parallel
+//    {
+//      vector<vector<index_distance_pair>> final_indices_allocation_local(this->world_size);
+//
+//#pragma omp  for nowait
+//      for (int i = 0;i < total_receivce_back;i++)
+//      {
+//        index_distance_pair distance_pair;
+//        distance_pair.
+//            index = minimal_index_distance_receiv[i].index;
+//        distance_pair.
+//            distance = minimal_index_distance_receiv[i].distance;
+//        final_indices_allocation_local[minimal_selected_rank_reciving[i]].
+//            push_back(distance_pair);
+//
+//      }
+//
+//#pragma omp critical
+//      {
+//        for (int i = 0;i < this->world_size;i++)
+//        {
+//          final_indices_allocation[i].insert(final_indices_allocation[i].end(),
+//                                             final_indices_allocation_local[i].begin(),
+//                                             final_indices_allocation_local[i].end());
+//        }
+//      }
+//    }
+//
+//    return final_indices_allocation;
+//
+//  }
+//
+//  void drpt::MDRPT::select_final_forwarding_nns(vector<vector<index_distance_pair>> &final_indices_allocation,
+//                                                map<int,vector<drpt::DataPoint>>& local_nns,
+//                                                map<int, vector<DataPoint>> &final_nn_sending_map,
+//                                                map<int, vector<DataPoint>>  &final_nn_map,
+//                                                int* sending_selected_indices_count,
+//                                                int* sending_selected_indices_nn_count){
+//
+//    for (int i = 0;i < this->world_size;i++)
+//    {
+//
+//#pragma omp parallel for
+//      for (int j = 0;j < final_indices_allocation[i].size();j++)
+//      {
+//        index_distance_pair in_dis = final_indices_allocation[i][j];
+//        int selected_index = in_dis.index;
+//        float dst_th = in_dis.distance;
+//        if (i != this->rank)
+//        {
+//          if (local_nns.find(selected_index)!= local_nns.end())
+//          {
+//            vector<drpt::DataPoint> target;
+//            std::copy_if(local_nns[selected_index].begin(),
+//                         local_nns[selected_index].end(),
+//                         std::back_inserter(target),
+//                         [dst_th](
+//                             drpt::DataPoint dataPoint
+//                         )
+//                         {
+//                           return dataPoint.distance < dst_th;
+//                         });
+//            if (target.size()> 0)
+//            {
+//#pragma omp critical
+//              {
+//                if (final_nn_sending_map.find(selected_index)== final_nn_sending_map.end())
+//                {
+//                  final_nn_sending_map.insert(pair < int, vector < DataPoint >>
+//                                              (selected_index, target));
+//                  sending_selected_indices_nn_count[i] += target.size();
+//                  sending_selected_indices_count[i] += 1;
+//                }
+//              }
+//            }
+//          }
+//        }
+//        else
+//        {
+//#pragma omp critical
+//          final_nn_map.insert(pair < int, vector < DataPoint >>(selected_index,
+//                                                           local_nns[selected_index]));
+//        }
+//      }
+//    }
+//
+//  }
+//
+//  void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_selected_indices_nn_count, int *receiving_selected_indices_count,
+//                             std::map<int, vector<DataPoint>> &final_nn_map,std::map<int, vector<DataPoint>> &final_nn_sending_map,
+//                             vector<vector<index_distance_pair>> &final_indices_allocation) {
+//
+//    int total_receiving_count = 0;
+//
+//    int total_receiving_nn_count = 0;
+//
+//    MPI_Alltoall(sending_selected_indices_count,
+//                 1, MPI_INT, receiving_selected_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
+//
+//    int* disps_receiving_selected_indices = new int[this->world_size]();
+//    int* disps_sending_selected_indices = new int[this->world_size]();
+//    int* disps_sending_selected_nn_indices = new int[this->world_size]();
+//    int* disps_receiving_selected_nn_indices = new int[this->world_size]();
+//
+//
+//    int total_selected_indices_count=0;
+//
+//    int total_selected_indices_nn_count=0;
+//
+//    for (int i = 0;i < this->world_size;i++)
+//    {
+//      disps_receiving_selected_indices[i] = (i > 0) ? (disps_receiving_selected_indices[i - 1] +
+//                                                       receiving_selected_indices_count[i - 1]) : 0;
+//      disps_sending_selected_indices[i] = (i > 0) ? (disps_sending_selected_indices[i - 1] +
+//                                                     sending_selected_indices_count[i - 1]) : 0;
+//      disps_sending_selected_nn_indices[i] = (i > 0) ? (disps_sending_selected_nn_indices[i - 1] +
+//                                                        sending_selected_indices_nn_count[i - 1]) : 0;
+//
+//      total_selected_indices_count += sending_selected_indices_count[i];
+//      total_selected_indices_nn_count += sending_selected_indices_nn_count[i];
+//    }
+//
+//    int* sending_selected_indices = new int[total_selected_indices_count]();
+//
+//    int* sending_selected_nn_count_for_each_index = new int[total_selected_indices_count]();
+//
+//    index_distance_pair* sending_selected_nn = new index_distance_pair[total_selected_indices_nn_count];
+//
+//    int inc = 0;
+//    int selected_nn = 0;
+//    for (int i = 0;i < this->world_size;i++)
+//    {
+//      total_receiving_count += receiving_selected_indices_count[i];
+//      if (i != this->rank)
+//      {
+//        vector<index_distance_pair> final_indices = final_indices_allocation[i];
+//        for (int j = 0;j < final_indices.size();j++)
+//        {
+//          if (final_nn_sending_map.find(final_indices[j].index) != final_nn_sending_map.end())
+//          {
+//            vector<drpt::DataPoint> nn_sending = final_nn_sending_map[final_indices[j].index];
+//            if (nn_sending.size()> 0)
+//            {
+//              sending_selected_indices[inc] = final_indices[j].index;
+//              for (int k = 0;k < nn_sending.size();k++)
+//              {
+//                sending_selected_nn[selected_nn].
+//                    index = nn_sending[k].index;
+//                sending_selected_nn[selected_nn].
+//                    distance = nn_sending[k].distance;
+//                selected_nn++;
+//              }
+//              sending_selected_nn_count_for_each_index[inc] = nn_sending.
+//                                                              size();
+//              inc++;
+//            }
+//          }
+//        }
+//      }
+//    }
+//
+//    int* receiving_selected_nn_indices_count = new int[total_receiving_count]();
+//
+//    int* receiving_selected_indices = new int[total_receiving_count]();
+//
+//    MPI_Alltoallv(sending_selected_nn_count_for_each_index, sending_selected_indices_count,
+//                  disps_sending_selected_indices, MPI_INT, receiving_selected_nn_indices_count,
+//                  receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
+//    );
+//
+//    MPI_Alltoallv(sending_selected_indices, sending_selected_indices_count, disps_sending_selected_indices, MPI_INT,
+//                  receiving_selected_indices,
+//                  receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
+//    );
+//
+//    int* receiving_selected_nn_indices_count_process = new int[this->world_size]();
+//
+//    for (int i = 0;i < this->world_size;i++)
+//    {
+//      int co = receiving_selected_indices_count[i];
+//      int offset = disps_receiving_selected_indices[i];
+//
+//      for (int k = offset;k < (co + offset); k++)
+//      {
+//        receiving_selected_nn_indices_count_process[i] += receiving_selected_nn_indices_count[k];
+//      }
+//      total_receiving_nn_count += receiving_selected_nn_indices_count_process[i];
+//
+//      disps_receiving_selected_nn_indices[i] = (i > 0) ? (disps_receiving_selected_nn_indices[i - 1] +
+//                                                          receiving_selected_nn_indices_count_process[i - 1]) : 0;
+//    }
+//
+//    index_distance_pair* receving_selected_nn = new index_distance_pair[total_receiving_nn_count];
+//
+//
+//
+//
+//    MPI_Alltoallv(sending_selected_nn, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
+//                  MPI_FLOAT_INT,
+//                  receving_selected_nn,
+//                  receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_FLOAT_INT,
+//                  MPI_COMM_WORLD);
+//
+//    int nn_index = 0;
+//    for (int i = 0;i < total_receiving_count;i++)
+//    {
+//      int src_index = receiving_selected_indices[i];
+//      int nn_count = receiving_selected_nn_indices_count[i];
+//      vector<DataPoint> vec;
+//      for (int j = 0;j < nn_count;j++)
+//      {
+//        int nn_indi = receving_selected_nn[nn_index].index;
+//        VALUE_TYPE distance = receving_selected_nn[nn_index].distance;
+//        DataPoint dataPoint;
+//        dataPoint.src_index = src_index;
+//        dataPoint.index = nn_indi;
+//        dataPoint.distance = distance;
+//        vec.push_back(dataPoint);
+//        nn_index++;
+//      }
+//
+//      auto its = final_nn_map.find(src_index);
+//      if (its == final_nn_map.end())
+//      {
+//        final_nn_map.insert(pair < int, vector < DataPoint >>(src_index, vec));
+//      }
+//      else
+//      {
+//        vector<DataPoint> dst;
+//        vector<DataPoint> ex_vec = its->second;
+//        sort(vec.begin(), vec.end(),
+//             [](const DataPoint& lhs,const DataPoint& rhs)
+//             {
+//               return lhs.distance < rhs.distance;
+//             });
+//        std::merge(ex_vec.begin(), ex_vec.end(), vec.begin(),
+//                   vec.end(), std::back_inserter(dst),
+//                   [](const DataPoint& lhs,const DataPoint& rhs
+//                   )
+//                   {
+//                     return lhs.distance < rhs.distance;
+//                   });
+//        dst.
+//            erase(unique(dst.begin(), dst.end(), [](const DataPoint& lhs,
+//                                                    const DataPoint& rhs)
+//                         {
+//                           return lhs.index == rhs.index;
+//                         }),
+//                  dst.end()
+//            );
+//        (its->second) =dst;
+//      }
+//    }
+//  }
 
-  }
+
+
+
+
 };
 } // namespace hipgraph::distviz::knng
 
