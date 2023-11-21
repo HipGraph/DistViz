@@ -183,9 +183,9 @@ public:
                              final_sent_indices_to_rank_map.get());
     //
     //	//announce the selected dataowner to all interesting data holders
-//    vector<vector<index_distance_pair<INDEX_TYPE>>>* final_indices_allocation =  announce_final_dataowner(total_receving,
-//                                                                                                  receiving_indices_count.get(), disps_receiving_indices.get(),
-//                                                                                                        out_index_dis,final_sent_indices_to_rank_map.get());
+    vector<vector<index_distance_pair<INDEX_TYPE>>>* final_indices_allocation =  announce_final_dataowner(total_receving,
+                                                                                                  receiving_indices_count.get(), disps_receiving_indices.get(),
+                                                                                                        out_index_dis,final_sent_indices_to_rank_map.get());
     //
     //
 
@@ -295,9 +295,7 @@ public:
           index_distance_pair<INDEX_TYPE> rank_distance;
           rank_distance.index = selected_rank; // TODO: replace with rank
           rank_distance.distance = minium_distance;
-
-          (*final_sent_indices_to_rank_map)[search_index - starting_data_index] =
-              rank_distance;
+          (*final_sent_indices_to_rank_map)[search_index - starting_data_index] =rank_distance;
         }
       }
     }
