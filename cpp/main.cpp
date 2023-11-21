@@ -229,8 +229,8 @@ int main(int argc, char* argv[]) {
     cout << "IO Time (s)" << execution_times_global[0]/(size*1000) << " Index building (s) "<< execution_times_global[1]/(size*1000) << endl;
   }
 
-  delete[] execution_times;
-  delete[] execution_times_global;
+//  delete[] execution_times;
+//  delete[] execution_times_global;
 
   MPI_Finalize();
 
