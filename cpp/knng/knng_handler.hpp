@@ -205,7 +205,7 @@ public:
     shared_ptr<vector<INDEX_TYPE>> receiving_selected_indices_nn_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
 
     //	//select final nns to be forwared to dataowners
-    select_final_forwarding_nns(final_indices_allocation.get(),local_nns.get(),
+    select_final_forwarding_nns(final_indices_allocation.get(),local_nns,
                                       final_nn_sending_map.get(),final_nn_map.get(),
                                       sending_selected_indices_count.get(),
                                       sending_selected_indices_nn_count.get());
