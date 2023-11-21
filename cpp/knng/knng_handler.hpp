@@ -182,7 +182,7 @@ public:
 
     finalize_final_dataowner(receiving_indices_count.get(),
                              disps_receiving_indices.get(),
-                             out_index_dis,
+                             out_index_dis.get(),
                              final_sent_indices_to_rank_map.get());
 
     //
