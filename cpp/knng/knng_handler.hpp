@@ -149,7 +149,7 @@ public:
       }
     }
 
-    communicate_nns((local_nn_map_ptr).get(),nn);
+//    communicate_nns((local_nn_map_ptr).get(),nn);
 
 
   }
