@@ -207,56 +207,54 @@ public:
 ////
 ////
   index_distance_pair<INDEX_TYPE>* send_min_max_distance_to_data_owner(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
-                                                                                     int* receiving_indices_count,
-                                                                                     int* disps_receiving_indices,
+                                                                                      vector<INDEX_TYPE>* receiving_indices_count,
+                                                                                      vector<INDEX_TYPE>* disps_receiving_indices,
                                                                                      int &send_count,int &total_receiving, int nn) {
-    int* sending_indices_count = new int[grid->col_world_size]();
-    int* disps_sending_indices = new int[grid->col_world_size]();
+    unique_ptr<vector<INDEX_TYPE>> sending_indices_count_ptr = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<INDEX_TYPE>> disps_sending_indices_ptr = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
     unique_ptr<vector<set<INDEX_TYPE>>> process_se_indexes_ptr = make_unique<vector<set<INDEX_TYPE>>>(grid->col_world_size);
     for (auto it = (*local_nns).begin(); it != (*local_nns).end(); ++it) {
       INDEX_TYPE key = it->first;
       int target_rank = key/(global_data_set_size/grid->col_world_size);
-      sending_indices_count[target_rank]++;
+      (*sending_indices_count_ptr)[target_rank]++;
       (*process_se_indexes_ptr)[target_rank].insert(it->first);
     }
 
     for (int i = 0;i < grid->col_world_size;i++)
     {
-      send_count += sending_indices_count[i];
-      disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;
+      send_count += (*sending_indices_count_ptr)[i];
+      (*disps_sending_indices_ptr)[i] = (i > 0) ? (*disps_sending_indices_ptr)[i - 1] + (*sending_indices_count_ptr)[i - 1]) : 0;
     }
 
     //sending back received data during collect similar data points to original process
-    MPI_Alltoall(sending_indices_count,1, MPI_INDEX_TYPE, receiving_indices_count, 1, MPI_INDEX_TYPE, grid->col_world);
+    MPI_Alltoall((*sending_indices_count).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count).data(), 1, MPI_INDEX_TYPE, grid->col_world);
 ////
     for (int i = 0;i < grid->col_world_size;i++)
     {
-      total_receiving += receiving_indices_count[i];
-      disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
+      total_receiving += (*receiving_indices_count)[i];
+      (*disps_receiving_indices)[i] = (i > 0) ? (*disps_receiving_indices[i - 1] + (*receiving_indices_count)[i - 1]) : 0;
     }
 //
-    index_distance_pair<INDEX_TYPE> *in_index_dis = new index_distance_pair<INDEX_TYPE>[send_count];
-    index_distance_pair<INDEX_TYPE> *out_index_dis =  new index_distance_pair<INDEX_TYPE>[total_receiving];
+    unique_ptr<index_distance_pair<INDEX_TYPE>> in_index_dis = make_unique<index_distance_pair<INDEX_TYPE>>(send_count);
+    shared_ptr<index_distance_pair<INDEX_TYPE>> out_index_dis =  make_shared<index_distance_pair<INDEX_TYPE>>(total_receiving);
     int co_process = 0;
     for (int i = 0;i < grid->col_world_size;i++)
     {
       set<INDEX_TYPE> process_se_indexes = (*process_se_indexes_ptr)[i];
       for (auto it = process_se_indexes.begin();it != process_se_indexes.end();it++)
       {
-        in_index_dis[co_process].index = (*it);
-        in_index_dis[co_process].distance = (*local_nns)[(*it)][nn - 1].distance;
+        (*in_index_dis)[co_process].index = (*it);
+        (*in_index_dis)[co_process].distance = (*local_nns)[(*it)][nn - 1].distance;
         co_process++;
       }
     }
 
     //distribute minimum maximum distance threshold (for k=nn)
-    MPI_Alltoallv(in_index_dis, sending_indices_count, disps_sending_indices, MPI_FLOAT_INT,out_index_dis,
-                  receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT, MPI_COMM_WORLD);
+    MPI_Alltoallv(in_index_dis.get(), (*sending_indices_count).data(), (*disps_sending_indices_ptr).data(), MPI_FLOAT_INT,out_index_dis.get(),
+                  (*receiving_indices_count), (*disps_receiving_indices).data(), MPI_FLOAT_INT, MPI_COMM_WORLD);
 
-//    delete [] sending_indices_count;
-//    delete [] disps_sending_indices;
-    return out_index_dis;
+    return out_index_dis.get();
 
   }
 //
