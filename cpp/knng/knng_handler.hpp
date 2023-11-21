@@ -131,14 +131,13 @@ public:
     Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
     Eigen::MatrixXf distances(data_matrix.cols(),nn);
 
-//    #pragma omp parallel for schedule (static)
+    #pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
       Eigen::VectorXi tempRow(nn);
       Eigen::VectorXf tempDis(nn);
       mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
       neighbours.row(i)=tempRow;
       distances.row(i)=tempDis;
-      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
       EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
       edge.src_index=global_index;
       for(int k=0;k<nn;k++){
