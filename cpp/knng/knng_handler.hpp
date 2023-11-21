@@ -220,32 +220,32 @@ public:
     //sending back received data during collect similar data points to original process
     MPI_Alltoall(sending_indices_count,1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
 
-    for (int i = 0;i < grid->col_world_size;i++)
-    {
-      total_receiving += receiving_indices_count[i];
-      disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
-    }
-
-    index_distance_pair<INDEX_TYPE> *in_index_dis = new index_distance_pair<INDEX_TYPE>[send_count];
-    index_distance_pair<INDEX_TYPE> *out_index_dis =  new index_distance_pair<INDEX_TYPE>[total_receiving];
-    int co_process = 0;
-    for (int i = 0;i < grid->col_world_size;i++)
-    {
-      set<int> process_se_indexes = (*process_to_index_set_ptr)[i];
-      for (set<int>::iterator it = process_se_indexes.begin();it != process_se_indexes.end();it++)
-      {
-        in_index_dis[co_process].index = (*it);
-        in_index_dis[co_process].distance = (*local_nns)[(*it)][nn - 1].distance;
-        co_process++;
-      }
-    }
-
-    //distribute minimum maximum distance threshold (for k=nn)
-    MPI_Alltoallv(in_index_dis, sending_indices_count, disps_sending_indices, MPI_FLOAT_INT,out_index_dis,
-                  receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT, MPI_COMM_WORLD);
-
-    delete [] sending_indices_count;
-    delete [] disps_sending_indices;
+//    for (int i = 0;i < grid->col_world_size;i++)
+//    {
+//      total_receiving += receiving_indices_count[i];
+//      disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
+//    }
+//
+//    index_distance_pair<INDEX_TYPE> *in_index_dis = new index_distance_pair<INDEX_TYPE>[send_count];
+//    index_distance_pair<INDEX_TYPE> *out_index_dis =  new index_distance_pair<INDEX_TYPE>[total_receiving];
+//    int co_process = 0;
+//    for (int i = 0;i < grid->col_world_size;i++)
+//    {
+//      set<int> process_se_indexes = (*process_to_index_set_ptr)[i];
+//      for (set<int>::iterator it = process_se_indexes.begin();it != process_se_indexes.end();it++)
+//      {
+//        in_index_dis[co_process].index = (*it);
+//        in_index_dis[co_process].distance = (*local_nns)[(*it)][nn - 1].distance;
+//        co_process++;
+//      }
+//    }
+//
+//    //distribute minimum maximum distance threshold (for k=nn)
+//    MPI_Alltoallv(in_index_dis, sending_indices_count, disps_sending_indices, MPI_FLOAT_INT,out_index_dis,
+//                  receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT, MPI_COMM_WORLD);
+//
+//    delete [] sending_indices_count;
+//    delete [] disps_sending_indices;
     return out_index_dis;
   }
 //
