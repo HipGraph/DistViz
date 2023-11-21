@@ -300,7 +300,7 @@ public:
       rank_distance.distance = minium_distance;
 
       if (search_index - starting_data_index >= (*final_sent_indices_to_rank_map).size()){
-        cout<<" rank "<<grid->rank_in_col<<" accessing index "<<search_index - starting_data_index<<" for max "<<(*final_sent_indices_to_rank_map).size()<<endl
+        cout<<" rank "<<grid->rank_in_col<<" accessing index "<<(search_index - starting_data_index)<<" for max "<<(*final_sent_indices_to_rank_map).size()<<endl
       }
       (*final_sent_indices_to_rank_map)[search_index - starting_data_index] = rank_distance;
     }
