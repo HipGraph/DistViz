@@ -136,15 +136,14 @@ public:
       Eigen::VectorXi tempRow(nn);
       Eigen::VectorXf tempDis(nn);
       mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
-
-      for(int k=0;k<nn;k++){
-       INDEX_TYPE  global_index =  (*datamap_ptr)[i];
-       EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
-       edge.src_index=global_index;
-       edge.dst_index = (*datamap_ptr)[tempRow[k]];
-       edge.distance = tempDis[k];
-//       (*local_nn_map_ptr)[global_index][k]=edge;
-      }
+      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
+      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
+      edge.src_index=global_index;
+//      for(int k=0;k<nn;k++){
+//       edge.dst_index = (*datamap_ptr)[tempRow[k]];
+//       edge.distance = tempDis[k];
+////       (*local_nn_map_ptr)[global_index][k]=edge;
+//      }
     }
 
 //    for (const auto& entry : (*local_nn_map_ptr)) {
