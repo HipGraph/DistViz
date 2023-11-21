@@ -224,11 +224,11 @@ public:
     for (int i = 0;i < grid->col_world_size;i++)
     {
       send_count += (*sending_indices_count_ptr)[i];
-      (*disps_sending_indices_ptr)[i] = (i > 0) ? (*disps_sending_indices_ptr)[i - 1] + (*sending_indices_count_ptr)[i - 1]) : 0;
+      (*disps_sending_indices_ptr)[i] = (i > 0) ? (*disps_sending_indices_ptr)[i - 1] + (*sending_indices_count_ptr)[i - 1] : 0;
     }
 
     //sending back received data during collect similar data points to original process
-    MPI_Alltoall((*sending_indices_count).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count).data(), 1, MPI_INDEX_TYPE, grid->col_world);
+    MPI_Alltoall((*sending_indices_count_ptr).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count).data(), 1, MPI_INDEX_TYPE, grid->col_world);
 ////
     for (int i = 0;i < grid->col_world_size;i++)
     {
@@ -251,7 +251,7 @@ public:
     }
 
     //distribute minimum maximum distance threshold (for k=nn)
-    MPI_Alltoallv(in_index_dis.get(), (*sending_indices_count).data(), (*disps_sending_indices_ptr).data(), MPI_FLOAT_INT,out_index_dis.get(),
+    MPI_Alltoallv(in_index_dis.get(), (*sending_indices_count_ptr).data(), (*disps_sending_indices_ptr).data(), MPI_FLOAT_INT,out_index_dis.get(),
                   (*receiving_indices_count), (*disps_receiving_indices).data(), MPI_FLOAT_INT, MPI_COMM_WORLD);
 
     return out_index_dis.get();
