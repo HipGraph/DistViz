@@ -146,7 +146,7 @@ public:
        edge.dst_index = tempRow[k];
        edge.distance = tempDis[k];
        (*local_nn_map_ptr)[global_index][k]=edge;
-//      }
+      }
     }
 
   }
