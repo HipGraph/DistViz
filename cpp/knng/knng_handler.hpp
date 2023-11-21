@@ -316,9 +316,10 @@ public:
     unique_ptr<vector<INDEX_TYPE>> minimal_selected_rank_sending = make_unique<vector<INDEX_TYPE>>(total_receving);
     unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> minimal_index_distance = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_receving);
 
-#pragma omp parallel for
+//#pragma omp parallel for
     for (int i = 0;i < total_receving;i++)
     {
+      cout<<" rank "<<grid->rank_in_col<<" checking index "<<(*out_index_dis)[i].index - starting_data_index<<endl;
       (*minimal_index_distance)[i].index = (*out_index_dis)[i].index;
       (*minimal_index_distance)[i].distance = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].distance;
 //      (*minimal_selected_rank_sending)[i] = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].index; //TODO: replace
