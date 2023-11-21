@@ -270,7 +270,7 @@ public:
     int my_end_index = starting_data_index + local_data_set_size;
 
     cout<<"rank "<<grid->rank_in_col<<" size: "<<out_index_dis->size()<<endl;
-#pragma omp parallel for
+//#pragma omp parallel for
     for (int i = starting_data_index;i < my_end_index;i++)
     {
       int selected_rank = -1;
@@ -298,6 +298,10 @@ public:
       index_distance_pair<INDEX_TYPE> rank_distance;
       rank_distance.index = selected_rank;  //TODO: replace with rank
       rank_distance.distance = minium_distance;
+
+      if (search_index - starting_data_index >= (*final_sent_indices_to_rank_map).size()){
+        cout<<" rank "<<grid->rank_in_col<<" accessing index "<<search_index - starting_data_index<<" for max "<<(*final_sent_indices_to_rank_map).size()<<endl
+      }
       (*final_sent_indices_to_rank_map)[search_index - starting_data_index] = rank_distance;
     }
   }
