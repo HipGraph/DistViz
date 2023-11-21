@@ -138,7 +138,7 @@ public:
       mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
       neighbours.row(i)=tempRow;
       distances.row(i)=distances;
-//      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
+      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
       EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
 //      edge.src_index=global_index;
       for(int k=0;k<nn;k++){
