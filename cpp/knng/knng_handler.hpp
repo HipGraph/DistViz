@@ -247,7 +247,7 @@ public:
     }
 //
     unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> in_index_dis = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(send_count);
-    out_index_dis->resize(total_receving);
+    out_index_dis->resize(total_receiving);
     cout<<" rank "<<grid->rank_in_col<<" before  total_receiving  "<<total_receiving<<endl;
     int co_process = 0;
     for (int i = 0;i < grid->col_world_size;i++)
@@ -265,8 +265,6 @@ public:
     MPI_Alltoallv((*in_index_dis).data(), (*sending_indices_count_ptr).data(), (*disps_sending_indices_ptr).data(), MPI_FLOAT_INT,(*out_index_dis).data(),
                   (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_FLOAT_INT, MPI_COMM_WORLD);
     cout<<" rank "<<grid->rank_in_col<<" after receiving  total_receiving  "<<(*out_index_dis).size()<<endl;
-
-    return out_index_dis.get();
 
   }
 //
