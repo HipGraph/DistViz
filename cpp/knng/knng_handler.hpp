@@ -34,7 +34,8 @@ private:
   int leafs_per_node;
   int my_leaf_start_index;
   int my_leaf_end_index;
-  std::shared_ptr<std::map<int, int>> datamap_ptr = std::make_shared<std::map<int, int>>();
+  std::shared_ptr<std::map<INDEX_TYPE, INDEX_TYPE>> datamap_ptr = std::make_shared<std::map<INDEX_TYPE, INDEX_TYPE>>();
+  std::shared_ptr<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> local_nn_map_ptr= std::make_shared<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 
 
   int *receive_random_seeds(int seed) {
@@ -127,19 +128,33 @@ public:
     Mrpt mrpt(data_matrix);
     mrpt.grow_autotune(target_recall, nn);
 
-    Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
-    Eigen::MatrixXf distances(data_matrix.cols(),nn);
+//    Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
+//    Eigen::MatrixXf distances(data_matrix.cols(),nn);
 
     #pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
       Eigen::VectorXi tempRow(nn);
       Eigen::VectorXf tempDis(nn);
       mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
-      neighbours.row(i) = tempRow;
-      distances.row(i)=tempDis;
+
+      for(int k=0;k<nn;k++){
+       INDEX_TYPE  global_index =  (*datamap_ptr)[i];
+       EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
+       edge.src_index=global_index;
+       edge.dst_index = (*datamap_ptr)[tempRow[k]];
+       edge.distance = tempDis[k];
+       (*local_nn_map_ptr)[global_index][k]=edge;
+      }
     }
 
-    cout<<" rank  "<<grid->rank_in_col<< " nn: "<<neighbours.row(0)<<" distances: "<<distances.row(0)<<endl;
+    for (const auto& entry : (*local_nn_map_ptr)) {
+      if (grid->rank_in_col==0) {
+        std::cout << "src: " << entry.first
+                  << ", dst: " << entry.second[1].dst_index
+                  << ", distance: " << entry.second[1].distance << std::endl;
+      }
+    }
+
   }
 };
 } // namespace hipgraph::distviz::knng
