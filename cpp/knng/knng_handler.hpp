@@ -149,7 +149,7 @@ public:
       }
     }
 
-//    communicate_nns((local_nn_map_ptr).get(),nn);
+    communicate_nns((local_nn_map_ptr).get(),nn);
 
 
   }
@@ -218,8 +218,8 @@ public:
     }
 
     //sending back received data during collect similar data points to original process
-    MPI_Alltoall(sending_indices_count,1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
-
+//    MPI_Alltoall(sending_indices_count,1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
+//
 //    for (int i = 0;i < grid->col_world_size;i++)
 //    {
 //      total_receiving += receiving_indices_count[i];
