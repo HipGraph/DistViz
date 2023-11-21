@@ -182,7 +182,7 @@ public:
                              final_sent_indices_to_rank_map.get());
     //
     //	//announce the selected dataowner to all interesting data holders
-    vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation =  announce_final_dataowner(total_receving,
+    vector<vector<index_distance_pair<INDEX_TYPE>>>* final_indices_allocation =  announce_final_dataowner(total_receving,
                                                                                                   receiving_indices_count.get(), disps_receiving_indices.get(),
                                                                                                         out_index_dis,final_sent_indices_to_rank_map.get());
     //
