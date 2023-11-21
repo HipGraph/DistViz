@@ -259,6 +259,7 @@ public:
     //distribute minimum maximum distance threshold (for k=nn)
     MPI_Alltoallv((*in_index_dis).data(), (*sending_indices_count_ptr).data(), (*disps_sending_indices_ptr).data(), MPI_FLOAT_INT,(*out_index_dis).data(),
                   (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_FLOAT_INT, MPI_COMM_WORLD);
+    cout<<" rank "<<grid->rank_in_col<<" after receiving  total_receiving  "<<(*out_index_dis).size()<<endl;
 
     return out_index_dis.get();
 
