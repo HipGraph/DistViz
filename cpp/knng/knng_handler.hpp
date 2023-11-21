@@ -269,8 +269,9 @@ public:
 
     int my_end_index = starting_data_index + local_data_set_size;
 
+    cout<<"rank "<<grid->rank_in_col<<" size: "<<out_index_dis->size()<<endl;
 #pragma omp parallel for
-    for (int i = this->starting_data_index;i < my_end_index;i++)
+    for (int i = starting_data_index;i < my_end_index;i++)
     {
       int selected_rank = -1;
       int search_index = i;
