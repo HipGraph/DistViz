@@ -213,7 +213,7 @@ public:
     int* sending_indices_count = new int[grid->col_world_size]();
     int* disps_sending_indices = new int[grid->col_world_size]();
 
-    for (auto it = local_nns.begin(); it != local_nns.end(); ++it) {
+    for (auto it = (*local_nns).begin(); it != (*local_nns).end(); ++it) {
       INDEX_TYPE key = it->first;
       int target_rank = key/(global_data_set_size/grid->col_world_size);
       sending_indices_count[target_rank]++;
