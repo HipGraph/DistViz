@@ -32,10 +32,11 @@ typedef chrono::time_point<std::chrono::steady_clock> my_timer_t;
 
 namespace hipgraph::distviz::common {
 
+template <typename INDEX_TYPE>
 struct index_distance_pair
 {
   float distance;
-  int index;
+  INDEX_TYPE index;
 };
 
 struct LeafPriority {

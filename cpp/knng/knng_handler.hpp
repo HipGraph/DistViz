@@ -28,7 +28,7 @@ private:
   int global_data_set_size;
   int local_data_set_size;
   vector<vector<vector<DataNode<INDEX_TYPE, VALUE_TYPE>>>> trees_leaf_all;
-  vector<set<int>> index_distribution;
+  shared_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr;
   int local_tree_offset;
   int total_leaf_size;
   int leafs_per_node;
@@ -70,7 +70,7 @@ public:
 
     this->trees_leaf_all = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
 
-    this->index_distribution = vector<set<int>>(grid->col_world_size);
+    this->process_to_index_set_ptr = shared_ptr<vector<set<INDEX_TYPE>>>(grid->col_world_size);
 
     this->local_tree_offset = local_tree_offset;
   }
@@ -121,7 +121,7 @@ public:
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
 
-    Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,index_distribution,datamap_ptr.get(),local_nn_map_ptr.get(),nn);
+    Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,process_to_index_set_ptr.get(),datamap_ptr.get(),local_nn_map_ptr.get(),nn);
 
     cout<<"rank "<<grid->rank_in_col<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
 
@@ -150,8 +150,8 @@ public:
 
   }
 
-//  std::map<int,vector<drpt::DataPoint>> drpt::MDRPT::communicate_nns(map<int, vector<drpt::DataPoint>> &local_nns,
-//                                                                      set<int> &keys,int nn) {
+//  map<INDEX_TYPE, vector<EdgeNode<INDEX<TYPE,VALUE_TYPE>>>* communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX<TYPE,VALUE_TYPE>>>* local_nns,
+//                                                                      set<INDEX_TYPE> &keys,int nn) {
 //
 //    int* receiving_indices_count = new int[this->world_size]();
 //    int* disps_receiving_indices = new int[this->world_size]();
@@ -196,9 +196,9 @@ public:
 //
 //    return final_nn_map;
 //  }
-//
-//
-//  drpt::MDRPT::index_distance_pair* drpt::MDRPT::send_min_max_distance_to_data_owner(map<int, vector<drpt::DataPoint>>& local_nns,
+////
+////
+//  index_distance_pair<INDEX_TYPE>* send_min_max_distance_to_data_owner(map<int, vector<drpt::DataPoint>>& local_nns,
 //                                                                                     int* receiving_indices_count,int* disps_receiving_indices,
 //                                                                                     int &send_count,int &total_receiving, int nn) {
 //    int* sending_indices_count = new int[this->world_size]();
