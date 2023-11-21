@@ -173,7 +173,10 @@ public:
 
     //send distance threshold to original data owner
     shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> out_index_dis =  make_shared<vector<index_distance_pair<INDEX_TYPE>>>();
-    send_min_max_distance_to_data_owner(local_nns,out_index_dis.get(),receiving_indices_count.get(),disps_receiving_indices.get(),
+
+    send_min_max_distance_to_data_owner(local_nns,out_index_dis.get(),
+                                        receiving_indices_count.get(),
+                                        disps_receiving_indices.get(),
                                         send_count,total_receving,nn);
 
     cout<<" rank "<<grid->rank_in_col<<" after receiving  method  "<<(*out_index_dis).size()<<endl;
@@ -190,28 +193,26 @@ public:
     shared_ptr<vector<vector<index_distance_pair<INDEX_TYPE>>>> final_indices_allocation = make_shared<vector<vector<index_distance_pair<INDEX_TYPE>>>>(grid->col_world_size);
     //	//announce the selected dataowner to all interesting data holders
       announce_final_dataowner(total_receving,
-                                                                                                  receiving_indices_count.get(), disps_receiving_indices.get(),
-                                                                                                        out_index_dis.get(),final_sent_indices_to_rank_map.get(),final_indices_allocation.get());
-    //
-    //
+                             receiving_indices_count.get(),
+                             disps_receiving_indices.get(),
+                             out_index_dis.get(),
+                             final_sent_indices_to_rank_map.get(),
+                             final_indices_allocation.get());
 
-    //
-//    int* sending_selected_indices_count = new int[grid->col_world_size]();
-//    int* sending_selected_indices_nn_count = new int[grid->col_world_size]();
-//    //
-//    int* receiving_selected_indices_count = new int[grid->col_world_size]();
-//    int* receiving_selected_indices_nn_count = new int[grid->col_world_size]();
-//    //
-//    //	//select final nns to be forwared to dataowners
-//    this->select_final_forwarding_nns(final_indices_allocation,
-//                                      local_nns,
-//                                      final_nn_sending_map.get(),final_nn_map.get(),
-//                                      sending_selected_indices_count,
-//                                      sending_selected_indices_nn_count);
-//    //
-//    //
-//    this->send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
-//                   receiving_selected_indices_count,final_nn_map.get(),final_nn_sending_map.get(),final_indices_allocation);
+    shared_ptr<vector<INDEX_TYPE>> sending_selected_indices_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> sending_selected_indices_nn_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> receiving_selected_indices_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> receiving_selected_indices_nn_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+
+    //	//select final nns to be forwared to dataowners
+    select_final_forwarding_nns(final_indices_allocation.get(),local_nns.get(),
+                                      final_nn_sending_map.get(),final_nn_map.get(),
+                                      sending_selected_indices_count.get(),
+                                      sending_selected_indices_nn_count.get());
+
+//    send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
+//                   receiving_selected_indices_count,final_nn_map.get(),
+//             final_nn_sending_map.get(),final_indices_allocation);
 
 
     return final_nn_map.get();
@@ -384,20 +385,20 @@ public:
     }
   }
 //
-  void select_final_forwarding_nns(vector<vector<index_distance_pair<INDEX_TYPE>>> &final_indices_allocation,
+  void select_final_forwarding_nns(vector<vector<index_distance_pair<INDEX_TYPE>>>* final_indices_allocation,
                                                 map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
                                                 map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_sending_map,
                                                 map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>*  final_nn_map,
-                                                int* sending_selected_indices_count,
-                                                int* sending_selected_indices_nn_count){
+                                                vector<INDEX_TYPE>* sending_selected_indices_count,
+                                                 vector<INDEX_TYPE>* sending_selected_indices_nn_count){
 
     for (int i = 0;i < grid->col_world_size;i++)
     {
 
 #pragma omp parallel for
-      for (int j = 0;j < final_indices_allocation[i].size();j++)
+      for (int j = 0;j < (*final_indices_allocation)[i].size();j++)
       {
-        index_distance_pair<INDEX_TYPE> in_dis = final_indices_allocation[i][j];
+        index_distance_pair<INDEX_TYPE> in_dis = (*final_indices_allocation)[i][j];
         int selected_index = in_dis.index;
         float dst_th = in_dis.distance;
         if (i != grid->rank_in_col)
@@ -422,8 +423,8 @@ public:
                 {
                   (*final_nn_sending_map).insert(pair < INDEX_TYPE, vector <EdgeNode<INDEX_TYPE,VALUE_TYPE>  >>
                                               (selected_index, target));
-                  sending_selected_indices_nn_count[i] += target.size();
-                  sending_selected_indices_count[i] += 1;
+                  (*sending_selected_indices_nn_count)[i] += target.size();
+                  (*sending_selected_indices_count)[i] += 1;
                 }
               }
             }
