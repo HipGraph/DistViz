@@ -172,6 +172,7 @@ public:
     //send distance threshold to original data owner
     vector<index_distance_pair<INDEX_TYPE>> *out_index_dis = send_min_max_distance_to_data_owner(local_nns,receiving_indices_count.get(),disps_receiving_indices.get(),send_count,total_receving,nn);
 
+    cout<<" rank "<<grid->rank_in_col<<" after receiving  method  "<<(*out_index_dis).size()<<endl;
 
     shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> final_sent_indices_to_rank_map = make_shared<vector<index_distance_pair<INDEX_TYPE>>>(local_data_set_size);
     //
@@ -181,6 +182,7 @@ public:
                              disps_receiving_indices.get(),
                              out_index_dis,
                              final_sent_indices_to_rank_map.get());
+
     //
     //	//announce the selected dataowner to all interesting data holders
     vector<vector<index_distance_pair<INDEX_TYPE>>>* final_indices_allocation =  announce_final_dataowner(total_receving,
@@ -267,7 +269,8 @@ public:
 //
 //
   void finalize_final_dataowner(vector<INDEX_TYPE>* receiving_indices_count,vector<INDEX_TYPE> *disps_receiving_indices,
-                                             vector<index_distance_pair<INDEX_TYPE>> *out_index_dis,vector<index_distance_pair<INDEX_TYPE>> *final_sent_indices_to_rank_map) {
+                                             vector<index_distance_pair<INDEX_TYPE>> *out_index_dis,
+                                vector<index_distance_pair<INDEX_TYPE>> *final_sent_indices_to_rank_map) {
 
     int my_end_index = starting_data_index + local_data_set_size;
 
