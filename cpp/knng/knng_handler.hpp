@@ -479,7 +479,7 @@ public:
 
     unique_ptr<vector<INDEX_TYPE>> sending_selected_nn_count_for_each_index = make_unique<vector<INDEX_TYPE>>(total_selected_indices_count);
 
-    unique_vector<vector<index_distance_pair<INDEX_TYPE>> sending_selected_nn = make_unique<vector<index_distance_pair<INDEX_TYPE>>(total_selected_indices_nn_count);
+    unique_vector<vector<index_distance_pair<INDEX_TYPE>>> sending_selected_nn = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_selected_indices_nn_count);
 
     int inc = 0;
     int selected_nn = 0;
@@ -499,10 +499,8 @@ public:
               (*sending_selected_indices)[inc] = final_indices[j].index;
               for (int k = 0;k < nn_sending.size();k++)
               {
-                (*sending_selected_nn)[selected_nn].
-                    index = nn_sending[k].dst_index;
-                (*sending_selected_nn)[selected_nn].
-                    distance = nn_sending[k].distance;
+                (*sending_selected_nn)[selected_nn].index = nn_sending[k].dst_index;
+                (*sending_selected_nn)[selected_nn].distance = nn_sending[k].distance;
                 selected_nn++;
               }
               (*sending_selected_nn_count_for_each_index)[inc] = nn_sending.size();
