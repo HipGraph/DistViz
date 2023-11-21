@@ -175,28 +175,28 @@ public:
                                                                                                   receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
     //
     //
-    std::map<int, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>final_nn_sending_map;
-    std::map<int, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>final_nn_map;
+    shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_sending_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
+    shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
     //
     int* sending_selected_indices_count = new int[grid->col_world_size]();
     int* sending_selected_indices_nn_count = new int[grid->col_world_size]();
     //
     int* receiving_selected_indices_count = new int[grid->col_world_size]();
-    int* receiving_selected_indices_nn_count = new int[this->world_size]();
+    int* receiving_selected_indices_nn_count = new int[grid->col_world_size]();
     //
     //	//select final nns to be forwared to dataowners
     this->select_final_forwarding_nns(final_indices_allocation,
                                       local_nns,
-                                      final_nn_sending_map,final_nn_map,
+                                      final_nn_sending_map.get(),final_nn_map.get(),
                                       sending_selected_indices_count,
                                       sending_selected_indices_nn_count);
     //
     //
     this->send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
-                   receiving_selected_indices_count,final_nn_map,final_nn_sending_map,final_indices_allocation);
+                   receiving_selected_indices_count,final_nn_map.get(),final_nn_sending_map.get(),final_indices_allocation);
 
 
-    return final_nn_map;
+    return final_nn_map.get();
   }
 ////
 ////
