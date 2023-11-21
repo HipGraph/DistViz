@@ -74,7 +74,8 @@ public:
     this->local_tree_offset = local_tree_offset;
   }
 
-  void grow_trees(ValueType2DVector<VALUE_TYPE>* original_data, float density, bool use_locality_optimization, int nn) {
+  void build_index(ValueType2DVector<VALUE_TYPE>* original_data, float density,
+                   bool use_locality_optimization, int nn, float target_recall) {
     unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr; //class uses for math operations
     VALUE_TYPE* row_data_array = mathOp_ptr.get()->convert_to_row_major_format(original_data); // this algorithm assumes row major format for operations
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
@@ -89,8 +90,7 @@ public:
     // P= X.R
     VALUE_TYPE* P = mathOp_ptr.get()->multiply_mat(row_data_array, B, this->data_dimension,
                                         global_tree_depth * this->ntrees,
-                                        this->local_data_set_size,
-                                        1.0);
+                                        this->local_data_set_size,1.0);
 
     // creating DRPTGlobal class
     GlobalTreeHandler<INDEX_TYPE,VALUE_TYPE> drpt_global = GlobalTreeHandler<INDEX_TYPE,VALUE_TYPE>(P,
@@ -119,29 +119,27 @@ public:
     shared_ptr<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>> leaf_nodes_of_trees_ptr =  make_shared<DataNode3DVector<INDEX_TYPE, VALUE_TYPE>>(ntrees);
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
-    // running the similar datapoint collection
-//    for (int i = 0; i < ntrees; i++)
-//    {
-//      drpt_global.collect_similar_data_points(i, use_locality_optimization,
-//                                                                       this->index_distribution,this->datamap,&leaf_nodes_of_trees_ptr->at(i));
-//    }
+
     Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,index_distribution,datamap_ptr.get());
+
     cout<<"rank "<<grid->rank_in_col<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
 
     Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(0.9, 10);
+    mrpt.grow_autotune(target_recall, nn);
 
-  Eigen::MatrixXi neighbours(data_matrix.cols(),10);
+    Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
+    Eigen::MatrixXf distances(data_matrix.cols(),nn);
 
     #pragma omp parallel for schedule (static)
-      for(int i=0;i<data_matrix.cols();i++){
-        Eigen::VectorXi tempRow(10);
-        mrpt.query(data_matrix.col(i), tempRow.data());
-        neighbours.row(i) = tempRow;
-      }
+    for(int i=0;i<data_matrix.cols();i++){
+      Eigen::VectorXi tempRow(nn);
+      Eigen::VectorXf tempDis(nn)
+      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
+      neighbours.row(i) = tempRow;
+      distances.row(i)=tempDis;
+    }
 
-
-      cout<<" rank "<<grid->rank_in_row<<" vec "<<neighbours.row(0)<<endl;
+    cout<<" rank  "<<grid->rank_in_col<< " nn: "<<neighbours.row(0)<<" distances: "<<distances.row(0)<<endl;
   }
 };
 } // namespace hipgraph::distviz::knng
