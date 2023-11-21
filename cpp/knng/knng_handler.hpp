@@ -170,7 +170,9 @@ public:
     int total_receving = 0;
 
     //send distance threshold to original data owner
-    vector<index_distance_pair<INDEX_TYPE>> *out_index_dis = send_min_max_distance_to_data_owner(local_nns,receiving_indices_count.get(),disps_receiving_indices.get(),send_count,total_receving,nn);
+    shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> out_index_dis =  make_shared<vector<index_distance_pair<INDEX_TYPE>>>();
+    send_min_max_distance_to_data_owner(local_nns,out_index_dis.get(),receiving_indices_count.get(),disps_receiving_indices.get(),
+                                        send_count,total_receving,nn);
 
     cout<<" rank "<<grid->rank_in_col<<" after receiving  method  "<<(*out_index_dis).size()<<endl;
 
@@ -213,7 +215,8 @@ public:
     return final_nn_map.get();
   }
 
-  vector<index_distance_pair<INDEX_TYPE>>* send_min_max_distance_to_data_owner(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
+  void send_min_max_distance_to_data_owner(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
+                                      vector<index_distance_pair<INDEX_TYPE>>* out_index_dis,
                                                                                       vector<INDEX_TYPE>* receiving_indices_count,
                                                                                       vector<INDEX_TYPE>* disps_receiving_indices,
                                                                                      int &send_count,int &total_receiving, int nn) {
@@ -244,7 +247,7 @@ public:
     }
 //
     unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> in_index_dis = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(send_count);
-    shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> out_index_dis =  make_shared<vector<index_distance_pair<INDEX_TYPE>>>(total_receiving);
+    out_index_dis->resize(total_receving);
     cout<<" rank "<<grid->rank_in_col<<" before  total_receiving  "<<total_receiving<<endl;
     int co_process = 0;
     for (int i = 0;i < grid->col_world_size;i++)
