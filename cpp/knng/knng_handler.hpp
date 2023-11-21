@@ -212,8 +212,8 @@ public:
 
     for (int i = 0;i < grid->col_world_size;i++)
     {
-//      sending_indices_count[i] = (*process_to_index_set_ptr)[i].size();
-      sending_indices_count[i] = 30000;
+      cout<<" rank "<<i<<(*process_to_index_set_ptr)[i].size()<<endl;
+      sending_indices_count[i] = (*process_to_index_set_ptr)[i].size();
       send_count += sending_indices_count[i];
       disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;
     }
