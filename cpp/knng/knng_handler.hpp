@@ -70,7 +70,7 @@ public:
 
     this->trees_leaf_all = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
 
-    this->process_to_index_set_ptr = shared_ptr<vector<set<INDEX_TYPE>>>(grid->col_world_size);
+    this->process_to_index_set_ptr = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
 
     this->local_tree_offset = local_tree_offset;
   }
