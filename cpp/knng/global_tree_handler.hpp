@@ -801,9 +801,8 @@ public:
 //      cout<<" rank "<<grid->rank_in_col<<" disps "<<(*send_disps_indices_count_ptr)[i]<<" count "<<(*send_indices_count_ptr)[i]<<endl;
     }
 
-
     //send indices count
-    MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,(*receive_indices_count_ptr).data(), 1,MPI_INDEX_TYPE, MPI_COMM_WORLD);
+    MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,(*receive_indices_count_ptr).data(), 1,MPI_INDEX_TYPE, grid->col_world);
 
     auto total_receive_count=0;
     for(int i=0;i<grid->col_world_size;i++) {

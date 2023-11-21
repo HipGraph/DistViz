@@ -30,6 +30,7 @@ private:
   int local_data_set_size;
   vector<vector<vector<DataNode<INDEX_TYPE, VALUE_TYPE>>>> trees_leaf_all;
   shared_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr;
+  shared_ptr<vector<set<INDEX_TYPE>>> remote_index_distribution;
   int local_tree_offset;
   int total_leaf_size;
   int leafs_per_node;
@@ -72,6 +73,8 @@ public:
     this->trees_leaf_all = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
 
     this->process_to_index_set_ptr = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
+
+    this->remote_index_distribution = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
 
     this->local_tree_offset = local_tree_offset;
   }
@@ -210,23 +213,27 @@ public:
     int* sending_indices_count = new int[grid->col_world_size]();
     int* disps_sending_indices = new int[grid->col_world_size]();
 
+    for (auto it = local_nns.begin(); it != local_nns.end(); ++it) {
+      INDEX_TYPE key = it->first;
+      int target_rank = key/(global_data_set_size/grid->col_world_size);
+      sending_indices_count[target_rank]++;
+    }
+
     for (int i = 0;i < grid->col_world_size;i++)
     {
-      cout<<" rank "<<i<<(*process_to_index_set_ptr)[i].size()<<endl;
-      sending_indices_count[i] = (*process_to_index_set_ptr)[i].size();
       send_count += sending_indices_count[i];
       disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;
     }
 
     //sending back received data during collect similar data points to original process
     MPI_Alltoall(sending_indices_count,1, MPI_INDEX_TYPE, receiving_indices_count, 1, MPI_INDEX_TYPE, grid->col_world);
-//
+////
 //    for (int i = 0;i < grid->col_world_size;i++)
 //    {
 //      total_receiving += receiving_indices_count[i];
 //      disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
 //    }
-//
+////
 //    index_distance_pair<INDEX_TYPE> *in_index_dis = new index_distance_pair<INDEX_TYPE>[send_count];
 //    index_distance_pair<INDEX_TYPE> *out_index_dis =  new index_distance_pair<INDEX_TYPE>[total_receiving];
 //    int co_process = 0;
