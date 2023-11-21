@@ -78,7 +78,7 @@ public:
 
     this->local_tree_offset = local_tree_offset;
 
-    this->starting_data_index = (this->global_dataset_size / grid->col_world_size) * grid->rank_in_col;
+    this->starting_data_index = (global_data_set_size / grid->col_world_size) * grid->rank_in_col;
   }
 
   void build_index(ValueType2DVector<VALUE_TYPE>* original_data, float density,
