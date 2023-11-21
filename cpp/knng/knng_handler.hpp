@@ -319,61 +319,61 @@ public:
       (*minimal_selected_rank_sending)[i] = (*final_sent_indices_to_rank_map)[(*out_index_dis)[i].index - starting_data_index].index; //TODO: replace
     }
 
-    unique_ptr<vector<INDEX_TYPE>> receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> disps_receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-
-    // we recalculate how much we are receiving for minimal dst distribution
-    MPI_Alltoall((*receiving_indices_count).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count_back).data(), 1, MPI_INDEX_TYPE, grid->col_world);
-
-    int total_receivce_back = 0;
-    for (int i = 0;i < grid->col_world_size;i++)
-    {
-      total_receivce_back += (*receiving_indices_count_back)[i];
-      (*disps_receiving_indices_count_back)[i] = (i > 0) ?
-                                                      (*disps_receiving_indices_count_back)[i - 1] + (*receiving_indices_count_back)[i - 1] : 0;
-    }
-
-    unique_ptr<vector<INDEX_TYPE>> minimal_selected_rank_reciving =  make_unique<vector<INDEX_TYPE>>(total_receivce_back);
-    unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> minimal_index_distance_receiv = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_receivce_back);
-
-
-    MPI_Alltoallv((*minimal_index_distance).data(), (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_FLOAT_INT,
-                  (*minimal_index_distance_receiv).data(),
-                  (*receiving_indices_count_back).data(), (*disps_receiving_indices_count_back).data(), MPI_FLOAT_INT,  grid->col_world);
-
-
-    MPI_Alltoallv((*minimal_selected_rank_sending).data(), (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_INT,
-                  (*minimal_selected_rank_reciving).data(),
-                  (*receiving_indices_count_back).data(), (*disps_receiving_indices_count_back).data(), MPI_INT, MPI_COMM_WORLD);
-
-
+//    unique_ptr<vector<INDEX_TYPE>> receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+//    unique_ptr<vector<INDEX_TYPE>> disps_receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+//
+//    // we recalculate how much we are receiving for minimal dst distribution
+//    MPI_Alltoall((*receiving_indices_count).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count_back).data(), 1, MPI_INDEX_TYPE, grid->col_world);
+//
+//    int total_receivce_back = 0;
+//    for (int i = 0;i < grid->col_world_size;i++)
+//    {
+//      total_receivce_back += (*receiving_indices_count_back)[i];
+//      (*disps_receiving_indices_count_back)[i] = (i > 0) ?
+//                                                      (*disps_receiving_indices_count_back)[i - 1] + (*receiving_indices_count_back)[i - 1] : 0;
+//    }
+//
+//    unique_ptr<vector<INDEX_TYPE>> minimal_selected_rank_reciving =  make_unique<vector<INDEX_TYPE>>(total_receivce_back);
+//    unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> minimal_index_distance_receiv = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_receivce_back);
+//
+//
+//    MPI_Alltoallv((*minimal_index_distance).data(), (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_FLOAT_INT,
+//                  (*minimal_index_distance_receiv).data(),
+//                  (*receiving_indices_count_back).data(), (*disps_receiving_indices_count_back).data(), MPI_FLOAT_INT,  grid->col_world);
+//
+//
+//    MPI_Alltoallv((*minimal_selected_rank_sending).data(), (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_INT,
+//                  (*minimal_selected_rank_reciving).data(),
+//                  (*receiving_indices_count_back).data(), (*disps_receiving_indices_count_back).data(), MPI_INT, MPI_COMM_WORLD);
+//
+//
     shared_ptr<vector<vector<index_distance_pair<INDEX_TYPE>>>> final_indices_allocation = make_shared<vector<vector<index_distance_pair<INDEX_TYPE>>>>(grid->col_world_size);
-
-#pragma omp parallel
-    {
-      vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation_local(grid->col_world_size);
-
-#pragma omp  for nowait
-      for (int i = 0;i < total_receivce_back;i++)
-      {
-        index_distance_pair<INDEX_TYPE> distance_pair;
-        distance_pair.index = (*minimal_index_distance_receiv)[i].index;
-        distance_pair.distance = (*minimal_index_distance_receiv)[i].distance;
-        final_indices_allocation_local[(*minimal_selected_rank_reciving)[i]].
-            push_back(distance_pair);
-
-      }
-
-#pragma omp critical
-      {
-        for (int i = 0;i < grid->col_world_size;i++)
-        {
-          (*final_indices_allocation)[i].insert((*final_indices_allocation)[i].end(),
-                                             final_indices_allocation_local[i].begin(),
-                                             final_indices_allocation_local[i].end());
-        }
-      }
-    }
+//
+//#pragma omp parallel
+//    {
+//      vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation_local(grid->col_world_size);
+//
+//#pragma omp  for nowait
+//      for (int i = 0;i < total_receivce_back;i++)
+//      {
+//        index_distance_pair<INDEX_TYPE> distance_pair;
+//        distance_pair.index = (*minimal_index_distance_receiv)[i].index;
+//        distance_pair.distance = (*minimal_index_distance_receiv)[i].distance;
+//        final_indices_allocation_local[(*minimal_selected_rank_reciving)[i]].
+//            push_back(distance_pair);
+//
+//      }
+//
+//#pragma omp critical
+//      {
+//        for (int i = 0;i < grid->col_world_size;i++)
+//        {
+//          (*final_indices_allocation)[i].insert((*final_indices_allocation)[i].end(),
+//                                             final_indices_allocation_local[i].begin(),
+//                                             final_indices_allocation_local[i].end());
+//        }
+//      }
+//    }
 
     return final_indices_allocation.get();
 
