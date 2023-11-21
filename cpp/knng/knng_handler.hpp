@@ -145,7 +145,7 @@ public:
 //       edge.dst_index = (*datamap_ptr)[tempRow[k]];
        edge.dst_index = tempRow[k];
        edge.distance = tempDis[k];
-       (*local_nn_map_ptr)[global_index].push_back(edge);
+       (*local_nn_map_ptr)[global_index][k]=edge;
       }
     }
 
