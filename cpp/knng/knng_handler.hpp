@@ -217,7 +217,7 @@ public:
     //sending back received data during collect similar data points to original process
     MPI_Alltoall(sending_indices_count,1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
 
-    for (int i = 0;i < this->world_size;i++)
+    for (int i = 0;i < grid->col_world_size;i++)
     {
       total_receiving += receiving_indices_count[i];
       disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
@@ -226,7 +226,7 @@ public:
     index_distance_pair<INDEX_TYPE> *in_index_dis = new index_distance_pair<INDEX_TYPE>[send_count];
     index_distance_pair<INDEX_TYPE> *out_index_dis =  new index_distance_pair<INDEX_TYPE>[total_receiving];
     int co_process = 0;
-    for (int i = 0;i < this->world_size;i++)
+    for (int i = 0;i < grid->col_world_size;i++)
     {
       set<int> process_se_indexes = (*process_to_index_set_ptr)[i];
       for (set<int>::iterator it = process_se_indexes.begin();it != process_se_indexes.end();it++)
@@ -380,7 +380,7 @@ public:
         index_distance_pair<INDEX_TYPE> in_dis = final_indices_allocation[i][j];
         int selected_index = in_dis.index;
         float dst_th = in_dis.distance;
-        if (i != this->rank)
+        if (i != grid->rank_in_col)
         {
           if ((*local_nns).find(selected_index)!= (*local_nns).end())
           {
@@ -480,7 +480,7 @@ public:
               for (int k = 0;k < nn_sending.size();k++)
               {
                 sending_selected_nn[selected_nn].
-                    index = nn_sending[k].index;
+                    index = nn_sending[k].dst_index;
                 sending_selected_nn[selected_nn].
                     distance = nn_sending[k].distance;
                 selected_nn++;
