@@ -379,7 +379,7 @@ public:
         float dst_th = in_dis.distance;
         if (i != this->rank)
         {
-          if ((*local_nns).find(selected_index)!= local_nns.end())
+          if ((*local_nns).find(selected_index)!= (*local_nns).end())
           {
             vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> target;
             std::copy_if((*local_nns)[selected_index].begin(),
@@ -573,7 +573,7 @@ public:
                      return lhs.distance < rhs.distance;
                    });
         dst.
-            erase(unique(dst.begin(), dst.end(), [](const EdgeNod<INDEX_TYPE,VALUE_TYPE>>& lhs,
+            erase(unique(dst.begin(), dst.end(), [](const EdgeNode<INDEX_TYPE,VALUE_TYPE>& lhs,
                                                     const EdgeNode<INDEX_TYPE,VALUE_TYPE>& rhs)
                          {
                            return lhs.dst_index == rhs.dst_index;
