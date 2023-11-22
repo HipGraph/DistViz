@@ -618,11 +618,11 @@ public:
     }
 
     MPI_Alltoallv ((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
-                  (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, MPI_COMM_WORLD);
+                  (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
 
     MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
                   (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
-                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, MPI_COMM_WORLD);
+                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
 
 
     auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
@@ -649,6 +649,9 @@ public:
       (*local_to_global_map)[total_data_count]= receive_index;
       if ((*local_nn_map).find(receive_index) != (*local_nn_map).end()){
         cout<<" rank "<<grid->rank_in_col<<" remote index "<<receive_index<<" is already inserteded"<<endl;
+      }
+      if (grid->rank_in_col==3){
+        cout<<" remote index "<<receive_index<<" is  inserting"<<endl;
       }
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
       for(int j=0;j<data_dimension;j++){
