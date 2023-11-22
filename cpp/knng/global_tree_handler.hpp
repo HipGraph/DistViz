@@ -650,9 +650,7 @@ public:
       if ((*local_nn_map).find(receive_index) != (*local_nn_map).end()){
         cout<<" rank "<<grid->rank_in_col<<" remote index "<<receive_index<<" is already inserteded"<<endl;
       }
-      if (grid->rank_in_col==3){
-        cout<<" remote index "<<receive_index<<" is  inserting"<<endl;
-      }
+
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
       for(int j=0;j<data_dimension;j++){
         auto access_index = i*data_dimension+j;
