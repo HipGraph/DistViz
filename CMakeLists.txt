@@ -39,6 +39,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 add_library(disviz_lib SHARED
              cpp/io/file_reader.hpp
+             cpp/io/file_writer.hpp
              cpp/lib/Mrpt.h
              cpp/common/common.h
              cpp/common/common.cpp

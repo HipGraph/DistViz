@@ -13,8 +13,10 @@
 #include "math_operations.hpp"
 #include <memory>
 #include "../lib/Mrpt.h"
+#include "../io/file_writer.hpp"
 
 using namespace hipgraph::distviz::common;
+using namespace hipgraph::distviz::io;
 namespace hipgraph::distviz::knng {
 
 template <typename INDEX_TYPE, typename VALUE_TYPE>
@@ -81,7 +83,7 @@ public:
     this->starting_data_index = (global_data_set_size / grid->col_world_size) * grid->rank_in_col;
   }
 
-  void build_index(ValueType2DVector<VALUE_TYPE>* original_data, float density,
+  void build_KNNG(ValueType2DVector<VALUE_TYPE>* original_data, float density,
                    bool use_locality_optimization, int nn, float target_recall) {
     unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr; //class uses for math operations
     VALUE_TYPE* row_data_array = mathOp_ptr.get()->convert_to_row_major_format(original_data); // this algorithm assumes row major format for operations
@@ -158,6 +160,8 @@ public:
 
     communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
 
+    FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+    fileWriter.mpi_write_edge_list(final_nn_map.get(),"knng.txt",nn-1,grid->rank_in_col,grid->col_world_size,true);
 
 
   }
