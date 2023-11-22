@@ -633,33 +633,40 @@ public:
     int* receive_indices_ptr =  new int[total_receive_count]();
 
 
-    for(int i=0;i<grid->col_world_size;i++) {
-      if (i != grid->rank_in_col) {
-        auto it = (*process_to_index_set_ptr)[i].begin(); // iterator to the beginning of the set
+//    for(int i=0;i<grid->col_world_size;i++) {
+//      if (i != grid->rank_in_col) {
+//        auto it = (*process_to_index_set_ptr)[i].begin(); // iterator to the beginning of the set
+//
+//        for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
+//          int access_index =
+//              (i > 0) ? send_disps_indices_count_ptr[i - 1] + j : j;
+//          int access_index_dim = access_index * data_dimension;
+////          (*send_indices_ptr)[access_index] = *it;
+//          send_indices_ptr[access_index] = (*it);
+//          if (i==3){
+//            fout_send<<send_indices_ptr[access_index]<<endl;
+//          }
+//
+//          auto index_trying = send_indices_ptr[access_index] - starting_data_index;
+//
+//          for (int k = 0; k < data_dimension; ++k) {
+//            auto access_index_dim_d = access_index_dim + k;
+//
+////            (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
+//          }
+//        }
+//      }
+//      cout<<" rank "<<grid->rank_in_col<<" sending to "<<i<<" count "<<send_indices_count_ptr[i]<< " disps "<<send_disps_indices_count_ptr[i]<<" receive disps "<<receive_disps_indices_count_ptr[i]<<
+//      " receive count "<<receive_indices_count_ptr[i]<<endl;
+//    }
 
-        for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
-          int access_index =
-              (i > 0) ? send_disps_indices_count_ptr[i - 1] + j : j;
-          int access_index_dim = access_index * data_dimension;
-//          (*send_indices_ptr)[access_index] = *it;
-          send_indices_ptr[access_index] = (*it);
-          if (i==3){
-            fout_send<<send_indices_ptr[access_index]<<endl;
-          }
 
-          auto index_trying = send_indices_ptr[access_index] - starting_data_index;
-
-          for (int k = 0; k < data_dimension; ++k) {
-            auto access_index_dim_d = access_index_dim + k;
-
-//            (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
-          }
-        }
+    for(int i=0;i<grid->col_world_size;i++){
+      int offset = send_disps_indices_count_ptr[i];
+      for (int k=0;k<send_indices_count_ptr[i];k++){
+        send_indices_ptr[offset+k]= 10001;
       }
-      cout<<" rank "<<grid->rank_in_col<<" sending to "<<i<<" count "<<send_indices_count_ptr[i]<< " disps "<<send_disps_indices_count_ptr[i]<<" receive disps "<<receive_disps_indices_count_ptr[i]<<
-      " receive count "<<receive_indices_count_ptr[i]<<endl;
     }
-
 
 
 //    MPI_Alltoallv(send_indices_ptr,(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INT,receive_indices_ptr, (*receive_indices_count_ptr).data(),
