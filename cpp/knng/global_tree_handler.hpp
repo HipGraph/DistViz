@@ -603,9 +603,9 @@ public:
         auto it = data_set.begin();
         for (int j = 0; j < (*send_indices_count_ptr)[i]; j++) {
           // Access the value using the iterator
-          send_indices_ptr[offset + j] = (*it);
+          (*send_indices_ptr)[offset + j] = (*it);
           ++it;
-          auto index_trying = send_indices_ptr[offset + j] - starting_data_index;
+          auto index_trying = (*send_indices_ptr)[offset + j] - starting_data_index;
           auto access_index_dim = (offset + j) * data_dimension;
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
@@ -649,7 +649,7 @@ public:
       (*local_to_global_map)[total_data_count]= receive_index;
 
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-      for( auto=0;j<data_dimension;j++){
+      for( auto j =0;j<data_dimension;j++){
         auto access_index = i*data_dimension+j;
         data_matrix(j,total_data_count) =  (*receive_values_ptr)[access_index];
       }
