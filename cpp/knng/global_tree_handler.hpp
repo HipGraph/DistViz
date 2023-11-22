@@ -634,7 +634,7 @@ public:
 
 
     for(int i=0;i<grid->col_world_size;i++) {
-      if (i != grid->rank_in_col) {
+//      if (i != grid->rank_in_col) {
         auto it = (*process_to_index_set_ptr)[i].begin(); // iterator to the beginning of the set
 
         for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
@@ -654,7 +654,7 @@ public:
 
 //            (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
           }
-        }
+//        }
       }
       cout<<" rank "<<grid->rank_in_col<<" sending to "<<i<<" count "<<send_indices_count_ptr[i]<< " disps "<<send_disps_indices_count_ptr[i]<<" receive disps "<<receive_disps_indices_count_ptr[i]<<
       " receive count "<<receive_indices_count_ptr[i]<<endl;
@@ -678,18 +678,18 @@ public:
 
     Eigen::MatrixXf data_matrix(data_dimension, rows);
     auto total_data_count=0;
-    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
-      for(int j=0;j<data_dimension;j++){
-        auto index_trying = (*it) - starting_data_index;
-        data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
-      }
-      (*local_to_global_map)[total_data_count]=*it;
-      if ((*local_nn_map).find(*it) != (*local_nn_map).end()){
-        cout<<" rank "<<grid->rank_in_col<<" Local index "<<*it<<" is already inserteded"<<endl;
-      }
-      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-      total_data_count++;
-    }
+//    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
+//      for(int j=0;j<data_dimension;j++){
+//        auto index_trying = (*it) - starting_data_index;
+//        data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
+//      }
+//      (*local_to_global_map)[total_data_count]=*it;
+//      if ((*local_nn_map).find(*it) != (*local_nn_map).end()){
+//        cout<<" rank "<<grid->rank_in_col<<" Local index "<<*it<<" is already inserteded"<<endl;
+//      }
+//      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
+//      total_data_count++;
+//    }
 
 
     for(auto i=0;i<total_receive_count;i++) {
