@@ -666,7 +666,7 @@ public:
         int offset = send_disps_indices_count_ptr[i];
 
         std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
-        std::set<INDEX_TYPE>::iterator it = data_set.begin();
+        auto it = data_set.begin();
         for (int k = 0; k < send_indices_count_ptr[i]; k++) {
           // Access the value using the iterator
           send_indices_ptr[offset + k] = (*it);
