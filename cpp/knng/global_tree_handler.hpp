@@ -627,8 +627,8 @@ public:
 
 
 
-    MPI_Alltoallv(send_indices_ptr,(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,receive_indices_ptr, (*receive_indices_count_ptr).data(),
-                  (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
+    MPI_Alltoallv(send_indices_ptr,(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INT,receive_indices_ptr, (*receive_indices_count_ptr).data(),
+                  (*receive_disps_indices_count_ptr).data(),MPI_INT, grid->col_world);
 
 //    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
 //                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
