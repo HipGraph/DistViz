@@ -1,5 +1,5 @@
 #pragma once
-#include <cblas.h>
+#include <mkl_cblas.h>
 #include <mpi.h>
 #include <omp.h>
 #include <string>
