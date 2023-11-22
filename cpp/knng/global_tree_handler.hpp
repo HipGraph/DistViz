@@ -605,6 +605,9 @@ public:
               (i > 0) ? (*send_disps_indices_count_ptr)[i - 1] + j : j;
           auto access_index_dim = access_index * data_dimension;
           (*send_indices_ptr)[access_index] = *it;
+          if (i==3){
+            cout<<" rank "<<grid->rank_in_col<<" inserting for sending  "<<(*send_indices_ptr)[access_index]<<endl;
+          }
 
           auto index_trying = (*it) - starting_data_index;
 
