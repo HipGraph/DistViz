@@ -669,11 +669,6 @@ public:
           std::advance(it, k);
           send_indices_ptr[offset + k] = (*it);
           auto index_trying = send_indices_ptr[offset + k] - starting_data_index;
-
-          for (int k = 0; k < data_dimension; ++k) {
-            auto access_index_dim_d = access_index_dim + k;
-            //            (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
-          }
         }
       }
     }
