@@ -154,15 +154,19 @@ public:
       }
     }
 
-    communicate_nns((local_nn_map_ptr).get(),nn);
+    shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
+
+    communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
+
 
 
   }
 
-  map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,int nn) {
+  void communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,int nn,
+                                                                             map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_map) {
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_sending_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
-    shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
+
 
 
     shared_ptr<vector<INDEX_TYPE>> receiving_indices_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
@@ -206,16 +210,14 @@ public:
 
     //	//select final nns to be forwared to dataowners
     select_final_forwarding_nns(final_indices_allocation.get(),local_nns,
-                                      final_nn_sending_map.get(),final_nn_map.get(),
+                                      final_nn_sending_map.get(),final_nn_map,
                                       sending_selected_indices_count.get(),
                                       sending_selected_indices_nn_count.get());
 
     send_nns(sending_selected_indices_count.get(),sending_selected_indices_nn_count.get(),
-                   receiving_selected_indices_count.get(),final_nn_map.get(),
+                   receiving_selected_indices_count.get(),final_nn_map,
              final_nn_sending_map.get(),final_indices_allocation.get());
 
-
-    return final_nn_map.get();
   }
 
   void send_min_max_distance_to_data_owner(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
