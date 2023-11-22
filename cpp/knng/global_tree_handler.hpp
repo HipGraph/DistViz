@@ -644,10 +644,10 @@ public:
 //          (*send_indices_ptr)[access_index] = *it;
           send_indices_ptr[access_index] = (*it);
           if (i==3){
-            fout_send<<*it<<endl;
+            fout_send<<send_indices_ptr[access_index]<<endl;
           }
 
-          auto index_trying = (*it) - starting_data_index;
+          auto index_trying = send_indices_ptr[access_index] - starting_data_index;
 
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
