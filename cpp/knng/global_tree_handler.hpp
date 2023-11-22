@@ -604,7 +604,7 @@ public:
     for(int i=0;i<grid->col_world_size;i++) {
       receive_disps_indices_count_ptr[i]=(i>0)?receive_disps_indices_count_ptr[i-1]+receive_indices_count_ptr[i-1]:0;
       total_receive_count += receive_indices_count_ptr[i];
-      cout<<" rank "<<grid->rank_in_col<<" from rank "<<i<<" receive indices count "<<(*receive_indices_count_ptr)[i]<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" from rank "<<i<<" receive indices count "<<receive_indices_count_ptr[i]<<endl;
       receive_disps_values_count_ptr)[i]=(i>0)?receive_disps_values_count_ptr[i-1]+receive_indices_count_ptr[i-1]*data_dimension:0;
       receive_values_count_ptr[i]=receive_indices_count_ptr[i]*data_dimension;
     }
@@ -627,7 +627,7 @@ public:
 
         for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
           auto access_index =
-              (i > 0) ? (*send_disps_indices_count_ptr)[i - 1] + j : j;
+              (i > 0) ? send_disps_indices_count_ptr[i - 1] + j : j;
           auto access_index_dim = access_index * data_dimension;
 //          (*send_indices_ptr)[access_index] = *it;
           send_indices_ptr[access_index] = *it;
@@ -647,8 +647,11 @@ public:
 
 
 
-    MPI_Alltoallv(send_indices_ptr,(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INT,receive_indices_ptr, (*receive_indices_count_ptr).data(),
-                  (*receive_disps_indices_count_ptr).data(),MPI_INT, grid->col_world);
+//    MPI_Alltoallv(send_indices_ptr,(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INT,receive_indices_ptr, (*receive_indices_count_ptr).data(),
+//                  (*receive_disps_indices_count_ptr).data(),MPI_INT, grid->col_world);
+
+    MPI_Alltoallv(send_indices_ptr,send_indices_count_ptr,send_disps_indices_count_ptr , MPI_INT,receive_indices_ptr, receive_indices_count_ptr,
+                  receive_disps_indices_count_ptr,MPI_INT, grid->col_world);
 
 //    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
 //                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
