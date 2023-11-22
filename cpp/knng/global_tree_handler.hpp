@@ -658,9 +658,9 @@ public:
 //      INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
       INDEX_TYPE receive_index = receive_indices_ptr[i];
       (*local_to_global_map)[total_data_count]= receive_index;
-      if ((*local_nn_map).find(receive_index) != (*local_nn_map).end()){
-        cout<<" rank "<<grid->rank_in_col<<" remote index "<<receive_index<<" is already inserteded"<<endl;
-      }
+//      if ((*local_nn_map).find(receive_index) != (*local_nn_map).end()){
+//        cout<<" rank "<<grid->rank_in_col<<" remote index "<<receive_index<<" is already inserteded"<<endl;
+//      }
 
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
 //      for(int j=0;j<data_dimension;j++){
