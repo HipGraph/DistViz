@@ -664,11 +664,11 @@ public:
     for(int i=0;i<grid->col_world_size;i++){
       if (i != grid->rank_in_col) {
         int offset = send_disps_indices_count_ptr[i];
-        std::set<INDEX_TYPE>::iterator it = (*process_to_index_set_ptr)[i].begin();
+        auto it = (*process_to_index_set_ptr)[i].begin();
         for (int k = 0; k < send_indices_count_ptr[i]; k++) {
           std::advance(it, k);
           send_indices_ptr[offset + k] = (*it);
-          auto index_trying = send_indices_ptr[access_index] - starting_data_index;
+          auto index_trying = send_indices_ptr[offset + k] - starting_data_index;
 
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
