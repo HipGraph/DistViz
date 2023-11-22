@@ -561,6 +561,8 @@ public:
 
 
 
+
+
     auto total_send_count=0;
     for(int i=0;i<grid->col_world_size;i++){
       if (i!= grid->rank_in_col){
@@ -589,10 +591,10 @@ public:
 
 
     shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
-    shared_ptr<vector<INDEX_TYPE>> send_values_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count*data_dimension);
+    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
 
     shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
-    shared_ptr<vector<INDEX_TYPE>> receive_values_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count*data_dimension);
+    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
 
 
     for(int i=0;i<grid->col_world_size;i++) {
@@ -619,9 +621,9 @@ public:
     MPI_Alltoallv ((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
                   (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
 
-    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
-                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
-                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
+//    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
+//                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
+//                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
 
 
     auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
@@ -651,10 +653,10 @@ public:
       }
 
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-      for(int j=0;j<data_dimension;j++){
-        auto access_index = i*data_dimension+j;
-        data_matrix(j,total_data_count) =  (*receive_values_ptr)[access_index];
-      }
+//      for(int j=0;j<data_dimension;j++){
+//        auto access_index = i*data_dimension+j;
+//        data_matrix(j,total_data_count) =  (*receive_values_ptr)[access_index];
+//      }
       total_data_count++;
     }
 
