@@ -863,7 +863,7 @@ public:
       total_data_count++;
     }
 
-    cout<<" rank "<<grid->rank_in_col<< " total_data_count "<<total_data_count<<endl;
+
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
       (*local_to_global_map)[total_data_count+i]= receive_index;
@@ -873,6 +873,8 @@ public:
         data_matrix(j,total_data_count+i) =  (*receive_values_ptr)[access_index];
       }
     }
+
+    cout<<" rank "<<grid->rank_in_col<< " total_data_count "<<total_data_count<<endl;
     return data_matrix;
   }
 };
