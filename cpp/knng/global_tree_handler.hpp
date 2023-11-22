@@ -581,14 +581,14 @@ public:
 
     auto total_send_count=0;
     for(int i=0;i<grid->col_world_size;i++){
-//      if (i!= grid->rank_in_col){
+      if (i!= grid->rank_in_col){
 //        (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
         send_indices_count_ptr[i]= (*process_to_index_set_ptr)[i].size();
 
-//      }else {
+      }else {
 //        (*send_indices_count_ptr)[i] = 0;
-//        send_indices_count_ptr[i] = 0;
-//      }
+        send_indices_count_ptr[i] = 0;
+      }
 //      (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
 //      send_values_count_ptr[i]= send_indices_count_ptr[i]*data_dimension;
       total_send_count +=send_indices_count_ptr[i];
@@ -634,7 +634,7 @@ public:
 
 
     for(int i=0;i<grid->col_world_size;i++) {
-//      if (i != grid->rank_in_col) {
+      if (i != grid->rank_in_col) {
         auto it = (*process_to_index_set_ptr)[i].begin(); // iterator to the beginning of the set
 
         for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
@@ -644,7 +644,7 @@ public:
 //          (*send_indices_ptr)[access_index] = *it;
           send_indices_ptr[access_index] = (*it);
           if (i==3){
-            fout_send<<send_indices_ptr[access_index]<<endl;
+            fout_send<<*it<<endl;
           }
 
           auto index_trying = (*it) - starting_data_index;
@@ -654,7 +654,7 @@ public:
 
 //            (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
           }
-//        }
+        }
       }
       cout<<" rank "<<grid->rank_in_col<<" sending to "<<i<<" count "<<send_indices_count_ptr[i]<< " disps "<<send_disps_indices_count_ptr[i]<<" receive disps "<<receive_disps_indices_count_ptr[i]<<
       " receive count "<<receive_indices_count_ptr[i]<<endl;
@@ -678,18 +678,18 @@ public:
 
     Eigen::MatrixXf data_matrix(data_dimension, rows);
     auto total_data_count=0;
-//    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
-//      for(int j=0;j<data_dimension;j++){
-//        auto index_trying = (*it) - starting_data_index;
-//        data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
-//      }
-//      (*local_to_global_map)[total_data_count]=*it;
-//      if ((*local_nn_map).find(*it) != (*local_nn_map).end()){
-//        cout<<" rank "<<grid->rank_in_col<<" Local index "<<*it<<" is already inserteded"<<endl;
-//      }
-//      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-//      total_data_count++;
-//    }
+    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
+      for(int j=0;j<data_dimension;j++){
+        auto index_trying = (*it) - starting_data_index;
+        data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
+      }
+      (*local_to_global_map)[total_data_count]=*it;
+      if ((*local_nn_map).find(*it) != (*local_nn_map).end()){
+        cout<<" rank "<<grid->rank_in_col<<" Local index "<<*it<<" is already inserteded"<<endl;
+      }
+      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
+      total_data_count++;
+    }
 
 
     for(auto i=0;i<total_receive_count;i++) {
