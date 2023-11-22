@@ -592,13 +592,13 @@ public:
 
 //    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
 //    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
-    INDEX_TYPE* send_indices_ptr =  new INDEX_TYPE[total_send_count];
+    INDEX_TYPE* send_indices_ptr =  new INDEX_TYPE[total_send_count]();
 
 //    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
 //    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
 
 //    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
-    INDEX_TYPE* receive_indices_ptr =  new INDEX_TYPE[total_receive_count];
+    INDEX_TYPE* receive_indices_ptr =  new INDEX_TYPE[total_receive_count]();
 
 
     for(int i=0;i<grid->col_world_size;i++) {
@@ -621,7 +621,11 @@ public:
           }
         }
       }
+      cout<<" rank "<<grid->rank_in_col<<" sending to "<<i<<" count "<<(*send_indices_count_ptr)[i]<< " disps "<<(*send_disps_indices_count_ptr)[i]<<" receive disps "<<(*receive_disps_indices_count_ptr)[i]<<
+      " receive count "<<(*receive_indices_count_ptr)[i]<<endl;
     }
+
+
 
     MPI_Alltoallv(send_indices_ptr,(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,receive_indices_ptr, (*receive_indices_count_ptr).data(),
                   (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
