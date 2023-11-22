@@ -641,8 +641,8 @@ public:
           }
         }
       }
-      cout<<" rank "<<grid->rank_in_col<<" sending to "<<i<<" count "<<(*send_indices_count_ptr)[i]<< " disps "<<(*send_disps_indices_count_ptr)[i]<<" receive disps "<<(*receive_disps_indices_count_ptr)[i]<<
-      " receive count "<<(*receive_indices_count_ptr)[i]<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" sending to "<<i<<" count "<<send_indices_count_ptr[i]<< " disps "<<send_disps_indices_count_ptr[i]<<" receive disps "<<receive_disps_indices_count_ptr[i]<<
+      " receive count "<<receive_indices_count_ptr[i]<<endl;
     }
 
 
