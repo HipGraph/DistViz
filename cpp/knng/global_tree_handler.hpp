@@ -609,7 +609,8 @@ public:
           auto access_index =
               (i > 0) ? (*send_disps_indices_count_ptr)[i - 1] + j : j;
           auto access_index_dim = access_index * data_dimension;
-          (*send_indices_ptr)[access_index] = *it;
+//          (*send_indices_ptr)[access_index] = *it;
+          send_indices_ptr[access_index] = *it;
 
           auto index_trying = (*it) - starting_data_index;
 
@@ -622,7 +623,7 @@ public:
       }
     }
 
-    MPI_Alltoallv ((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
+    MPI_Alltoallv (send_indices_ptr,(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,receive_indices_ptr), (*receive_indices_count_ptr).data(),
                   (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
 
 //    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
@@ -650,7 +651,8 @@ public:
 
 
     for(auto i=0;i<total_receive_count;i++) {
-      INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
+//      INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
+      INDEX_TYPE receive_index = receive_indices_ptr[i];
       (*local_to_global_map)[total_data_count]= receive_index;
       if ((*local_nn_map).find(receive_index) != (*local_nn_map).end()){
         cout<<" rank "<<grid->rank_in_col<<" remote index "<<receive_index<<" is already inserteded"<<endl;
