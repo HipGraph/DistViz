@@ -567,14 +567,12 @@ public:
         (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
 
       }else {
-        cout<<" rank "<<grid->rank_in_col<<" local "<<(*process_to_index_set_ptr)[i].size()<<endl;
         (*send_indices_count_ptr)[i] = 0;
       }
       (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
       total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
       (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
-      cout<<" rank "<<grid->rank_in_col<<" to rank "<<i<<" send indices count "<<(*send_indices_count_ptr)[i]<<endl;
     }
 
     //send indices count
@@ -584,6 +582,7 @@ public:
     for(int i=0;i<grid->col_world_size;i++) {
       (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
       total_receive_count += (*receive_indices_count_ptr)[i];
+      cout<<" rank "<<grid->rank_in_col<<" from rank "<<i<<" receive indices count "<<(*receive_indices_count_ptr)[i]<<endl;
       (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
       (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
     }
