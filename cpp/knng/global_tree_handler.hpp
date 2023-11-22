@@ -866,12 +866,13 @@ public:
 
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
-      (*local_to_global_map)[total_data_count+i]= receive_index;
+      (*local_to_global_map)[total_data_count]= receive_index;
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
       for(int j=0;j<data_dimension;j++){
         auto access_index = i*data_dimension+j;
-        data_matrix(j,total_data_count+i) =  (*receive_values_ptr)[access_index];
+        data_matrix(j,total_data_count) =  (*receive_values_ptr)[access_index];
       }
+      total_data_count++;
     }
 
     cout<<" rank "<<grid->rank_in_col<< " total_data_count "<<total_data_count<<endl;
