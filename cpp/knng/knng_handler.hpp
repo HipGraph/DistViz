@@ -139,7 +139,7 @@ public:
     Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
     Eigen::MatrixXf distances(data_matrix.cols(),nn);
 
-    #pragma omp parallel for schedule (static)
+//    #pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
       Eigen::VectorXi tempRow(nn);
       Eigen::VectorXf tempDis(nn);
@@ -156,7 +156,7 @@ public:
       }
     }
 
-    cout<<"rank "<<grid->rank_in_col<<" size :"<<(*local_nn_map_ptr).size()<<endl;
+    cout<<"rank "<<grid->rank_in_col<<" size :"<<(*local_nn_map_ptr).size()<<" data mat size "<<data_matrix.cols()<<endl;
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 
