@@ -572,11 +572,11 @@ public:
 //    shared_ptr<vector<INDEX_TYPE>> receive_disps_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
 
 
-        INDEX_TYPE* send_indices_count_ptr =   new INDEX_TYPE[grid->col_world_size]();
-        INDEX_TYPE* send_disps_indices_count_ptr =  new INDEX_TYPE[grid->col_world_size]();
+    int* send_indices_count_ptr =   new int[grid->col_world_size]();
+    int* send_disps_indices_count_ptr =  new int[grid->col_world_size]();
 
-        INDEX_TYPE* receive_indices_count_ptr =  new INDEX_TYPE[grid->col_world_size]();
-        INDEX_TYPE* receive_disps_indices_count_ptr =  new INDEX_TYPE[grid->col_world_size]();
+    int* receive_indices_count_ptr =  new int[grid->col_world_size]();
+    int* receive_disps_indices_count_ptr =  new int[grid->col_world_size]();
 
 
     auto total_send_count=0;
@@ -624,13 +624,13 @@ public:
 
 //    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
 //    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
-    INDEX_TYPE* send_indices_ptr =  new INDEX_TYPE[total_send_count]();
+    int* send_indices_ptr =  new int[total_send_count]();
 
 //    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
 //    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
 
 //    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
-    INDEX_TYPE* receive_indices_ptr =  new INDEX_TYPE[total_receive_count]();
+    int* receive_indices_ptr =  new int[total_receive_count]();
 
 
     for(int i=0;i<grid->col_world_size;i++) {
@@ -638,9 +638,9 @@ public:
         auto it = (*process_to_index_set_ptr)[i].begin(); // iterator to the beginning of the set
 
         for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
-          auto access_index =
+          int access_index =
               (i > 0) ? send_disps_indices_count_ptr[i - 1] + j : j;
-          auto access_index_dim = access_index * data_dimension;
+          int access_index_dim = access_index * data_dimension;
 //          (*send_indices_ptr)[access_index] = *it;
           send_indices_ptr[access_index] = (*it);
           if (i==3){
