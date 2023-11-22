@@ -47,9 +47,9 @@ private:
 public:
 
   GlobalTreeHandler(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix,
-                    Process3DGrid* grid, int local_dataset_size,
+                    Process3DGrid* grid, INDEX_TYPE local_dataset_size,
                     int dimension, int tree_depth, int ntrees,
-                    int global_dataset_size) {
+                    INDEX_TYPE global_dataset_size) {
     this->tree_depth = tree_depth;
     this->local_dataset_size = local_dataset_size;
     this->projected_matrix = projected_matrix;
@@ -65,7 +65,7 @@ public:
     this->trees_leaf_first_indices_rearrange_ptr =  make_unique<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
     this->trees_leaf_first_indices_all_ptr =  make_unique<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>>(ntrees);
 
-    this->starting_data_index = (this->global_dataset_size / grid->col_world_size) * grid->rank_in_col;
+    this->starting_data_index = (global_dataset_size / grid->col_world_size) * grid->rank_in_col;
 
     this->grid = grid;
   }
@@ -158,18 +158,18 @@ public:
 
     // storing projected data
 #pragma  omp parallel for
-    for (INDEX_TYPE j = 0; j < this->local_dataset_size; j++)
+    for (INDEX_TYPE j = 0; j < local_dataset_size; j++)
     {
       (*index_to_tree_leaf_mapper_ptr)[j] = vector<int> (ntrees);
       for (int k = 0; k < ntrees; k++)
       {
         for (int i = 0; i < tree_depth; i++)
         {
-          auto index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
+          auto index =tree_depth * k + i + j * tree_depth * ntrees;
           DataNode<INDEX_TYPE,VALUE_TYPE> dataPoint;
 
           dataPoint.value = projected_matrix[index];
-          dataPoint.index = j + this->starting_data_index;
+          dataPoint.index = j + starting_data_index;
           (*trees_data_ptr)[k][i][j] = dataPoint;
         }
       }
@@ -266,7 +266,7 @@ public:
         {
           auto index = data_vector[k].index;
 
-          auto selected_index = index - this->starting_data_index;
+          auto selected_index = index - starting_data_index;
           DataNode<INDEX_TYPE,VALUE_TYPE> selected_data = (*trees_data_ptr)[tree][depth + 1][selected_index];
 
           if (data_vector[k].value <= median)
@@ -299,7 +299,7 @@ public:
       //      cout<<" rank "<<rank<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<endl;
       child_data_tracker[left_index] = left_childs_global;
       child_data_tracker[right_index] = right_childs_global;
-      if (depth == this->tree_depth - 2) {
+      if (depth == tree_depth - 2) {
         (*trees_leaf_first_indices_ptr)[tree][selected_leaf_left] = left_childs_global;
         (*trees_leaf_first_indices_ptr)[tree][selected_leaf_right] = right_childs_global;
       }
@@ -524,230 +524,6 @@ public:
   }
 
 
-  void collect_similar_data_points(int tree, bool use_data_locality_optimization,
-                              vector<set<INDEX_TYPE>> &index_distribution,std::map<INDEX_TYPE, vector<VALUE_TYPE>> &datamap,
-                                   vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>* output_data) {
-
-    int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
-
-
-    int leafs_per_node = total_leaf_size / grid->col_world_size;
-
-
-    //  cout<<" rank "<<rank<<" total_leaf_size "<<total_leaf_size<< " leafs per node "<<leafs_per_node<<endl;
-
-    int my_start_count = 0;
-    int end_count = 0;
-    int sending_rank = -1;
-
-    int *send_counts = new int[total_leaf_size]();
-    int *recv_counts = new int[total_leaf_size]();
-
-
-    int sum_per_node = 0;
-    int process = 0;
-    int *send_indices_count = new int[grid->col_world_size]();
-    int *disps_indices_count = new int[grid->col_world_size]();
-    int *send_values_count = new int[grid->col_world_size]();
-    int *disps_values_count = new int[grid->col_world_size]();
-
-    int my_total = 0;
-    for (int i = 0; i < total_leaf_size; i++)
-    {
-      if (i > 0 && i % leafs_per_node == 0)
-      {
-        send_indices_count[process] = sum_per_node;
-        send_values_count[process] = sum_per_node * data_dimension;
-        sum_per_node = 0;
-        process++;
-      }
-      vector <DataNode<INDEX_TYPE,VALUE_TYPE>> all_points = (use_data_locality_optimization)
-                                         ? (*trees_leaf_first_indices_rearrange_ptr)[tree][i]
-                                         : (*trees_leaf_first_indices_ptr)[tree][i];
-
-      send_counts[i] = all_points.size ();
-      sum_per_node += send_counts[i];
-      my_total += send_counts[i];
-    }
-
-    send_indices_count[process] = sum_per_node;
-    send_values_count[process] = sum_per_node * this->data_dimension;
-
-    MPI_Alltoall (send_counts, leafs_per_node, MPI_INT, recv_counts, leafs_per_node,
-                 MPI_INT, MPI_COMM_WORLD);
-
-    int *total_leaf_count = new int[leafs_per_node]();
-    int *recev_indices_count = new int[grid->col_world_size]();
-    int *recev_values_count = new int[grid->col_world_size]();
-    int *recev_disps_count = new int[grid->col_world_size]();
-    int *recev_disps_values_count = new int[grid->col_world_size]();
-
-    int total_sum = 0;
-    for (int j = 0; j < leafs_per_node; j++)
-    {
-      int count = 0;
-      for (int i = 0; i < grid->col_world_size; i++)
-      {
-        count += recv_counts[j + i * leafs_per_node];
-      }
-      total_leaf_count[j] = count;
-      total_sum += count;
-    }
-
-    for (int i = 0; i < grid->col_world_size; i++)
-    {
-      int count = 0;
-      for (int j = 0; j < leafs_per_node; j++)
-      {
-        count += recv_counts[j + i * leafs_per_node];
-      }
-      recev_indices_count[i] = count;
-      recev_values_count[i] = count * data_dimension;
-
-    }
-
-    for (int i = 0; i < grid->col_world_size; i++)
-    {
-      disps_indices_count[i] = (i > 0) ? (disps_indices_count[i - 1] + send_indices_count[i - 1]) : 0;
-      recev_disps_count[i] = (i > 0) ? (recev_disps_count[i - 1] + recev_indices_count[i - 1]) : 0;
-      disps_values_count[i] = (i > 0) ? (disps_values_count[i - 1] + send_values_count[i - 1]) : 0;
-      recev_disps_values_count[i] = (i > 0) ? (recev_disps_values_count[i - 1] + recev_values_count[i - 1]) : 0;
-    }
-
-    INDEX_TYPE *receive_indices = new INDEX_TYPE[total_sum]();
-    VALUE_TYPE *receive_values = new VALUE_TYPE[total_sum * data_dimension]();
-    INDEX_TYPE *send_indices = new INDEX_TYPE[my_total]();
-    VALUE_TYPE *send_values = new VALUE_TYPE[my_total * data_dimension]();
-
-    int co = 0;
-    int current_process = 0;
-    for (int i = 0; i < total_leaf_size; i++)
-    {
-
-      vector <DataNode<INDEX_TYPE,VALUE_TYPE>> all_points = (use_data_locality_optimization)
-                                         ? (*trees_leaf_first_indices_rearrange_ptr)[tree][i]
-                                         : (*trees_leaf_first_indices_ptr)[tree][i];
-
-      //      cout<<" rank "<<rank <<" leaf "<<i<<" leaf size "<<all_points.size()<<endl;
-
-      if (i > 0 && i % leafs_per_node == 0)
-      {
-        current_process++;
-      }
-
-      for (int j = 0; j < all_points.size (); j++)
-      {
-        send_indices[co] = all_points[j].index;
-
-#pragma omp parallel for
-        for (int k = 0; k < data_dimension; k++)
-        {
-          //              send_values[co * this->data_dimension + k] = all_points[j].image_data[k];
-          INDEX_TYPE local_index  = all_points[j].index - starting_data_index;
-          send_values[co * data_dimension + k] = (*data_points_ptr)[local_index][k];
-        }
-        co++;
-      }
-    }
-
-    MPI_Alltoallv (send_indices, send_indices_count, disps_indices_count, MPI_INDEX_TYPE, receive_indices,
-                  recev_indices_count, recev_disps_count, MPI_INDEX_TYPE, grid->col_world);
-
-    MPI_Alltoallv (send_values, send_values_count, disps_values_count, MPI_VALUE_TYPE, receive_values,
-                  recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, grid->col_world);
-
-
-    int total_receive_count=0;
-    int total_send_count=0;
-    for(int i=0;i<grid->col_world_size;i++){
-      cout<<" rank "<<grid->rank_in_col<<" sending "<<send_indices_count[i]<<endl;
-      cout<<" rank "<<grid->rank_in_col<<" receiving "<<recev_indices_count[i]<<endl;
-    }
-
-    my_start_count = leafs_per_node * grid->rank_in_col;
-    if (grid->rank_in_col < grid->col_world_size - 1)
-    {
-      end_count = leafs_per_node * (grid->rank_in_col + 1);
-    }
-    else
-    {
-      end_count = total_leaf_size;
-    }
-
-    vector<int> process_read_offsets (grid->col_world_size);
-    vector<int> process_read_offsets_value (grid->col_world_size);
-    output_data->resize(leafs_per_node);
-
-    for (int i = 0; i < leafs_per_node; i++)
-    {
-      vector <DataNode<INDEX_TYPE,VALUE_TYPE>> datavec (total_leaf_count[i]);
-      int testcr = 0;
-      for (int j = 0; j < grid->col_world_size; j++)
-      {
-        int count_per_leaf_per_node = recv_counts[i + j * leafs_per_node];
-        int read_offset = recev_disps_count[j];
-        int read_offset_data = recev_disps_values_count[j];
-
-        if (i == 0)
-        {
-          process_read_offsets[j] = read_offset + count_per_leaf_per_node;
-          process_read_offsets_value[j] = read_offset_data + count_per_leaf_per_node * data_dimension;
-        }
-        else
-        {
-          read_offset = process_read_offsets[j];
-          process_read_offsets[j] = read_offset + count_per_leaf_per_node;
-          read_offset_data = process_read_offsets_value[j];
-          process_read_offsets_value[j] = read_offset_data + count_per_leaf_per_node * data_dimension;
-        }
-
-        int value_read_count = read_offset_data;
-
-        for (int k = read_offset; k < process_read_offsets[j]; k++)
-        {
-          DataNode<INDEX_TYPE,VALUE_TYPE> dataPoint;
-          dataPoint.index = receive_indices[k];
-
-          index_distribution[j].insert(dataPoint.index);
-
-
-          vector<VALUE_TYPE> image_values = vector<VALUE_TYPE> (data_dimension);
-
-#pragma omp parallel for
-          for (int m = value_read_count; m < (value_read_count + data_dimension); m++)
-          {
-            int r = m - value_read_count;
-            image_values[r] = receive_values[m];
-          }
-
-          datamap.insert(pair < int, vector <VALUE_TYPE>> (dataPoint.index, image_values));
-
-          datavec[testcr] = dataPoint;
-          value_read_count += data_dimension;
-          testcr++;
-        }
-      }
-
-      int id = i + my_start_count;
-      (*trees_leaf_first_indices_all_ptr)[tree][id] = datavec;
-      (*output_data)[i] = datavec;
-    }
-
-    delete[] send_counts;
-    delete[] recv_counts;
-    delete[] send_indices_count;
-    delete[] disps_indices_count;
-    delete[] send_values_count;
-    delete[] disps_values_count;
-    delete[] recev_indices_count;
-    delete[] recev_values_count;
-    delete[] recev_disps_count;
-    delete[] recev_disps_values_count;
-
-  }
-
-
-
   Eigen::MatrixXf collect_similar_data_points_of_all_trees(bool use_data_locality_optimization,
                                    vector<set<INDEX_TYPE>>* process_to_index_set_ptr,
                                                            map<INDEX_TYPE,INDEX_TYPE>* local_to_global_map,
@@ -860,6 +636,9 @@ public:
         data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
       }
       (*local_to_global_map)[total_data_count]=*it;
+      if ((*local_nn_map).find(*it) != (*local_nn_map).end()){
+        cout<<" rank "<<grid->rank_in_col<<" Local index "<<*it<<" is already inserteded"<<endl;
+      }
       (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
       total_data_count++;
     }
@@ -868,6 +647,9 @@ public:
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
       (*local_to_global_map)[total_data_count]= receive_index;
+      if ((*local_nn_map).find(receive_index) != (*local_nn_map).end()){
+        cout<<" rank "<<grid->rank_in_col<<" remote index "<<receive_index<<" is already inserteded"<<endl;
+      }
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
       for(int j=0;j<data_dimension;j++){
         auto access_index = i*data_dimension+j;
