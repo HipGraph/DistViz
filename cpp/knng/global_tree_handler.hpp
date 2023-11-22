@@ -642,9 +642,9 @@ public:
               (i > 0) ? send_disps_indices_count_ptr[i - 1] + j : j;
           auto access_index_dim = access_index * data_dimension;
 //          (*send_indices_ptr)[access_index] = *it;
-          send_indices_ptr[access_index] = *it;
+          send_indices_ptr[access_index] = (*it);
           if (i==3){
-            fout_send<<*it<<endl;
+            fout_send<<send_indices_ptr[access_index]<<endl;
           }
 
           auto index_trying = (*it) - starting_data_index;
