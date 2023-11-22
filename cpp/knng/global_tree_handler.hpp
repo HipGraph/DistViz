@@ -875,7 +875,7 @@ public:
       total_data_count++;
     }
 
-    cout<<" rank "<<grid->rank_in_col<< " total_data_count "<<total_data_count<<endl;
+    cout<<" rank "<<grid->rank_in_col<< " total_data_count "<<total_data_count<<" map  size "<<(*local_to_global_map).size()<<endl;
     return data_matrix;
   }
 };
