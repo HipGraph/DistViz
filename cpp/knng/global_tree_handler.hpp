@@ -549,15 +549,15 @@ public:
     }
 
 
-    unique_ptr<vector<INDEX_TYPE>> send_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> send_disps_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> send_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> send_disps_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> send_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> send_disps_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> send_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> send_disps_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
 
-    unique_ptr<vector<INDEX_TYPE>> receive_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> receive_disps_indices_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> receive_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> receive_disps_values_count_ptr =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> receive_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> receive_disps_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> receive_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> receive_disps_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
 
 
 
@@ -589,11 +589,11 @@ public:
     }
 
 
-    unique_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_unique<vector<INDEX_TYPE>>(total_send_count);
-    unique_ptr<vector<INDEX_TYPE>> send_values_ptr =  make_unique<vector<INDEX_TYPE>>(total_send_count*data_dimension);
+    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
+    shared_ptr<vector<INDEX_TYPE>> send_values_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count*data_dimension);
 
-    unique_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_unique<vector<INDEX_TYPE>>(total_receive_count);
-    unique_ptr<vector<INDEX_TYPE>> receive_values_ptr =  make_unique<vector<INDEX_TYPE>>(total_receive_count*data_dimension);
+    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
+    shared_ptr<vector<INDEX_TYPE>> receive_values_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count*data_dimension);
 
 
     for(int i=0;i<grid->col_world_size;i++) {
@@ -605,9 +605,6 @@ public:
               (i > 0) ? (*send_disps_indices_count_ptr)[i - 1] + j : j;
           auto access_index_dim = access_index * data_dimension;
           (*send_indices_ptr)[access_index] = *it;
-          if (i==3){
-            cout<<" rank "<<grid->rank_in_col<<" inserting for sending  "<<(*send_indices_ptr)[access_index]<<endl;
-          }
 
           auto index_trying = (*it) - starting_data_index;
 
