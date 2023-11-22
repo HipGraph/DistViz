@@ -11,6 +11,7 @@
 #include "math_operations.hpp"
 #include <memory>
 
+
 using namespace hipgraph::distviz::knng;
 using namespace hipgraph::distviz::common;
 using namespace  hipgraph::distviz::net;
@@ -529,6 +530,17 @@ public:
                                                            map<INDEX_TYPE,INDEX_TYPE>* local_to_global_map,
                                                            map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nn_map, int nn) {
 
+
+    char sending[500];
+    char receiving[500]
+    string file_path_send = to_string(grid->rank_in_col) + "sending.txt";
+    string file_path_receive = to_string(grid->rank_in_col) + "receiving.txt";
+    std::strcpy(stats, file_path_send.c_str());
+    std::strcpy(receiving, file_path_receive.c_str());
+    ofstream fout_send(sending, std::ios_base::app);
+    ofstream fout_receive(receiving, std::ios_base::app);
+
+
     int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
     int leafs_per_node = total_leaf_size / grid->col_world_size;
 
@@ -631,6 +643,9 @@ public:
           auto access_index_dim = access_index * data_dimension;
 //          (*send_indices_ptr)[access_index] = *it;
           send_indices_ptr[access_index] = *it;
+          if (i==3){
+            fout_send<<*it<<endl;
+          }
 
           auto index_trying = (*it) - starting_data_index;
 
@@ -680,14 +695,12 @@ public:
     for(auto i=0;i<total_receive_count;i++) {
 //      INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
       INDEX_TYPE receive_index = receive_indices_ptr[i];
+
       if (grid->rank_in_col==3){
-        cout<<" i "<<i<<" outof "<<total_receive_count<< " index "<<receive_index<<endl;
+        fout_receive<<receive_index<<endl;
       }
 
       (*local_to_global_map)[total_data_count]= receive_index;
-      if ((*local_nn_map).find(receive_index) != (*local_nn_map).end()){
-        cout<<" rank "<<grid->rank_in_col<<" remote index "<<receive_index<<" is already inserteded"<<endl;
-      }
 
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
 //      for(int j=0;j<data_dimension;j++){
