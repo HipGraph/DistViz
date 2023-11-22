@@ -856,7 +856,6 @@ public:
     for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
       for(int j=0;j<data_dimension;j++){
         auto index_trying = (*it) - starting_data_index;
-        VALUE_TYPE val =    (*receive_indices_ptr)[index_trying];
         data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
       }
       (*local_to_global_map)[total_data_count]=*it;
@@ -864,6 +863,7 @@ public:
       total_data_count++;
     }
 
+    cout<<" rank "<<grid->rank_in_col<< " total_data_count "<<total_data_count<<endl;
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
       (*local_to_global_map)[total_data_count+i]= receive_index;
