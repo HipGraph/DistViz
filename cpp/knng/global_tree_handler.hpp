@@ -791,6 +791,7 @@ public:
         (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
 
       }else {
+        cout<<" rank "<<grid->rank_in_col<<" local "<<(*process_to_index_set_ptr)[i].size()<<endl;
         (*send_indices_count_ptr)[i] = 0;
       }
       (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
