@@ -590,11 +590,15 @@ public:
     }
 
 
-    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
-    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
+//    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
+//    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
+    INDEX_TYPE* send_indices_ptr =  new INDEX_TYPE[total_send_count];
 
-    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
-    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
+//    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
+//    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
+
+//    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
+    INDEX_TYPE* receive_indices_ptr =  new INDEX_TYPE[total_receive_count];
 
 
     for(int i=0;i<grid->col_world_size;i++) {
@@ -612,7 +616,7 @@ public:
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
 
-            (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
+//            (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
           }
         }
       }
