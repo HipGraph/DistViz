@@ -532,10 +532,10 @@ public:
 
 
     char sending[500];
-    char receiving[500]
+    char receiving[500];
     string file_path_send = to_string(grid->rank_in_col) + "sending.txt";
     string file_path_receive = to_string(grid->rank_in_col) + "receiving.txt";
-    std::strcpy(stats, file_path_send.c_str());
+    std::strcpy(sending, file_path_send.c_str());
     std::strcpy(receiving, file_path_receive.c_str());
     ofstream fout_send(sending, std::ios_base::app);
     ofstream fout_receive(receiving, std::ios_base::app);
