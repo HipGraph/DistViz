@@ -530,17 +530,6 @@ public:
                                                            map<INDEX_TYPE,INDEX_TYPE>* local_to_global_map,
                                                            map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nn_map, int nn) {
 
-
-    char sending[500];
-    char receiving[500];
-    string file_path_send = to_string(grid->rank_in_col) + "sending.txt";
-    string file_path_receive = to_string(grid->rank_in_col) + "receiving.txt";
-    std::strcpy(sending, file_path_send.c_str());
-    std::strcpy(receiving, file_path_receive.c_str());
-    ofstream fout_send(sending, std::ios_base::app);
-    ofstream fout_receive(receiving, std::ios_base::app);
-
-
     int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
     int leafs_per_node = total_leaf_size / grid->col_world_size;
 
@@ -561,130 +550,106 @@ public:
     }
 
 
-//    shared_ptr<vector<INDEX_TYPE>> send_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-//    shared_ptr<vector<INDEX_TYPE>> send_disps_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-//    shared_ptr<vector<INDEX_TYPE>> send_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-//    shared_ptr<vector<INDEX_TYPE>> send_disps_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-//
-//    shared_ptr<vector<INDEX_TYPE>> receive_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-//    shared_ptr<vector<INDEX_TYPE>> receive_disps_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-//    shared_ptr<vector<INDEX_TYPE>> receive_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-//    shared_ptr<vector<INDEX_TYPE>> receive_disps_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> send_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> send_disps_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> send_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> send_disps_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
 
-
-    int* send_indices_count_ptr =   new int[grid->col_world_size]();
-    int* send_disps_indices_count_ptr =  new int[grid->col_world_size]();
-
-    int* receive_indices_count_ptr =  new int[grid->col_world_size]();
-    int* receive_disps_indices_count_ptr =  new int[grid->col_world_size]();
+    shared_ptr<vector<INDEX_TYPE>> receive_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> receive_disps_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> receive_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<INDEX_TYPE>> receive_disps_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
 
 
     auto total_send_count=0;
     for(int i=0;i<grid->col_world_size;i++){
       if (i!= grid->rank_in_col){
-//        (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
-        send_indices_count_ptr[i]= (*process_to_index_set_ptr)[i].size();
-
+        (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
       }else {
-//        (*send_indices_count_ptr)[i] = 0;
-        send_indices_count_ptr[i] = 0;
+        (*send_indices_count_ptr)[i] = 0;
       }
-//      (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
-//      send_values_count_ptr[i]= send_indices_count_ptr[i]*data_dimension;
+      (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
       total_send_count +=send_indices_count_ptr[i];
-//      (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
-//      (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
-
-      send_disps_indices_count_ptr[i]=(i>0)?send_disps_indices_count_ptr[i-1]+send_indices_count_ptr[i-1]:0;
-//      send_disps_values_count_ptr[i]=(i>0)send_disps_values_count_ptr[i-1]+send_indices_count_ptr[i-1]*data_dimension:0;
+      (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
+      (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
     }
 
     //send indices count
-//    MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,(*receive_indices_count_ptr).data(), 1,MPI_INDEX_TYPE, grid->col_world);
-    MPI_Alltoall (send_indices_count_ptr,1 , MPI_INDEX_TYPE,receive_indices_count_ptr, 1,MPI_INDEX_TYPE, grid->col_world);
-
-//    auto total_receive_count=0;
-//    for(int i=0;i<grid->col_world_size;i++) {
-//      (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
-//      total_receive_count += (*receive_indices_count_ptr)[i];
-//      cout<<" rank "<<grid->rank_in_col<<" from rank "<<i<<" receive indices count "<<(*receive_indices_count_ptr)[i]<<endl;
-//      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
-//      (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
-//    }
+    MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,(*receive_indices_count_ptr).data(), 1,MPI_INDEX_TYPE, grid->col_world);
 
     auto total_receive_count=0;
     for(int i=0;i<grid->col_world_size;i++) {
-      receive_disps_indices_count_ptr[i]=(i>0)?receive_disps_indices_count_ptr[i-1]+receive_indices_count_ptr[i-1]:0;
-      total_receive_count += receive_indices_count_ptr[i];
-      cout<<" rank "<<grid->rank_in_col<<" from rank "<<i<<" receive indices count "<<receive_indices_count_ptr[i]<<endl;
-//      receive_disps_values_count_ptr[i]=(i>0)?receive_disps_values_count_ptr[i-1]+receive_indices_count_ptr[i-1]*data_dimension:0;
-//      receive_values_count_ptr[i]=receive_indices_count_ptr[i]*data_dimension;
+      (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
+      total_receive_count += (*receive_indices_count_ptr)[i];
+      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
+      (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
     }
 
 
-//    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
-//    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
-    int* send_indices_ptr =  new int[total_send_count]();
 
-//    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
-//    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
+    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
+    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
 
-//    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
-    int* receive_indices_ptr =  new int[total_receive_count]();
+    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
+    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
 
 
-//    for(int i=0;i<grid->col_world_size;i++) {
-//      if (i != grid->rank_in_col) {
-//        auto it = (*process_to_index_set_ptr)[i].begin(); // iterator to the beginning of the set
-//
-//        for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
-//          int access_index =
-//              (i > 0) ? send_disps_indices_count_ptr[i - 1] + j : j;
-//          int access_index_dim = access_index * data_dimension;
-////          (*send_indices_ptr)[access_index] = *it;
-//          send_indices_ptr[access_index] = (*it);
-//          if (i==3){
-//            fout_send<<send_indices_ptr[access_index]<<endl;
-//          }
-//
-//          auto index_trying = send_indices_ptr[access_index] - starting_data_index;
-//
-//          for (int k = 0; k < data_dimension; ++k) {
-//            auto access_index_dim_d = access_index_dim + k;
-//
-////            (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
-//          }
-//        }
-//      }
-//      cout<<" rank "<<grid->rank_in_col<<" sending to "<<i<<" count "<<send_indices_count_ptr[i]<< " disps "<<send_disps_indices_count_ptr[i]<<" receive disps "<<receive_disps_indices_count_ptr[i]<<
-//      " receive count "<<receive_indices_count_ptr[i]<<endl;
-//    }
+
+    for(int i=0;i<grid->col_world_size;i++) {
+      if (i != grid->rank_in_col) {
+        auto it = (*process_to_index_set_ptr)[i].begin(); // iterator to the beginning of the set
+
+        for (INDEX_TYPE j = 0; it != (*process_to_index_set_ptr)[i].end(); ++it, ++j) {
+          int access_index =
+              (i > 0) ? send_disps_indices_count_ptr[i - 1] + j : j;
+          int access_index_dim = access_index * data_dimension;
+//          (*send_indices_ptr)[access_index] = *it;
+          send_indices_ptr[access_index] = (*it);
+          if (i==3){
+            fout_send<<send_indices_ptr[access_index]<<endl;
+          }
+
+          auto index_trying = send_indices_ptr[access_index] - starting_data_index;
+
+          for (int k = 0; k < data_dimension; ++k) {
+            auto access_index_dim_d = access_index_dim + k;
+
+//            (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
+          }
+        }
+      }
+      cout<<" rank "<<grid->rank_in_col<<" sending to "<<i<<" count "<<send_indices_count_ptr[i]<< " disps "<<send_disps_indices_count_ptr[i]<<" receive disps "<<receive_disps_indices_count_ptr[i]<<
+      " receive count "<<receive_indices_count_ptr[i]<<endl;
+    }
 
 
     for(int i=0;i<grid->col_world_size;i++){
       if (i != grid->rank_in_col) {
-        int offset = send_disps_indices_count_ptr[i];
+        auto offset = send_disps_indices_count_ptr[i];
 
         std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
         auto it = data_set.begin();
-        for (int k = 0; k < send_indices_count_ptr[i]; k++) {
+        for (int j = 0; j < send_indices_count_ptr[i]; j++) {
           // Access the value using the iterator
-          send_indices_ptr[offset + k] = (*it);
+          send_indices_ptr[offset + j] = (*it);
           ++it;
+          auto index_trying = send_indices_ptr[offset + j] - starting_data_index;
+          auto access_index_dim = (offset + j) * data_dimension;
+          for (int k = 0; k < data_dimension; ++k) {
+            auto access_index_dim_d = access_index_dim + k;
+             (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
+          }
         }
       }
     }
 
 
-//    MPI_Alltoallv(send_indices_ptr,(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INT,receive_indices_ptr, (*receive_indices_count_ptr).data(),
-//                  (*receive_disps_indices_count_ptr).data(),MPI_INT, grid->col_world);
+    MPI_Alltoallv((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
+                  (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
 
-    MPI_Alltoallv(send_indices_ptr,send_indices_count_ptr,send_disps_indices_count_ptr , MPI_INT,receive_indices_ptr, receive_indices_count_ptr,
-                  receive_disps_indices_count_ptr,MPI_INT, grid->col_world);
-
-//    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
-//                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
-//                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
+    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
+                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
+                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
 
 
     auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
@@ -707,20 +672,15 @@ public:
 
 
     for(auto i=0;i<total_receive_count;i++) {
-//      INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
-      INDEX_TYPE receive_index = receive_indices_ptr[i];
-
-      if (grid->rank_in_col==3){
-        fout_receive<<receive_index<<endl;
-      }
+      INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
 
       (*local_to_global_map)[total_data_count]= receive_index;
 
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-//      for(int j=0;j<data_dimension;j++){
-//        auto access_index = i*data_dimension+j;
-//        data_matrix(j,total_data_count) =  (*receive_values_ptr)[access_index];
-//      }
+      for(int auto=0;j<data_dimension;j++){
+        auto access_index = i*data_dimension+j;
+        data_matrix(j,total_data_count) =  (*receive_values_ptr)[access_index];
+      }
       total_data_count++;
     }
 
