@@ -1,6 +1,5 @@
 #pragma once
 #include "../net/process_3D_grid.hpp"
-#include <cblas.h>
 #include <map>
 #include <mpi.h>
 #include <omp.h>
