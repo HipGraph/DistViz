@@ -569,7 +569,7 @@ public:
         (*send_indices_count_ptr)[i] = 0;
       }
       (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
-      total_send_count +=send_indices_count_ptr[i];
+      total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
       (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
     }
@@ -597,11 +597,11 @@ public:
 
     for(int i=0;i<grid->col_world_size;i++){
       if (i != grid->rank_in_col) {
-        auto offset = send_disps_indices_count_ptr[i];
+        auto offset = (*send_disps_indices_count_ptr)[i];
 
         std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
         auto it = data_set.begin();
-        for (int j = 0; j < send_indices_count_ptr[i]; j++) {
+        for (int j = 0; j < (*send_indices_count_ptr)[i]; j++) {
           // Access the value using the iterator
           send_indices_ptr[offset + j] = (*it);
           ++it;
@@ -649,7 +649,7 @@ public:
       (*local_to_global_map)[total_data_count]= receive_index;
 
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-      for(int auto=0;j<data_dimension;j++){
+      for( auto=0;j<data_dimension;j++){
         auto access_index = i*data_dimension+j;
         data_matrix(j,total_data_count) =  (*receive_values_ptr)[access_index];
       }
