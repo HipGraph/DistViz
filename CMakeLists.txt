@@ -19,6 +19,8 @@ find_package(OpenBLAS REQUIRED)
 message(STATUS "OpenBLAS include dir: ${OpenBLAS_CXX_INCLUDE_PATH}")
 message(STATUS "OpenBLAS libs: ${OpenBLAS_CXX_LIBRARIES}")
 
+include_directories(${OpenBLAS_CXX_INCLUDE_PATH})
+
 
 message("Finding OpenMP")
 find_package(OpenMP REQUIRED)
