@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <cstdint> // int64_t
 #include <iostream>
+#include <mkl_spblas.h>
 #include <mpi.h>
 #include <random>
 #include <vector>
