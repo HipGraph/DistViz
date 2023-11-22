@@ -14,6 +14,11 @@ message(STATUS "MPI executable: ${MPIEXEC_EXECUTABLE}")
 #message("Finding MKL")
 #find_package(MKL REQUIRED)
 
+message("Finding openBLAS")
+find_package(OpenBLAS REQUIRED)
+message(STATUS "OpenBLAS include dir: ${OpenBLAS_CXX_INCLUDE_PATH}")
+message(STATUS "OpenBLAS libs: ${OpenBLAS_CXX_LIBRARIES}")
+
 
 message("Finding OpenMP")
 find_package(OpenMP REQUIRED)
