@@ -179,7 +179,9 @@ int main(int argc, char* argv[]) {
                                                                                       dimension,  grid.get()));
 
   std::cout << "calling grow trees"<< rank<< " "<<std::endl;
-  knng_handler.get()->build_KNNG(data_matrix_ptr.get(),density,use_locality_optimization,nn,0.9);
+
+  shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
+  knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),density,use_locality_optimization,nn,0.9);
 
   auto stop_index_building = high_resolution_clock::now();
 

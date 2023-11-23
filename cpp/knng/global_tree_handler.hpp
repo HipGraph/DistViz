@@ -138,7 +138,6 @@ public:
     int total_split_size = 1 << (tree_depth + 1);
     int total_child_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
 
-    cout << " rank " << grid->rank_in_col << " start initial tree growing" << endl;
 
     index_to_tree_leaf_mapper_ptr = make_unique<ValueType2DVector<int>>(local_dataset_size);
 
@@ -175,8 +174,6 @@ public:
         }
       }
     }
-
-    cout << " rank " << grid->rank_in_col << " completed image data storing for all trees" << endl;
 
 
     for (int k = 0; k < ntrees; k++)
@@ -635,9 +632,7 @@ public:
         data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
       }
       (*local_to_global_map)[total_data_count]=*it;
-      if ((*local_nn_map).find(*it) != (*local_nn_map).end()){
-        cout<<" rank "<<grid->rank_in_col<<" Local index "<<*it<<" is already inserteded"<<endl;
-      }
+
       (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
       total_data_count++;
     }
@@ -656,7 +651,6 @@ public:
       total_data_count++;
     }
 
-    cout<<" rank "<<grid->rank_in_col<< " total_data_count "<<total_data_count<<" map  size "<<(*local_to_global_map).size()<<"nn map size"<<(*local_nn_map).size()<<endl;
     return data_matrix;
   }
 };

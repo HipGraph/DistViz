@@ -82,8 +82,11 @@ public:
     this->starting_data_index = (global_data_set_size / grid->col_world_size) * grid->rank_in_col;
   }
 
-  void build_KNNG(ValueType2DVector<VALUE_TYPE>* input_data, float density,
-                   bool use_locality_optimization, int nn, float target_recall) {
+  void build_distributed_KNNG(ValueType2DVector<VALUE_TYPE>* input_data, vector<Tuple<VALUE_TYPE>> *output_knng,
+                              float density,bool use_locality_optimization, int nn, float target_recall,
+                              bool print_output =false, string output_path='knng.txt',
+                              bool skip_self_loops=true) {
+
     unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr; //class uses for math operations
     VALUE_TYPE* row_data_array = mathOp_ptr.get()->convert_to_row_major_format(input_data); // this algorithm assumes row major format for operations
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
@@ -128,7 +131,11 @@ public:
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
 
-    Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,process_to_index_set_ptr.get(),datamap_ptr.get(),local_nn_map_ptr.get(),nn);
+    Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,
+                                                                                       process_to_index_set_ptr.get(),
+                                                                                       datamap_ptr.get(),
+                                                                                       local_nn_map_ptr.get(),
+                                                                                       nn);
 
     cout<<"rank "<<grid->rank_in_col<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
 
@@ -161,13 +168,26 @@ public:
 
     communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
 
+    if (print_output) {
     FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
-    fileWriter.mpi_write_edge_list(final_nn_map.get(),"knng.txt",nn-1,grid->rank_in_col,grid->col_world_size,true);
+    fileWriter.mpi_write_edge_list(final_nn_map.get(),output_path,nn-1,grid->rank_in_col,grid->col_world_size,true);
+    }
 
+
+    for(auto it=final_nn_map.begin(); it!=final_nn_map.end();++it){
+      for(int j=(skip_self_loops)?1:0;j<it->second.size();j++){
+        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = (*it)[j];
+        Tuple<VALUE_TYPE> tuple;
+        tuple.row = edge_node.src_index;
+        tuple.col = edge_node.dst_index;
+        tuple.value = edge_node.distance
+        output_knng.push_back(tuple);
+      }
+    }
   }
 
   void communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,int nn,
-                                                                             map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_map) {
+                                                                             map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_map, vector<Tuple<VALUE_TYPE>> *coords) {
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_sending_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 
