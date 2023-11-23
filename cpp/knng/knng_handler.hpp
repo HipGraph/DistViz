@@ -180,8 +180,8 @@ public:
         Tuple<VALUE_TYPE> tuple;
         tuple.row = edge_node.src_index;
         tuple.col = edge_node.dst_index;
-        tuple.value = edge_node.distance
-        output_knng.push_back(tuple);
+        tuple.value = edge_node.distance;
+        (*output_knng).push_back(tuple);
       }
     }
   }
