@@ -159,10 +159,10 @@ public:
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 
-//    communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
+    communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
 
     FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
-    fileWriter.mpi_write_edge_list(local_nn_map_ptr.get(),"knng.txt",nn-1,grid->rank_in_col,grid->col_world_size,true);
+    fileWriter.mpi_write_edge_list(final_nn_map.get(),"knng.txt",nn-1,grid->rank_in_col,grid->col_world_size,true);
 
   }
 
