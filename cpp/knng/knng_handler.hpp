@@ -82,10 +82,10 @@ public:
     this->starting_data_index = (global_data_set_size / grid->col_world_size) * grid->rank_in_col;
   }
 
-  void build_KNNG(ValueType2DVector<VALUE_TYPE>* original_data, float density,
+  void build_KNNG(ValueType2DVector<VALUE_TYPE>* input_data, float density,
                    bool use_locality_optimization, int nn, float target_recall) {
     unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr; //class uses for math operations
-    VALUE_TYPE* row_data_array = mathOp_ptr.get()->convert_to_row_major_format(original_data); // this algorithm assumes row major format for operations
+    VALUE_TYPE* row_data_array = mathOp_ptr.get()->convert_to_row_major_format(input_data); // this algorithm assumes row major format for operations
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
 
     // generate random seed at process 0 and broadcast it to multiple processes.
@@ -112,7 +112,7 @@ public:
 
     cout << " rank " << grid->rank_in_col << " starting growing trees" << endl;
     // start growing global tree
-    drpt_global.grow_global_tree(original_data);
+    drpt_global.grow_global_tree(input_data);
     cout << " rank " <<  grid->rank_in_col << " completing growing trees" << endl;
 
     //
@@ -138,7 +138,7 @@ public:
     Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
     Eigen::MatrixXf distances(data_matrix.cols(),nn);
 
-//    #pragma omp parallel for schedule (static)
+    #pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
       Eigen::VectorXi tempRow(nn);
       Eigen::VectorXf tempDis(nn);
