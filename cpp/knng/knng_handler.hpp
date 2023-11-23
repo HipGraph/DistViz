@@ -176,7 +176,7 @@ public:
 
     for(auto it=(*final_nn_map).begin(); it!=(*final_nn_map).end();++it){
       for(int j=(skip_self_loops)?1:0;j<it->second.size();j++){
-        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = (*it)[j];
+        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = (it->second)[j];
         Tuple<VALUE_TYPE> tuple;
         tuple.row = edge_node.src_index;
         tuple.col = edge_node.dst_index;
