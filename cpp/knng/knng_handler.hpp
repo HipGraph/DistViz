@@ -84,7 +84,7 @@ public:
 
   void build_distributed_KNNG(ValueType2DVector<VALUE_TYPE>* input_data, vector<Tuple<VALUE_TYPE>> *output_knng,
                               float density,bool use_locality_optimization, int nn, float target_recall,
-                              bool print_output =false, string output_path='knng.txt',
+                              bool print_output =false, string output_path="knng.txt",
                               bool skip_self_loops=true) {
 
     unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr; //class uses for math operations
@@ -174,7 +174,7 @@ public:
     }
 
 
-    for(auto it=final_nn_map.begin(); it!=final_nn_map.end();++it){
+    for(auto it=(*final_nn_map).begin(); it!=(*final_nn_map).end();++it){
       for(int j=(skip_self_loops)?1:0;j<it->second.size();j++){
         EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = (*it)[j];
         Tuple<VALUE_TYPE> tuple;
@@ -187,7 +187,7 @@ public:
   }
 
   void communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,int nn,
-                                                                             map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_map, vector<Tuple<VALUE_TYPE>> *coords) {
+                       map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_map) {
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_sending_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 
