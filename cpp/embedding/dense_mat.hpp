@@ -14,8 +14,9 @@
 using namespace std;
 using namespace Eigen;
 using namespace hipgraph::distviz::net;
+using namespace hipgraph::distviz::common;
 
-namespace hipgraph::distviz::common {
+namespace hipgraph::distviz::embedding {
 
 /**
  * This class represents  the dense matrix.
@@ -69,7 +70,7 @@ public:
 
   void insert_cache(int rank, uint64_t key, int batch_id, int iteration,
                     std::array<DENT, embedding_dim> &arr, bool temp) {
-    distblas::core::CacheEntry<DENT, embedding_dim> entry;
+    CacheEntry<DENT, embedding_dim> entry;
     entry.inserted_batch_id = batch_id;
     entry.inserted_itr = iteration;
     entry.value = arr;
@@ -112,7 +113,7 @@ public:
       for (int i = 0; i < grid->col_world_size; i++) {
         auto &arrayMap = (*cachePtr)[i];
         for (auto it = arrayMap.begin(); it != arrayMap.end();) {
-          distblas::core::CacheEntry<DENT, embedding_dim> cache_ent =
+          CacheEntry<DENT, embedding_dim> cache_ent =
               it->second;
           if (cache_ent.inserted_itr < current_itr and
               cache_ent.inserted_batch_id <= current_batch) {

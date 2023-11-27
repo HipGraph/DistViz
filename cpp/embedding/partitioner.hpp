@@ -39,7 +39,7 @@ public:
                         uint64_t  proc_col_width, uint64_t gCols,bool transpose);
 
   template <typename T>
-  void partition_data(distblas::core::SpMat<T> *sp_mat) {
+  void partition_data(SpMat<T> *sp_mat) {
 
     int world_size = process_3D_grid->col_world_size;
     int my_rank = process_3D_grid->rank_in_col;
