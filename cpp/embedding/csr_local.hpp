@@ -17,6 +17,7 @@
 #include <string.h>
 
 using namespace std;
+using namespace hipgraph::distviz::common;
 
 namespace hipgraph::distviz::embedding {
 
