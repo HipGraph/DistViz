@@ -56,7 +56,13 @@ add_library(disviz_lib SHARED
              cpp/knng/math_operations.hpp
              cpp/common/mpi_type_creator.hpp
              cpp/common/json.hpp
-             cpp/knng/knng_handler.hpp)
+             cpp/knng/knng_handler.hpp
+             cpp/net/data_comm.hpp
+             cpp/embedding/algo.hpp
+             cpp/embedding/csr_local.hpp
+             cpp/embedding/dense_mat.hpp
+             cpp/embedding/distributed_mat.hpp
+             cpp/embedding/sparse_mat.hpp)
 
 SET(BUILD_TESTS "" ON)
 
