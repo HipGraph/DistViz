@@ -51,9 +51,9 @@ protected:
   bool col_major = true;
 
 public:
-  EmbeddingAlgo(SpMat<SPT> *sp_local_native,
-                SpMat<SPT> *sp_local_receiver,
-                SpMat<SPT> *sp_local_sender,
+  EmbeddingAlgo(SpMat<DENT> *sp_local_native,
+                SpMat<DENT> *sp_local_receiver,
+                SpMat<DENT> *sp_local_sender,
                 DenseMat<SPT, DENT, embedding_dim> *dense_local,
                 Process3DGrid *grid, double alpha, double beta, DENT MAX_BOUND,
                 DENT MIN_BOUND, bool col_major, bool sync_comm)
