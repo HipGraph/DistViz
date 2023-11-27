@@ -72,8 +72,6 @@ public:
   }
 
   void algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr) {
-    auto t = start_clock();
-
     int batches = 0;
     int last_batch_size = batch_size;
 
@@ -87,8 +85,7 @@ public:
           sp_local_receiver->proc_row_width - batch_size * (batches - 1);
     }
 
-    cout << " rank " << grid->rank_in_col << " total batches " << batches
-         << endl;
+    cout << " rank " << grid->rank_in_col << " total batches " << batches<< endl;
 
     // This communicator is being used for negative updates and in alpha > 0 to
     // fetch initial embeddings
@@ -96,6 +93,8 @@ public:
         new DataComm<SPT, DENT, embedding_dim>(
             sp_local_receiver, sp_local_sender, dense_local, grid, -1, alpha));
     full_comm.get()->onboard_data();
+
+    cout << " rank " << grid->rank_in_col << " onboard data sucessfully for initial iteration" << batches<< endl;
 
     // Buffer used for receive MPI operations data
     unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> update_ptr =
@@ -111,6 +110,7 @@ public:
       MPI_Request fetch_batch_full;
       int alpha_proc_end = get_end_proc(1, alpha, grid->col_world_size);
       full_comm.get()->transfer_data(sendbuf_ptr.get(), update_ptr.get(), true,&fetch_batch_full, 0, 0, 1, alpha_proc_end,false);
+      cout << " rank " << grid->rank_in_col << " transfer data completed for initial iteration" << batches<< endl;
     }
 
     for (int i = 0; i < batches; i++) {
@@ -253,12 +253,8 @@ public:
             }
           }
         }
-        total_memory += get_memory_usage();
       }
     }
-    total_memory = total_memory / (iterations * batches);
-    add_memory(total_memory, "Memory usage");
-    stop_clock_and_add(t, "Total Time");
   }
 
   inline void execute_pull_model_computations(
