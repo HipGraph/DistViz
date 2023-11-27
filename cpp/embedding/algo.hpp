@@ -30,9 +30,9 @@ class EmbeddingAlgo {
 
 protected:
   DenseMat<SPT, DENT, embedding_dim> *dense_local;
-  SpMat<SPT> *sp_local_receiver;
-  SpMat<SPT> *sp_local_sender;
-  SpMat<SPT> *sp_local_native;
+  SpMat<DENT> *sp_local_receiver;
+  SpMat<DENT> *sp_local_sender;
+  SpMat<DENT> *sp_local_native;
   Process3DGrid *grid;
   DENT MAX_BOUND, MIN_BOUND;
   std::unordered_map<int, unique_ptr<DataComm<SPT, DENT, embedding_dim>>>
