@@ -76,17 +76,17 @@ public:
       }
     }
 
-
+    Tuple<T> *coords_ptr = (*coords).data();
     if (col_partitioned) {
       // This is used to find sending indices
       csr_local_data =
           make_unique<CSRLocal<T>>(gRows, proc_col_width, (*coords).size(),
-                                   coords, (*coords).size(), transpose);
+                                   coords_ptr, (*coords).size(), transpose);
     } else {
       // This is used to find receiving indices and computations
       csr_local_data =
           make_unique<CSRLocal<T>>(proc_row_width, gCols, (*coords).size(),
-                                   coords, (*coords).size(), transpose);
+                                   coords_ptr, (*coords).size(), transpose);
     }
   }
 
