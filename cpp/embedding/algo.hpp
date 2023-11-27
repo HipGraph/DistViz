@@ -128,7 +128,7 @@ public:
 
     size_t total_memory = 0;
 
-    CSRLocal<SPT> *csr_block =
+    CSRLocal<DENT> *csr_block =
         (col_major) ? (this->sp_local_receiver)->csr_local_data.get()
                     : (this->sp_local_native)->csr_local_data.get();
 
