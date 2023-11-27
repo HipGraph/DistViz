@@ -13,7 +13,7 @@
 #include <parallel/algorithm>
 #include <unordered_set>
 #include <vector>
-#include "common.h"
+#include "../common/common.h"
 #include "../net/process_3D_grid.hpp"
 
 using namespace std;
