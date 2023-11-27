@@ -2,7 +2,6 @@
  * This class implements the distributed sparse graph.
  */
 #pragma once
-#include "common.h"
 #include "csr_local.hpp"
 #include "distributed_mat.hpp"
 #include <algorithm>
