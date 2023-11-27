@@ -1,7 +1,7 @@
 #pragma once
 #include "../common//common.h"
-#include "../common/dense_mat.hpp"
-#include "../common/sparse_mat.hpp"
+#include "../embedding/dense_mat.hpp"
+#include "../embedding/sparse_mat.hpp"
 #include "process_3D_grid.hpp"
 #include <iostream>
 #include <mpi.h>
