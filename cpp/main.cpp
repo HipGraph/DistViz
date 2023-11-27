@@ -25,6 +25,7 @@ using namespace std;
 using namespace std::chrono;
 using namespace hipgraph::distviz::net;
 using namespace hipgraph::distviz::knng;
+namespace hipgraph::distviz::embedding;
 
 using namespace hipgraph::distviz::io;
 int main(int argc, char* argv[]) {
@@ -195,10 +196,7 @@ int main(int argc, char* argv[]) {
 
 
 
-
-
-
-
+   auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,>>(new EmbeddingHandler<int, float>(grid.get()));
 
 
 
