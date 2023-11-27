@@ -34,13 +34,13 @@ public:
                                           grid->col_world_size);
 
 
-    auto shared_sparseMat = make_shared<SpMat<INDEX_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
+    auto shared_sparseMat = make_shared<SpMat<VALUE_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
                                                                           localARows, localBRows, false, false);
 
-    auto shared_sparseMat_sender = make_shared<SpMat<INDEX_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
+    auto shared_sparseMat_sender = make_shared<SpMat<VALUE_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
                                                                            localARows, localBRows, false, true);
 
-    auto shared_sparseMat_receiver = make_shared<SpMat<INDEX_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
+    auto shared_sparseMat_receiver = make_shared<SpMat<VALUE_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
                                                                              localARows, localBRows, true, false);
 
 

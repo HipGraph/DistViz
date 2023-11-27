@@ -43,7 +43,7 @@ public:
    * @param gCols   total number of Cols in Distributed global Adj matrix
    * @param gNNz     total number of NNz in Distributed global Adj matrix
    */
-  SpMat(Process3DGrid *grid, vector<Tuple<T>>* coords, uint64_t &gRows, uint64_t &gCols,
+  SpMat(Process3DGrid* grid, vector<Tuple<T>>* coords, uint64_t &gRows, uint64_t &gCols,
         uint64_t &gNNz, int &batch_size, int &proc_row_width,
         int &proc_col_width, bool transpose, bool col_partitioned) {
     this->gRows = gRows;
