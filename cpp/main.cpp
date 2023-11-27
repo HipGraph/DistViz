@@ -20,12 +20,13 @@
 #include <cstring>
 #include "common/common.h"
 #include "embedding/embedding_handler.hpp"
+#include "embedding/dense_mat.hpp"
 
 using namespace std;
 using namespace std::chrono;
 using namespace hipgraph::distviz::net;
 using namespace hipgraph::distviz::knng;
-namespace hipgraph::distviz::embedding;
+using namespace hipgraph::distviz::embedding;
 
 using namespace hipgraph::distviz::io;
 int main(int argc, char* argv[]) {
@@ -194,11 +195,16 @@ int main(int argc, char* argv[]) {
 
   initialize_mpi_datatypes<int, float, embedding_dimension>();
 
+  auto localARows = divide_and_round_up(data_set_size,grid.get()->col_world_size);
 
+  auto dense_mat = shared_ptr<DenseMat<int, float, embedding_dimension>>(
+      new DenseMat<int, float, embedding_dimension>(grid.get(), localARows));
 
-   auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,>>(new EmbeddingHandler<int, float>(grid.get()));
+   auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,embedding_dimension>>(new EmbeddingHandler<int, float,embedding_dimension>(grid.get()));
+   auto gNNZ = data_set_size* (nn-1);
 
-
+  embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),data_set_size,data_set_size,gNNZ,
+                                         localARows,1200,0.2,5,0.5,0.5,false,false);
 
   auto stop_index_building = high_resolution_clock::now();
 
