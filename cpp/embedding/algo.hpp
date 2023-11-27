@@ -3,7 +3,7 @@
  * This is tightly coupled with 1D partitioning of Sparse Matrix and Dense Matrix.
  */
 #pragma once
-#include "../common//common.h"
+#include "../common/common.h"
 #include "csr_local.hpp"
 #include "dense_mat.hpp"
 #include "../common/json.hpp"
@@ -30,9 +30,9 @@ class EmbeddingAlgo {
 
 protected:
   DenseMat<SPT, DENT, embedding_dim> *dense_local;
-  distblas::core::SpMat<SPT> *sp_local_receiver;
-  distblas::core::SpMat<SPT> *sp_local_sender;
-  distblas::core::SpMat<SPT> *sp_local_native;
+  SpMat<SPT> *sp_local_receiver;
+  SpMat<SPT> *sp_local_sender;
+  SpMat<SPT> *sp_local_native;
   Process3DGrid *grid;
   DENT MAX_BOUND, MIN_BOUND;
   std::unordered_map<int, unique_ptr<DataComm<SPT, DENT, embedding_dim>>>
@@ -51,9 +51,9 @@ protected:
   bool col_major = true;
 
 public:
-  EmbeddingAlgo(distblas::core::SpMat<SPT> *sp_local_native,
-                distblas::core::SpMat<SPT> *sp_local_receiver,
-                distblas::core::SpMat<SPT> *sp_local_sender,
+  EmbeddingAlgo(SpMat<SPT> *sp_local_native,
+                SpMat<SPT> *sp_local_receiver,
+                SpMat<SPT> *sp_local_sender,
                 DenseMat<SPT, DENT, embedding_dim> *dense_local,
                 Process3DGrid *grid, double alpha, double beta, DENT MAX_BOUND,
                 DENT MIN_BOUND, bool col_major, bool sync_comm)
