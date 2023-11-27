@@ -19,6 +19,7 @@
 #include <limits.h>
 #include <cstring>
 #include "common/common.h"
+#include "embedding/embedding_handler.hpp"
 
 using namespace std;
 using namespace std::chrono;
@@ -41,6 +42,8 @@ int main(int argc, char* argv[]) {
   int local_tree_offset = 2;
   int file_format = 0;
   int data_starting_index = 8;
+
+  const int embedding_dimension = 2;
 
   int bytes_for_data_type = 4;
 
@@ -159,6 +162,9 @@ int main(int argc, char* argv[]) {
 
 
   auto grid = unique_ptr<Process3DGrid>(new Process3DGrid(size, 1, 1, 1));
+
+
+
   Eigen::VectorXi indices(k),  indices_exact(k);
 
 //  Eigen::VectorXf distances(k);
@@ -183,33 +189,26 @@ int main(int argc, char* argv[]) {
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
   knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),density,use_locality_optimization,nn,0.9);
 
+
+
+  initialize_mpi_datatypes<int, float, embedding_dimension>();
+
+
+
+
+
+
+
+
+
+
   auto stop_index_building = high_resolution_clock::now();
 
   auto duration_index_building = duration_cast<microseconds>(stop_index_building - stop_io_index);
 
 
 
-//  Eigen::MatrixXf X = X_trans.transpose();
-//
-//  std::cout << "Number of Rows: " << X.rows() << std::endl;
-//  std::cout << "Number of Columns: " << X.cols() << std::endl;
-//
-//  Eigen::MatrixXi neighbours(X.cols(),k);
-//
-//
-////  Mrpt::exact_knn(X.row(0), X, k, indices_exact.data());
-////  std::cout << indices_exact.transpose() << std::endl;
-//
-//  auto start_index_buildling = high_resolution_clock::now();
-//  Mrpt mrpt(X);
-//  mrpt.grow_autotune(target_recall, k);
-//
-//#pragma omp parallel for schedule (static)
-//  for(int i=0;i<X.cols();i++){
-//    Eigen::VectorXi tempRow(k);
-//    mrpt.query(X.col(i), tempRow.data());
-//    neighbours.row(i) = tempRow;
-//  }
+
 
   double* execution_times = new double[2];
 
