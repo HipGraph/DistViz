@@ -34,7 +34,7 @@ public:
                                           grid->col_world_size);
 
 
-    auto shared_sparseMat = shared_ptr<SpMat<INDEX_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
+    auto shared_sparseMat = make_shared<SpMat<INDEX_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
                                                                           localARows, localBRows, false, false);
 
     auto shared_sparseMat_sender = make_shared<SpMat<INDEX_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
