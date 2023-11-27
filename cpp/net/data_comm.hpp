@@ -11,7 +11,7 @@
 #include <chrono>
 
 using namespace hipgraph::distviz::common;
-
+using namespace hipgraph::distviz::embedding;
 
 namespace hipgraph::distviz::net {
 
@@ -24,9 +24,9 @@ namespace hipgraph::distviz::net {
 template <typename SPT, typename DENT, size_t embedding_dim> class DataComm {
 
 private:
-  distblas::core::SpMat<SPT> *sp_local_receiver;
-  distblas::core::SpMat<SPT> *sp_local_sender;
-  distblas::core::DenseMat<SPT, DENT, embedding_dim> *dense_local;
+  SpMat<SPT> *sp_local_receiver;
+  SpMat<SPT> *sp_local_sender;
+  DenseMat<SPT, DENT, embedding_dim> *dense_local;
   Process3DGrid *grid;
   vector<int> sdispls;
   vector<int> sendcounts;
@@ -42,8 +42,8 @@ private:
   double alpha;
 
 public:
-  DataComm(distblas::core::SpMat<SPT> *sp_local_receiver,
-           distblas::core::SpMat<SPT> *sp_local_sender,
+  DataComm(SpMat<SPT> *sp_local_receiver,
+           SpMat<SPT> *sp_local_sender,
            DenseMat<SPT, DENT, embedding_dim> *dense_local, Process3DGrid *grid,
            int batch_id, double alpha) {
     this->sp_local_receiver = sp_local_receiver;
