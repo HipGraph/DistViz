@@ -24,7 +24,7 @@ public:
 
 
   void generate_embedding(vector<Tuple<VALUE_TYPE>>* input_graph,DenseMat<INDEX_TYPE, VALUE_TYPE, dimension>* dense_output,
-                          int gRows, int gCols, int gNNZ, int batch_size,
+                          uint64_t gRows, uint64_t gCols, uint64_t gNNZ, int batch_size,
                           int iterations, float lr, int nsamples, float alpha,float beta,
                           bool col_major, bool sync_comm){
 
