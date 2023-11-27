@@ -62,7 +62,9 @@ add_library(disviz_lib SHARED
              cpp/embedding/csr_local.hpp
              cpp/embedding/dense_mat.hpp
              cpp/embedding/distributed_mat.hpp
-             cpp/embedding/sparse_mat.hpp)
+             cpp/embedding/sparse_mat.hpp
+             cpp/embedding/partitioner.hpp
+             cpp/embedding/partitioner.cpp)
 
 SET(BUILD_TESTS "" ON)
 
