@@ -24,8 +24,8 @@ namespace hipgraph::distviz::net {
 template <typename SPT, typename DENT, size_t embedding_dim> class DataComm {
 
 private:
-  SpMat<SPT> *sp_local_receiver;
-  SpMat<SPT> *sp_local_sender;
+  SpMat<DENT> *sp_local_receiver;
+  SpMat<DENT> *sp_local_sender;
   DenseMat<SPT, DENT, embedding_dim> *dense_local;
   Process3DGrid *grid;
   vector<int> sdispls;
@@ -42,8 +42,8 @@ private:
   double alpha;
 
 public:
-  DataComm(SpMat<SPT> *sp_local_receiver,
-           SpMat<SPT> *sp_local_sender,
+  DataComm(SpMat<DENT> *sp_local_receiver,
+           SpMat<DENT> *sp_local_sender,
            DenseMat<SPT, DENT, embedding_dim> *dense_local, Process3DGrid *grid,
            int batch_id, double alpha) {
     this->sp_local_receiver = sp_local_receiver;
