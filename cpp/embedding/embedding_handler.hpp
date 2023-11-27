@@ -5,7 +5,7 @@
 #include "sparse_mat.hpp"
 #include "../net/process_3D_grid.hpp"
 #include "partitioner.hpp"
-
+#include "algo.hpp"
 namespace hipgraph::distviz::embedding {
 
 template<typename INDEX_TYPE, typename  VALUE_TYPE,size_t dimension>
@@ -23,7 +23,7 @@ public:
 
 
 
-  void generate_embedding(vector<Tuple<VALUE_TYPE>> input_graph,DenseMat<INDEX_TYPE, VALUE_TYPE, dimension>* dense_output,
+  void generate_embedding(vector<Tuple<VALUE_TYPE>>* input_graph,DenseMat<INDEX_TYPE, VALUE_TYPE, dimension>* dense_output,
                           int gRows, int gCols, int gNNZ, int batch_size,
                           int iterations, float lr, int nsamples, float alpha,float beta,
                           bool col_major, bool sync_comm){
@@ -34,13 +34,13 @@ public:
                                           grid->col_world_size);
 
 
-    auto shared_sparseMat = shared_ptr<SpMat<INDEX_TYPE>>(grid,copiedVector, gRows,gCols, gNNZ, batch_size,
+    auto shared_sparseMat = shared_ptr<SpMat<INDEX_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
                                                                           localARows, localBRows, false, false);
 
-    auto shared_sparseMat_sender = make_shared<SpMat<INDEX_TYPE>>(grid,copiedVector, gRows,gCols, gNNZ, batch_size,
+    auto shared_sparseMat_sender = make_shared<SpMat<INDEX_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
                                                                            localARows, localBRows, false, true);
 
-    auto shared_sparseMat_receiver = make_shared<SpMat<INDEX_TYPE>>(grid,copiedVector, gRows,gCols, gNNZ, batch_size,
+    auto shared_sparseMat_receiver = make_shared<SpMat<INDEX_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
                                                                              localARows, localBRows, true, false);
 
 
@@ -52,8 +52,7 @@ public:
 
     unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>
 
-        embedding_algo =
-            unique_ptr<distblas::algo::EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>(
+        embedding_algo = unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>(
                 new EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>(
                     shared_sparseMat.get(), shared_sparseMat_receiver.get(),
                     shared_sparseMat_sender.get(), dense_output, grid,
@@ -65,6 +64,6 @@ public:
 
 
 
-  }
-};
+  };
+}
 

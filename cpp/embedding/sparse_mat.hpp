@@ -28,7 +28,7 @@ template <typename T> class SpMat : public DistributedMat {
 private:
 public:
   uint64_t gRows, gCols, gNNz;
-  vector<Tuple<T>> coords;
+  vector<Tuple<T>>* coords;
   int batch_size;
   int proc_col_width, proc_row_width;
   bool transpose = false;
@@ -43,7 +43,7 @@ public:
    * @param gCols   total number of Cols in Distributed global Adj matrix
    * @param gNNz     total number of NNz in Distributed global Adj matrix
    */
-  SpMat(Process3DGrid *grid, vector<Tuple<T>> &coords, uint64_t &gRows, uint64_t &gCols,
+  SpMat(Process3DGrid *grid, vector<Tuple<T>>* coords, uint64_t &gRows, uint64_t &gCols,
         uint64_t &gNNz, int &batch_size, int &proc_row_width,
         int &proc_col_width, bool transpose, bool col_partitioned) {
     this->gRows = gRows;
@@ -63,30 +63,30 @@ public:
   }
 
   /**
-   * Initialize the CSR from coords data structure
+   * Initialize the CSR from (*coords) data structure
    */
   void initialize_CSR_blocks() {
 
 #pragma omp parallel for
-    for (uint64_t i = 0; i < coords.size(); i++) {
+    for (uint64_t i = 0; i < (*coords).size(); i++) {
       if (col_partitioned) {
-        coords[i].col %= proc_col_width;
+        (*coords)[i].col %= proc_col_width;
       } else {
-        coords[i].row %= proc_row_width;
+        (*coords)[i].row %= proc_row_width;
       }
     }
-    Tuple<T> *coords_ptr = coords.data();
+
 
     if (col_partitioned) {
       // This is used to find sending indices
       csr_local_data =
-          make_unique<CSRLocal<T>>(gRows, proc_col_width, coords.size(),
-                                   coords_ptr, coords.size(), transpose);
+          make_unique<CSRLocal<T>>(gRows, proc_col_width, (*coords).size(),
+                                   coords_ptr, (*coords).size(), transpose);
     } else {
       // This is used to find receiving indices and computations
       csr_local_data =
-          make_unique<CSRLocal<T>>(proc_row_width, gCols, coords.size(),
-                                   coords_ptr, coords.size(), transpose);
+          make_unique<CSRLocal<T>>(proc_row_width, gCols, (*coords).size(),
+                                   coords_ptr, (*coords).size(), transpose);
     }
   }
 
@@ -248,8 +248,8 @@ public:
     strcpy(stats, output_path.c_str());
     ofstream fout(stats, std::ios_base::app);
 
-    for (int i = 0; i < coords.size(); i++) {
-      fout << coords[i].row << " " << coords[i].value << " " << endl;
+    for (int i = 0; i < (*coords).size(); i++) {
+      fout << (*coords)[i].row << " " << (*coords)[i].value << " " << endl;
     }
   }
 

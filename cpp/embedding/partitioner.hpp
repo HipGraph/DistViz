@@ -44,7 +44,7 @@ public:
     int world_size = process_3D_grid->col_world_size;
     int my_rank = process_3D_grid->rank_in_col;
 
-    Tuple<T> *sendbuf = new Tuple<T>[sp_mat->coords.size()];
+    Tuple<T> *sendbuf = new Tuple<T>[sp_mat->coords->size()];
 
     if (world_size > 1) {
       vector<int> sendcounts(world_size, 0);
@@ -52,13 +52,13 @@ public:
 
       vector<int> offsets, bufindices;
 
-      vector<Tuple<T>> coords = sp_mat->coords;
+      vector<Tuple<T>>* coords = sp_mat->coords;
 
 
 
 #pragma omp parallel for
-      for (int i = 0; i < coords.size(); i++) {
-        int owner = get_owner_Process(coords[i].row, coords[i].col,
+      for (int i = 0; i < (*coords).size(); i++) {
+        int owner = get_owner_Process((*coords)[i].row, (*coords)[i].col,
                                       sp_mat->proc_row_width,
                                       sp_mat->proc_col_width,
                                       sp_mat->gCols,sp_mat->col_partitioned);
@@ -69,8 +69,8 @@ public:
       bufindices = offsets;
 
 #pragma omp parallel for
-      for (int i = 0; i < coords.size(); i++) {
-        int owner = get_owner_Process(coords[i].row, coords[i].col,
+      for (int i = 0; i < (*coords).size(); i++) {
+        int owner = get_owner_Process((*coords)[i].row, (*coords)[i].col,
                                       sp_mat->proc_row_width,
                                       sp_mat->proc_col_width,
                                       sp_mat->gCols,sp_mat->col_partitioned);
@@ -81,9 +81,9 @@ public:
 
         //        sendbuf[idx].row = transpose ? coords[i].col : coords[i].row;
         //        sendbuf[idx].col = transpose ? coords[i].row : coords[i].col;
-        sendbuf[idx].row = coords[i].row;
-        sendbuf[idx].col = coords[i].col;
-        sendbuf[idx].value = coords[i].value;
+        sendbuf[idx].row = (*coords)[i].row;
+        sendbuf[idx].col = (*coords)[i].col;
+        sendbuf[idx].value = (*coords)[i].value;
       }
 
       // Broadcast the number of nonzeros that each processor is going to
@@ -98,14 +98,14 @@ public:
       int total_received_coords =
           std::accumulate(recvcounts.begin(), recvcounts.end(), 0);
 
-      (sp_mat->coords).resize(total_received_coords);
+      (*(sp_mat->coords)).resize(total_received_coords);
 
       MPI_Alltoallv(sendbuf, sendcounts.data(), offsets.data(), SPTUPLE,
-                    (sp_mat->coords).data(), recvcounts.data(),
+                    (*(sp_mat->coords)).data(), recvcounts.data(),
                     recvoffsets.data(), SPTUPLE, process_3D_grid->col_world);
 
       // TODO: Parallelize the sort routine?
-            std::sort((sp_mat->coords).begin(), (sp_mat->coords).end(),
+            std::sort((*(sp_mat->coords)).begin(), (*(sp_mat->coords)).end(),
             column_major<T>); // This helps to speed up CSR creation
     }
 //    __gnu_parallel::sort((sp_mat->coords).begin(), (sp_mat->coords).end(),
