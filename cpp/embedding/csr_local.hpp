@@ -2,7 +2,7 @@
  * This implements the CSR data structure. We use MKL routines to create CSR from COO.
  */
 #pragma once
-#include "common.h"
+#include "../common/common.h"
 #include <algorithm>
 #include <cassert>
 #include <fstream>
