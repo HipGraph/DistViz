@@ -58,6 +58,8 @@ public:
                     shared_sparseMat_sender.get(), dense_output, grid,
                     alpha, beta, 5, -5,col_major,sync_comm));
 
+    embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr);
+
   }
 
 
