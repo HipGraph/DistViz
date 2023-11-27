@@ -50,6 +50,10 @@ public:
     partitioner.get()->partition_data(shared_sparseMat_receiver.get());
     partitioner.get()->partition_data(shared_sparseMat.get());
 
+    shared_sparseMat.get()->initialize_CSR_blocks();
+    shared_sparseMat_sender.get()->initialize_CSR_blocks();
+    shared_sparseMat_receiver.get()->initialize_CSR_blocks();
+
     unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>
 
         embedding_algo = unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>(
