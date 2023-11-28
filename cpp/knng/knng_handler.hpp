@@ -84,7 +84,7 @@ public:
 
   void build_distributed_KNNG(ValueType2DVector<VALUE_TYPE>* input_data, vector<Tuple<VALUE_TYPE>> *output_knng,
                               float density,bool use_locality_optimization, int nn, float target_recall,
-                              bool print_output =false, string output_path="knng.txt",
+                              bool print_output =true, string output_path="knng.txt",
                               bool skip_self_loops=true) {
 
     unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr; //class uses for math operations
