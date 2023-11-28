@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
 
 
   FileWriter<int,float> fileWriter;
-  fileWriter->parallel_write(output_path+"/embedding.txt",dense_mat.get()->nCoordinates,localARows, embedding_dimension);
+  fileWriter.parallel_write(output_path+"/embedding.txt",dense_mat.get()->nCoordinates,localARows, embedding_dimension);
 
 
   double* execution_times = new double[2];
