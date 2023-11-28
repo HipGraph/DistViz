@@ -660,7 +660,7 @@ public:
       for (int d = 0; d < embedding_dim; d++) {
        DENT* val =  (prevCoordinates[i * embedding_dim + d]);
         (dense_local)
-            ->nCoordinates[(row_base_index + i) * embedding_dim + d] +=val;
+            ->nCoordinates[(row_base_index + i) * embedding_dim + d] += prevCoordinates[i * embedding_dim + d];
 
         error += ((*val)*(*val));
       }
