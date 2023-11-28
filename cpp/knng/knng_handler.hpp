@@ -177,8 +177,9 @@ public:
 
 
     for(auto it=(*final_nn_map).begin(); it!=(*final_nn_map).end();++it){
-      for(int j=0;j<it->second.size();j++){
-        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = (it->second)[j];
+      vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
+      for(int j=0;j<edge_node_list.size();j++){
+        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = edge_node_list[j];
         Tuple<VALUE_TYPE> tuple;
         if (edge_node.src_index != edge_node.dst_index) {
           tuple.row = edge_node.src_index;
@@ -308,7 +309,7 @@ public:
 
     int my_end_index = starting_data_index + local_data_set_size;
 
-    cout<<"rank "<<grid->rank_in_col<<" size: "<<out_index_dis->size()<<endl;
+//    cout<<"rank "<<grid->rank_in_col<<" size: "<<out_index_dis->size()<<endl;
     if (out_index_dis->size()>0) {
       #pragma omp parallel for
       for (int i = starting_data_index; i < my_end_index; i++) {
