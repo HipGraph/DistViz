@@ -47,6 +47,17 @@ int main(int argc, char* argv[]) {
   bool generate_knng_output = false;
   float target_local_recall =0.9;
 
+  float alpha=0;
+  float beta =0.5;
+  bool col_major = false;
+  bool sync_comm = false;
+  int iterations = 1200;
+  int batch_size = 256;
+  bool full_batch_training=true;
+  float lr=0.2;
+  int nsamples = 5;
+
+
   const int embedding_dimension = 2;
 
   int bytes_for_data_type = 4;
@@ -111,6 +122,36 @@ int main(int argc, char* argv[]) {
     }else if (strcmp(argv[p], "-target-local-recall")==0)
     {
       target_local_recall = atof(argv[p + 1]);
+    }else if (strcmp(argv[p], "-alpha")==0)
+    {
+      alpha = atof(argv[p + 1]);
+    }else if (strcmp(argv[p], "-beta")==0)
+    {
+       beta = atof(argv[p + 1]);
+    }else if (strcmp(argv[p], "-col-major")==0)
+    {
+      int col_major_input = atoi(argv[p + 1]);
+      col_major = col_major_input==1?true:false;
+    }else if (strcmp(argv[p], "-sync-comm")==0)
+    {
+      int sync_comm_input = atoi(argv[p + 1]);
+      sync_comm = sync_comm_input==1?true:false;
+    }else if (strcmp(argv[p], "-nsamples")==0)
+    {
+      nsamples = atoi(argv[p + 1]);
+    }else if (strcmp(argv[p], "-lr")==0)
+    {
+      lr = atof(argv[p + 1]);
+    }else if (strcmp(argv[p], "-iterations")==0)
+    {
+      iterations = atoi(argv[p + 1]);
+    }else if (strcmp(argv[p], "-full_batch_training")==0)
+    {
+      int full_batch_tra = atoi(argv[p + 1]);
+      full_batch_training = full_batch_tra==1?true:false;
+    }else if (strcmp(argv[p], "-batch")==0)
+    {
+      batch_size = atoi(argv[p + 1]);
     }
   }
 
@@ -164,31 +205,20 @@ int main(int argc, char* argv[]) {
   }
 
 
-  int k = 10;
-  double target_recall = 0.9;
-//  int n = 10000, d = 200, k = 10;
-//  double target_recall = 0.9;
-//  Eigen::MatrixXf X = Eigen::MatrixXf::Random(d, n);
-//  Eigen::MatrixXf q = Eigen::VectorXf::Random(d);
-
-
   auto grid = unique_ptr<Process3DGrid>(new Process3DGrid(size, 1, 1, 1));
 
 
 
   Eigen::VectorXi indices(k),  indices_exact(k);
 
-//  Eigen::VectorXf distances(k);
-  auto start_io_index = high_resolution_clock::now();
+
   std::cout << "calling data loading"<< rank<< " "<<std::endl;
   unique_ptr<ValueType2DVector<float>> data_matrix_ptr= make_unique<ValueType2DVector<float>>();;
    FileReader<float>::load_data_into_2D_vector(input_path,data_matrix_ptr.get(),data_set_size,dimension,grid.get()->rank_in_col,grid.get()->col_world_size);
    cout<<"rank "<<grid->rank_in_col<<" data_matrix_ptr size "<<data_matrix_ptr.get()->size()<<"* "<<(*data_matrix_ptr.get())[7499].size()<<endl;
   MPI_Barrier(MPI_COMM_WORLD);
   std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
-  auto stop_io_index = high_resolution_clock::now();
-  auto io_time = duration_cast<microseconds>(stop_io_index - start_io_index);
-  data_matrix_ptr.get()->size();
+
   std::cout << "calling KNNGHandler "<<rank<<" size  "<<data_matrix_ptr->size()<<std::endl;
   auto knng_handler = unique_ptr<KNNGHandler<int,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
                                                                                        local_tree_offset,  data_set_size,
@@ -202,7 +232,7 @@ int main(int argc, char* argv[]) {
                                              density,use_locality_optimization,nn,
                                              target_local_recall,
                                              generate_knng_output,
-                                              output_path+"/knng.txt");
+                                             output_path+"/knng.txt");
 
 
   cout<<" rank "<<rank<<" output size: "<<knng_graph_ptr.get()->size()<<endl;
@@ -211,47 +241,23 @@ int main(int argc, char* argv[]) {
 
   auto localARows = divide_and_round_up(data_set_size,grid.get()->col_world_size);
 
+  if(full_batch_training)
+    batch_size = localARows;
+
   auto dense_mat = shared_ptr<DenseMat<int, float, embedding_dimension>>(
       new DenseMat<int, float, embedding_dimension>(grid.get(), localARows));
 
-   auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,embedding_dimension>>(new EmbeddingHandler<int, float,embedding_dimension>(grid.get()));
-   auto gNNZ = data_set_size* (nn-1);
+  auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,embedding_dimension>>(new EmbeddingHandler<int, float,embedding_dimension>(grid.get()));
+  auto gNNZ = data_set_size* (nn-1);
 
-  embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),data_set_size,data_set_size,gNNZ,
-                                         localARows,1200,0.2,5,0.5,0.5,false,false);
-
-  auto stop_index_building = high_resolution_clock::now();
-
-  auto duration_index_building = duration_cast<microseconds>(stop_index_building - stop_io_index);
+  embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
+                                        data_set_size,data_set_size,gNNZ,
+                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm);
 
 
   FileWriter<int,float> fileWriter;
   fileWriter.parallel_write(output_path+"/embedding.txt",dense_mat.get()->nCoordinates,localARows, embedding_dimension);
 
 
-  double* execution_times = new double[2];
-
-  double* execution_times_global = new double[2];
-
-  execution_times[0] = (io_time.count()) / 1000;
-  execution_times[1] = duration_index_building.count() / 1000;
-//  execution_times[2] = duration_query.count() / 1000;
-
-  MPI_Barrier(MPI_COMM_WORLD);
-
-  MPI_Allreduce(execution_times, execution_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-  if(rank==0)
-  {
-//    cout << "IO Time (s)" << execution_times_global[0]/(size*1000) << " Index building (s) "
-//         << execution_times_global[1]/(size*1000) <<" Querying Time (s) "<< execution_times_global[2]/(size*1000)<< endl;
-//
-    cout << "IO Time (s)" << execution_times_global[0]/(size*1000) << " Index building (s) "<< execution_times_global[1]/(size*1000) << endl;
-  }
-
-//  delete[] execution_times;
-//  delete[] execution_times_global;
-
   MPI_Finalize();
-
 }

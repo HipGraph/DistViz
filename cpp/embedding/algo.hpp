@@ -71,7 +71,7 @@ public:
       return v;
   }
 
-  void algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr) {
+  void vector<VALUE_TYPE> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr, bool self_converge) {
     int batches = 0;
     int last_batch_size = batch_size;
 
@@ -132,6 +132,7 @@ public:
 
     int considering_batch_size = batch_size;
 
+    vector<VALUE_TYPE> error_convergence;
     for (int i = 0; i < iterations; i++) {
 
       if (alpha > 0 and grid->col_world_size > 1 and i == 0) {
@@ -159,6 +160,7 @@ public:
         }
       }
 
+      VALUE_TYPE batch_error =0;
       for (int j = 0; j < batches; j++) {
         int seed = j + i;
 
@@ -187,7 +189,7 @@ public:
                                           lr, j, batch_size,
                                           considering_batch_size);
 
-          this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+          batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
         } else {
           //These operations are for more than one processes.
@@ -205,7 +207,7 @@ public:
                 considering_batch_size, lr, prevCoordinates, 1,
                 true, 0, true);
 
-            this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+            batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
             for (int k = 0; k < batch_size; k += 1) {
               int IDIM = k * embedding_dim;
@@ -216,7 +218,7 @@ public:
 
           } else {
 
-            this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+            batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
             if (!(i == iterations - 1 and j == batches - 1)) {
               // clear up data
@@ -252,7 +254,10 @@ public:
           }
         }
       }
+      batch_error = batch_error/batches;
+      error_convergence.push_back(batch_error);
     }
+    return error_convergence;
   }
 
   inline void execute_pull_model_computations(
@@ -642,21 +647,26 @@ public:
     }
   }
 
-  inline void update_data_matrix_rowptr(DENT *prevCoordinates, int batch_id,
+  inline VALUE_TYPE update_data_matrix_rowptr(DENT *prevCoordinates, int batch_id,
                                         int batch_size) {
 
     int row_base_index = batch_id * batch_size;
     int end_row = std::min((batch_id + 1) * batch_size,
                            ((this->sp_local_receiver)->proc_row_width));
-
-#pragma omp parallel for schedule(static)
+    VALUE_TYPE total_error=0;
+#pragma omp parallel for schedule(static) reduction(+:total_error)
     for (int i = 0; i < (end_row - row_base_index); i++) {
+      VALUE_TYPE error = 0;
       for (int d = 0; d < embedding_dim; d++) {
-        (this->dense_local)
+        VALUE_TYPE val =  ((dense_local)->nCoordinates[(row_base_index + i)- prevCoordinates[i * embedding_dim + d]);
+        error += val*val;
+        (dense_local)
             ->nCoordinates[(row_base_index + i) * embedding_dim + d] +=
             prevCoordinates[i * embedding_dim + d];
       }
+      total_error +=error;
     }
+    return total_error;
   }
 };
 } // namespace distblas::algo
