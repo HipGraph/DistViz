@@ -666,7 +666,7 @@ public:
       }
       total_error +=sqrt(error);
     }
-    return total_error;
+    return (total_error/batch_size);
   }
 };
 } // namespace distblas::algo
