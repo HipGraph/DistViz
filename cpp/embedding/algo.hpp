@@ -71,7 +71,7 @@ public:
       return v;
   }
 
-  void vector<DENT> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr, bool self_converge) {
+  vector<DENT> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr, bool self_converge) {
     int batches = 0;
     int last_batch_size = batch_size;
 
