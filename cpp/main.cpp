@@ -212,7 +212,7 @@ int main(int argc, char* argv[]) {
   auto duration_index_building = duration_cast<microseconds>(stop_index_building - stop_io_index);
 
 
-  FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+  FileWriter<int,float> fileWriter;
   fileWriter->parallel_write(output_path+"/embedding.txt",dense_mat.get()->nCoordinates,localARows, embedding_dimension);
 
 
