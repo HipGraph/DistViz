@@ -658,7 +658,7 @@ public:
     for (int i = 0; i < (end_row - row_base_index); i++) {
       DENT error = 0;
       for (int d = 0; d < embedding_dim; d++) {
-       DENT* val =  (prevCoordinates[i * embedding_dim + d]);
+       DENT val =  (prevCoordinates[i * embedding_dim + d]);
         (dense_local)
             ->nCoordinates[(row_base_index + i) * embedding_dim + d] += prevCoordinates[i * embedding_dim + d];
 
