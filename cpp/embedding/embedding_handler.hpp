@@ -72,8 +72,10 @@ public:
    vector<VALUE_TYPE> error_convergence = embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr,self_converge);
 
    cout<<" rank  "<<grid->rank_in_col<<"erros #####"<<endl;
-   for(int i=0;i<error_convergence.size();i++){
-     cout<<error_convergence[i]<<" ";
+   if (grid->rank_in_col==0) {
+     for (int i = 0; i < error_convergence.size(); i++) {
+       cout << error_convergence[i] << " ";
+     }
    }
    cout<<endl;
    cout<<" rank  "<<grid->rank_in_col<<"erros  completed #####"<<endl;
