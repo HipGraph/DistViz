@@ -71,7 +71,7 @@ public:
       return v;
   }
 
-  void vector<VALUE_TYPE> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr, bool self_converge) {
+  void vector<DENT> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr, bool self_converge) {
     int batches = 0;
     int last_batch_size = batch_size;
 
@@ -132,7 +132,7 @@ public:
 
     int considering_batch_size = batch_size;
 
-    vector<VALUE_TYPE> error_convergence;
+    vector<DENT> error_convergence;
     for (int i = 0; i < iterations; i++) {
 
       if (alpha > 0 and grid->col_world_size > 1 and i == 0) {
@@ -160,7 +160,7 @@ public:
         }
       }
 
-      VALUE_TYPE batch_error =0;
+      DENT batch_error =0;
       for (int j = 0; j < batches; j++) {
         int seed = j + i;
 
@@ -647,18 +647,18 @@ public:
     }
   }
 
-  inline VALUE_TYPE update_data_matrix_rowptr(DENT *prevCoordinates, int batch_id,
+  inline DENT update_data_matrix_rowptr(DENT *prevCoordinates, int batch_id,
                                         int batch_size) {
 
     int row_base_index = batch_id * batch_size;
     int end_row = std::min((batch_id + 1) * batch_size,
                            ((this->sp_local_receiver)->proc_row_width));
-    VALUE_TYPE total_error=0;
+    DENT total_error=0;
 #pragma omp parallel for schedule(static) reduction(+:total_error)
     for (int i = 0; i < (end_row - row_base_index); i++) {
-      VALUE_TYPE error = 0;
+      DENT error = 0;
       for (int d = 0; d < embedding_dim; d++) {
-        VALUE_TYPE val =  ((dense_local)->nCoordinates[(row_base_index + i)- prevCoordinates[i * embedding_dim + d]);
+        DENT val =  ((dense_local)->nCoordinates[(row_base_index + i)- prevCoordinates[i * embedding_dim + d]);
         error += val*val;
         (dense_local)
             ->nCoordinates[(row_base_index + i) * embedding_dim + d] +=

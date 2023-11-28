@@ -73,7 +73,7 @@ public:
 
    cout<<" rank  "<<grid->rank_in_col<<"erros #####"<<endl;
    for(int i=0;i<error_convergence.size();i++){
-     cout<<error_convergence<<" "
+     cout<<error_convergence<<" ";
    }
    cout<<endl;
    cout<<" rank  "<<grid->rank_in_col<<"erros  completed #####"<<endl;

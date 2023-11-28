@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
 
 
 
-  Eigen::VectorXi indices(k),  indices_exact(k);
+  Eigen::VectorXi indices(nn),  indices_exact(nn);
 
 
   std::cout << "calling data loading"<< rank<< " "<<std::endl;
