@@ -132,127 +132,127 @@ public:
 
     int considering_batch_size = batch_size;
 
-//    for (int i = 0; i < iterations; i++) {
-//
-//      if (alpha > 0 and grid->col_world_size > 1 and i == 0) {
-//
-//        for (int k = 0; k < batch_size; k += 1) {
-//          int IDIM = k * embedding_dim;
-//          for (int d = 0; d < embedding_dim; d++) {
-//            prevCoordinates[IDIM + d] = 0;
-//          }
-//        }
-//
-//        int last_proc = this->execute_push_model_computations(
-//            sendbuf_ptr.get(), update_ptr.get(), 0, 0, batches,
-//            this->data_comm_cache[0].get(), csr_block, batch_size,
-//            last_batch_size, considering_batch_size, lr, prevCoordinates, 0, 0,
-//            considering_batch_size, false);
-//
-//        if (alpha < 1.0) {
-//          int prev_start = get_end_proc(1, alpha, grid->col_world_size);
-//          this->execute_pull_model_computations(
-//              sendbuf_ptr.get(), update_ptr.get(), 0, 0,
-//              this->data_comm_cache[0].get(), csr_block, batch_size,
-//              considering_batch_size, lr, prevCoordinates, prev_start, false,
-//              last_proc, true);
-//        }
-//      }
-//
-//      for (int j = 0; j < batches; j++) {
-//        int seed = j + i;
-//
-//        if (j == batches - 1) {
-//          considering_batch_size = last_batch_size;
-//        }
-//
-//        // negative samples generation
-//        vector<uint64_t> random_number_vec = generate_random_numbers(
-//            0, (this->sp_local_receiver)->gRows, seed, ns);
-//
-//        // One process computations without MPI operations
-//        if (grid->col_world_size == 1) {
-//          for (int k = 0; k < batch_size; k += 1) {
-//            int IDIM = k * embedding_dim;
-//            for (int d = 0; d < embedding_dim; d++) {
-//              prevCoordinates[IDIM + d] = 0;
-//            }
-//          }
-//          // local computations for 1 process
-//          this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, j,
-//                                        batch_size, considering_batch_size,
-//                                        true, false, 0, 0, false);
-//
-//          this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
-//                                          lr, j, batch_size,
-//                                          considering_batch_size);
-//
-//          this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
-//
-//        } else {
-//          //These operations are for more than one processes.
-//          full_comm.get()->transfer_data(random_number_vec, i, j);
-//          this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
-//                                          lr, j, batch_size,
-//                                          considering_batch_size);
-//
-//          //  pull model code
-//          if (alpha == 0) {
-//
-//            this->execute_pull_model_computations(
-//                sendbuf_ptr.get(), update_ptr.get(), i, j,
-//                this->data_comm_cache[j].get(), csr_block, batch_size,
-//                considering_batch_size, lr, prevCoordinates, 1,
-//                true, 0, true);
-//
-//            this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
-//
-//            for (int k = 0; k < batch_size; k += 1) {
-//              int IDIM = k * embedding_dim;
-//              for (int d = 0; d < embedding_dim; d++) {
-//                prevCoordinates[IDIM + d] = 0;
-//              }
-//            }
-//
-//          } else {
-//
-//            this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
-//
-//            if (!(i == iterations - 1 and j == batches - 1)) {
-//              // clear up data
-//              for (int k = 0; k < batch_size; k += 1) {
-//                int IDIM = k * embedding_dim;
-//                for (int d = 0; d < embedding_dim; d++) {
-//                  prevCoordinates[IDIM + d] = 0;
-//                }
-//              }
-//              int next_batch_id = (j + 1) % batches;
-//              int next_iteration = (next_batch_id == 0) ? i + 1 : i;
-//              int next_considering_batch_size = (next_batch_id == batches - 1)
-//                                                    ? last_batch_size
-//                                                    : considering_batch_size;
-//
-//              int last_proc = this->execute_push_model_computations(
-//                  sendbuf_ptr.get(), update_ptr.get(), i, j, batches,
-//                  this->data_comm_cache[j].get(), csr_block, batch_size,
-//                  last_batch_size, considering_batch_size, lr, prevCoordinates,
-//                  next_batch_id, next_iteration, next_considering_batch_size,
-//                  true);
-//
-//              if (alpha < 1.0) {
-//                int prev_start = get_end_proc(1, alpha, grid->col_world_size);
-//                this->execute_pull_model_computations(
-//                    sendbuf_ptr.get(), update_ptr.get(), next_iteration,
-//                    next_batch_id, this->data_comm_cache[next_batch_id].get(),
-//                    csr_block, batch_size, considering_batch_size, lr,
-//                    prevCoordinates, prev_start,
-//                    false, last_proc, true);
-//              }
-//            }
-//          }
-//        }
-//      }
-//    }
+    for (int i = 0; i < iterations; i++) {
+
+      if (alpha > 0 and grid->col_world_size > 1 and i == 0) {
+
+        for (int k = 0; k < batch_size; k += 1) {
+          int IDIM = k * embedding_dim;
+          for (int d = 0; d < embedding_dim; d++) {
+            prevCoordinates[IDIM + d] = 0;
+          }
+        }
+
+        int last_proc = this->execute_push_model_computations(
+            sendbuf_ptr.get(), update_ptr.get(), 0, 0, batches,
+            this->data_comm_cache[0].get(), csr_block, batch_size,
+            last_batch_size, considering_batch_size, lr, prevCoordinates, 0, 0,
+            considering_batch_size, false);
+
+        if (alpha < 1.0) {
+          int prev_start = get_end_proc(1, alpha, grid->col_world_size);
+          this->execute_pull_model_computations(
+              sendbuf_ptr.get(), update_ptr.get(), 0, 0,
+              this->data_comm_cache[0].get(), csr_block, batch_size,
+              considering_batch_size, lr, prevCoordinates, prev_start, false,
+              last_proc, true);
+        }
+      }
+
+      for (int j = 0; j < batches; j++) {
+        int seed = j + i;
+
+        if (j == batches - 1) {
+          considering_batch_size = last_batch_size;
+        }
+
+        // negative samples generation
+        vector<uint64_t> random_number_vec = generate_random_numbers(
+            0, (this->sp_local_receiver)->gRows, seed, ns);
+
+        // One process computations without MPI operations
+        if (grid->col_world_size == 1) {
+          for (int k = 0; k < batch_size; k += 1) {
+            int IDIM = k * embedding_dim;
+            for (int d = 0; d < embedding_dim; d++) {
+              prevCoordinates[IDIM + d] = 0;
+            }
+          }
+          // local computations for 1 process
+          this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, j,
+                                        batch_size, considering_batch_size,
+                                        true, false, 0, 0, false);
+
+          this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
+                                          lr, j, batch_size,
+                                          considering_batch_size);
+
+          this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+
+        } else {
+          //These operations are for more than one processes.
+          full_comm.get()->transfer_data(random_number_vec, i, j);
+          this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
+                                          lr, j, batch_size,
+                                          considering_batch_size);
+
+          //  pull model code
+          if (alpha == 0) {
+
+            this->execute_pull_model_computations(
+                sendbuf_ptr.get(), update_ptr.get(), i, j,
+                this->data_comm_cache[j].get(), csr_block, batch_size,
+                considering_batch_size, lr, prevCoordinates, 1,
+                true, 0, true);
+
+            this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+
+            for (int k = 0; k < batch_size; k += 1) {
+              int IDIM = k * embedding_dim;
+              for (int d = 0; d < embedding_dim; d++) {
+                prevCoordinates[IDIM + d] = 0;
+              }
+            }
+
+          } else {
+
+            this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+
+            if (!(i == iterations - 1 and j == batches - 1)) {
+              // clear up data
+              for (int k = 0; k < batch_size; k += 1) {
+                int IDIM = k * embedding_dim;
+                for (int d = 0; d < embedding_dim; d++) {
+                  prevCoordinates[IDIM + d] = 0;
+                }
+              }
+              int next_batch_id = (j + 1) % batches;
+              int next_iteration = (next_batch_id == 0) ? i + 1 : i;
+              int next_considering_batch_size = (next_batch_id == batches - 1)
+                                                    ? last_batch_size
+                                                    : considering_batch_size;
+
+              int last_proc = this->execute_push_model_computations(
+                  sendbuf_ptr.get(), update_ptr.get(), i, j, batches,
+                  this->data_comm_cache[j].get(), csr_block, batch_size,
+                  last_batch_size, considering_batch_size, lr, prevCoordinates,
+                  next_batch_id, next_iteration, next_considering_batch_size,
+                  true);
+
+              if (alpha < 1.0) {
+                int prev_start = get_end_proc(1, alpha, grid->col_world_size);
+                this->execute_pull_model_computations(
+                    sendbuf_ptr.get(), update_ptr.get(), next_iteration,
+                    next_batch_id, this->data_comm_cache[next_batch_id].get(),
+                    csr_block, batch_size, considering_batch_size, lr,
+                    prevCoordinates, prev_start,
+                    false, last_proc, true);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   inline void execute_pull_model_computations(
