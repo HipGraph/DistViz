@@ -34,13 +34,17 @@ public:
                                           grid->col_world_size);
 
 
+
+    vector<Tuple<VALUE_TYPE>>* shared_sparseMat_sender_coords = new vector<Tuple<VALUE_TYPE>>(*input_graph);
+    vector<Tuple<VALUE_TYPE>>* shared_sparseMat_receiver_coords = new vector<Tuple<VALUE_TYPE>>(*input_graph);
+
     auto shared_sparseMat = make_shared<SpMat<VALUE_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
                                                                           localARows, localBRows, false, false);
 
-    auto shared_sparseMat_sender = make_shared<SpMat<VALUE_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
+    auto shared_sparseMat_sender = make_shared<SpMat<VALUE_TYPE>>(grid,shared_sparseMat_sender_coords, gRows,gCols, gNNZ, batch_size,
                                                                            localARows, localBRows, false, true);
 
-    auto shared_sparseMat_receiver = make_shared<SpMat<VALUE_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
+    auto shared_sparseMat_receiver = make_shared<SpMat<VALUE_TYPE>>(grid,shared_sparseMat_receiver_coords, gRows,gCols, gNNZ, batch_size,
                                                                              localARows, localBRows, true, false);
 
 
