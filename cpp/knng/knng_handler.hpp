@@ -84,7 +84,7 @@ public:
 
   void build_distributed_KNNG(ValueType2DVector<VALUE_TYPE>* input_data, vector<Tuple<VALUE_TYPE>> *output_knng,
                               float density,bool use_locality_optimization, int nn, float target_recall,
-                              bool print_output =true, string output_path="knng.txt",
+                              bool print_output =false, string output_path="knng.txt",
                               bool skip_self_loops=true) {
 
     unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr; //class uses for math operations
@@ -162,11 +162,13 @@ public:
       }
     }
 
-    cout<<"rank "<<grid->rank_in_col<<" size :"<<(*local_nn_map_ptr).size()<<" data mat size "<<data_matrix.cols()<<endl;
+
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 
     communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
+
+    cout<<"rank "<<grid->rank_in_col<<" size :"<<(*final_nn_map).size()<<endl;
 
     if (print_output) {
     FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
