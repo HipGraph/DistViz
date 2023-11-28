@@ -44,6 +44,8 @@ int main(int argc, char* argv[]) {
   int local_tree_offset = 2;
   int file_format = 0;
   int data_starting_index = 8;
+  bool generate_knng_output = false;
+  float target_local_recall =0.9;
 
   const int embedding_dimension = 2;
 
@@ -102,6 +104,13 @@ int main(int argc, char* argv[]) {
     else if (strcmp(argv[p], "-data-starting-index") == 0)
     {
       data_starting_index = atoi(argv[p + 1]);
+    }else if (strcmp(argv[p], "-generate-knng-output")==0)
+    {
+      int  generate = atoi(argv[p + 1]);
+      generate_knng_output  = generate==1?true:false;
+    }else if (strcmp(argv[p], "-target-local-recall")==0)
+    {
+      target_local_recall = atof(argv[p + 1]);
     }
   }
 
@@ -189,7 +198,11 @@ int main(int argc, char* argv[]) {
   std::cout << "calling grow trees"<< rank<< " "<<std::endl;
 
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
-  knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),density,use_locality_optimization,nn,0.9);
+  knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),
+                                             density,use_locality_optimization,nn,
+                                             target_local_recall,
+                                             generate_knng_output,
+                                              output_path+"/knng.txt");
 
 
   cout<<" rank "<<rank<<" output size: "<<knng_graph_ptr.get()->size()<<endl;
