@@ -662,7 +662,7 @@ public:
         (dense_local)
             ->nCoordinates[(row_base_index + i) * embedding_dim + d] += prevCoordinates[i * embedding_dim + d];
 
-        error += ((*val)*(*val));
+        error += ((val)*(val));
       }
       total_error +=sqrt(error);
     }
