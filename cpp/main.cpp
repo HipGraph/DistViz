@@ -192,6 +192,7 @@ int main(int argc, char* argv[]) {
   knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),density,use_locality_optimization,nn,0.9);
 
 
+  cout<<" rank "<<rank<<" output size: "<<knng_graph_ptr.get()->size()<<endl;
 
   initialize_mpi_datatypes<int, float, embedding_dimension>();
 
