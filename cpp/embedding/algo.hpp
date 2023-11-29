@@ -71,7 +71,7 @@ public:
       return v;
   }
 
-  vector<DENT> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr, float dropout_error=-1.0) {
+  vector<DENT> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr) {
     int batches = 0;
     int last_batch_size = batch_size;
 
