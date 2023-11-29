@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
 
   stop_clock_and_add(t, "KNNG Total Time");
 
-  auto t = start_clock();
+  t = start_clock();
   cout<<" rank "<<rank<<" output size: "<<knng_graph_ptr.get()->size()<<endl;
 
   initialize_mpi_datatypes<int, float, embedding_dimension>();
@@ -264,7 +264,7 @@ int main(int argc, char* argv[]) {
                                          batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm,drop_out_error_threshold);
   stop_clock_and_add(t, "Embedding Total Time");
 
-  auto t = start_clock();
+  t = start_clock();
   FileWriter<int,float> fileWriter;
   fileWriter.parallel_write(output_path+"/embedding.txt",dense_mat.get()->nCoordinates,localARows, embedding_dimension);
   stop_clock_and_add(t, "IO Time");
@@ -274,7 +274,7 @@ int main(int argc, char* argv[]) {
 
   json j_obj;
   j_obj["algo"] = "DistViz";
-  j_obj["p"] = world_size;
+  j_obj["p"] = grid->col_world_size;
   j_obj["perf_stats"] = json_perf_statistics();
   if (rank == 0) {
     fout << j_obj.dump(4) << "," << endl;

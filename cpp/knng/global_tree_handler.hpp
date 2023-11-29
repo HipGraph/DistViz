@@ -619,7 +619,7 @@ public:
       }
     }
 
-    auto t = start_clock();
+    t = start_clock();
 
     MPI_Alltoallv((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
                   (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
