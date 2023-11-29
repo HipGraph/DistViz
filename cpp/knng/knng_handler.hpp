@@ -368,7 +368,7 @@ public:
     unique_ptr<vector<INDEX_TYPE>> receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> disps_receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
-    t = start_clock();
+    auto t = start_clock();
     // we recalculate how much we are receiving for minimal dst distribution
     MPI_Alltoall((*receiving_indices_count).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count_back).data(), 1, MPI_INDEX_TYPE, grid->col_world);
     stop_clock_and_add(t, "KNNG Communication Time");
