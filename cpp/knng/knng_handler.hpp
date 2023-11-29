@@ -273,7 +273,7 @@ public:
       (*disps_sending_indices_ptr)[i] = (i > 0) ? (*disps_sending_indices_ptr)[i - 1] + (*sending_indices_count_ptr)[i - 1] : 0;
     }
 
-    t = start_clock();
+    auto t = start_clock();
     //sending back received data during collect similar data points to original process
     MPI_Alltoall((*sending_indices_count_ptr).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count).data(), 1, MPI_INDEX_TYPE, grid->col_world);
     stop_clock_and_add(t, "KNNG Communication Time");

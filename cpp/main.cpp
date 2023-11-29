@@ -234,7 +234,7 @@ int main(int argc, char* argv[]) {
   std::cout << "calling grow trees"<< rank<< " "<<std::endl;
 
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
-  auto t = start_clock();
+   t = start_clock();
   knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),
                                              density,use_locality_optimization,nn,
                                              target_local_recall,
