@@ -257,7 +257,7 @@ int main(int argc, char* argv[]) {
 
   embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
                                         data_set_size,data_set_size,gNNZ,
-                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm,drop_out_error_threshold);
+                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm);
 
 
   FileWriter<int,float> fileWriter;
