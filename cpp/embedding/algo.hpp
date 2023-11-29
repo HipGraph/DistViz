@@ -71,7 +71,7 @@ public:
       return v;
   }
 
-  vector<DENT> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr) {
+  vector<DENT> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr, double drop_out_error_threshold=0) {
     int batches = 0;
     int last_batch_size = batch_size;
 
@@ -255,7 +255,23 @@ public:
         }
       }
       batch_error = batch_error/batches;
-      error_convergence.push_back(batch_error);
+      if(drop_out_error_threshold>0){
+        if (grid->col_world_size>1){
+          DENT global_error =0;
+          MPI_Allreduce(&batch_error, &global_error, 1, MPI_VALUE_TYPE, MPI_SUM, grid->col_world);
+          global_error = global_error/grid->col_world_size;
+          error_convergence.push_back(global_error);
+          if (global_error<=drop_out_error_threshold){
+            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
+            break;
+          }
+        }else {
+          if (batch_error<=drop_out_error_threshold){
+            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
+            break;
+          }
+        }
+      }
     }
     return error_convergence;
   }
