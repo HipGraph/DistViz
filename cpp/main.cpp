@@ -57,6 +57,8 @@ int main(int argc, char* argv[]) {
   float lr=0.2;
   int nsamples = 5;
 
+  float drop_out_error_threshold = -1.0;
+
 
   const int embedding_dimension = 2;
 
@@ -152,6 +154,9 @@ int main(int argc, char* argv[]) {
     }else if (strcmp(argv[p], "-batch")==0)
     {
       batch_size = atoi(argv[p + 1]);
+    }else if (strcmp(argv[p], "-dropout-error-th")==0)
+    {
+      drop_out_error_threshold = atof(argv[p + 1]);
     }
   }
 
@@ -252,7 +257,7 @@ int main(int argc, char* argv[]) {
 
   embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
                                         data_set_size,data_set_size,gNNZ,
-                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm);
+                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm,drop_out_error_threshold);
 
 
   FileWriter<int,float> fileWriter;
