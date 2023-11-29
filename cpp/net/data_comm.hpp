@@ -203,7 +203,7 @@ public:
                     DENSETUPLE, grid->col_world);
       MPI_Request dumy;
       this->populate_cache(sendbuf_cyclic, receivebuf, &dumy, true, iteration, batch_id,temp_cache);
-      stop_clock_and_add(t, "Communication Time");
+      stop_clock_and_add(t, "Embedding Communication Time");
     }
   }
 
@@ -273,7 +273,7 @@ public:
                   DENSETUPLE, (*receivebuf_ptr.get()).data(),
                   receive_counts_cyclic.data(), rdispls_cyclic.data(),
                   DENSETUPLE, grid->col_world);
-    stop_clock_and_add(t, "Communication Time");
+    stop_clock_and_add(t, "Embedding Communication Time");
     MPI_Request dumy;
     this->populate_cache(sendbuf.get(),receivebuf_ptr.get(), &dumy, true, iteration, batch_id,true); // we should not do this
 
@@ -289,7 +289,7 @@ public:
       MPI_Status status;
       auto t = start_clock();
       MPI_Wait(req, &status);
-      stop_clock_and_add(t, "Communication Time");
+      stop_clock_and_add(t, "Embedding Communication Time");
     }
 
     for (int i = 0; i < this->grid->col_world_size; i++) {

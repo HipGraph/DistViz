@@ -171,8 +171,10 @@ public:
     cout<<"rank "<<grid->rank_in_col<<" size :"<<(*final_nn_map).size()<<endl;
 
     if (print_output) {
-    FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
-    fileWriter.mpi_write_edge_list(final_nn_map.get(),output_path,nn-1,grid->rank_in_col,grid->col_world_size,true);
+      auto t = start_clock();
+      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+      fileWriter.mpi_write_edge_list(final_nn_map.get(),output_path,nn-1,grid->rank_in_col,grid->col_world_size,true);
+      stop_clock_and_add(t, "IO Time");
     }
 
 
@@ -271,8 +273,10 @@ public:
       (*disps_sending_indices_ptr)[i] = (i > 0) ? (*disps_sending_indices_ptr)[i - 1] + (*sending_indices_count_ptr)[i - 1] : 0;
     }
 
+    auto t = start_clock();
     //sending back received data during collect similar data points to original process
     MPI_Alltoall((*sending_indices_count_ptr).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count).data(), 1, MPI_INDEX_TYPE, grid->col_world);
+    stop_clock_and_add(t, "KNNG Communication Time");
 ////
     for (int i = 0;i < grid->col_world_size;i++)
     {
@@ -295,9 +299,11 @@ public:
       }
     }
 
+    auto t = start_clock();
     //distribute minimum maximum distance threshold (for k=nn)
     MPI_Alltoallv((*in_index_dis).data(), (*sending_indices_count_ptr).data(), (*disps_sending_indices_ptr).data(), MPI_FLOAT_INT,(*out_index_dis).data(),
                   (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_FLOAT_INT, MPI_COMM_WORLD);
+    stop_clock_and_add(t, "KNNG Communication Time");
     cout<<" rank "<<grid->rank_in_col<<" after receiving  total_receiving  "<<(*out_index_dis).size()<<endl;
 
   }
@@ -362,8 +368,11 @@ public:
     unique_ptr<vector<INDEX_TYPE>> receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> disps_receiving_indices_count_back = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
+    auto t = start_clock();
     // we recalculate how much we are receiving for minimal dst distribution
     MPI_Alltoall((*receiving_indices_count).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count_back).data(), 1, MPI_INDEX_TYPE, grid->col_world);
+    stop_clock_and_add(t, "KNNG Communication Time");
+
 
     int total_receivce_back = 0;
     for (int i = 0;i < grid->col_world_size;i++)
@@ -377,6 +386,7 @@ public:
     unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> minimal_index_distance_receiv = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_receivce_back);
 
 
+    auto t = start_clock();
     MPI_Alltoallv((*minimal_index_distance).data(), (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_FLOAT_INT,
                   (*minimal_index_distance_receiv).data(),
                   (*receiving_indices_count_back).data(), (*disps_receiving_indices_count_back).data(), MPI_FLOAT_INT,  grid->col_world);
@@ -386,6 +396,7 @@ public:
                   (*minimal_selected_rank_reciving).data(),
                   (*receiving_indices_count_back).data(), (*disps_receiving_indices_count_back).data(), MPI_INT, MPI_COMM_WORLD);
 
+    stop_clock_and_add(t, "KNNG Communication Time");
 
 
 //
@@ -481,7 +492,10 @@ public:
 
     int total_receiving_nn_count = 0;
 
+    auto t = start_clock();
     MPI_Alltoall((*sending_selected_indices_count).data(),1, MPI_INT, (*receiving_selected_indices_count).data(), 1, MPI_INT, MPI_COMM_WORLD);
+
+    stop_clock_and_add(t, "KNNG Communication Time");
 
     unique_ptr<vector<INDEX_TYPE>> disps_receiving_selected_indices = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
     unique_ptr<vector<INDEX_TYPE>> disps_sending_selected_indices =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
@@ -546,6 +560,7 @@ public:
     unique_ptr<vector<INDEX_TYPE>> receiving_selected_indices = make_unique<vector<INDEX_TYPE>>(total_receiving_count);
 
 
+    auto t = start_clock();
     MPI_Alltoallv((*sending_selected_nn_count_for_each_index).data(), (*sending_selected_indices_count).data(),
                   (*disps_sending_selected_indices).data(), MPI_INDEX_TYPE, (*receiving_selected_nn_indices_count).data(),
                   (*receiving_selected_indices_count).data(), (*disps_receiving_selected_indices).data(), MPI_INDEX_TYPE, grid->col_world);
@@ -553,6 +568,8 @@ public:
     MPI_Alltoallv((*sending_selected_indices).data(), (*sending_selected_indices_count).data(), (*disps_sending_selected_indices).data(), MPI_INDEX_TYPE,
                   (*receiving_selected_indices).data(),
                   (*receiving_selected_indices_count).data(), (*disps_receiving_selected_indices).data(), MPI_INDEX_TYPE, grid->col_world);
+
+    stop_clock_and_add(t, "KNNG Communication Time");
 
     unique_ptr<vector<INDEX_TYPE>> receiving_selected_nn_indices_count_process = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
 
@@ -575,12 +592,14 @@ public:
 
 
 
-
+    auto t = start_clock();
     MPI_Alltoallv((*sending_selected_nn).data(), (*sending_selected_indices_nn_count).data(), (*disps_sending_selected_nn_indices).data(),
                   MPI_FLOAT_INT,
                   (*receving_selected_nn).data(),
                   (*receiving_selected_nn_indices_count_process).data(), (*disps_receiving_selected_nn_indices).data(), MPI_FLOAT_INT,
                   grid->col_world);
+
+    stop_clock_and_add(t, "KNNG Communication Time");
 
     int nn_index = 0;
     for (int i = 0;i < total_receiving_count;i++)

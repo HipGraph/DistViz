@@ -392,9 +392,10 @@ public:
         }
       }
     }
-
+    auto t = start_clock();
     MPI_Allgatherv (my_sending_leafs, total_sending, MPI_INT, total_receiving_leafs,
                    recieve_count, disps_recieve, MPI_INT, MPI_COMM_WORLD);
+    stop_clock_and_add(t, "KNNG Communication Time");
 
     for (int j = 0; j < ntrees; j++)
     {
@@ -498,7 +499,9 @@ public:
       total_counts[2 * j + 1 + grid->rank_in_col * current_nodes * 2] = child_data_tracker[id + 1].size ();
     }
 
+    auto t = start_clock();
     MPI_Allgatherv (MPI_IN_PLACE, 0, MPI_INT, total_counts, process_counts, disps, MPI_INT, MPI_COMM_WORLD);
+    stop_clock_and_add(t, "KNNG Communication Time");
 
     for (int j = 0; j < current_nodes; j++)
     {
@@ -571,8 +574,12 @@ public:
       (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
     }
 
+    auto t = start_clock();
     //send indices count
     MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,(*receive_indices_count_ptr).data(), 1,MPI_INDEX_TYPE, grid->col_world);
+
+    stop_clock_and_add(t, "KNNG Communication Time");
+
 
     auto total_receive_count=0;
     for(int i=0;i<grid->col_world_size;i++) {
@@ -612,6 +619,7 @@ public:
       }
     }
 
+    auto t = start_clock();
 
     MPI_Alltoallv((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
                   (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
@@ -620,6 +628,7 @@ public:
                   (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
                   (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
 
+    stop_clock_and_add(t, "KNNG Communication Time");
 
     auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
 //    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);

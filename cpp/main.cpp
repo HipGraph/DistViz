@@ -212,15 +212,16 @@ int main(int argc, char* argv[]) {
 
   auto grid = unique_ptr<Process3DGrid>(new Process3DGrid(size, 1, 1, 1));
 
-
-
   Eigen::VectorXi indices(nn),  indices_exact(nn);
-
 
   std::cout << "calling data loading"<< rank<< " "<<std::endl;
   unique_ptr<ValueType2DVector<float>> data_matrix_ptr= make_unique<ValueType2DVector<float>>();;
-   FileReader<float>::load_data_into_2D_vector(input_path,data_matrix_ptr.get(),data_set_size,dimension,grid.get()->rank_in_col,grid.get()->col_world_size);
-   cout<<"rank "<<grid->rank_in_col<<" data_matrix_ptr size "<<data_matrix_ptr.get()->size()<<"* "<<(*data_matrix_ptr.get())[7499].size()<<endl;
+  auto t = start_clock();
+  FileReader<float>::load_data_into_2D_vector(input_path,data_matrix_ptr.get(),data_set_size,dimension,
+                                              grid.get()->rank_in_col,grid.get()->col_world_size);
+  stop_clock_and_add(t, "IO Time");
+
+  cout<<"rank "<<grid->rank_in_col<<" data_matrix_ptr size "<<data_matrix_ptr.get()->size()<<"* "<<(*data_matrix_ptr.get())[7499].size()<<endl;
   MPI_Barrier(MPI_COMM_WORLD);
   std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
 
@@ -233,13 +234,16 @@ int main(int argc, char* argv[]) {
   std::cout << "calling grow trees"<< rank<< " "<<std::endl;
 
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
+  auto t = start_clock();
   knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),
                                              density,use_locality_optimization,nn,
                                              target_local_recall,
                                              generate_knng_output,
                                              output_path+"/knng.txt");
 
+  stop_clock_and_add(t, "KNNG Total Time");
 
+  auto t = start_clock();
   cout<<" rank "<<rank<<" output size: "<<knng_graph_ptr.get()->size()<<endl;
 
   initialize_mpi_datatypes<int, float, embedding_dimension>();
@@ -258,11 +262,25 @@ int main(int argc, char* argv[]) {
   embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
                                         data_set_size,data_set_size,gNNZ,
                                          batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm,drop_out_error_threshold);
+  stop_clock_and_add(t, "Embedding Total Time");
 
-
+  auto t = start_clock();
   FileWriter<int,float> fileWriter;
   fileWriter.parallel_write(output_path+"/embedding.txt",dense_mat.get()->nCoordinates,localARows, embedding_dimension);
+  stop_clock_and_add(t, "IO Time");
 
+  ofstream fout;
+  fout.open("perf_output", std::ios_base::app);
+
+  json j_obj;
+  j_obj["algo"] = "DistViz";
+  j_obj["p"] = world_size;
+  j_obj["perf_stats"] = json_perf_statistics();
+  if (rank == 0) {
+    fout << j_obj.dump(4) << "," << endl;
+  }
+  //
+  fout.close();
 
   MPI_Finalize();
 }

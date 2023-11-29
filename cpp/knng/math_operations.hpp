@@ -129,8 +129,9 @@ class MathOp {
         }
       }
 
+      auto t = start_clock();
       MPI_Allreduce (sums, gsums, local_cols, MPI_VALUE_TYPE, MPI_SUM, MPI_COMM_WORLD);
-
+      stop_clock_and_add(t, "KNNG Communication Time");
 
       for (int i = 0; i < local_cols; i++)
       {
@@ -168,7 +169,9 @@ class MathOp {
         var[i] = sum;
       }
     }
+    auto t = start_clock();
     MPI_Allreduce (var, gvariance, local_cols, MPI_VALUE_TYPE, MPI_SUM, MPI_COMM_WORLD);
+    stop_clock_and_add(t, "KNNG Communication Time");
 
     for (int i = 0; i < local_cols; i++)
     {
@@ -284,8 +287,10 @@ class MathOp {
       }
 
     }
+    auto t = start_clock();
     MPI_Allreduce (local_total, global_total, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce (freqarray, gfrequency, distribution.size (), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    stop_clock_and_add(t, "KNNG Communication Time");
 
     for (int i = 0; i < local_cols; i++)
     {
