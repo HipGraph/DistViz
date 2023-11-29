@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
   float lr=0.2;
   int nsamples = 5;
 
-  float drop_out_error_threshold = -1.0;
+  double drop_out_error_threshold = 0;
 
 
   const int embedding_dimension = 2;
@@ -257,7 +257,7 @@ int main(int argc, char* argv[]) {
 
   embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
                                         data_set_size,data_set_size,gNNZ,
-                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm);
+                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm,drop_out_error_threshold);
 
 
   FileWriter<int,float> fileWriter;
