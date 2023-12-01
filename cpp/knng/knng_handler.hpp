@@ -228,18 +228,17 @@ public:
       distances.row(i)=tempDis;
       EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
       edge.src_index=i;
-      for(int k=0;k<nn;k++){
-        int index = i*(neighhour_size)+k;
+      int starting_index = skip_self_loops?1:0;
+      int offset = skip_self_loops?-1:0;
+      for(int k=starting_index;k<nn;k++){
+        int index = i*(neighhour_size)+k+offset;
         edge.dst_index = tempRow[k];
         edge.distance = tempDis[k];
-        if (skip_self_loops and edge.src_index == edge.dst_index) {
-          continue;
-        }else {
-          Tuple<VALUE_TYPE> tuple;
-          tuple.row = edge.src_index;
-          tuple.col = edge.dst_index;
-          tuple.value = edge.distance;
-          (*output_knng)[index]= tuple;
+        Tuple<VALUE_TYPE> tuple;
+        tuple.row = edge.src_index;
+        tuple.col = edge.dst_index;
+        tuple.value = edge.distance;
+        (*output_knng)[index]= tuple;
         }
       }
     }
