@@ -201,9 +201,9 @@ public:
 
     Eigen::MatrixXf data_matrix((*input_data)[0].size(), (*input_data).size());
    #pragma omp parallel for schedule (static)
-    for (int i = 0; i < (*input_data)[0].size(); ++i) {
-      for (int j = 0; j < (*input_data).size(); ++j) {
-        data_matrix(i, j) = (*input_data)[i][j];
+    for (int i = 0; i < (*input_data).size(); ++i) {
+      for (int j = 0; j < (*input_data)[0].size(); ++j) {
+        data_matrix(j, i) = (*input_data)[i][j];
       }
     }
 
@@ -213,6 +213,10 @@ public:
     Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
     Eigen::MatrixXf distances(data_matrix.cols(),nn);
 
+    int neighhour_size = (skip_self_loops)?nn-1:nn
+    (*output_knng)->resize(data_matrix.cols()*neighhour_size);
+
+#pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
       Eigen::VectorXi tempRow(nn);
       Eigen::VectorXf tempDis(nn);
@@ -222,14 +226,17 @@ public:
       EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
       edge.src_index=i;
       for(int k=0;k<nn;k++){
+        int index = i*(neighhour_size)+k;
         edge.dst_index = tempRow[k];
         edge.distance = tempDis[k];
-        if (edge.src_index != edge.dst_index) {
+        if (skip_self_loops and edge.src_index == edge.dst_index) {
+          continue;
+        }else {
           Tuple<VALUE_TYPE> tuple;
           tuple.row = edge.src_index;
           tuple.col = edge.dst_index;
           tuple.value = edge.distance;
-          (*output_knng).push_back(tuple);
+          (*output_knng)[index]= tuple;
         }
       }
     }
