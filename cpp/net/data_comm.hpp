@@ -193,8 +193,6 @@ public:
       receivebuf->resize(total_receive_count);
     }
 
-    add_datatransfers(total_receive_count, "Data transfers");
-
     if (synchronous) {
       auto t = start_clock();
       MPI_Alltoallv((*sendbuf_cyclic).data(), send_counts_cyclic.data(),
