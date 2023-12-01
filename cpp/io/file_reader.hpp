@@ -142,7 +142,7 @@ static void fvecs_read(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
     bounds[1] = std::min((rank+1) * chunk_size -1,no_of_datapoints-1);
   }
 
-  cout<<" rank "<<rank<<" a "<<bounds[0]<<" b "<<bounds[1]<"d"<<d<<endl;
+  cout<<" rank "<<rank<<" a "<<bounds[0]<<" b "<<bounds[1]<<"d"<<d<<endl;
 
   // Get the number of vectors
   file.seekg(0, std::ios::end);
