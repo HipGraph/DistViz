@@ -178,19 +178,14 @@ public:
             }
           }
           // local computations for 1 process
-          cout << " rank " << grid->rank_in_col << " starting iter local " << i << endl;
           this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, j,
                                         batch_size, considering_batch_size,
                                         true, false, 0, 0, false);
-
-          cout << " rank " << grid->rank_in_col << " starting iter completed " << i << endl;
-
 
           this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
                                           lr, j, batch_size,
                                           considering_batch_size);
 
-          cout << " rank " << grid->rank_in_col << " repulsive iter completed " << i << endl;
 
           batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
@@ -258,24 +253,24 @@ public:
           }
         }
       }
-//      batch_error = batch_error/batches;
-//      if(drop_out_error_threshold>0){
-//        if (grid->col_world_size>1){
-//          DENT global_error =0;
-//          MPI_Allreduce(&batch_error, &global_error, 1, MPI_VALUE_TYPE, MPI_SUM, grid->col_world);
-//          global_error = global_error/grid->col_world_size;
-//          error_convergence.push_back(global_error);
-//          if (global_error<=drop_out_error_threshold){
-//            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
-//            break;
-//          }
-//        }else {
-//          if (batch_error<=drop_out_error_threshold){
-//            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
-//            break;
-//          }
-//        }
-//      }
+      batch_error = batch_error/batches;
+      if(drop_out_error_threshold>0){
+        if (grid->col_world_size>1){
+          DENT global_error =0;
+          MPI_Allreduce(&batch_error, &global_error, 1, MPI_VALUE_TYPE, MPI_SUM, grid->col_world);
+          global_error = global_error/grid->col_world_size;
+          error_convergence.push_back(global_error);
+          if (global_error<=drop_out_error_threshold){
+            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
+            break;
+          }
+        }else {
+          if (batch_error<=drop_out_error_threshold){
+            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
+            break;
+          }
+        }
+      }
     }
     return error_convergence;
   }
@@ -674,19 +669,19 @@ public:
     int end_row = std::min((batch_id + 1) * batch_size,
                            ((this->sp_local_receiver)->proc_row_width));
     DENT total_error=0;
-//#pragma omp parallel for schedule(static) reduction(+:total_error)
+#pragma omp parallel for schedule(static) reduction(+:total_error)
     for (int i = 0; i < (end_row - row_base_index); i++) {
       DENT error = 0;
       for (int d = 0; d < embedding_dim; d++) {
-//       DENT val =  (prevCoordinates[i * embedding_dim + d]);
-//        (dense_local)
-//            ->nCoordinates[(row_base_index + i) * embedding_dim + d] += prevCoordinates[i * embedding_dim + d];
+       DENT val =  (prevCoordinates[i * embedding_dim + d]);
+        (dense_local)
+            ->nCoordinates[(row_base_index + i) * embedding_dim + d] += prevCoordinates[i * embedding_dim + d];
 
-//        error += ((val)*(val));
+        error += ((val)*(val));
       }
-//      total_error +=sqrt(error);
+      total_error +=sqrt(error);
     }
-    return 0.3;
+    return total_error;
   }
 };
 } // namespace distblas::algo

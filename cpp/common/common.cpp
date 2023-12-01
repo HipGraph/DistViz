@@ -37,7 +37,7 @@ vector<uint64_t> hipgraph::distviz::common::generate_random_numbers(int lower_bo
   std::minstd_rand generator(seed);
 
   // Define the range of the uniform distribution
-  std::uniform_int_distribution<int> distribution(lower_bound, upper_bound);
+  std::uniform_int_distribution<int> distribution(lower_bound, upper_bound-1);
 
   // Generate and print random numbers
   //#pragma omp parallel
