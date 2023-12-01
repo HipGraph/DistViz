@@ -216,6 +216,9 @@ public:
     int neighhour_size = (skip_self_loops)?nn-1:nn;
     output_knng->resize(data_matrix.cols()*neighhour_size);
 
+    int starting_index = skip_self_loops?1:0;
+    int offset = skip_self_loops?-1:0;
+
     #pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
       Eigen::VectorXi tempRow(nn);
@@ -225,8 +228,6 @@ public:
       distances.row(i)=tempDis;
       EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
       edge.src_index=i;
-      int starting_index = skip_self_loops?1:0;
-      int offset = skip_self_loops?-1:0;
       for(int k=starting_index;k<nn;k++){
         int index = i*(neighhour_size)+k+offset;
         edge.dst_index = tempRow[k];
