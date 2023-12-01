@@ -241,7 +241,6 @@ public:
         (*output_knng)[index]= tuple;
         }
       }
-    }
   }
 
   void communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,int nn,
