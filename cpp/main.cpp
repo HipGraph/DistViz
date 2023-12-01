@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
                                                 output_path+"/knng.txt");
    }
 
-
+   std::cout << "calling grow trees completed"<< rank<< " "<<std::endl;
   stop_clock_and_add(t, "KNNG Total Time");
 
   t = start_clock();
@@ -228,9 +228,12 @@ int main(int argc, char* argv[]) {
   auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,embedding_dimension>>(new EmbeddingHandler<int, float,embedding_dimension>(grid.get()));
   auto gNNZ = data_set_size* (nn-1);
 
+  std::cout << "start generating embedding "<< rank<< " "<<std::endl;
   embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
                                         data_set_size,data_set_size,gNNZ,
                                          batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm,drop_out_error_threshold);
+
+  std::cout << "stop generating embedding "<< rank<< " "<<std::endl;
   stop_clock_and_add(t, "Embedding Total Time");
 
   t = start_clock();

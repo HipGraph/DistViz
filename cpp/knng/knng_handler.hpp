@@ -216,7 +216,7 @@ public:
     int neighhour_size = (skip_self_loops)?nn-1:nn;
     output_knng->resize(data_matrix.cols()*neighhour_size);
 
-#pragma omp parallel for schedule (static)
+    #pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
       Eigen::VectorXi tempRow(nn);
       Eigen::VectorXf tempDis(nn);
