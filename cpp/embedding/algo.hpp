@@ -130,6 +130,7 @@ public:
 
     vector<DENT> error_convergence;
     for (int i = 0; i < iterations; i++) {
+      cout << " rank " << grid->rank_in_col << " iter" << i << endl;
 
       if (alpha > 0 and grid->col_world_size > 1 and i == 0) {
 
@@ -180,15 +181,15 @@ public:
           this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, j,
                                         batch_size, considering_batch_size,
                                         true, false, 0, 0, false);
-          cout << " rank " << grid->rank_in_col << " local completed " << batches << endl;
+
 
           this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
                                           lr, j, batch_size,
                                           considering_batch_size);
-          cout << " rank " << grid->rank_in_col << " replsive completed " << batches << endl;
+
 //
           batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
-          cout << " rank " << grid->rank_in_col << " update completed " << batches << endl;
+
 
         } else {
           //These operations are for more than one processes.
