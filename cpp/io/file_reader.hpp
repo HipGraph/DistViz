@@ -179,9 +179,7 @@ static void fvecs_read(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < d; ++j) {
       (*datamatrix)[i][j] = rawVectors[(d + 1) * i + j + 1];
-      cout<<(*datamatrix)[i][j]<<" ";
     }
-    cout<<endl;
   }
 }
 
