@@ -238,6 +238,14 @@ public:
         (*output_knng)[index]= tuple;
         }
       }
+
+      if (print_output) {
+        auto t = start_clock();
+        FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+        fileWriter.write_list(output_knng,output_path);
+        stop_clock_and_add(t, "IO Time");
+      }
+
   }
 
   void communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,int nn,
