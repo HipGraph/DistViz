@@ -185,7 +185,7 @@ public:
                                           lr, j, batch_size,
                                           considering_batch_size);
 //
-//          batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+          batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
         } else {
           //These operations are for more than one processes.
