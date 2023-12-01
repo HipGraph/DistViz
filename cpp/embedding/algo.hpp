@@ -187,7 +187,7 @@ public:
                                           lr, j, batch_size,
                                           considering_batch_size);
 
-//
+          cout << " rank " << grid->rank_in_col << " repulsize iter completed " << i << endl;
           batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
 
