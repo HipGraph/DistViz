@@ -235,11 +235,20 @@ int main(int argc, char* argv[]) {
 
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
    t = start_clock();
-  knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),
-                                             density,use_locality_optimization,nn,
-                                             target_local_recall,
-                                             generate_knng_output,
-                                             output_path+"/knng.txt");
+   if (grid.get()->col_world_size==1){
+     knng_handler.get()->build_local_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),nn,
+                                                target_local_recall,
+                                                generate_knng_output,
+                                                output_path+"/knng.txt");
+
+   } else{
+     knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),
+                                                density,use_locality_optimization,nn,
+                                                target_local_recall,
+                                                generate_knng_output,
+                                                output_path+"/knng.txt");
+   }
+
 
   stop_clock_and_add(t, "KNNG Total Time");
 
