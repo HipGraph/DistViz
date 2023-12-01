@@ -200,11 +200,8 @@ public:
 
     Eigen::MatrixXf data_matrix((*input_data)[0].size(), (*input_data).size());
 
-//   #pragma omp parallel for schedule (static)
+   #pragma omp parallel for schedule (static)
     for (int i = 0; i < (*input_data).size(); ++i) {
-      if ((*input_data)[i].size() != (*input_data)[0].size()){
-        cout<<"i"<<i<<"j"<<(*input_data)[i].size()<<endl;
-      }
       for (int j = 0; j < (*input_data)[0].size(); ++j) {
         data_matrix(j, i) = (*input_data)[i][j];
       }
