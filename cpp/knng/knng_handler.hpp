@@ -241,10 +241,8 @@ public:
       }
 
       if (print_output) {
-        auto t = start_clock();
         FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
         fileWriter.write_list(output_knng,output_path);
-        stop_clock_and_add(t, "IO Time");
       }
 
   }
