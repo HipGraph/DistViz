@@ -225,6 +225,7 @@ public:
         edge.dst_index = tempRow[k];
         edge.distance = tempDis[k];
         if (edge.src_index != edge.dst_index) {
+          Tuple<VALUE_TYPE> tuple;
           tuple.row = edge.src_index;
           tuple.col = edge.dst_index;
           tuple.value = edge.distance;
