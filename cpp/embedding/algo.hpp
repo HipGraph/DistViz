@@ -253,24 +253,24 @@ public:
           }
         }
       }
-      batch_error = batch_error/batches;
-      if(drop_out_error_threshold>0){
-        if (grid->col_world_size>1){
-          DENT global_error =0;
-          MPI_Allreduce(&batch_error, &global_error, 1, MPI_VALUE_TYPE, MPI_SUM, grid->col_world);
-          global_error = global_error/grid->col_world_size;
-          error_convergence.push_back(global_error);
-          if (global_error<=drop_out_error_threshold){
-            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
-            break;
-          }
-        }else {
-          if (batch_error<=drop_out_error_threshold){
-            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
-            break;
-          }
-        }
-      }
+//      batch_error = batch_error/batches;
+//      if(drop_out_error_threshold>0){
+//        if (grid->col_world_size>1){
+//          DENT global_error =0;
+//          MPI_Allreduce(&batch_error, &global_error, 1, MPI_VALUE_TYPE, MPI_SUM, grid->col_world);
+//          global_error = global_error/grid->col_world_size;
+//          error_convergence.push_back(global_error);
+//          if (global_error<=drop_out_error_threshold){
+//            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
+//            break;
+//          }
+//        }else {
+//          if (batch_error<=drop_out_error_threshold){
+//            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
+//            break;
+//          }
+//        }
+//      }
     }
     return error_convergence;
   }
