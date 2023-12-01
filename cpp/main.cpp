@@ -170,8 +170,8 @@ int main(int argc, char* argv[]) {
       make_unique<ValueType2DVector<float>>();
   ;
   auto t = start_clock();
-  if (file_format == 0)
-    FileReader<float>::ubyte_read(
+  if (file_format == 0){
+     FileReader<float>::ubyte_read(
         input_path, data_matrix_ptr.get(), data_set_size, dimension,
         grid.get()->rank_in_col, grid.get()->col_world_size);
     }else if (file_format == 1) {

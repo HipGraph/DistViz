@@ -131,19 +131,15 @@ static void fvecs_read(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   int chunk_size = no_of_datapoints / world_size;
 
   vector<int>bounds = vector<int>(2);
-  if (rank < world_size - 1)
-  {
+  if (rank < world_size - 1){
     datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dimension));
     bounds[0]= rank * chunk_size;
     bounds[1] = (rank+1) * chunk_size -1;
-  }
-  else if (rank == world_size - 1)
-  {
+  }else if (rank == world_size - 1){
     chunk_size = no_of_datapoints - chunk_size * (world_size - 1);
     datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dimension));
     bounds[0]= rank * chunk_size;
     bounds[1] = std::min((rank+1) * chunk_size -1,no_of_datapoints-1);
-
   }
 
   cout<<" rank "<<rank<<" a "<<bounds[0]<<" b "<<bounds[1]<<endl;
@@ -166,7 +162,7 @@ static void fvecs_read(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   assert(a >= 0);
 
   if (b == -1 || b < a) {
-    return std::vector<std::vector<float>>();  // Return an empty vector
+    return;  // Return an empty vector
   }
 
   // Compute the number of vectors that are really read and go to starting positions
