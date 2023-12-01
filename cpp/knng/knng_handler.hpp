@@ -198,8 +198,8 @@ public:
                               int nn, float target_recall,bool print_output =false, string output_path="knng.txt",
                               bool skip_self_loops=true) {
 
-
     Eigen::MatrixXf data_matrix((*input_data)[0].size(), (*input_data).size());
+
    #pragma omp parallel for schedule (static)
     for (int i = 0; i < (*input_data).size(); ++i) {
       for (int j = 0; j < (*input_data)[0].size(); ++j) {
