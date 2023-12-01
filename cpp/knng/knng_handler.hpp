@@ -202,7 +202,9 @@ public:
 
 //   #pragma omp parallel for schedule (static)
     for (int i = 0; i < (*input_data).size(); ++i) {
-      cout<<"i"<<i<<"j"<<(*input_data)[0].size()<<endl;
+      if ((*input_data)[i].size() != (*input_data)[0].size()){
+        cout<<"i"<<i<<"j"<<(*input_data)[i].size()<<endl;
+      }
       for (int j = 0; j < (*input_data)[0].size(); ++j) {
         data_matrix(j, i) = (*input_data)[i][j];
       }
