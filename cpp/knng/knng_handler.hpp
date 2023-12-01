@@ -213,7 +213,7 @@ public:
     Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
     Eigen::MatrixXf distances(data_matrix.cols(),nn);
 
-    int neighhour_size = (skip_self_loops)?nn-1:nn
+    int neighhour_size = (skip_self_loops)?nn-1:nn;
     (*output_knng)->resize(data_matrix.cols()*neighhour_size);
 
 #pragma omp parallel for schedule (static)
