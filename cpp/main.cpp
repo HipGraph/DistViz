@@ -45,156 +45,110 @@ int main(int argc, char* argv[]) {
   int file_format = 0;
   int data_starting_index = 8;
   bool generate_knng_output = false;
-  float target_local_recall =0.9;
+  float target_local_recall = 0.9;
 
-  float alpha=0;
-  float beta =0.5;
+  float alpha = 0;
+  float beta = 0.5;
   bool col_major = false;
   bool sync_comm = false;
   int iterations = 1200;
   int batch_size = 256;
-  bool full_batch_training=true;
-  float lr=0.2;
+  bool full_batch_training = true;
+  float lr = 0.2;
   int nsamples = 5;
 
   double drop_out_error_threshold = 0;
-
 
   const int embedding_dimension = 2;
 
   int bytes_for_data_type = 4;
 
-  for (int p = 0; p < argc; p++)
-  {
-    if (strcmp(argv[p], "-input") == 0)
-    {
+  for (int p = 0; p < argc; p++) {
+    if (strcmp(argv[p], "-input") == 0) {
       input_path = argv[p + 1];
-    }
-    else if (strcmp(argv[p], "-output") == 0)
-    {
+    } else if (strcmp(argv[p], "-output") == 0) {
       output_path = argv[p + 1];
-    }
-    else if (strcmp(argv[p], "-data-set-size") == 0)
-    {
+    } else if (strcmp(argv[p], "-data-set-size") == 0) {
       data_set_size = atol(argv[p + 1]);
-    }
-    else if (strcmp(argv[p], "-dimension") == 0)
-    {
+    } else if (strcmp(argv[p], "-dimension") == 0) {
       dimension = atoi(argv[p + 1]);
-    }
-    else if (strcmp(argv[p], "-ntrees") == 0)
-    {
+    } else if (strcmp(argv[p], "-ntrees") == 0) {
       ntrees = atoi(argv[p + 1]);
-    }
-    else if (strcmp(argv[p], "-tree-depth-ratio") == 0)
-    {
+    } else if (strcmp(argv[p], "-tree-depth-ratio") == 0) {
       tree_depth_ratio = stof(argv[p + 1]);
-    }
-    else if (strcmp(argv[p], "-density") == 0)
-    {
+    } else if (strcmp(argv[p], "-density") == 0) {
       density = atoi(argv[p + 1]);
-    }
-    else if (strcmp(argv[p], "-nn") == 0)
-    {
+    } else if (strcmp(argv[p], "-nn") == 0) {
       nn = atoi(argv[p + 1]);
-    }
-    else if (strcmp(argv[p], "-locality") == 0)
-    {
+    } else if (strcmp(argv[p], "-locality") == 0) {
       use_locality_optimization = atoi(argv[p + 1]) == 1 ? true : false;
-    }
-    else if (strcmp(argv[p], "-local-tree-offset") == 0)
-    {
+    } else if (strcmp(argv[p], "-local-tree-offset") == 0) {
       local_tree_offset = atoi(argv[p + 1]);
-    }
-    else if (strcmp(argv[p], "-data-file-format") == 0)
-    {
+    } else if (strcmp(argv[p], "-data-file-format") == 0) {
       file_format = atoi(argv[p + 1]);
-    }
-    else if (strcmp(argv[p], "-bytes-for-data-type") == 0)
-    {
+    } else if (strcmp(argv[p], "-bytes-for-data-type") == 0) {
       bytes_for_data_type = atoi(argv[p + 1]);
-    }
-    else if (strcmp(argv[p], "-data-starting-index") == 0)
-    {
+    } else if (strcmp(argv[p], "-data-starting-index") == 0) {
       data_starting_index = atoi(argv[p + 1]);
-    }else if (strcmp(argv[p], "-generate-knng-output")==0)
-    {
-      int  generate = atoi(argv[p + 1]);
-      generate_knng_output  = generate==1?true:false;
-    }else if (strcmp(argv[p], "-target-local-recall")==0)
-    {
+    } else if (strcmp(argv[p], "-generate-knng-output") == 0) {
+      int generate = atoi(argv[p + 1]);
+      generate_knng_output = generate == 1 ? true : false;
+    } else if (strcmp(argv[p], "-target-local-recall") == 0) {
       target_local_recall = atof(argv[p + 1]);
-    }else if (strcmp(argv[p], "-alpha")==0)
-    {
+    } else if (strcmp(argv[p], "-alpha") == 0) {
       alpha = atof(argv[p + 1]);
-    }else if (strcmp(argv[p], "-beta")==0)
-    {
-       beta = atof(argv[p + 1]);
-    }else if (strcmp(argv[p], "-col-major")==0)
-    {
+    } else if (strcmp(argv[p], "-beta") == 0) {
+      beta = atof(argv[p + 1]);
+    } else if (strcmp(argv[p], "-col-major") == 0) {
       int col_major_input = atoi(argv[p + 1]);
-      col_major = col_major_input==1?true:false;
-    }else if (strcmp(argv[p], "-sync-comm")==0)
-    {
+      col_major = col_major_input == 1 ? true : false;
+    } else if (strcmp(argv[p], "-sync-comm") == 0) {
       int sync_comm_input = atoi(argv[p + 1]);
-      sync_comm = sync_comm_input==1?true:false;
-    }else if (strcmp(argv[p], "-nsamples")==0)
-    {
+      sync_comm = sync_comm_input == 1 ? true : false;
+    } else if (strcmp(argv[p], "-nsamples") == 0) {
       nsamples = atoi(argv[p + 1]);
-    }else if (strcmp(argv[p], "-lr")==0)
-    {
+    } else if (strcmp(argv[p], "-lr") == 0) {
       lr = atof(argv[p + 1]);
-    }else if (strcmp(argv[p], "-iterations")==0)
-    {
+    } else if (strcmp(argv[p], "-iterations") == 0) {
       iterations = atoi(argv[p + 1]);
-    }else if (strcmp(argv[p], "-full_batch_training")==0)
-    {
+    } else if (strcmp(argv[p], "-full_batch_training") == 0) {
       int full_batch_tra = atoi(argv[p + 1]);
-      full_batch_training = full_batch_tra==1?true:false;
-    }else if (strcmp(argv[p], "-batch")==0)
-    {
+      full_batch_training = full_batch_tra == 1 ? true : false;
+    } else if (strcmp(argv[p], "-batch") == 0) {
       batch_size = atoi(argv[p + 1]);
-    }else if (strcmp(argv[p], "-dropout-error-th")==0)
-    {
+    } else if (strcmp(argv[p], "-dropout-error-th") == 0) {
       drop_out_error_threshold = atof(argv[p + 1]);
     }
   }
 
-  if (input_path.size() == 0)
-  {
+  if (input_path.size() == 0) {
     printf("Valid input path needed!...\n");
     exit(1);
   }
 
-  if (output_path.size() == 0)
-  {
+  if (output_path.size() == 0) {
     printf("Valid out path needed!...\n");
     exit(1);
   }
 
-  if (data_set_size == 0)
-  {
+  if (data_set_size == 0) {
     printf("Dataset size should be greater than 0\n");
     exit(1);
   }
 
-  if (dimension == 0)
-  {
+  if (dimension == 0) {
     printf("Dimension size should be greater than 0\n");
     exit(1);
   }
 
-  if (nn == 0)
-  {
+  if (nn == 0) {
     printf("Nearest neighbours size should be greater than 0\n");
     exit(1);
   }
 
-  if (density == 0)
-  {
+  if (density == 0) {
     density = 1.0 / sqrt(dimension);
   }
-
 
   int rank, size;
 
@@ -202,23 +156,29 @@ int main(int argc, char* argv[]) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-
-  if (tree_depth == 0)
-  {
+  if (tree_depth == 0) {
     tree_depth = static_cast<int>(log2((data_set_size / size)) - 2);
     cout << " tree depth " << tree_depth << endl;
   }
 
-
   auto grid = unique_ptr<Process3DGrid>(new Process3DGrid(size, 1, 1, 1));
 
-  Eigen::VectorXi indices(nn),  indices_exact(nn);
+  Eigen::VectorXi indices(nn), indices_exact(nn);
 
-  std::cout << "calling data loading"<< rank<< " "<<std::endl;
-  unique_ptr<ValueType2DVector<float>> data_matrix_ptr= make_unique<ValueType2DVector<float>>();;
+  std::cout << "calling data loading" << rank << " " << std::endl;
+  unique_ptr<ValueType2DVector<float>> data_matrix_ptr =
+      make_unique<ValueType2DVector<float>>();
+  ;
   auto t = start_clock();
-  FileReader<float>::load_data_into_2D_vector(input_path,data_matrix_ptr.get(),data_set_size,dimension,
-                                              grid.get()->rank_in_col,grid.get()->col_world_size);
+  if (file_format == 0)
+    FileReader<float>::ubyte_read(
+        input_path, data_matrix_ptr.get(), data_set_size, dimension,
+        grid.get()->rank_in_col, grid.get()->col_world_size);
+    }else if (file_format == 1) {
+      FileReader<float>::fvecs_read(input_path, data_matrix_ptr.get(), data_set_size, dimension,
+                                    grid.get()->rank_in_col, grid.get()->col_world_size);
+
+    }
   stop_clock_and_add(t, "IO Time");
 
   cout<<"rank "<<grid->rank_in_col<<" data_matrix_ptr size "<<data_matrix_ptr.get()->size()<<"* "<<(*data_matrix_ptr.get())[7499].size()<<endl;

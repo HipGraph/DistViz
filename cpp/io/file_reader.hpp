@@ -61,7 +61,7 @@ public:
    return matrix;
  }
 
-static void load_data_into_2D_vector(string file_path,ValueType2DVector<VALUE_TYPE>* datamatrix,
+static void ubyte_read(string file_path,ValueType2DVector<VALUE_TYPE>* datamatrix,
                                       int no_of_datapoints,int dimension, int rank, int world_size){
 
   ifstream file (file_path, ios::binary);
@@ -112,6 +112,79 @@ static void load_data_into_2D_vector(string file_path,ValueType2DVector<VALUE_TY
     }
   }
   file.close ();
+}
+
+static void fvecs_read(string file_path, ValueType2DVector<VALUE_TYPE>* datamatrix,
+                int no_of_datapoints,int dimension, int rank, int world_size) {
+  std::ifstream file(filename, std::ios::binary);
+
+  if (!file.is_open()) {
+    std::cerr << "I/O error: Unable to open the file " << filename << "\n";
+    exit(EXIT_FAILURE);
+  }
+
+  // Read the vector size
+  int d;
+  file.read(reinterpret_cast<char*>(&d), sizeof(int));
+  int vecsizeof = 1 * 4 + d * 4;
+
+  int chunk_size = no_of_datapoints / world_size;
+
+  vector<int>bounds = vector<int>(2);
+  if (rank < world_size - 1)
+  {
+    datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dimension));
+    bounds[0]= rank * chunk_size;
+    bounds[1] = (rank+1) * chunk_size -1;
+  }
+  else if (rank == world_size - 1)
+  {
+    chunk_size = no_of_datapoints - chunk_size * (world_size - 1);
+    datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dimension));
+    bounds[0]= rank * chunk_size;
+    bounds[1] = std::min((rank+1) * chunk_size -1,no_of_datapoints-1);
+
+  }
+
+  cout<<" rank "<<rank<<" a "<<bounds[0]<<" b "<<bounds[1]<<endl;
+
+  // Get the number of vectors
+  file.seekg(0, std::ios::end);
+  int a = 0;  // Start from 0-based index
+  int bmax = file.tellg() / vecsizeof;
+  int b = bmax - 1;  // Convert to 0-based index
+
+  if (!bounds.empty()) {
+    if (bounds.size() == 1) {
+      b = bounds[0] ;  // Convert to 0-based index
+    } else if (bounds.size() == 2) {
+      a = bounds[0];
+      b = bounds[1];  // Convert to 0-based index
+    }
+  }
+
+  assert(a >= 0);
+
+  if (b == -1 || b < a) {
+    return std::vector<std::vector<float>>();  // Return an empty vector
+  }
+
+  // Compute the number of vectors that are really read and go to starting positions
+  int n = b - a + 1;
+  file.seekg(a * vecsizeof, std::ios::beg);  // Adjust to 0-based index
+
+  // Read n vectors
+  std::vector<float> rawVectors((d + 1) * n);
+  file.read(reinterpret_cast<char*>(rawVectors.data()), sizeof(float) * (d + 1) * n);
+
+  // Check if the first column (dimension of the vectors) is correct
+  assert(std::count(rawVectors.begin() + 1, rawVectors.end(), rawVectors[0]) == n - 1);
+
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < d; ++j) {
+      (*datamatrix)[i][j] = rawVectors[(d + 1) * i + j + 1];
+    }
+  }
 }
 
 
