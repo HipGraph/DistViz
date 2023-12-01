@@ -114,7 +114,7 @@ static void ubyte_read(string file_path,ValueType2DVector<VALUE_TYPE>* datamatri
   file.close ();
 }
 
-static void fvecs_read(string file_path, ValueType2DVector<VALUE_TYPE>* datamatrix,
+static void fvecs_read(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
                 int no_of_datapoints,int dimension, int rank, int world_size) {
   std::ifstream file(filename, std::ios::binary);
 
