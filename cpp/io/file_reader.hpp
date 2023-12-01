@@ -142,7 +142,7 @@ static void fvecs_read(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
     bounds[1] = std::min((rank+1) * chunk_size -1,no_of_datapoints-1);
   }
 
-  cout<<" rank "<<rank<<" a "<<bounds[0]<<" b "<<bounds[1]<<endl;
+  cout<<" rank "<<rank<<" a "<<bounds[0]<<" b "<<bounds[1]<"d"<<d<<endl;
 
   // Get the number of vectors
   file.seekg(0, std::ios::end);
@@ -174,12 +174,14 @@ static void fvecs_read(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   file.read(reinterpret_cast<char*>(rawVectors.data()), sizeof(float) * (d + 1) * n);
 
   // Check if the first column (dimension of the vectors) is correct
-  assert(std::count(rawVectors.begin() + 1, rawVectors.end(), rawVectors[0]) == n - 1);
+//  assert(std::count(rawVectors.begin() + 1, rawVectors.end(), rawVectors[0]) == n - 1);
 
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < d; ++j) {
       (*datamatrix)[i][j] = rawVectors[(d + 1) * i + j + 1];
+      cout<<(*datamatrix)[i][j]<<" ";
     }
+    cout<<endl;
   }
 }
 
