@@ -130,7 +130,6 @@ public:
 
     vector<DENT> error_convergence;
     for (int i = 0; i < iterations; i++) {
-      cout << " rank " << grid->rank_in_col << " iter" << i << endl;
 
       if (alpha > 0 and grid->col_world_size > 1 and i == 0) {
 
