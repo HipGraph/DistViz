@@ -120,8 +120,7 @@ public:
 
     cout << " rank " << grid->rank_in_col << " onboard_data completed " << batches << endl;
 
-    DENT *prevCoordinates = static_cast<DENT *>(
-        ::operator new(sizeof(DENT[batch_size * embedding_dim])));
+    DENT *prevCoordinates = static_cast<DENT *>(::operator new(sizeof(DENT[batch_size * embedding_dim])));
 
     size_t total_memory = 0;
 
@@ -182,11 +181,11 @@ public:
                                         batch_size, considering_batch_size,
                                         true, false, 0, 0, false);
 
-          this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
-                                          lr, j, batch_size,
-                                          considering_batch_size);
-
-          batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+//          this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
+//                                          lr, j, batch_size,
+//                                          considering_batch_size);
+//
+//          batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
         } else {
           //These operations are for more than one processes.
