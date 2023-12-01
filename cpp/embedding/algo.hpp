@@ -178,16 +178,20 @@ public:
             }
           }
           // local computations for 1 process
+          cout << " rank " << grid->rank_in_col << " starting iter local " << i << endl;
           this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, j,
                                         batch_size, considering_batch_size,
                                         true, false, 0, 0, false);
+
+          cout << " rank " << grid->rank_in_col << " starting iter completed " << i << endl;
 
 
           this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
                                           lr, j, batch_size,
                                           considering_batch_size);
 
-          cout << " rank " << grid->rank_in_col << " repulsize iter completed " << i << endl;
+          cout << " rank " << grid->rank_in_col << " repulsive iter completed " << i << endl;
+
           batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
 
