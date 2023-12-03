@@ -220,15 +220,13 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   file.seekg(start_idx * 4 * dim, std::ios::beg);
   file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
 
-  std::vector<std::vector<float>> result;
 
   for (int i = 0; i < chunk_size; ++i) {
     std::vector<float> vec(dim);
     std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
-    result.push_back(vec);
+    (*datamatrix)[i]=vec;
   }
 
-  return result;
 }
 
 
