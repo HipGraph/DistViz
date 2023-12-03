@@ -183,6 +183,54 @@ static void fvecs_read(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   }
 }
 
+static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
+                      int no_of_datapoints,int dim, int rank, int world_size) {
+  std::ifstream file(filename, std::ios::binary);
+
+  if (!file.is_open()) {
+    // Handle file opening error
+    std::cerr << "Error: Unable to open the file " << filename << std::endl;
+    return {};
+  }
+
+  int nvecs, dim;
+  file.read(reinterpret_cast<char*>(&nvecs), sizeof(int));
+  file.read(reinterpret_cast<char*>(&dim), sizeof(int));
+
+  int chunk_size = no_of_datapoints / world_size;
+  int start_idx =0;
+
+  if (rank < world_size - 1){
+    datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dim));
+    start_idx = rank * chunk_size;
+    chunk_size = (rank+1) * chunk_size -1;
+  }else if (rank == world_size - 1){
+    chunk_size = no_of_datapoints - chunk_size * (world_size - 1);
+    datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dim));
+    start_idx = rank * chunk_size;
+    chunk_size = std::min((rank+1) * chunk_size -1,no_of_datapoints-1);
+  }
+
+  if (chunk_size == -1) {
+    chunk_size = nvecs - start_idx;
+  }
+
+  std::vector<float> data(chunk_size * dim);
+
+  file.seekg(start_idx * 4 * dim, std::ios::beg);
+  file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
+
+  std::vector<std::vector<float>> result;
+
+  for (int i = 0; i < chunk_size; ++i) {
+    std::vector<float> vec(dim);
+    std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
+    result.push_back(vec);
+  }
+
+  return result;
+}
+
 
 static int reverse_int (int i){
   unsigned char ch1, ch2, ch3, ch4;
