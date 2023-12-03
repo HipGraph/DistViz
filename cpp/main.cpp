@@ -247,6 +247,7 @@ int main(int argc, char* argv[]) {
   json j_obj;
   j_obj["algo"] = "DistViz";
   j_obj["p"] = grid->col_world_size;
+  j_obj["k"] = nn;
   j_obj["perf_stats"] = json_perf_statistics();
   if (rank == 0) {
     fout << j_obj.dump(4) << "," << endl;
