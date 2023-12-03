@@ -61,6 +61,8 @@ public:
     shared_sparseMat_sender.get()->initialize_CSR_blocks();
     shared_sparseMat_receiver.get()->initialize_CSR_blocks();
 
+    cout<<" rank "<<grid->rank_in_col<<" CSR initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
+
     unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>
 
         embedding_algo = unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>(
