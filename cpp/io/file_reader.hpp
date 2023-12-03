@@ -190,10 +190,10 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   if (!file.is_open()) {
     // Handle file opening error
     std::cerr << "Error: Unable to open the file " << filename << std::endl;
-    return {};
+    return;
   }
 
-  int nvecs, dim;
+  int nvecs;
   file.read(reinterpret_cast<char*>(&nvecs), sizeof(int));
   file.read(reinterpret_cast<char*>(&dim), sizeof(int));
 
