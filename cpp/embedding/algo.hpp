@@ -597,8 +597,8 @@ public:
               if (l<-5 or l > 5 ){
                 cout<<(grid)->rank_in_col<<" overflowing errors "<<endl;
               }
-              prevCoordinates[index * embedding_dim + d] =
-                  prevCoordinates[index * embedding_dim + d] + (lr)*l;
+//              prevCoordinates[index * embedding_dim + d] =
+//                  prevCoordinates[index * embedding_dim + d] + (lr)*l;
             }
           }
         }
