@@ -198,16 +198,16 @@ public:
 
           //  pull model code
           if (alpha == 0) {
-
+            cout << " rank " << grid->rank_in_col << " executing pull model " << batches << endl;
             this->execute_pull_model_computations(
                 sendbuf_ptr.get(), update_ptr.get(), i, j,
                 this->data_comm_cache[j].get(), csr_block, batch_size,
                 considering_batch_size, lr, prevCoordinates, 1,
                 true, 0, true);
 
-            batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+//            batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
-            for (int k = 0; k < batch_size; k += 1) {
+            for (int k = 0; k < batch_size; k++) {
               int IDIM = k * embedding_dim;
               for (int d = 0; d < embedding_dim; d++) {
                 prevCoordinates[IDIM + d] = 0;
@@ -215,7 +215,7 @@ public:
             }
 
           } else {
-
+            cout << " rank " << grid->rank_in_col << " executing push model " << batches << endl;
             batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
             if (!(i == iterations - 1 and j == batches - 1)) {
