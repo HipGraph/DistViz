@@ -574,11 +574,15 @@ public:
             DENT attrc = 0;
             for (int d = 0; d < embedding_dim; d++) {
               if (!fetch_from_cache) {
+                if (local_dst>=15000){
+                  cout<<(grid)->rank_in_col<<" invalid access  "<<local_dst<<endl;
+                }
                 forceDiff[d] =
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     (this->dense_local)
                         ->nCoordinates[local_dst * embedding_dim + d];
               } else {
+                cout<<(grid)->rank_in_col<<" fetch from cache invoked when ACESS "<<endl;
                 forceDiff[d] =
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     array_ptr[d];
