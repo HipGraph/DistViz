@@ -192,9 +192,9 @@ public:
         } else {
           //These operations are for more than one processes.
           full_comm.get()->transfer_data(random_number_vec, i, j);
-          this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
-                                          lr, j, batch_size,
-                                          considering_batch_size);
+//          this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
+//                                          lr, j, batch_size,
+//                                          considering_batch_size);
 
           //  pull model code
           if (alpha == 0) {
