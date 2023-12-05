@@ -194,9 +194,9 @@ public:
         } else {
           //These operations are for more than one processes.
           full_comm.get()->transfer_data(random_number_vec, i, j);
-//          this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
-//                                          lr, j, batch_size,
-//                                          considering_batch_size);
+          this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(), random_number_vec,
+                                          lr, j, batch_size,
+                                          considering_batch_size);
 
           //  pull model code
           if (alpha == 0) {
@@ -541,8 +541,6 @@ public:
                            int batch_size, int block_size, bool temp_cache) {
     if (csr_block->handler != nullptr) {
       CSRHandle *csr_handle = csr_block->handler.get();
-      cout<<(grid)->rank_in_col<<" access calc_embedding_row_major "<<batch_id<<" "<<batch_size<<" source start "
-           <<source_start_index<<" source end "<<source_end_index<< endl;
 
 #pragma omp parallel for schedule(static) // enable for full batch training or // batch size larger than 1000000
       for (uint64_t i = source_start_index; i <= source_end_index; i++) {
@@ -565,7 +563,6 @@ public:
             std::array<DENT, embedding_dim> array_ptr;
 
             if (fetch_from_cache) {
-              cout<<(grid)->rank_in_col<<" fetch from cache invoked "<<endl;
               unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
                   &arrayMap =
                       (temp_cache)
@@ -577,15 +574,11 @@ public:
             DENT attrc = 0;
             for (int d = 0; d < embedding_dim; d++) {
               if (!fetch_from_cache) {
-                if (local_dst>=15000){
-                  cout<<(grid)->rank_in_col<<" invalid access  "<<local_dst<<endl;
-                }
                 forceDiff[d] =
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     (this->dense_local)
                         ->nCoordinates[local_dst * embedding_dim + d];
               } else {
-                cout<<(grid)->rank_in_col<<" fetch from cache invoked when ACESS "<<endl;
                 forceDiff[d] =
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     array_ptr[d];
@@ -596,11 +589,9 @@ public:
 
             for (int d = 0; d < embedding_dim; d++) {
               DENT l = scale(forceDiff[d] * d1);
-              if (l<-5 or l > 5 ){
-                cout<<(grid)->rank_in_col<<" overflowing errors "<<endl;
-              }
-//              prevCoordinates[index * embedding_dim + d] =
-//                  prevCoordinates[index * embedding_dim + d] + (lr)*l;
+
+              prevCoordinates[index * embedding_dim + d] =
+                  prevCoordinates[index * embedding_dim + d] + (lr)*l;
             }
           }
         }
@@ -680,13 +671,11 @@ public:
     int end_row = std::min((batch_id + 1) * batch_size,
                            ((this->sp_local_receiver)->proc_row_width));
     DENT total_error=0;
-//#pragma omp parallel for schedule(static) reduction(+:total_error)
+#pragma omp parallel for schedule(static) reduction(+:total_error)
     for (int i = 0; i < (end_row - row_base_index); i++) {
       DENT error = 0;
       for (int d = 0; d < embedding_dim; d++) {
        DENT val =  (*prevCoordinates)[i * embedding_dim + d];
-
-       cout<<" i "<<i<<" d "<<d<<" val "<<val<<endl;
         (dense_local)
             ->nCoordinates[(row_base_index + i) * embedding_dim + d] += (*prevCoordinates)[i * embedding_dim + d];
 
