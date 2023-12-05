@@ -270,7 +270,7 @@ public:
           }
         }
       }
-//      dense_local->print_matrix_rowptr(i);
+      dense_local->print_matrix_rowptr(i+1);
     }
     return error_convergence;
   }
