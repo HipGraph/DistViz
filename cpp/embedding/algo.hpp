@@ -328,10 +328,10 @@ public:
     int prev_end_process = get_end_proc(prev_start, beta, grid->col_world_size);
 
     // updating last remote fetched data vectors
-    this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, batch,
-                                  batch_size, considering_batch_size, false,
-                                  col_major, prev_start, prev_end_process,
-                                  true);
+//    this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, batch,
+//                                  batch_size, considering_batch_size, false,
+//                                  col_major, prev_start, prev_end_process,
+//                                  true);
 
     // dense_local->invalidate_cache(i, j, true);
   }
