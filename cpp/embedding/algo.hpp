@@ -562,6 +562,7 @@ public:
             std::array<DENT, embedding_dim> array_ptr;
 
             if (fetch_from_cache) {
+              cout<<(grid)->rank_in_col<<" fetch from cache invoked "<<endl;
               unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
                   &arrayMap =
                       (temp_cache)
