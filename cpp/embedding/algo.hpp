@@ -120,7 +120,7 @@ public:
 
     cout << " rank " << grid->rank_in_col << " onboard_data completed " << batches << endl;
 
-    DENT *prevCoordinates = static_cast<DENT *>(::operator new(sizeof(DENT[batch_size * embedding_dim])));
+//    DENT *prevCoordinates = static_cast<DENT *>(::operator new(sizeof(DENT[batch_size * embedding_dim])));
 
     shared_ptr<vector<DENT>> prevCoordinates_ptr = make_shared<vector<DENT>>(batch_size * embedding_dim, DENT{});
 
@@ -138,14 +138,14 @@ public:
         for (int k = 0; k < batch_size; k += 1) {
           int IDIM = k * embedding_dim;
           for (int d = 0; d < embedding_dim; d++) {
-            prevCoordinates[IDIM + d] = 0;
+            (*prevCoordinates_ptr)[IDIM + d] = 0;
           }
         }
 
         int last_proc = this->execute_push_model_computations(
             sendbuf_ptr.get(), update_ptr.get(), 0, 0, batches,
             this->data_comm_cache[0].get(), csr_block, batch_size,
-            last_batch_size, considering_batch_size, lr, prevCoordinates, 0, 0,
+            last_batch_size, considering_batch_size, lr, prevCoordinates_ptr.get(), 0, 0,
             considering_batch_size, false);
 
         if (alpha < 1.0) {
@@ -153,7 +153,7 @@ public:
           this->execute_pull_model_computations(
               sendbuf_ptr.get(), update_ptr.get(), 0, 0,
               this->data_comm_cache[0].get(), csr_block, batch_size,
-              considering_batch_size, lr, prevCoordinates, prev_start, false,
+              considering_batch_size, lr, prevCoordinates_ptr.get(), prev_start, false,
               last_proc, true);
         }
       }
@@ -175,20 +175,20 @@ public:
           for (int k = 0; k < batch_size; k ++) {
             int IDIM = k * embedding_dim;
             for (int d = 0; d < embedding_dim; d++) {
-              prevCoordinates[IDIM + d] = 0;
+              (*prevCoordinates_ptr)[IDIM + d] = 0;
             }
           }
           // local computations for 1 process
-          this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, j,
+          this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates_ptr.get(), lr, j,
                                         batch_size, considering_batch_size,
                                         true, false, 0, 0, false);
 
-          this->calc_t_dist_replus_rowptr(prevCoordinates, random_number_vec,
+          this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(), random_number_vec,
                                           lr, j, batch_size,
                                           considering_batch_size);
 
 
-          batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+          batch_error += this->update_data_matrix_rowptr(prevCoordinates_ptr.get(), j, batch_size);
 
 
         } else {
@@ -204,28 +204,28 @@ public:
             this->execute_pull_model_computations(
                 sendbuf_ptr.get(), update_ptr.get(), i, j,
                 this->data_comm_cache[j].get(), csr_block, batch_size,
-                considering_batch_size, lr, prevCoordinates.get(), 1,
+                considering_batch_size, lr, prevCoordinates_ptr.get(), 1,
                 true, 0, true);
 
-            batch_error += this->update_data_matrix_rowptr(prevCoordinates.get(), j, batch_size);
+            batch_error += this->update_data_matrix_rowptr(prevCoordinates_ptr.get(), j, batch_size);
 
             for (int k = 0; k < batch_size; k++) {
               int IDIM = k * embedding_dim;
               for (int d = 0; d < embedding_dim; d++) {
-                prevCoordinates[IDIM + d] = 0;
+                (*prevCoordinates_ptr)[IDIM + d] = 0;
               }
             }
 
           } else {
             cout << " rank " << grid->rank_in_col << " executing push model " << batches << endl;
-            batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+            batch_error += this->update_data_matrix_rowptr(prevCoordinates_ptr.get(), j, batch_size);
 
             if (!(i == iterations - 1 and j == batches - 1)) {
               // clear up data
               for (int k = 0; k < batch_size; k += 1) {
                 int IDIM = k * embedding_dim;
                 for (int d = 0; d < embedding_dim; d++) {
-                  prevCoordinates[IDIM + d] = 0;
+                  (*prevCoordinates_ptr)[IDIM + d] = 0;
                 }
               }
               int next_batch_id = (j + 1) % batches;
@@ -237,7 +237,7 @@ public:
               int last_proc = this->execute_push_model_computations(
                   sendbuf_ptr.get(), update_ptr.get(), i, j, batches,
                   this->data_comm_cache[j].get(), csr_block, batch_size,
-                  last_batch_size, considering_batch_size, lr, prevCoordinates,
+                  last_batch_size, considering_batch_size, lr, prevCoordinates_ptr.get(),
                   next_batch_id, next_iteration, next_considering_batch_size,
                   true);
 
@@ -247,7 +247,7 @@ public:
                     sendbuf_ptr.get(), update_ptr.get(), next_iteration,
                     next_batch_id, this->data_comm_cache[next_batch_id].get(),
                     csr_block, batch_size, considering_batch_size, lr,
-                    prevCoordinates, prev_start,
+                    prevCoordinates_ptr.get(), prev_start,
                     false, last_proc, true);
               }
             }
@@ -282,7 +282,7 @@ public:
       std::vector<DataTuple<DENT, embedding_dim>> *receivebuf, int iteration,
       int batch, DataComm<SPT, DENT, embedding_dim> *data_comm,
       CSRLocal<DENT> *csr_block, int batch_size, int considering_batch_size,
-      double lr, DENT *prevCoordinates, int comm_initial_start, bool local_execution,
+      double lr, vector<DENT> *prevCoordinates, int comm_initial_start, bool local_execution,
       int first_execution_proc, bool communication) {
 
     int proc_length = get_proc_length(beta, grid->col_world_size);
@@ -344,7 +344,7 @@ public:
       std::vector<DataTuple<DENT, embedding_dim>> *receivebuf, int iteration,
       int batch, int batches, DataComm<SPT, DENT, embedding_dim> *data_comm,
       CSRLocal<DENT> *csr_block, int batch_size, int last_batch_size,
-      int considering_batch_size, double lr, DENT *prevCoordinates,
+      int considering_batch_size, double lr, vector<DENT> *prevCoordinates,
       int next_batch_id, int next_iteration, int next_considering_batch_size,
       bool communication) {
 
@@ -402,7 +402,7 @@ public:
   }
 
   inline void
-  calc_t_dist_grad_rowptr(CSRLocal<DENT> *csr_block, DENT *prevCoordinates,
+  calc_t_dist_grad_rowptr(CSRLocal<DENT> *csr_block, vector<DENT> *prevCoordinates,
                           DENT lr, int batch_id, int batch_size, int block_size,
                           bool local, bool col_major, int start_process,
                           int end_process, bool fetch_from_temp_cache) {
@@ -466,7 +466,7 @@ public:
   inline void calc_embedding(uint64_t source_start_index,
                              uint64_t source_end_index,
                              uint64_t dst_start_index, uint64_t dst_end_index,
-                             CSRLocal<DENT> *csr_block, DENT *prevCoordinates,
+                             CSRLocal<DENT> *csr_block, vector<DENT> *prevCoordinates,
                              DENT lr, int batch_id, int batch_size,
                              int block_size, bool temp_cache) {
     if (csr_block->handler != nullptr) {
@@ -524,8 +524,8 @@ public:
 
             for (int d = 0; d < embedding_dim; d++) {
               DENT l = scale(forceDiff[d] * d1);
-              prevCoordinates[index * embedding_dim + d] =
-                  prevCoordinates[index * embedding_dim + d] + (lr)*l;
+              (*prevCoordinates)[index * embedding_dim + d] =
+                  (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
             }
           }
         }
@@ -537,7 +537,7 @@ public:
   calc_embedding_row_major(uint64_t source_start_index,
                            uint64_t source_end_index, uint64_t dst_start_index,
                            uint64_t dst_end_index, CSRLocal<DENT> *csr_block,
-                           DENT *prevCoordinates, DENT lr, int batch_id,
+                           vector<DENT> *prevCoordinates, DENT lr, int batch_id,
                            int batch_size, int block_size, bool temp_cache) {
     if (csr_block->handler != nullptr) {
       CSRHandle *csr_handle = csr_block->handler.get();
@@ -608,7 +608,7 @@ public:
     }
   }
 
-  inline void calc_t_dist_replus_rowptr(DENT *prevCoordinates,
+  inline void calc_t_dist_replus_rowptr(vector<DENT> *prevCoordinates,
                                         vector<uint64_t> &col_ids, DENT lr,
                                         int batch_id, int batch_size,
                                         int block_size) {
@@ -651,7 +651,7 @@ public:
           DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
           for (int d = 0; d < embedding_dim; d++) {
             forceDiff[d] = scale(forceDiff[d] * d1);
-            prevCoordinates[i * embedding_dim + d] += (lr)*forceDiff[d];
+            (*prevCoordinates[i * embedding_dim + d]) += (lr)*forceDiff[d];
           }
 
         } else {
@@ -666,14 +666,14 @@ public:
           DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
           for (int d = 0; d < embedding_dim; d++) {
             forceDiff[d] = scale(forceDiff[d] * d1);
-            prevCoordinates[i * embedding_dim + d] += (lr)*forceDiff[d];
+            (*prevCoordinates[i * embedding_dim + d]) += (lr)*forceDiff[d];
           }
         }
       }
     }
   }
 
-  inline DENT update_data_matrix_rowptr(DENT *prevCoordinates, int batch_id,
+  inline DENT update_data_matrix_rowptr(vector<DENT> *prevCoordinates, int batch_id,
                                         int batch_size) {
 
     int row_base_index = batch_id * batch_size;
@@ -684,11 +684,11 @@ public:
     for (int i = 0; i < (end_row - row_base_index); i++) {
       DENT error = 0;
       for (int d = 0; d < embedding_dim; d++) {
-       DENT val =  (prevCoordinates[i * embedding_dim + d]);
+       DENT val =  (*prevCoordinates[i * embedding_dim + d]);
 
        cout<<" i "<<i<<" d "<<d<<" val "<<val<<endl;
         (dense_local)
-            ->nCoordinates[(row_base_index + i) * embedding_dim + d] += prevCoordinates[i * embedding_dim + d];
+            ->nCoordinates[(row_base_index + i) * embedding_dim + d] += (*prevCoordinates[i * embedding_dim + d]);
 
         error += ((val)*(val));
       }
