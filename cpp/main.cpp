@@ -225,6 +225,8 @@ int main(int argc, char* argv[]) {
   auto dense_mat = shared_ptr<DenseMat<int, float, embedding_dimension>>(
       new DenseMat<int, float, embedding_dimension>(grid.get(), localARows));
 
+  dense_mat->print_matrix_rowptr(0);
+
   auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,embedding_dimension>>(new EmbeddingHandler<int, float,embedding_dimension>(grid.get()));
   auto gNNZ = data_set_size* (nn-1);
 
