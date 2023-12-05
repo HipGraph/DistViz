@@ -539,7 +539,7 @@ public:
                            int batch_size, int block_size, bool temp_cache) {
     if (csr_block->handler != nullptr) {
       CSRHandle *csr_handle = csr_block->handler.get();
-
+      cout<<(grid)->rank_in_col<<" access calc_embedding_row_major "<<endl;
 
 #pragma omp parallel for schedule(static) // enable for full batch training or // batch size larger than 1000000
       for (uint64_t i = source_start_index; i <= source_end_index; i++) {
@@ -593,6 +593,9 @@ public:
 
             for (int d = 0; d < embedding_dim; d++) {
               DENT l = scale(forceDiff[d] * d1);
+              if (l<-5 or l > 5 ){
+                cout<<(grid)->rank_in_col<<" overflowing errors "<<endl;
+              }
               prevCoordinates[index * embedding_dim + d] =
                   prevCoordinates[index * embedding_dim + d] + (lr)*l;
             }
