@@ -259,15 +259,15 @@ public:
           MPI_Allreduce(&batch_error, &global_error, 1, MPI_VALUE_TYPE, MPI_SUM, grid->col_world);
           global_error = global_error/grid->col_world_size;
           error_convergence.push_back(global_error);
-          if (global_error<=drop_out_error_threshold){
-            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
-            break;
-          }
+//          if (global_error<=drop_out_error_threshold){
+//            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
+//            break;
+//          }
         }else {
-          if (batch_error<=drop_out_error_threshold){
-            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
-            break;
-          }
+//          if (batch_error<=drop_out_error_threshold){
+//            cout<<"rank "<<grid->rank_in_col<<" dropping out at"<<i<<endl;
+//            break;
+//          }
         }
       }
       dense_local->print_matrix_rowptr(i+1);
