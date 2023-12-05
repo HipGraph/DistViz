@@ -122,6 +122,8 @@ public:
 
     DENT *prevCoordinates = static_cast<DENT *>(::operator new(sizeof(DENT[batch_size * embedding_dim])));
 
+    shared_ptr<vector<DENT>> prevCoordinates_ptr = make_shared<vector<DENT>>(batch_size * embedding_dim, DENT{});
+
     size_t total_memory = 0;
 
     CSRLocal<DENT> *csr_block = (col_major) ? sp_local_receiver->csr_local_data.get(): sp_local_native->csr_local_data.get();
@@ -170,7 +172,7 @@ public:
 
         // One process computations without MPI operations
         if (grid->col_world_size == 1) {
-          for (int k = 0; k < batch_size; k += 1) {
+          for (int k = 0; k < batch_size; k ++) {
             int IDIM = k * embedding_dim;
             for (int d = 0; d < embedding_dim; d++) {
               prevCoordinates[IDIM + d] = 0;
@@ -202,10 +204,10 @@ public:
             this->execute_pull_model_computations(
                 sendbuf_ptr.get(), update_ptr.get(), i, j,
                 this->data_comm_cache[j].get(), csr_block, batch_size,
-                considering_batch_size, lr, prevCoordinates, 1,
+                considering_batch_size, lr, prevCoordinates.get(), 1,
                 true, 0, true);
 
-            batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+            batch_error += this->update_data_matrix_rowptr(prevCoordinates.get(), j, batch_size);
 
             for (int k = 0; k < batch_size; k++) {
               int IDIM = k * embedding_dim;
