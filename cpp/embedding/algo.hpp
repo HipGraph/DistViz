@@ -285,7 +285,7 @@ public:
 
     int proc_length = get_proc_length(beta, grid->col_world_size);
     int prev_start = comm_initial_start;
-    cout << " rank " << grid->rank_in_col << " run pull model algorithm " << batches << endl;
+    cout << " rank " << grid->rank_in_col << " run pull model algorithm "  << endl;
     for (int k = prev_start; k < grid->col_world_size; k += proc_length) {
       int end_process = get_end_proc(k, beta, grid->col_world_size);
 
