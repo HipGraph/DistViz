@@ -205,7 +205,7 @@ public:
                 considering_batch_size, lr, prevCoordinates, 1,
                 true, 0, true);
 
-//            batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
+            batch_error += this->update_data_matrix_rowptr(prevCoordinates, j, batch_size);
 
             for (int k = 0; k < batch_size; k++) {
               int IDIM = k * embedding_dim;
@@ -678,11 +678,13 @@ public:
     int end_row = std::min((batch_id + 1) * batch_size,
                            ((this->sp_local_receiver)->proc_row_width));
     DENT total_error=0;
-#pragma omp parallel for schedule(static) reduction(+:total_error)
+//#pragma omp parallel for schedule(static) reduction(+:total_error)
     for (int i = 0; i < (end_row - row_base_index); i++) {
       DENT error = 0;
       for (int d = 0; d < embedding_dim; d++) {
        DENT val =  (prevCoordinates[i * embedding_dim + d]);
+
+       cout<<" i "<<i<<" d "<<d<<" val "<<val<<endl;
         (dense_local)
             ->nCoordinates[(row_base_index + i) * embedding_dim + d] += prevCoordinates[i * embedding_dim + d];
 
