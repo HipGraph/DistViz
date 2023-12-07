@@ -58,10 +58,12 @@ public:
 
 
     shared_sparseMat.get()->initialize_CSR_blocks();
+    cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
     shared_sparseMat_sender.get()->initialize_CSR_blocks();
+    cout<<" rank "<<grid->rank_in_col<<" CSR  shared_sparseMat_sender initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
     shared_sparseMat_receiver.get()->initialize_CSR_blocks();
 
-    cout<<" rank "<<grid->rank_in_col<<" CSR initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
+    cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat_receiver initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
 
     unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>
 
