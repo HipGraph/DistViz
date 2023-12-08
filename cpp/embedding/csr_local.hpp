@@ -75,10 +75,11 @@ public:
           &tempCOO, SPARSE_INDEX_BASE_ZERO, rows, cols, max(num_coords, 1),
           rArray.data(), cArray.data(), vArray.data());
 
-      cout<<" processing transpose "<<transpose<<endl;
+      cout<<" processing transpose before conversion "<<transpose<<endl;
       sparse_status_t status_csr =
           mkl_sparse_convert_csr(tempCOO, op, &tempCSR);
 
+      cout<<" processing transpose after conversion "<<transpose<<endl;
       mkl_sparse_destroy(tempCOO);
 
       vector<MKL_INT>().swap(rArray);
@@ -88,9 +89,11 @@ public:
       sparse_index_base_t indexing;
       MKL_INT *rows_start, *rows_end, *col_idx;
       double *values;
-
+      cout<<" processing transpose before export "<<transpose<<endl;
       mkl_sparse_d_export_csr(tempCSR, &indexing, &(this->rows), &(this->cols),
                               &rows_start, &rows_end, &col_idx, &values);
+
+      cout<<" processing transpose after export "<<transpose<<endl;
 
       int rv = 0;
       for (int i = 0; i < num_coords; i++) {
@@ -114,22 +117,23 @@ public:
       for (int i = 0; i < num_coords; i++) {
         (handler.get())->row_idx[i] = coords[i].row;
       }
-
+      cout<<" processing transpose before memcopy export "<<transpose<<endl;
       memcpy((handler.get())->values.data(), values,
              sizeof(double) * max(num_coords, 1));
       memcpy((handler.get())->col_idx.data(), col_idx,
              sizeof(MKL_INT) * max(num_coords, 1));
       memcpy((handler.get())->rowStart.data(), rows_start,
              sizeof(MKL_INT) * this->rows);
-
+      cout<<" processing transpose after memcopy export "<<transpose<<endl;
       (handler.get())->rowStart[this->rows] = max(num_coords, 1);
 
+      cout<<" processing transpose csr  create "<<transpose<<endl;
       mkl_sparse_d_create_csr(
           &((handler.get())->mkl_handle), SPARSE_INDEX_BASE_ZERO, this->rows,
           this->cols, (handler.get())->rowStart.data(),
           (handler.get())->rowStart.data() + 1, (handler.get())->col_idx.data(),
           (handler.get())->values.data());
-
+      cout<<" processing transpose after csr  create "<<transpose<<endl;
       mkl_sparse_destroy(tempCSR);
     }
   }
