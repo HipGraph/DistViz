@@ -79,6 +79,12 @@ public:
       sparse_status_t status_csr =
           mkl_sparse_convert_csr(tempCOO, op, &tempCSR);
 
+      if (status_csr != SPARSE_STATUS_SUCCESS) {
+        // Handle the error
+        cout<<"Error in matrix conversion:"<<endl;
+        // Additional error-handling code here
+      }
+
       cout<<" processing transpose after conversion "<<transpose<<endl;
       mkl_sparse_destroy(tempCOO);
 
