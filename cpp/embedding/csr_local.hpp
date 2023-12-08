@@ -103,7 +103,7 @@ public:
 
       int rv = 0;
       for (int i = 0; i < num_coords; i++) {
-        if (transpose and rv >= 60000) {
+        if (transpose and rv >= 59999) {
           cout<<" i "<<i<<" rv "<<rv<<"value"<<rows_start[rv + 1]<<endl;
         }
         while (rv < transpose?this->cols:this->rows && i >= rows_start[rv + 1]) {
