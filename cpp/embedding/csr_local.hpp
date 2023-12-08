@@ -61,7 +61,7 @@ public:
         cArray[i] = coords[i].col;
         vArray[i] = static_cast<double>(coords[i].value);
         if (i>=14961133){
-          cout<<" i "<<i<<"rArray"<<rArray[num_coords-1]<<"cArray"<<cArray[num_coords-1]<<"vArray"<<vArray[num_coords-1]<<endl;
+          cout<<" i "<<i<<"rArray"<<rArray[i]<<"cArray"<<cArray[i]<<"vArray"<<vArray[i]<<endl;
         }
       }
 
