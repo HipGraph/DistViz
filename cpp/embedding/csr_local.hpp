@@ -60,7 +60,7 @@ public:
         rArray[i] = coords[i].row;
         cArray[i] = coords[i].col;
         vArray[i] = static_cast<double>(coords[i].value);
-        if (i>=14961133){
+        if (i>=14961133 and rank==0){
           cout<<" i "<<i<<"rArray"<<rArray[i]<<"cArray"<<cArray[i]<<"vArray"<<vArray[i]<<endl;
         }
       }
