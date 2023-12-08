@@ -55,14 +55,17 @@ public:
 
 
 //    cout << " number of coordinates " << num_coords << endl;
-      #pragma omp parallel for schedule (static)
+//      #pragma omp parallel for schedule (static)
       for (int i = 0; i < num_coords; i++) {
         rArray[i] = coords[i].row;
         cArray[i] = coords[i].col;
         vArray[i] = static_cast<double>(coords[i].value);
+        if (i>=14961133){
+          cout<<" i "<<i<<"rArray"<<rArray[num_coords-1]<<"cArray"<<cArray[num_coords-1]<<"vArray"<<vArray[num_coords-1]<<endl;
+        }
       }
 
-      cout<<" processing transpose before conversion "<<rArray[num_coords-1]<<" "<<cArray[num_coords-1]<<" "<<vArray[num_coords-1]<<endl;
+
       sparse_operation_t op;
 
       if (transpose) {
@@ -76,6 +79,12 @@ public:
       sparse_status_t status_coo = mkl_sparse_d_create_coo(
           &tempCOO, SPARSE_INDEX_BASE_ZERO, rows, cols, max(num_coords, 1),
           rArray.data(), cArray.data(), vArray.data());
+
+      if (status_coo != SPARSE_STATUS_SUCCESS) {
+        // Handle the error
+        cout<<"Error in coo conversion:"<<endl;
+        // Additional error-handling code here
+      }
 
       cout<<" processing transpose before conversion "<<transpose<<endl;
       sparse_status_t status_csr =
@@ -109,9 +118,9 @@ public:
         while (rv < this->rows and i >= rows_start[rv + 1]) {
           rv++;
         }
-        if (transpose and rv >= 59999) {
-          cout<<" i "<<i<<" rv "<<rv<<"value"<<rows_start[rv + 1]<<" rows "<<this->rows<<" cols "<<this->cols<<endl;
-        }
+//        if (transpose and rv >= 59999) {
+//          cout<<" i "<<i<<" rv "<<rv<<"value"<<rows_start[rv + 1]<<" rows "<<this->rows<<" cols "<<this->cols<<endl;
+//        }
         coords[i].row = rv;
         coords[i].col = col_idx[i];
         coords[i].value = static_cast<T>(values[i]);
