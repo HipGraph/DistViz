@@ -42,7 +42,7 @@ public:
       this->num_coords = num_coords;
       this->rows = rows;
       this->cols = cols;
-      cout<<"rows "<<this->rows<<" cols "<<this->cols<<" transpose "<<transpose<<endl;
+      cout<<"rows "<<this->rows<<" cols "<<this->cols<<" transpose "<<transpose<<" nnz "<<max_nnz<<endl;
       this->handler = unique_ptr<CSRHandle>(new CSRHandle());
 
       int rank;
@@ -105,14 +105,12 @@ public:
       int rv = 0;
       for (int i = 0; i < num_coords; i++) {
 
-        if (transpose and rv >= 59999) {
-          cout<<" i "<<i<<" rv "<<rv<<"value"<<rows_start[rv + 1]<<" rows "<<this->rows<<" cols "<<this->cols<<endl;
-        }
-
         while (rv < this->rows and i >= rows_start[rv + 1]) {
           rv++;
         }
-
+        if (transpose and rv >= 59999) {
+          cout<<" i "<<i<<" rv "<<rv<<"value"<<rows_start[rv + 1]<<" rows "<<this->rows<<" cols "<<this->cols<<endl;
+        }
         coords[i].row = rv;
         coords[i].col = col_idx[i];
         coords[i].value = static_cast<T>(values[i]);
