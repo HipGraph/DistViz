@@ -101,15 +101,18 @@ public:
 
       cout<<" processing transpose after export "<<transpose<<endl;
 
-//      int rv = 0;
-//      for (int i = 0; i < num_coords; i++) {
-//        while (rv < this->rows && i >= rows_start[rv + 1]) {
-//          rv++;
-//        }
-//        coords[i].row = rv;
-//        coords[i].col = col_idx[i];
-//        coords[i].value = static_cast<T>(values[i]);
-//      }
+      int rv = 0;
+      for (int i = 0; i < num_coords; i++) {
+        while (rv < this->rows && i >= rows_start[rv + 1]) {
+          rv++;
+        }
+        if (transpose and rv) {
+          cout<<" i "<<i<<" rv "<<rv<<endl;
+        }
+        coords[i].row = rv;
+        coords[i].col = col_idx[i];
+        coords[i].value = static_cast<T>(values[i]);
+      }
 
       cout<<" processing coords "<<transpose<<" max nns"<<max_nnz<<endl;
 //      assert(num_coords <= max_nnz);
@@ -120,10 +123,10 @@ public:
       (handler.get())->rowStart.resize(this->rows + 1);
 
 // Copy over row indices
-//      #pragma omp parallel for schedule (static)
-//      for (int i = 0; i < num_coords; i++) {
-//        (handler.get())->row_idx[i] = coords[i].row;
-//      }
+      #pragma omp parallel for schedule (static)
+      for (int i = 0; i < num_coords; i++) {
+        (handler.get())->row_idx[i] = coords[i].row;
+      }
       cout<<" processing transpose before memcopy export "<<transpose<<endl;
       memcpy((handler.get())->values.data(), values,
              sizeof(double) * max(num_coords, 1));
