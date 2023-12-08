@@ -103,11 +103,11 @@ public:
 
       int rv = 0;
       for (int i = 0; i < num_coords; i++) {
+        if (transpose and rv >= 60000) {
+          cout<<" i "<<i<<" rv "<<rv<<endl;
+        }
         while (rv < this->rows && i >= rows_start[rv + 1]) {
           rv++;
-        }
-        if (transpose and rv) {
-          cout<<" i "<<i<<" rv "<<rv<<endl;
         }
         coords[i].row = rv;
         coords[i].col = col_idx[i];
