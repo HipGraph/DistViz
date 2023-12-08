@@ -37,11 +37,12 @@ public:
   CSRLocal(MKL_INT rows, MKL_INT cols, MKL_INT max_nnz, Tuple<T> *coords,
            int num_coords, bool transpose) {
     if (num_coords>0) {
+
       this->transpose = transpose;
       this->num_coords = num_coords;
       this->rows = rows;
       this->cols = cols;
-
+      cout<<"rows "<<this->rows<<" cols "<<this->cols<<" transpose "<<transpose<<endl;
       this->handler = unique_ptr<CSRHandle>(new CSRHandle());
 
       int rank;
@@ -103,15 +104,19 @@ public:
 
       int rv = 0;
       for (int i = 0; i < num_coords; i++) {
+
         if (transpose and rv >= 59999) {
           cout<<" i "<<i<<" rv "<<rv<<"value"<<rows_start[rv + 1]<<" rows "<<this->rows<<" cols "<<this->cols<<endl;
         }
-        while (rv < transpose?this->cols:this->rows and i >= rows_start[rv + 1]) {
+
+        while (rv < this->rows and i >= rows_start[rv + 1]) {
           rv++;
         }
+
         coords[i].row = rv;
         coords[i].col = col_idx[i];
         coords[i].value = static_cast<T>(values[i]);
+
       }
 
       cout<<" processing coords "<<transpose<<" max nns"<<max_nnz<<endl;
