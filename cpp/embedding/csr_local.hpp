@@ -106,7 +106,7 @@ public:
         if (transpose and rv >= 60000) {
           cout<<" i "<<i<<" rv "<<rv<<endl;
         }
-        while (rv < this->rows && i >= rows_start[rv + 1]) {
+        while (rv < transpose?this->cols:this->rows && i >= rows_start[rv + 1]) {
           rv++;
         }
         coords[i].row = rv;
