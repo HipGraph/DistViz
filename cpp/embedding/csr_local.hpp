@@ -62,7 +62,7 @@ public:
       }
 
       sparse_operation_t op;
-      cout<<" processing transpose "<<transpose<<endl;
+
       if (transpose) {
         op = SPARSE_OPERATION_TRANSPOSE;
       } else {
@@ -75,6 +75,7 @@ public:
           &tempCOO, SPARSE_INDEX_BASE_ZERO, rows, cols, max(num_coords, 1),
           rArray.data(), cArray.data(), vArray.data());
 
+      cout<<" processing transpose "<<transpose<<endl;
       sparse_status_t status_csr =
           mkl_sparse_convert_csr(tempCOO, op, &tempCSR);
 
