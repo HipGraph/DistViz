@@ -47,7 +47,7 @@ public:
       int rank;
       MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-      // This setup is really clunky, but I don't have time to fix it.
+
       vector<MKL_INT> rArray(num_coords, 0);
       vector<MKL_INT> cArray(num_coords, 0);
       vector<double> vArray(num_coords, 0.0);
@@ -62,6 +62,7 @@ public:
       }
 
       sparse_operation_t op;
+      cout<<" processing transpose "<<transpose<<endl;
       if (transpose) {
         op = SPARSE_OPERATION_TRANSPOSE;
       } else {
