@@ -105,6 +105,7 @@ public:
         coords[i].value = static_cast<T>(values[i]);
       }
 
+      cout<<" processing coords "<<transpose<<" max nns"<<max_nnz<<endl;
 //      assert(num_coords <= max_nnz);
 
       (handler.get())->values.resize(max_nnz == 0 ? 1 : max_nnz);
