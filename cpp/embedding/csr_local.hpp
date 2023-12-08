@@ -104,7 +104,7 @@ public:
       int rv = 0;
       for (int i = 0; i < num_coords; i++) {
         if (transpose and rv >= 59999) {
-          cout<<" i "<<i<<" rv "<<rv<<"value"<<rows_start[rv + 1]<<endl;
+          cout<<" i "<<i<<" rv "<<rv<<"value"<<rows_start[rv + 1]<<" rows "<<this->rows<<" cols "<<this->cols<<endl;
         }
         while (rv < transpose?this->cols:this->rows && i >= rows_start[rv + 1]) {
           rv++;
