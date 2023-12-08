@@ -62,6 +62,7 @@ public:
         vArray[i] = static_cast<double>(coords[i].value);
       }
 
+      cout<<" processing transpose before conversion "<<rArray[num_coords-1]<<" "<<cArray[num_coords-1]<<" "<<vArray[num_coords-1]<<endl;
       sparse_operation_t op;
 
       if (transpose) {
