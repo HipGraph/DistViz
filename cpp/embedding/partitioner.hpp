@@ -44,7 +44,7 @@ public:
     int world_size = process_3D_grid->col_world_size;
     int my_rank = process_3D_grid->rank_in_col;
 
-    Tuple<T> *sendbuf = new Tuple<T>[sp_mat->coords->size()];
+    Tuple<VALUE_TYPE> *sendbuf = new Tuple<VALUE_TYPE>[sp_mat->coords->size()];
 
     if (world_size > 1) {
       vector<int> sendcounts(world_size, 0);
@@ -52,7 +52,7 @@ public:
 
       vector<int> offsets, bufindices;
 
-      vector<Tuple<T>>* coords = sp_mat->coords;
+      vector<Tuple<VALUE_TYPE>>* coords = sp_mat->coords;
 
 
 
@@ -106,9 +106,9 @@ public:
 
       // TODO: Parallelize the sort routine?
       if (sp_mat->transpose){
-        std::sort((*(sp_mat->coords)).begin(), (*(sp_mat->coords)).end(),column_major<T>);
+        std::sort((*(sp_mat->coords)).begin(), (*(sp_mat->coords)).end(),column_major<VALUE_TYPE>);
       } else {
-        std::sort((*(sp_mat->coords)).begin(), (*(sp_mat->coords)).end(),row_major<T>);
+        std::sort((*(sp_mat->coords)).begin(), (*(sp_mat->coords)).end(),row_major<VALUE_TYPE>);
       }
     // This helps to speed up CSR creation
     }
