@@ -84,13 +84,16 @@ public:
         // Additional error-handling code here
       }
 
-      MKL_INT rows_coo, cols_coo, nnz_coo, *rows_start_coo, *rows_end_coo,
-          *col_indices_coo;
+      MKL_INT rows_coo, cols_coo, nnz_coo, *rows_start_coo, *rows_end_coo, *col_indices_coo;
       double *values_coo;
 
-      mkl_sparse_d_export_coo(tempCOO, nullptr, &rows_coo, &cols_coo,
-                              &rows_start_coo, &rows_end_coo, &col_indices_coo,
-                              &values_coo);
+      mkl_sparse_d_get_info(coo_matrix, &rows_coo, &cols_coo, nullptr, nullptr, nullptr);
+
+      mkl_sparse_d_get_values(coo_matrix, SPARSE_GET_NONZERO_VALUES, &values_coo);
+      mkl_sparse_d_get_rows(coo_matrix, SPARSE_GET_NONZERO_STRUCT, &rows_start_coo);
+      mkl_sparse_d_get_rows(coo_matrix, SPARSE_GET_NONZERO_STRUCT + 1, &rows_end_coo);
+      mkl_sparse_d_get_cols(coo_matrix, SPARSE_GET_NONZERO_INDICES, &col_indices_coo);
+
 
       // Print the content of the COO matrix
       std::cout << "COO Matrix Content:" << std::endl;
