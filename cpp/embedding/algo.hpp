@@ -469,7 +469,7 @@ public:
                              DENT lr, int batch_id, int batch_size,
                              int block_size, bool temp_cache) {
     if (csr_block->handler != nullptr) {
-      CSRHandle *csr_handle = csr_block->handler.get();
+      CSRHandle<SPT,DENT> *csr_handle = csr_block->handler.get();
 
 #pragma omp parallel for schedule(static)
       for (uint64_t i = dst_start_index; i <= dst_end_index; i++) {
@@ -539,7 +539,7 @@ public:
                            vector<DENT> *prevCoordinates, DENT lr, int batch_id,
                            int batch_size, int block_size, bool temp_cache) {
     if (csr_block->handler != nullptr) {
-      CSRHandle *csr_handle = csr_block->handler.get();
+      CSRHandle<SPT,DENT> *csr_handle = csr_block->handler.get();
 
 #pragma omp parallel for schedule(static) // enable for full batch training or // batch size larger than 1000000
       for (uint64_t i = source_start_index; i <= source_end_index; i++) {
