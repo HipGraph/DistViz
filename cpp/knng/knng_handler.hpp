@@ -235,7 +235,7 @@ public:
         Tuple<VALUE_TYPE> tuple;
         tuple.row = edge.src_index;
         tuple.col = edge.dst_index;
-        if (tuple.row<0 or tuple.col){
+        if (tuple.row<0 or tuple.col<0){
           cout<<" woring index found "<<tuple.row<<"col "<<tuple.col<<endl;
         }
         tuple.value = edge.distance;
