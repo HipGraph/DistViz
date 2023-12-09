@@ -177,13 +177,12 @@ template <typename T, size_t size> struct CacheEntry {
   int inserted_itr;
 };
 
-
+template <typename  INDEX_TYPE, typename VALUE_TYPE>
 struct CSRHandle {
-  vector<double> values;
-  vector<MKL_INT> col_idx;
-  vector<MKL_INT> rowStart;
-  vector<MKL_INT> row_idx;
-  sparse_matrix_t mkl_handle;
+  vector<VALUE_TYPE> values;
+  vector<INDEX_TYPE> col_idx;
+  vector<INDEX_TYPE> rowStart;
+  vector<INDEX_TYPE> row_idx;
 };
 
 template <typename T>

@@ -126,7 +126,7 @@ public:
 
     size_t total_memory = 0;
 
-    CSRLocal<DENT> *csr_block = (col_major) ? sp_local_receiver->csr_local_data.get(): sp_local_native->csr_local_data.get();
+    CSRLocal<SPT,DENT> *csr_block = (col_major) ? sp_local_receiver->csr_local_data.get(): sp_local_native->csr_local_data.get();
 
     int considering_batch_size = batch_size;
 
@@ -280,7 +280,7 @@ public:
       std::vector<DataTuple<DENT, embedding_dim>> *sendbuf,
       std::vector<DataTuple<DENT, embedding_dim>> *receivebuf, int iteration,
       int batch, DataComm<SPT, DENT, embedding_dim> *data_comm,
-      CSRLocal<DENT> *csr_block, int batch_size, int considering_batch_size,
+      CSRLocal<SPT,DENT> *csr_block, int batch_size, int considering_batch_size,
       double lr, vector<DENT> *prevCoordinates, int comm_initial_start, bool local_execution,
       int first_execution_proc, bool communication) {
 
@@ -342,7 +342,7 @@ public:
       std::vector<DataTuple<DENT, embedding_dim>> *sendbuf,
       std::vector<DataTuple<DENT, embedding_dim>> *receivebuf, int iteration,
       int batch, int batches, DataComm<SPT, DENT, embedding_dim> *data_comm,
-      CSRLocal<DENT> *csr_block, int batch_size, int last_batch_size,
+      CSRLocal<SPT,DENT> *csr_block, int batch_size, int last_batch_size,
       int considering_batch_size, double lr, vector<DENT> *prevCoordinates,
       int next_batch_id, int next_iteration, int next_considering_batch_size,
       bool communication) {
@@ -401,7 +401,7 @@ public:
   }
 
   inline void
-  calc_t_dist_grad_rowptr(CSRLocal<DENT> *csr_block, vector<DENT> *prevCoordinates,
+  calc_t_dist_grad_rowptr(CSRLocal<SPT,DENT> *csr_block, vector<DENT> *prevCoordinates,
                           DENT lr, int batch_id, int batch_size, int block_size,
                           bool local, bool col_major, int start_process,
                           int end_process, bool fetch_from_temp_cache) {
@@ -465,7 +465,7 @@ public:
   inline void calc_embedding(uint64_t source_start_index,
                              uint64_t source_end_index,
                              uint64_t dst_start_index, uint64_t dst_end_index,
-                             CSRLocal<DENT> *csr_block, vector<DENT> *prevCoordinates,
+                             CSRLocal<SPT,DENT> *csr_block, vector<DENT> *prevCoordinates,
                              DENT lr, int batch_id, int batch_size,
                              int block_size, bool temp_cache) {
     if (csr_block->handler != nullptr) {
@@ -535,7 +535,7 @@ public:
   inline void
   calc_embedding_row_major(uint64_t source_start_index,
                            uint64_t source_end_index, uint64_t dst_start_index,
-                           uint64_t dst_end_index, CSRLocal<DENT> *csr_block,
+                           uint64_t dst_end_index, CSRLocal<SPT,DENT> *csr_block,
                            vector<DENT> *prevCoordinates, DENT lr, int batch_id,
                            int batch_size, int block_size, bool temp_cache) {
     if (csr_block->handler != nullptr) {
