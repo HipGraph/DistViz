@@ -111,7 +111,7 @@ public:
     int rank= grid->rank_in_col;
     int world_size = grid->col_world_size;
 
-    CSRHandle *handle = (csr_local_data.get())->handler.get();
+    CSRHandle<INDEX_TYPE,VALUE_TYPE> *handle = (csr_local_data.get())->handler.get();
 
     vector<int> procs;
     for (int i = starting_proc; i < end_proc; i++) {
@@ -168,7 +168,7 @@ public:
     int rank= grid->rank_in_col;
     int world_size = grid->col_world_size;
 
-    CSRHandle *handle = (csr_local_data.get())->handler.get();
+    CSRHandle<INDEX_TYPE,VALUE_TYPE> *handle = (csr_local_data.get())->handler.get();
 
     auto batches = (proc_row_width / batch_size);
 

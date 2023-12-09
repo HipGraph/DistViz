@@ -16,6 +16,7 @@
 #include <numeric>
 #include <parallel/algorithm>
 #include <string.h>
+#include <set>
 
 using namespace std;
 using namespace hipgraph::distviz::common;
@@ -190,27 +191,26 @@ public:
         for (INDEX_TYPE i = 0; i < num_coords; i++) {
           if (dups.insert(coords[i].row).second) {
             (handler.get())->rowStart[index] = (i + 1);
-            count = 0;
             index++;
           }
           (handler.get())->col_idx[i] = coords[i].col;
           (handler.get())->values[i] = coords[i].value;
         }
         (handler.get())->rowStart[index] = num_coords;
-      }else{
-      set<INDEX_TYPE> dups;
+      } else {
+        set<INDEX_TYPE> dups;
 
-      int index = 0;
-      for (INDEX_TYPE i = 0; i < num_coords; i++) {
-        if (dups.insert(coords[i].col).second) {
-          (handler.get())->rowStart[index] = (i + 1);
-          count = 0;
-          index++;
+        int index = 0;
+        for (INDEX_TYPE i = 0; i < num_coords; i++) {
+          if (dups.insert(coords[i].col).second) {
+            (handler.get())->rowStart[index] = (i + 1);
+            index++;
+          }
+          (handler.get())->col_idx[i] = coords[i].row;
+          (handler.get())->values[i] = coords[i].value;
         }
-        (handler.get())->col_idx[i] = coords[i].row;
-        (handler.get())->values[i] = coords[i].value;
+        (handler.get())->rowStart[index] = num_coords;
       }
-      (handler.get())->rowStart[index] = num_coords;
     }
   }
 

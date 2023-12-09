@@ -50,9 +50,9 @@ public:
 
     auto partitioner = unique_ptr<GlobalAdjacency1DPartitioner>(new GlobalAdjacency1DPartitioner(grid));
 
-    partitioner.get()->partition_data(shared_sparseMat_sender.get());
-    partitioner.get()->partition_data(shared_sparseMat_receiver.get());
-    partitioner.get()->partition_data(shared_sparseMat.get());
+    partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat_sender.get());
+    partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat_receiver.get());
+    partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat.get());
 
     cout<<" rank "<<grid->rank_in_col<<" size "<<shared_sparseMat.get()->coords->size()<<endl;
 
