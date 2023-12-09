@@ -199,7 +199,6 @@ public:
         (handler.get())->rowStart[index] = num_coords;
       } else {
         set<INDEX_TYPE> dups;
-
         int index = 0;
         for (INDEX_TYPE i = 0; i < num_coords; i++) {
           if (dups.insert(coords[i].col).second) {
