@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
     } else if (strcmp(argv[p], "-col-major") == 0) {
       int col_major_input = atoi(argv[p + 1]);
       col_major = col_major_input == 1 ? true : false;
-    } else if (strcmp(argv[p], "-sync-comm") == 0) {
+    } else if (strcmp(argv[p], "-sync-comm:") == 0) {
       int sync_comm_input = atoi(argv[p + 1]);
       sync_comm = sync_comm_input == 1 ? true : false;
     } else if (strcmp(argv[p], "-nsamples") == 0) {
