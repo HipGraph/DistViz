@@ -190,7 +190,7 @@ public:
         int index = 0;
         for (INDEX_TYPE i = 0; i < num_coords; i++) {
           if (dups.insert(coords[i].row).second) {
-            (handler.get())->rowStart[index] = (i + 1);
+            (handler.get())->rowStart[index] = (i==0)?0:(i + 1);
             index++;
           }
           (handler.get())->col_idx[i] = coords[i].col;
@@ -202,7 +202,7 @@ public:
         int index = 0;
         for (INDEX_TYPE i = 0; i < num_coords; i++) {
           if (dups.insert(coords[i].col).second) {
-            (handler.get())->rowStart[index] = (i + 1);
+            (handler.get())->rowStart[index] = (i==0)?0:(i + 1);
             index++;
           }
           (handler.get())->col_idx[i] = coords[i].row;
