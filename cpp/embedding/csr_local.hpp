@@ -195,6 +195,7 @@ public:
             if (expected_col==coords[i].row) {
               (handler.get())->rowStart[index] = current_row_value;
               index++;
+              expected_col++;
             }else if (expected_col<coords[i].row){
               while(expected_col<=coords[i].row){
                 (handler.get())->rowStart[index] = current_row_value;
@@ -218,6 +219,7 @@ public:
             if (expected_col==coords[i].col){
               (handler.get())->rowStart[index] = current_row_value;
               index++;
+              expected_col++;
             }else if (expected_col<coords[i].col){
               while(expected_col<=coords[i].col){
                 (handler.get())->rowStart[index] = current_row_value;
