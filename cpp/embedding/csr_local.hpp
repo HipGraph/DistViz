@@ -209,7 +209,7 @@ public:
           current_row_value++;
         }
 
-        if (expected_col<this->rows){
+        if (expected_col<=this->rows){
           while(expected_col<=this->rows){
             (handler.get())->rowStart[index] = current_row_value;
             index++;
@@ -239,7 +239,7 @@ public:
           (handler.get())->values[i] = coords[i].value;
           current_row_value++;
         }
-        if (expected_col<this->cols){
+        if (expected_col<=this->cols){
           while(expected_col<=this->cols){
             (handler.get())->rowStart[index] = current_row_value;
             index++;
