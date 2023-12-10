@@ -138,17 +138,17 @@ public:
                                                                                        nn);
 
     cout<<"rank "<<grid->rank_in_col<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
-
+    int effective_nn = 2 * nn;
     Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, nn);
+    mrpt.grow_autotune(target_recall, effective_nn);
 
-    Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
-    Eigen::MatrixXf distances(data_matrix.cols(),nn);
+    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
+    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
 
     #pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
-      Eigen::VectorXi tempRow(nn);
-      Eigen::VectorXf tempDis(nn);
+      Eigen::VectorXi tempRow(effective_nn);
+      Eigen::VectorXf tempDis(effective_nn);
       mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
       neighbours.row(i)=tempRow;
       distances.row(i)=tempDis;
