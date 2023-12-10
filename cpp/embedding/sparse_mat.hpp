@@ -266,7 +266,7 @@ public:
     for(int i=0;i<handle.rowStart.size()-1;<i++){
       fout<<i<<" ";
       for(int j=handle.rowStart[i];j<handle.rowStart[i+1];j++){
-        fout<<handle.col_idx[j]<<" "<<;
+        fout<<handle.col_idx[j]<<" ";
       }
       fout<<endl;
     }
