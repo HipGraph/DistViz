@@ -206,7 +206,7 @@ public:
       }
     }
 
-    int effective_nn = 1.5 * nn;
+    int effective_nn = 2 * nn;
     Mrpt mrpt(data_matrix);
     mrpt.grow_autotune(target_recall, effective_nn);
 
