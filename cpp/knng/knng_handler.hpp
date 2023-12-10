@@ -206,11 +206,12 @@ public:
       }
     }
 
+    int effective_nn = 1.5 * nn;
     Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, (nn+1));
+    mrpt.grow_autotune(target_recall, effective_nn);
 
-    Eigen::MatrixXi neighbours(data_matrix.cols(),(nn+1));
-    Eigen::MatrixXf distances(data_matrix.cols(),(nn+1));
+    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
+    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
 
     int neighhour_size = (skip_self_loops)?nn-1:nn;
     output_knng->resize(data_matrix.cols()*neighhour_size);
@@ -220,8 +221,8 @@ public:
 
     #pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
-      Eigen::VectorXi tempRow(nn+1);
-      Eigen::VectorXf tempDis(nn+1);
+      Eigen::VectorXi tempRow(effective_nn);
+      Eigen::VectorXf tempDis(effective_nn);
       mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
       neighbours.row(i)=tempRow;
       distances.row(i)=tempDis;
