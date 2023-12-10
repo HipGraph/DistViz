@@ -208,6 +208,13 @@ public:
           (handler.get())->values[i] = coords[i].value;
           current_row_value++;
         }
+        if (expected_col<coords[num_coords-1].row){
+          while(expected_col<=coords[i].row){
+            (handler.get())->rowStart[index] = current_row_value;
+            index++;
+            expected_col++;
+          }
+        }
         (handler.get())->rowStart[index] = current_row_value;
       } else {
         int expected_col=0;
@@ -231,6 +238,14 @@ public:
           (handler.get())->col_idx[i] = coords[i].row;
           (handler.get())->values[i] = coords[i].value;
           current_row_value++;
+        }
+
+        if (expected_col<coords[num_coords-1].col){
+          while(expected_col<=coords[i].col){
+            (handler.get())->rowStart[index] = current_row_value;
+            index++;
+            expected_col++;
+          }
         }
         (handler.get())->rowStart[index] = current_row_value;
       }
