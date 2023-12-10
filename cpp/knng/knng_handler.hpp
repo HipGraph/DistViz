@@ -194,9 +194,8 @@ public:
   }
 
 
-  void build_local_KNNG(ValueType2DVector<VALUE_TYPE>* input_data, vector<Tuple<VALUE_TYPE>> *output_knng,
-                              int nn, float target_recall,bool print_output =false, string output_path="knng.txt",
-                              bool skip_self_loops=true) {
+  void build_local_KNNG(ValueType2DVector<VALUE_TYPE>* input_data, vector<Tuple<VALUE_TYPE>> *output_knng,int nn, float target_recall,
+                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true) {
 
     Eigen::MatrixXf data_matrix((*input_data)[0].size(), (*input_data).size());
 
@@ -208,10 +207,10 @@ public:
     }
 
     Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, nn);
+    mrpt.grow_autotune(target_recall, (nn+1));
 
-    Eigen::MatrixXi neighbours(data_matrix.cols(),nn);
-    Eigen::MatrixXf distances(data_matrix.cols(),nn);
+    Eigen::MatrixXi neighbours(data_matrix.cols(),(nn+1));
+    Eigen::MatrixXf distances(data_matrix.cols(),(nn+1));
 
     int neighhour_size = (skip_self_loops)?nn-1:nn;
     output_knng->resize(data_matrix.cols()*neighhour_size);
@@ -221,8 +220,8 @@ public:
 
     #pragma omp parallel for schedule (static)
     for(int i=0;i<data_matrix.cols();i++){
-      Eigen::VectorXi tempRow(nn);
-      Eigen::VectorXf tempDis(nn);
+      Eigen::VectorXi tempRow(nn+1);
+      Eigen::VectorXf tempDis(nn+1);
       mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
       neighbours.row(i)=tempRow;
       distances.row(i)=tempDis;
