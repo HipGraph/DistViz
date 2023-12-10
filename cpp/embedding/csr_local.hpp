@@ -180,7 +180,7 @@ public:
 
       (handler.get())->values.resize(max_nnz == 0 ? 1 : max_nnz);
       (handler.get())->col_idx.resize(max_nnz == 0 ? 1 : max_nnz);
-      (handler.get())->rowStart.resize(this->rows + 1);
+      (handler.get())->rowStart.resize((transpose)?this->cols+1:this->rows + 1);
 
       //    cout << " number of coordinates " << num_coords << endl;
       //      #pragma omp parallel for schedule (static)
