@@ -262,11 +262,11 @@ public:
     strcpy(stats, output_path.c_str());
     ofstream fout(stats, std::ios_base::app);
 
-    CSRHandle<INDEX_TYPE,VALUE_TYPE> handle = csr_local_data.get()->handler.get();
+    CSRHandle<INDEX_TYPE,VALUE_TYPE>* handle = csr_local_data.get()->handler.get();
     for(int i=0;i<(handle.rowStart.size()-1);i++){
       fout<<i<<" ";
-      for(int j=handle.rowStart[i];j<handle.rowStart[i+1];j++){
-        fout<<handle.col_idx[j]<<" ";
+      for(int j=(*handle).rowStart[i];j<(*handle).rowStart[i+1];j++){
+        fout<<(*handle).col_idx[j]<<" ";
       }
       fout<<endl;
     }
