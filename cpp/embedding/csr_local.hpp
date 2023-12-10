@@ -186,29 +186,51 @@ public:
       //      #pragma omp parallel for schedule (static)
 
       if (!transpose) {
+        int expected_col=0;
+        int current_row_value=0;
         set<INDEX_TYPE> dups;
         int index = 0;
         for (INDEX_TYPE i = 0; i < num_coords; i++) {
           if (dups.insert(coords[i].row).second) {
-            (handler.get())->rowStart[index] = (i==0)?0:i;
-            index++;
+            if (expected_col==coords[i].row) {
+              (handler.get())->rowStart[index] = current_row_value;
+              index++;
+            }else if (expected_col<coords[i].row){
+              while(expected_col<=coords[i].row){
+                (handler.get())->rowStart[index] = current_row_value;
+                index++;
+                expected_col++;
+              }
+            }
           }
           (handler.get())->col_idx[i] = coords[i].col;
           (handler.get())->values[i] = coords[i].value;
+          current_row_value++;
         }
-        (handler.get())->rowStart[index] = num_coords;
+        (handler.get())->rowStart[index] = current_row_value;
       } else {
+        int expected_col=0;
+        int current_row_value=0;
         set<INDEX_TYPE> dups;
         int index = 0;
         for (INDEX_TYPE i = 0; i < num_coords; i++) {
           if (dups.insert(coords[i].col).second) {
-            (handler.get())->rowStart[index] = (i==0)?0:i;
-            index++;
+            if (expected_col==coords[i].col){
+              (handler.get())->rowStart[index] = current_row_value;
+              index++;
+            }else if (expected_col<coords[i].col){
+              while(expected_col<=coords[i].col){
+                (handler.get())->rowStart[index] = current_row_value;
+                index++;
+                expected_col++;
+              }
+            }
           }
           (handler.get())->col_idx[i] = coords[i].row;
           (handler.get())->values[i] = coords[i].value;
+          current_row_value++;
         }
-        (handler.get())->rowStart[index] = num_coords;
+        (handler.get())->rowStart[index] = current_row_value;
       }
     }
   }
