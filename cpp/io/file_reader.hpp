@@ -186,13 +186,13 @@ static void fvecs_read(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
                       int no_of_datapoints,int dim, int rank, int world_size) {
   std::ifstream file(filename, std::ios::binary);
-
+  cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
   if (!file.is_open()) {
     // Handle file opening error
     std::cerr << "Error: Unable to open the file " << filename << std::endl;
     return;
   }
-
+  cout<<" rank  "<<rank<<"  openinig completed "<<filename<<endl;
   int nvecs;
   file.read(reinterpret_cast<char*>(&nvecs), sizeof(int));
   file.read(reinterpret_cast<char*>(&dim), sizeof(int));
