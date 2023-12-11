@@ -230,8 +230,8 @@ public:
     }
 
     // calculation of bins
-    //    int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
-    int no_of_bins = 7;
+//        int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
+    int no_of_bins = 28;
 
     //calculation of distributed median
     VALUE_TYPE *result = mathOp_ptr.get()->distributed_median (data, local_data_row_count, current_nodes,
