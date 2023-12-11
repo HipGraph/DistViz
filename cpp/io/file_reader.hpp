@@ -197,6 +197,8 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   file.read(reinterpret_cast<char*>(&nvecs), sizeof(int));
   file.read(reinterpret_cast<char*>(&dim), sizeof(int));
 
+  cout<<" rank  "<<rank<<"  nvecs "<<nvecs<<" dim "<<dim<<endl;
+
   int chunk_size = no_of_datapoints / world_size;
   int start_idx =0;
 
@@ -215,6 +217,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
     chunk_size = nvecs - start_idx;
   }
 
+  cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<endl;
   std::vector<float> data(chunk_size * dim);
 
   file.seekg(start_idx * 4 * dim, std::ios::beg);
@@ -225,6 +228,13 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
     std::vector<float> vec(dim);
     std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
     (*datamatrix)[i]=vec;
+    for(int k=0;k<dim;k++){
+      if (rank ==0){
+        cout<<vec[k]<<" ";
+      }
+
+    }
+    cout<<vec[k]<<endl;
   }
 
 }
