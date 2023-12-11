@@ -225,19 +225,6 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
 
 
-  for (int i = 0; i < chunk_size; ++i) {
-    std::vector<float> vec(dim);
-    std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
-    (*datamatrix)[i]=vec;
-    for(int k=0;k<dim;k++){
-      if (rank ==0){
-        cout<<vec[k]<<" ";
-      }
-
-    }
-    cout<<endl;
-  }
-
 }
 
 
