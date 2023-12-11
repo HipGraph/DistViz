@@ -298,6 +298,7 @@ public:
       child_data_tracker[left_index] = left_childs_global;
       child_data_tracker[right_index] = right_childs_global;
       if (depth == tree_depth - 2) {
+        cout<<" rank "<<grid->rank_in_col<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<endl;
         (*trees_leaf_first_indices_ptr)[tree][selected_leaf_left] = left_childs_global;
         (*trees_leaf_first_indices_ptr)[tree][selected_leaf_right] = right_childs_global;
       }
