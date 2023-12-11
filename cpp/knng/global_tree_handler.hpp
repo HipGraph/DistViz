@@ -231,7 +231,7 @@ public:
 
     // calculation of bins
 //        int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
-    int no_of_bins = 28;
+    int no_of_bins = 7;
 
     //calculation of distributed median
     VALUE_TYPE *result = mathOp_ptr.get()->distributed_median (data, local_data_row_count, current_nodes,
@@ -297,11 +297,11 @@ public:
         }
       }
 
-      //      cout<<" rank "<<rank<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<endl;
+      cout<<" rank "<<grid->rank_in_col<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<" depth"<<depth<<endl;
       child_data_tracker[left_index] = left_childs_global;
       child_data_tracker[right_index] = right_childs_global;
       if (depth == tree_depth - 2) {
-        cout<<" rank "<<grid->rank_in_col<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<endl;
+//        cout<<" rank "<<grid->rank_in_col<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<endl;
         (*trees_leaf_first_indices_ptr)[tree][selected_leaf_left] = left_childs_global;
         (*trees_leaf_first_indices_ptr)[tree][selected_leaf_right] = right_childs_global;
       }
