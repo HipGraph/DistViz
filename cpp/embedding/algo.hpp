@@ -649,7 +649,7 @@ public:
             repuls += forceDiff[d] * forceDiff[d];
           }
         }
-        repuls = repuls*(1/(1-(distance+0.0000001)));
+//        repuls = repuls*(1/(1-(distance+0.0000001)));
         DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
         for (int d = 0; d < embedding_dim; d++) {
           forceDiff[d] = scale(forceDiff[d] * d1);
