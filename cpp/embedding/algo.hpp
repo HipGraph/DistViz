@@ -587,7 +587,7 @@ public:
             }
             attrc  = attrc * (1/(0.0000001+ distance)); //TODO change this UMAP approach later
 
-            DENT d1 = -2.0 / (1.0 + attrc));
+            DENT d1 = -2.0 / (1.0 + attrc);
 
             for (int d = 0; d < embedding_dim; d++) {
               DENT l = scale(forceDiff[d] * d1);
