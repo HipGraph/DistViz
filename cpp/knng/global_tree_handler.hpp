@@ -239,7 +239,7 @@ public:
                                                    no_of_bins,
                                                    StorageFormat::RAW, grid->rank_in_col);
    if (grid->rank_in_col==0){
-     cout<<" median for depth "<<depth<<" median "<< (*result)<<endl
+     cout<<" median for depth "<<depth<<" median "<< (*result)<<endl;
    }
 
     for (int i = 0; i < current_nodes; i++)
