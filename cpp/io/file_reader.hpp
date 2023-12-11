@@ -204,14 +204,11 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   int start_idx =0;
 
   if (rank < world_size - 1){
-    datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dim));
-    start_idx = rank * chunk_size;
-    chunk_size = (rank+1) * chunk_size -1;
+    end_index = (rank+1) * chunk_size -1;
   }else if (rank == world_size - 1){
-    chunk_size = no_of_datapoints - chunk_size * (world_size - 1);
-    datamatrix->resize (chunk_size, vector<VALUE_TYPE> (dim));
-    start_idx = rank * chunk_size;
-    chunk_size = std::min((rank+1) * chunk_size -1,no_of_datapoints-1);
+    end_index = std::min((rank+1) * chunk_size -1,no_of_datapoints-1);
+    auto val = no_of_datapoints-(rank+1)*chunk_size;
+    chunk_size = std::min(chunk_size,val);
   }
 
   if (chunk_size == -1) {
@@ -224,6 +221,12 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   file.seekg(start_idx * 4 * dim, std::ios::beg);
   file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
 
+
+  for (int i = 0; i < chunk_size; ++i) {
+    std::vector<float> vec(dim);
+    std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
+    (*datamatrix)[i]=vec;
+  }
 
 }
 
