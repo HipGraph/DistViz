@@ -202,7 +202,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 
   int chunk_size = no_of_datapoints / world_size;
   int start_idx =0;
-
+  int end_index = 0;
   if (rank < world_size - 1){
     end_index = (rank+1) * chunk_size -1;
   }else if (rank == world_size - 1){
