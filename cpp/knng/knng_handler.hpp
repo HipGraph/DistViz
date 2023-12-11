@@ -162,9 +162,9 @@ public:
        (*local_nn_map_ptr)[global_index][k]=edge;
       }
     }
-
-    cout<<"rank "<<grid->rank_in_col<<" local nn slection completed :"<<endl;
     MPI_Barrier(grid->col_world);
+    cout<<"rank "<<grid->rank_in_col<<" local nn slection completed :"<<endl;
+
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 
     communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
