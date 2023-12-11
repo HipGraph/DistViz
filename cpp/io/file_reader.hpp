@@ -234,7 +234,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
       }
 
     }
-    cout<<vec[k]<<endl;
+    cout<<endl;
   }
 
 }
