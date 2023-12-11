@@ -216,16 +216,12 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<endl;
   std::vector<float> data(chunk_size * dim);
+  int offset = 8;
 
-  if (rank==0){
-    file.seekg(8, std::ios::beg);
-  }else{
-    file.seekg(start_idx * 4 * dim, std::ios::beg);
-  }
-
+  file.seekg(start_idx * 4 * dim+offset, std::ios::beg);
   file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
 
-
+  cout<<" rank  "<<rank<<"  data reading  completed"<<endl;
   for (int i = 0; i < chunk_size; ++i) {
     std::vector<float> vec(dim);
     std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
