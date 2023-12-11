@@ -213,7 +213,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   if (chunk_size == -1) {
     chunk_size = no_of_datapoints - start_idx;
   }
-  datamatrix->resize(chunk_size,dim);
+  datamatrix->resize(chunk_size, vector<VALUE_TYPE> (dim));
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<endl;
   std::vector<float> data(chunk_size * dim);
   int offset = 8;
