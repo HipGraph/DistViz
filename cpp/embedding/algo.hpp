@@ -200,7 +200,7 @@ public:
 
           //  pull model code
           if (alpha == 0) {
-            cout << " rank " << grid->rank_in_col << " executing pull model " << batches << endl;
+//            cout << " rank " << grid->rank_in_col << " executing pull model " << batches << endl;
             this->execute_pull_model_computations(
                 sendbuf_ptr.get(), update_ptr.get(), i, j,
                 this->data_comm_cache[j].get(), csr_block, batch_size,
@@ -549,6 +549,7 @@ public:
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           auto dst_id = csr_handle->col_idx[j];
+          auto distance = csr_handle->values[j];
           if (dst_id >= dst_start_index and dst_id < dst_end_index) {
             uint64_t local_dst =
                 dst_id - (grid)->rank_in_col *
@@ -584,7 +585,9 @@ public:
               }
               attrc += forceDiff[d] * forceDiff[d];
             }
-            DENT d1 = -2.0 / (1.0 + attrc);
+            attrc  = attrc * (1/(0.0000001+ distance); //TODO change this UMAP approach later
+
+            DENT d1 = -2.0 / (1.0 + attrc));
 
             for (int d = 0; d < embedding_dim; d++) {
               DENT l = scale(forceDiff[d] * d1);
@@ -624,8 +627,8 @@ public:
           fetch_from_cache = true;
         }
 
+        DENT repuls = 0;
         if (fetch_from_cache) {
-          DENT repuls = 0;
           unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>> &arrayMap =
               (*this->dense_local->tempCachePtr)[owner_rank];
           std::array<DENT, embedding_dim> &colvec =
@@ -637,15 +640,7 @@ public:
                 colvec[d];
             repuls += forceDiff[d] * forceDiff[d];
           }
-
-          DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
-          for (int d = 0; d < embedding_dim; d++) {
-            forceDiff[d] = scale(forceDiff[d] * d1);
-            (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
-          }
-
         } else {
-          DENT repuls = 0;
           for (int d = 0; d < embedding_dim; d++) {
             forceDiff[d] =
                 (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
@@ -653,11 +648,12 @@ public:
                     ->nCoordinates[local_col_id * embedding_dim + d];
             repuls += forceDiff[d] * forceDiff[d];
           }
-          DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
-          for (int d = 0; d < embedding_dim; d++) {
-            forceDiff[d] = scale(forceDiff[d] * d1);
-            (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
-          }
+        }
+        repuls = repuls*(1/(1-(distance+0.0000001)));
+        DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
+        for (int d = 0; d < embedding_dim; d++) {
+          forceDiff[d] = scale(forceDiff[d] * d1);
+          (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
         }
       }
     }
