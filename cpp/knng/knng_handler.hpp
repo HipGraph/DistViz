@@ -163,7 +163,7 @@ public:
       }
     }
 
-
+    cout<<"rank "<<grid->rank_in_col<<" local nn slection completed :"<<(*final_nn_map).size()<<endl;
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 
