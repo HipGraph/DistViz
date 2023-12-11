@@ -138,7 +138,8 @@ public:
                                                                                        nn);
 
     cout<<"rank "<<grid->rank_in_col<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
-    int effective_nn = 2 * nn;
+//    int effective_nn = 2 * nn;
+    int effective_nn =  nn;
     Mrpt mrpt(data_matrix);
     mrpt.grow_autotune(target_recall, effective_nn);
 
