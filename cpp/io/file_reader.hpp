@@ -201,14 +201,13 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   cout<<" rank  "<<rank<<"  nvecs "<<nvecs<<" dim "<<dim<<endl;
 
   int chunk_size = no_of_datapoints / world_size;
-  int start_idx =0;
+  int start_idx =rank*chunk_size;
   int end_index = 0;
   if (rank < world_size - 1){
     end_index = (rank+1) * chunk_size -1;
   }else if (rank == world_size - 1){
     end_index = std::min((rank+1) * chunk_size -1,no_of_datapoints-1);
-    auto val = no_of_datapoints-(rank+1)*chunk_size;
-    chunk_size = std::min(chunk_size,val);
+    chunk_size = no_of_datapoints-(rank)*chunk_size;
   }
 
   if (chunk_size == -1) {
@@ -218,7 +217,12 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<endl;
   std::vector<float> data(chunk_size * dim);
 
-  file.seekg(start_idx * 4 * dim, std::ios::beg);
+  if (rank==0){
+    file.seekg(8, std::ios::beg);
+  }else{
+    file.seekg(start_idx * 4 * dim, std::ios::beg);
+  }
+
   file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
 
 
@@ -227,7 +231,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
     std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
     (*datamatrix)[i]=vec;
   }
-
+  cout<<" rank  "<<rank<<"  data loading completed"<<endl;
 }
 
 
