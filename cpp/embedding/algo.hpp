@@ -585,7 +585,7 @@ public:
               }
               attrc += forceDiff[d] * forceDiff[d];
             }
-            attrc  = attrc * (1/(0.0000001+ distance); //TODO change this UMAP approach later
+            attrc  = attrc * (1/(0.0000001+ distance)); //TODO change this UMAP approach later
 
             DENT d1 = -2.0 / (1.0 + attrc));
 
