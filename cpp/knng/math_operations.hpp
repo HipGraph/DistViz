@@ -12,7 +12,7 @@ using namespace hipgraph::distviz::net;
 
 namespace hipgraph::distviz::knng {
 
-template <typename VALUE_TYPE>
+template <typename INDEX_TYPE, typename VALUE_TYPE>
 class MathOp {
  public:
   VALUE_TYPE *multiply_mat(VALUE_TYPE *A, VALUE_TYPE *B, int A_rows, int B_cols,
@@ -374,9 +374,6 @@ class MathOp {
       return pivot;
     }
   }
-
-
-
 
 };
 }

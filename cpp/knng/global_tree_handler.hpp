@@ -202,7 +202,7 @@ public:
     }
 
     //object for math operations
-    unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr;
+    unique_ptr<MathOp<INDEX_TYPE,VALUE_TYPE>> mathOp_ptr;
 
     vector<VALUE_TYPE> data(local_dataset_size);
 
