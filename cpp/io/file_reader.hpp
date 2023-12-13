@@ -246,7 +246,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 
 
 static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
-               int no_of_datapoints, int dim, Process3DGrid* grid) {
+                               uint64_t no_of_datapoints, int dim, Process3DGrid* grid) {
   MPI_File file;
   MPI_Status status;
 
@@ -257,10 +257,10 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 
   MPI_File_open(grid->col_world, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &file);
 
-  int nvecs, global_dim;
+  uint64_t nvecs, global_dim;
 
   if (rank == 0) {
-    MPI_File_read(file, &nvecs, 1, MPI_INT, &status);
+//    MPI_File_read(file, &nvecs, 1, MPI_INT, &status);
     MPI_File_read(file, &global_dim, 1, MPI_INT, &status);
   }
 
@@ -278,9 +278,9 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
     return;
   }
 
-  int chunk_size = no_of_datapoints / world_size;
-  int start_idx = rank * chunk_size;
-  int end_index = (rank < world_size - 1) ? ((rank + 1) * chunk_size - 1) : (no_of_datapoints - 1);
+  uint64_t chunk_size = no_of_datapoints / world_size;
+  uint64_t start_idx = rank * chunk_size;
+  uint64_t end_index = (rank < world_size - 1) ? ((rank + 1) * chunk_size - 1) : (no_of_datapoints - 1);
   chunk_size = end_index - start_idx + 1;
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<" end index "<<end_index<<endl;
   datamatrix->resize(chunk_size, vector<VALUE_TYPE>(dim));
