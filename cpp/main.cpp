@@ -166,8 +166,7 @@ int main(int argc, char* argv[]) {
   Eigen::VectorXi indices(nn), indices_exact(nn);
 
   std::cout << "calling data loading" << rank << " " << std::endl;
-  unique_ptr<ValueType2DVector<float>> data_matrix_ptr =
-      make_unique<ValueType2DVector<float>>();
+  unique_ptr<ValueType2DVector<float>> data_matrix_ptr = make_unique<ValueType2DVector<float>>();
   ;
   auto t = start_clock();
   if (file_format == 0){

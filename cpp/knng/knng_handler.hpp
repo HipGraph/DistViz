@@ -102,7 +102,7 @@ public:
     VALUE_TYPE* P = mathOp_ptr.get()->multiply_mat(row_data_array, B, this->data_dimension,
                                         global_tree_depth * this->ntrees,
                                         this->local_data_set_size,1.0);
-
+    cout << " rank " << grid->rank_in_col << " projected matrix created" << endl;
     // creating DRPTGlobal class
     GlobalTreeHandler<INDEX_TYPE,VALUE_TYPE> drpt_global = GlobalTreeHandler<INDEX_TYPE,VALUE_TYPE>(P,
                                                     B,this->grid,
