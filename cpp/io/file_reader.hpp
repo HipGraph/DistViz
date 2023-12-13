@@ -243,7 +243,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 }
 
 
-void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
+static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
                int no_of_datapoints, int dim, int rank, int world_size) {
   MPI_File file;
   MPI_Status status;
