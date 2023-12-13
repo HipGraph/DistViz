@@ -333,14 +333,15 @@ class MathOp {
                                           int no_of_bins,
                                           StorageFormat format,
                                           Process3DGrid* grid) {
+    cout<<" rank "<<grid->rank_in_col<< " distributed_median_quick_select "<<<<endl;
     auto k = (data.size()%2==0)?data.size()/2:data.size()/2+1;
     VALUE_TYPE local_median = select_k(k,data);
 
     vector<VALUE_TYPE> all_medians(grid->col_world_size,0);
     vector<VALUE_TYPE> local_medians(grid->col_world_size,local_median);
-
+    cout<<" rank "<<grid->rank_in_col<< " distributed_median_quick_select local completed "<<endl;
     MPI_Alltoall(local_medians.data(),1,MPI_VALUE_TYPE,all_medians.data(),1,MPI_VALUE_TYPE,grid->col_world);
-
+    cout<<" rank "<<grid->rank_in_col<< " distributed_median_quick_select comm completed "<<endl;
     auto k_global = (all_medians.size()%2==0)?all_medians.size()/2:all_medians.size()/2+1;
     return select_k(k_global,all_medians);
   }
