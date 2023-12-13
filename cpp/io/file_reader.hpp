@@ -290,7 +290,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
     char error_string[MPI_MAX_ERROR_STRING];
     int length;
     MPI_Error_string(status.MPI_ERROR, error_string, &length);
-    cout << "MPI File Read Error: " << error_string << endl;
+    cout << "MPI File Read Error: "<<rank << error_string << endl;
     // Handle the error or terminate the program
   }else {
     cout << " rank  " << rank << " MPI file read success " << endl;
