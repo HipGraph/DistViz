@@ -215,7 +215,7 @@ int main(int argc, char* argv[]) {
   stop_clock_and_add(t, "KNNG Total Time");
 
   t = start_clock();
-  cout<<" rank "<<rank<<" output size: "<<knng_graph_ptr.get()->size()<<endl;
+//  cout<<" rank "<<rank<<" output size: "<<knng_graph_ptr.get()->size()<<endl;
 
 //  initialize_mpi_datatypes<int, float, embedding_dimension>();
 //
