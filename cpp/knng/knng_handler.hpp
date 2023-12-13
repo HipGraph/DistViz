@@ -313,8 +313,8 @@ public:
 
   void send_min_max_distance_to_data_owner(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
                                       vector<index_distance_pair<INDEX_TYPE>>* out_index_dis,
-                                                                                      vector<INDEX_TYPE>* receiving_indices_count,
-                                                                                      vector<INDEX_TYPE>* disps_receiving_indices,
+                                                                                      vector<int>* receiving_indices_count,
+                                                                                      vector<int>* disps_receiving_indices,
                                                                                      int &send_count,int &total_receiving, int nn) {
     unique_ptr<vector<int>> sending_indices_count_ptr = make_unique<vector<int>>(grid->col_world_size);
     unique_ptr<vector<int>> disps_sending_indices_ptr = make_unique<vector<int>>(grid->col_world_size);
@@ -369,7 +369,7 @@ public:
   }
 //
 //
-  void finalize_final_dataowner(vector<INDEX_TYPE>* receiving_indices_count,vector<INDEX_TYPE> *disps_receiving_indices,
+  void finalize_final_dataowner(vector<int>* receiving_indices_count,vector<int> *disps_receiving_indices,
                                              vector<index_distance_pair<INDEX_TYPE>> *out_index_dis,
                                 vector<index_distance_pair<INDEX_TYPE>> *final_sent_indices_to_rank_map) {
 
