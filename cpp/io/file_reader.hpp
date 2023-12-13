@@ -285,51 +285,34 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<" end index "<<end_index<<endl;
   datamatrix->resize(chunk_size, vector<VALUE_TYPE>(dim));
 
-  vector<float> data(chunk_size * dim);
+  shared_ptr<vector<float>> data = make_shared<vector<float>>(chunk_size * dim);
 
   //MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
   MPI_Offset file_offset = start_idx * 4 * dim + 8;
   MPI_Status status_read;
-  MPI_File_read_at_all(file, file_offset, data.data(), chunk_size * dim, MPI_FLOAT, &status_read);
+  MPI_File_read_at_all(file, file_offset, (*data).data(), chunk_size * dim, MPI_FLOAT, &status_read);
 
-  int error_code;
-  MPI_Error_class(status_read.MPI_ERROR, &error_code);
-  if (error_code != MPI_SUCCESS) {
-    char error_string[MPI_MAX_ERROR_STRING];
-    int length;
-    MPI_Error_string(status_read.MPI_ERROR, error_string, &length);
-    cout << " MPI File Read Error: "<< rank << error_string << endl;
-    // Handle the error or terminate the program
-  }else {
-    cout << " rank  " << rank << " MPI file read success " << endl;
-  }
+//  int error_code;
+//  MPI_Error_class(status_read.MPI_ERROR, &error_code);
+//  if (error_code != MPI_SUCCESS) {
+//    char error_string[MPI_MAX_ERROR_STRING];
+//    int length;
+//    MPI_Error_string(status_read.MPI_ERROR, error_string, &length);
+//    cout << " MPI File Read Error: "<< rank << error_string << endl;
+//    // Handle the error or terminate the program
+//  }else {
+//    cout << " rank  " << rank << " MPI file read success " << endl;
+//  }
 
   const double scaleParameter = 10000;
 
   for (int i = 0; i < chunk_size; ++i) {
     vector<float> vec(dim);
-    copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
+    copy( (*data).begin() + i * dim, (*data).begin() + (i + 1) * dim, vec.begin());
     transform(vec.begin(), vec.end(), vec.begin(),
               [scaleParameter](double value) { return value * scaleParameter; });
     (*datamatrix)[i] = vec;
   }
-
-////  MPI_File_close(&file);
-//  cout<<" rank  "<<rank<<" MPI file close success "<<endl;
-//  // MPI Barrier to synchronize all processes before writing to file
-//  MPI_Barrier(MPI_COMM_WORLD);
-//  cout<<" rank  "<<rank<<" MPI barrieer passed "<<endl;
-//   Each process writes its data to a separate file
-//  ofstream fout;
-//  string name = "data_" + to_string(rank) + ".txt";
-//  fout.open(name, ios::app);
-//  cout<<" rank  "<<rank<<" Writing to file "<<endl;
-//  for (int i = 0; i < chunk_size; ++i) {
-//    for (int j = 0; j < dim; ++j) {
-//      fout << (*datamatrix)[i][j] << " ";
-//    }
-//    fout << endl;
-//  }
 
 //  fout.close();
   MPI_File_close(&file);
