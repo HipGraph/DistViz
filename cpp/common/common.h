@@ -2,7 +2,7 @@
 #define DISTVIZ_CPP_CORE_COMMON_H_
 
 #define MPI_VALUE_TYPE MPI_FLOAT
-#define MPI_INDEX_TYPE MPI_INT
+#define MPI_INDEX_TYPE MPI_UINT64_T
 
 #include <vector>
 #include "mpi_type_creator.hpp"
