@@ -350,8 +350,6 @@ class MathOp {
     VALUE_TYPE global = select_k(k_global,all_medians);
     cout<<" rank "<<grid->rank_in_col<< " local median "<<local_median<<" global median "<<global<<" local max "<<max_value<<" data vector size "<<data.size()<<endl;
 
-    }
-
     return global;
   }
 
