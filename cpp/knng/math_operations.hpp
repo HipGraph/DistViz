@@ -82,7 +82,7 @@ class MathOp {
 
     cout<<": rows "<<rows<<endl;
 
-    INDEX_TYPE total_size = cols * rows;
+    uint64_t total_size = cols * rows;
     cout<<": data allocation  before "<<endl;
     VALUE_TYPE *arr = (VALUE_TYPE *)malloc(sizeof(VALUE_TYPE) * total_size);
     cout<<": data allocation  success "<<endl;
