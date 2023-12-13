@@ -293,7 +293,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
     (*datamatrix)[i] = vec;
   }
 
-  MPI_File_close(&file);
+//  MPI_File_close(&file);
   cout<<" rank  "<<rank<<" MPI file close success "<<endl;
   // MPI Barrier to synchronize all processes before writing to file
 //  MPI_Barrier(MPI_COMM_WORLD);
