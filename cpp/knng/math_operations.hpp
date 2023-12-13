@@ -70,37 +70,26 @@ class MathOp {
   }
 
   VALUE_TYPE *convert_to_row_major_format(vector<vector<VALUE_TYPE>>* data, int rank) {
-    cout<<": calling data "<<endl;
     if (data->empty()) {
       return (VALUE_TYPE *)malloc(0);
     }
 
     INDEX_TYPE cols = data->size();
-    cout<<": size "<<cols<<" rank "<<rank<<endl;
-
     INDEX_TYPE rows = (*data)[0].size();
 
-    cout<<": rows "<<rows<<" rank "<<rank<<endl;
-
     uint64_t total_size = static_cast<uint64_t>(cols) * static_cast<uint64_t>(rows);
-    cout<<": data allocation  before "<<endl;
     VALUE_TYPE *arr = (VALUE_TYPE *)malloc(sizeof(VALUE_TYPE) * total_size);
-    cout<<": data allocation  success "<<total_size<<" rank "<<rank<<endl;
-//#pragma omp parallel for
-    for (INDEX_TYPE i = 0; i < rows; i++) {
-      for (INDEX_TYPE j = 0; j < cols; j++) {
-        uint64_t access_index = j + i * cols;
-        if (rank==0) {
-          cout << ": access index  "<<access_index << endl;
-        }
-        arr[access_index] = 0.0;
-      }
-    }
-    cout<<": data inintialization  success "<<endl;
 #pragma omp parallel for
     for (INDEX_TYPE i = 0; i < rows; i++) {
       for (INDEX_TYPE j = 0; j < cols; j++) {
-        uint64_t access_index = j + i * cols;
+        uint64_t access_index = static_cast<uint64_t>(j + i * cols);
+        arr[access_index] = 0.0;
+      }
+    }
+#pragma omp parallel for
+    for (INDEX_TYPE i = 0; i < rows; i++) {
+      for (INDEX_TYPE j = 0; j < cols; j++) {
+        uint64_t access_index = static_cast<uint64_t>(j + i * cols);
         arr[access_index] = (*data)[j][i];
       }
     }
