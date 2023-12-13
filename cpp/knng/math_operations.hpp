@@ -92,7 +92,7 @@ class MathOp {
         arr[j + i * cols] = 0.0;
       }
     }
-
+    cout<<": data inintialization  success "<<endl;
 #pragma omp parallel for
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
