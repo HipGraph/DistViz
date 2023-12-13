@@ -349,6 +349,14 @@ class MathOp {
     auto k_global = (all_medians.size()%2==0)?all_medians.size()/2:all_medians.size()/2+1;
     VALUE_TYPE global = select_k(k_global,all_medians);
     cout<<" rank "<<grid->rank_in_col<< " local median "<<local_median<<" global median "<<global<<" local max "<<max_value<<" data vector size "<<data.size()<<endl;
+
+    if (local_median==0 and max_value==0){
+      for(int i=0;i<data.size();i++){
+        cout<<" i "<<data[i]<<" ";
+      }
+      cout<<endl;
+    }
+
     return global;
   }
 
