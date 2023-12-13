@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include "../common/common.h"
+#include "../net/process_3D_grid.hpp"
 
 using namespace std;
 using namespace hipgraph::distviz::common;
@@ -244,13 +245,16 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 
 
 static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
-               int no_of_datapoints, int dim, int rank, int world_size) {
+               int no_of_datapoints, int dim, Process3DGrid* grid) {
   MPI_File file;
   MPI_Status status;
 
+  int ranK = grid->rank_in_col;
+  int world_size = grid->col_world_size;
+
   cout << "Rank " << rank << " opening file " << filename << endl;
 
-  MPI_File_open(MPI_COMM_WORLD, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &file);
+  MPI_File_open(grid->com_world, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &file);
 
   int nvecs, global_dim;
 
@@ -263,13 +267,13 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   MPI_File_get_size(file, &file_size);
 
   // Broadcast global_dim to all processes
-  MPI_Bcast(&global_dim, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&global_dim, 1, MPI_INT, 0, grid->com_world);
 
   cout<<" rank  "<<rank<<"  No of vectors  "<<nvecs<<" global_dim "<<global_dim<<endl;
 
   if (dim != global_dim) {
     cout << "Error: Dimension mismatch!" << endl;
-    MPI_Abort(MPI_COMM_WORLD, 1);
+    MPI_Abort(grid->com_world, 1);
     return;
   }
 
@@ -281,11 +285,11 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   datamatrix->resize(chunk_size, vector<VALUE_TYPE>(dim));
 
   vector<float> data(chunk_size * dim);
-  MPI_Offset offset = 8;
 
   //MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
-  MPI_Offset file_offset = start_idx * 4 * dim + offset;
-  MPI_File_read_at_all(file, file_offset, data.data(), chunk_size * dim, MPI_FLOAT, MPI_STATUS_IGNORE);
+  MPI_Offset file_offset = start_idx * 4 * dim + 8;
+  MPI_Status status;
+  MPI_File_read_at_all(file, file_offset, data.data(), chunk_size * dim, MPI_FLOAT, status);
 
   int error_code;
   MPI_Error_class(status.MPI_ERROR, &error_code);
