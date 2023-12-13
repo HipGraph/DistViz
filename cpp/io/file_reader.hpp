@@ -260,7 +260,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   uint64_t nvecs, global_dim;
 
   if (rank == 0) {
-//    MPI_File_read(file, &nvecs, 1, MPI_INT, &status);
+    MPI_File_read(file, &nvecs, 1, MPI_INT, &status);
     MPI_File_read(file, &global_dim, 1, MPI_INT, &status);
   }
 
