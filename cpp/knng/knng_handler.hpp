@@ -87,7 +87,7 @@ public:
                               bool print_output =false, string output_path="knng.txt",
                               bool skip_self_loops=true) {
 
-    unique_ptr<MathOp<VALUE_TYPE>> mathOp_ptr; //class uses for math operations
+    unique_ptr<MathOp<INDEX_TYPE,VALUE_TYPE>> mathOp_ptr; //class uses for math operations
     VALUE_TYPE* row_data_array = mathOp_ptr.get()->convert_to_row_major_format(input_data); // this algorithm assumes row major format for operations
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
 
