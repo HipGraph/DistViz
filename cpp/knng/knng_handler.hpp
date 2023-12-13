@@ -491,8 +491,8 @@ public:
                                                 map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,
                                                 map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_sending_map,
                                                 map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>*  final_nn_map,
-                                                vector<INDEX_TYPE>* sending_selected_indices_count,
-                                                 vector<INDEX_TYPE>* sending_selected_indices_nn_count){
+                                                vector<int>* sending_selected_indices_count,
+                                                 vector<int>* sending_selected_indices_nn_count){
 
     for (int i = 0;i < grid->col_world_size;i++)
     {
