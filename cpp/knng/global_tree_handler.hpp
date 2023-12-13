@@ -273,7 +273,7 @@ public:
                                                                             7,
                                                                             StorageFormat::RAW,grid);
 
-      cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<<median<<endl;
+//      cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<<median<<endl;
 
       //store median in tree_splits
       (*trees_splits_ptr)[tree][split_starting_index + i] = median;
