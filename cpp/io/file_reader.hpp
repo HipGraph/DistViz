@@ -314,6 +314,19 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
     (*datamatrix)[i] = vec;
   }
 
+  ofstream fout;
+  string file_name = "/pscratch/sd/i/isjarana/dist_viz_datasets/large_datasets/YANDEX/data_"+to_string(rank)+".txt";
+  fout.open(file_name, std::ios_base::app);
+   for(int i=0;i<chunk_size;i++){
+     for(int j=0;j<dim;j++){
+      fout<<(*datamatrix)[i][j]<<" ";
+     }
+     fout<<endl;
+   }
+
+
+
+
 //  fout.close();
   MPI_File_close(&file);
 }

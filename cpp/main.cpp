@@ -181,35 +181,35 @@ int main(int argc, char* argv[]) {
                                     grid.get());
 
     }
-  stop_clock_and_add(t, "IO Time");
-
-  cout<<"rank "<<grid->rank_in_col<<" data_matrix_ptr size "<<data_matrix_ptr.get()->size()<<"* "<<(*data_matrix_ptr.get())[7499].size()<<endl;
-  MPI_Barrier(MPI_COMM_WORLD);
-  std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
-
-  std::cout << "calling KNNGHandler rank "<<rank<<" with input matrix:  "<<data_matrix_ptr->size()<<"*"<<(*data_matrix_ptr)[0].size()<<std::endl;
-  auto knng_handler = unique_ptr<KNNGHandler<int ,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
-                                                                                       local_tree_offset,  data_set_size,
-                                                                                      data_matrix_ptr.get()->size(),
-                                                                                      dimension,  grid.get()));
-
-  std::cout << "calling grow trees"<< rank<< " "<<std::endl;
-
-  shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
-   t = start_clock();
-   if (grid.get()->col_world_size==1){
-     knng_handler.get()->build_local_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),nn,
-                                                target_local_recall,
-                                                generate_knng_output,
-                                                output_path+"/knng.txt");
-
-   } else{
-     knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),
-                                                density,use_locality_optimization,nn,
-                                                target_local_recall,
-                                                generate_knng_output,
-                                                output_path+"/knng.txt");
-   }
+//  stop_clock_and_add(t, "IO Time");
+//
+//  cout<<"rank "<<grid->rank_in_col<<" data_matrix_ptr size "<<data_matrix_ptr.get()->size()<<"* "<<(*data_matrix_ptr.get())[7499].size()<<endl;
+//  MPI_Barrier(MPI_COMM_WORLD);
+//  std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
+//
+//  std::cout << "calling KNNGHandler rank "<<rank<<" with input matrix:  "<<data_matrix_ptr->size()<<"*"<<(*data_matrix_ptr)[0].size()<<std::endl;
+//  auto knng_handler = unique_ptr<KNNGHandler<int ,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
+//                                                                                       local_tree_offset,  data_set_size,
+//                                                                                      data_matrix_ptr.get()->size(),
+//                                                                                      dimension,  grid.get()));
+//
+//  std::cout << "calling grow trees"<< rank<< " "<<std::endl;
+//
+//  shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
+//   t = start_clock();
+//   if (grid.get()->col_world_size==1){
+//     knng_handler.get()->build_local_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),nn,
+//                                                target_local_recall,
+//                                                generate_knng_output,
+//                                                output_path+"/knng.txt");
+//
+//   } else{
+//     knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),
+//                                                density,use_locality_optimization,nn,
+//                                                target_local_recall,
+//                                                generate_knng_output,
+//                                                output_path+"/knng.txt");
+//   }
 
    std::cout << "calling grow trees completed"<< rank<< " "<<std::endl;
   stop_clock_and_add(t, "KNNG Total Time");
