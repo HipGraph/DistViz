@@ -280,10 +280,11 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   vector<float> data(chunk_size * dim);
   MPI_Offset offset = 8;
 
-//  MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
+  //MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
   MPI_Offset file_offset = start_idx * 4 * dim + offset;
   MPI_File_read_at_all(file, file_offset, data.data(), chunk_size * dim, MPI_FLOAT, MPI_STATUS_IGNORE);
   cout<<" rank  "<<rank<<" MPI file read success "<<endl;
+
   const double scaleParameter = 10000;
 
   for (int i = 0; i < chunk_size; ++i) {
