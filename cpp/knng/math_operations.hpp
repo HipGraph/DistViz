@@ -348,7 +348,7 @@ class MathOp {
 //    cout<<" rank "<<grid->rank_in_col<< " distributed_median_quick_select comm completed "<<endl;
     auto k_global = (all_medians.size()%2==0)?all_medians.size()/2:all_medians.size()/2+1;
     VALUE_TYPE global = select_k(k_global,all_medians);
-    cout<<" rank "<<grid->rank_in_col<< " local median "<<local_median<<" global median "<<global<<" local max "<<max_value<<endl;
+    cout<<" rank "<<grid->rank_in_col<< " local median "<<local_median<<" global median "<<global<<" local max "<<max_value<<" data vector size "<<data.size()<<endl;
     return global;
   }
 
