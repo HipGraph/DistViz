@@ -83,8 +83,8 @@ class MathOp {
     for (INDEX_TYPE i = 0; i < rows; i++) {
       for (INDEX_TYPE j = 0; j < cols; j++) {
         uint64_t access_index = static_cast<uint64_t>(j) + static_cast<uint64_t>(i) * static_cast<uint64_t>(cols);
-        if (rank==0){
-          cout<<" access index "<<access_index<<endl;
+        if (rank==0 and access_index>= total_size){
+          cout<<" invalid access index "<<access_index<<endl;
         }
         arr[access_index] = 0.0;
       }
