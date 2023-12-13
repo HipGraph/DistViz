@@ -270,10 +270,10 @@ public:
 
       VALUE_TYPE median = mathOp_ptr.get()->distributed_median_quick_select(data, local_data_row_count, current_nodes,
                                                                             global_data_row_count,
-                                                                            no_of_bins,
+                                                                            7,
                                                                             StorageFormat::RAW,grid);
 
-      cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<< (*result[i])<<"q_select median"<<median<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<<median<<endl;
 
       //store median in tree_splits
       (*trees_splits_ptr)[tree][split_starting_index + i] = median;
@@ -336,7 +336,7 @@ public:
 
     this->derive_global_datavector_sizes(child_data_tracker,global_size_vector,current_nodes,next_split);
 
-    free (result);
+//    free (result);
   }
 
   void calculate_tree_leaf_correlation() {
