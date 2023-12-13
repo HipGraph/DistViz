@@ -260,8 +260,8 @@ public:
 
 
 
-    shared_ptr<vector<INDEX_TYPE>> receiving_indices_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-    shared_ptr<vector<INDEX_TYPE>> disps_receiving_indices = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<int>> receiving_indices_count = make_shared<vector<int>>(grid->col_world_size);
+    shared_ptr<vector<int>> disps_receiving_indices = make_shared<vector<int>>(grid->col_world_size);
 
     int send_count = 0;
     int total_receving = 0;
@@ -294,10 +294,10 @@ public:
                              final_sent_indices_to_rank_map.get(),
                              final_indices_allocation.get());
 
-    shared_ptr<vector<INDEX_TYPE>> sending_selected_indices_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-    shared_ptr<vector<INDEX_TYPE>> sending_selected_indices_nn_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-    shared_ptr<vector<INDEX_TYPE>> receiving_selected_indices_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-    shared_ptr<vector<INDEX_TYPE>> receiving_selected_indices_nn_count = make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<int>> sending_selected_indices_count = make_shared<vector<int>>(grid->col_world_size);
+    shared_ptr<vector<int>> sending_selected_indices_nn_count = make_shared<vector<int>>(grid->col_world_size);
+    shared_ptr<vector<int>> receiving_selected_indices_count = make_shared<vector<int>>(grid->col_world_size);
+    shared_ptr<vector<int>> receiving_selected_indices_nn_count = make_shared<vector<int>>(grid->col_world_size);
 
     //	//select final nns to be forwared to dataowners
     select_final_forwarding_nns(final_indices_allocation.get(),local_nns,
