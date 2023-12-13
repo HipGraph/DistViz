@@ -222,12 +222,22 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
   const double scaleParameter = 10000;
   cout<<" rank  "<<rank<<"  data reading  completed"<<endl;
+
+  ofstream fout;
+  string name = "data_"+to_string(rank)+".txt";
+  fout.open(name, std::ios_base::app);
+
+
   for (int i = 0; i < chunk_size; ++i) {
     std::vector<float> vec(dim);
     std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
     std::transform(vec.begin(), vec.end(), vec.begin(),
                    [scaleParameter](double value) { return value * scaleParameter; });
     (*datamatrix)[i]=vec;
+    for(int j=0;j<vec.size();j++){
+      fout<<vec[j]<<" "
+    }
+    fout<<endl;
   }
   cout<<" rank  "<<rank<<"  data loading completed"<<endl;
 }
