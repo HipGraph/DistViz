@@ -235,7 +235,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
                    [scaleParameter](double value) { return value * scaleParameter; });
     (*datamatrix)[i]=vec;
     for(int j=0;j<vec.size();j++){
-      fout<<vec[j]<<" "
+      fout<<vec[j]<<" ";
     }
     fout<<endl;
   }
