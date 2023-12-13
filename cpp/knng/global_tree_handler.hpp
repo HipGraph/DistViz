@@ -230,24 +230,24 @@ public:
     }
 
     // calculation of bins
-//        int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
-//    int no_of_bins = 7;
-//
-//    //calculation of distributed median
-//    VALUE_TYPE *result = mathOp_ptr.get()->distributed_median (data, local_data_row_count, current_nodes,
-//                                                   global_data_row_count,
-//                                                   no_of_bins,
-//                                                   StorageFormat::RAW, grid->rank_in_col);
-//
+        int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
+    int no_of_bins = 7;
+
+    //calculation of distributed median
+    VALUE_TYPE *result = mathOp_ptr.get()->distributed_median (data, local_data_row_count, current_nodes,
+                                                   global_data_row_count,
+                                                   no_of_bins,
+                                                   StorageFormat::RAW, grid->rank_in_col);
+
 //    VALUE_TYPE median_q_select  = mathOp_ptr.get()->distributed_median_quick_select(data, local_data_row_count, current_nodes,
 //                                                      global_data_row_count,
 //                                                      no_of_bins,
 //                                                      StorageFormat::RAW,grid);
 
-//   if (grid->rank_in_col==0){
-//     cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<< (*result)<<"q_select median"<<median_q_select<<endl;
-//   }
-//      *result = median_q_select;
+   if (grid->rank_in_col==0){
+     cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<< (*result)<<"q_select median"<<median_q_select<<endl;
+   }
+      *result = median_q_select;
 
     for (int i = 0; i < current_nodes; i++)
     {
@@ -258,20 +258,22 @@ public:
       int selected_leaf_right = selected_leaf_left + 1;
 
       vector<DataNode<INDEX_TYPE,VALUE_TYPE>> data_vector = child_data_tracker[split_starting_index + i];
-      vector<VALUE_TYPE> data(data_vector.size());
+//      vector<VALUE_TYPE> data(data_vector.size());
 
-     #pragma omp parallel for
-      for (int j = 0; j < data_vector.size (); j++)
-      {
-        data[j] = data_vector[j].value;
-      }
+      median =  *result[i];
 
-
-
-      VALUE_TYPE median = mathOp_ptr.get()->distributed_median_quick_select(data, local_data_row_count, current_nodes,
-                                                                            global_data_row_count,
-                                                                            7,
-                                                                            StorageFormat::RAW,grid);
+//     #pragma omp parallel for
+//      for (int j = 0; j < data_vector.size (); j++)
+//      {
+//        data[j] = data_vector[j].value;
+//      }
+//
+//
+//
+//      VALUE_TYPE median = mathOp_ptr.get()->distributed_median_quick_select(data, local_data_row_count, current_nodes,
+//                                                                            global_data_row_count,
+//                                                                            7,
+//                                                                            StorageFormat::RAW,grid);
 
 //      cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<<median<<endl;
 
