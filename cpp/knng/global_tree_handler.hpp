@@ -258,7 +258,7 @@ public:
       vector<DataNode<INDEX_TYPE,VALUE_TYPE>> data_vector = child_data_tracker[split_starting_index + i];
 //      vector<VALUE_TYPE> data(data_vector.size());
 
-      auto median =  *result[i];
+      auto median =  (*result)[i];
 
       if (grid->rank_in_col==0){
         cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<< median<<endl;
