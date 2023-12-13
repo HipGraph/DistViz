@@ -34,7 +34,7 @@ class MathOp {
   VALUE_TYPE *build_sparse_local_random_matrix(int rows, int cols,float density, int seed){
 
     VALUE_TYPE *A;
-    int size = rows * cols;
+    uint64_t size = rows * cols;
     A = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * size);
 
     std::mt19937 gen (seed);
@@ -89,14 +89,16 @@ class MathOp {
 #pragma omp parallel for
     for (INDEX_TYPE i = 0; i < rows; i++) {
       for (INDEX_TYPE j = 0; j < cols; j++) {
-        arr[j + i * cols] = 0.0;
+        uint64_t access_index = j + i * cols;
+        arr[access_index] = 0.0;
       }
     }
     cout<<": data inintialization  success "<<endl;
 #pragma omp parallel for
     for (INDEX_TYPE i = 0; i < rows; i++) {
       for (INDEX_TYPE j = 0; j < cols; j++) {
-        arr[j + i * cols] = (*data)[j][i];
+        uint64_t access_index = j + i * cols;
+        arr[access_index] = (*data)[j][i];
       }
     }
     return arr;
