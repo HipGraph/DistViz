@@ -316,8 +316,8 @@ public:
                                                                                       vector<INDEX_TYPE>* receiving_indices_count,
                                                                                       vector<INDEX_TYPE>* disps_receiving_indices,
                                                                                      int &send_count,int &total_receiving, int nn) {
-    unique_ptr<vector<INDEX_TYPE>> sending_indices_count_ptr = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> disps_sending_indices_ptr = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<int>> sending_indices_count_ptr = make_unique<vector<int>>(grid->col_world_size);
+    unique_ptr<vector<int>> disps_sending_indices_ptr = make_unique<vector<int>>(grid->col_world_size);
 
     unique_ptr<vector<set<INDEX_TYPE>>> process_se_indexes_ptr = make_unique<vector<set<INDEX_TYPE>>>(grid->col_world_size);
     for (auto it = (*local_nns).begin(); it != (*local_nns).end(); ++it) {
@@ -408,8 +408,8 @@ public:
   }
 //
   vector<vector<index_distance_pair<INDEX_TYPE>>>* announce_final_dataowner(int total_receving,
-                                                               vector<INDEX_TYPE> *receiving_indices_count,
-                                                               vector<INDEX_TYPE> *disps_receiving_indices,
+                                                               vector<int> *receiving_indices_count,
+                                                               vector<int> *disps_receiving_indices,
                                                                vector<index_distance_pair<INDEX_TYPE>> *out_index_dis,
                                                                vector<index_distance_pair<INDEX_TYPE>> *final_sent_indices_to_rank_map,
                                                                             vector<vector<index_distance_pair<INDEX_TYPE>>>* final_indices_allocation) {
@@ -543,7 +543,7 @@ public:
 
   }
 //
-  void send_nns(vector<INDEX_TYPE> *sending_selected_indices_count,vector<INDEX_TYPE> *sending_selected_indices_nn_count,vector<INDEX_TYPE> *receiving_selected_indices_count,
+  void send_nns(vector<int> *sending_selected_indices_count,vector<int> *sending_selected_indices_nn_count,vector<int> *receiving_selected_indices_count,
                              std::map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_map,
                              std::map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* final_nn_sending_map,
                              vector<vector<index_distance_pair<INDEX_TYPE>>>* final_indices_allocation) {
@@ -557,10 +557,10 @@ public:
 
     stop_clock_and_add(t, "KNNG Communication Time");
 
-    unique_ptr<vector<INDEX_TYPE>> disps_receiving_selected_indices = make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> disps_sending_selected_indices =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> disps_sending_selected_nn_indices =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
-    unique_ptr<vector<INDEX_TYPE>> disps_receiving_selected_nn_indices =  make_unique<vector<INDEX_TYPE>>(grid->col_world_size);
+    unique_ptr<vector<int>> disps_receiving_selected_indices = make_unique<vector<int>>(grid->col_world_size);
+    unique_ptr<vector<int>> disps_sending_selected_indices =  make_unique<vector<int>>(grid->col_world_size);
+    unique_ptr<vector<int>> disps_sending_selected_nn_indices =  make_unique<vector<int>>(grid->col_world_size);
+    unique_ptr<vector<int>> disps_receiving_selected_nn_indices =  make_unique<vector<int>>(grid->col_world_size);
 
 
     int total_selected_indices_count=0;
@@ -582,7 +582,7 @@ public:
 
     unique_ptr<vector<INDEX_TYPE>> sending_selected_indices = make_unique<vector<INDEX_TYPE>>(total_selected_indices_count);
 
-    unique_ptr<vector<INDEX_TYPE>> sending_selected_nn_count_for_each_index = make_unique<vector<INDEX_TYPE>>(total_selected_indices_count);
+    unique_ptr<vector<int>> sending_selected_nn_count_for_each_index = make_unique<vector<int>>(total_selected_indices_count);
 
     unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> sending_selected_nn = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_selected_indices_nn_count);
 
@@ -616,8 +616,8 @@ public:
       }
     }
 
-    unique_ptr<vector<INDEX_TYPE>> receiving_selected_nn_indices_count = make_unique<vector<INDEX_TYPE>>(total_receiving_count);
-    unique_ptr<vector<INDEX_TYPE>> receiving_selected_indices = make_unique<vector<INDEX_TYPE>>(total_receiving_count);
+    unique_ptr<vector<int>> receiving_selected_nn_indices_count = make_unique<vector<int>>(total_receiving_count);
+    unique_ptr<vector<int>> receiving_selected_indices = make_unique<vector<int>>(total_receiving_count);
 
 
     t = start_clock();
