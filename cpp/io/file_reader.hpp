@@ -257,15 +257,15 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 
   MPI_File_open(grid->col_world, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &file);
 
-  uint64_t nvecs, global_dim;
+  int nvecs, global_dim;
 
   if (rank == 0) {
     MPI_File_read(file, &nvecs, 1, MPI_INT, &status);
     MPI_File_read(file, &global_dim, 1, MPI_INT, &status);
   }
 
-  MPI_Offset file_size;
-  MPI_File_get_size(file, &file_size);
+//  MPI_Offset file_size;
+//  MPI_File_get_size(file, &file_size);
 
   // Broadcast global_dim to all processes
   MPI_Bcast(&global_dim, 1, MPI_INT, 0, grid->col_world);
