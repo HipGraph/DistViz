@@ -83,7 +83,7 @@ class MathOp {
     cout<<": rows "<<rows<<endl;
 
     int total_size = cols * rows;
-
+    cout<<": data allocation  before "<<endl;
     VALUE_TYPE *arr = (VALUE_TYPE *)malloc(sizeof(VALUE_TYPE) * total_size);
     cout<<": data allocation  success "<<endl;
 #pragma omp parallel for
