@@ -171,14 +171,14 @@ int main(int argc, char* argv[]) {
   ;
   auto t = start_clock();
   if (file_format == 0){
-     FileReader<float>::ubyte_read(
+     FileReader<uint64_t,float>::ubyte_read(
         input_path, data_matrix_ptr.get(), data_set_size, dimension,
         grid.get()->rank_in_col, grid.get()->col_world_size);
     }else if (file_format == 1) {
-      FileReader<float>::fvecs_read(input_path, data_matrix_ptr.get(), data_set_size, dimension,
+      FileReader<uint64_t,float>::fvecs_read(input_path, data_matrix_ptr.get(), data_set_size, dimension,
                                     grid.get()->rank_in_col, grid.get()->col_world_size);
     }else if (file_format == 2) {
-      FileReader<float>::read_fbin_with_MPI(input_path, data_matrix_ptr.get(), data_set_size, dimension,
+      FileReader<uint64_t,float>::read_fbin_with_MPI(input_path, data_matrix_ptr.get(), data_set_size, dimension,
                                     grid.get());
 
     }

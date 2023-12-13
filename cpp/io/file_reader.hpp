@@ -10,7 +10,7 @@ using namespace std;
 using namespace hipgraph::distviz::common;
 using namespace hipgraph::distviz::net;
 namespace hipgraph::distviz::io {
-template <typename VALUE_TYPE>
+template <typename INDEX_TYPE,typename VALUE_TYPE>
 class FileReader {
 
 public:
@@ -246,7 +246,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 
 
 static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
-                               uint64_t no_of_datapoints, int dim, Process3DGrid* grid) {
+                               INDEX_TYPE no_of_datapoints, int dim, Process3DGrid* grid) {
   MPI_File file;
   MPI_Status status;
 
@@ -278,19 +278,19 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
     return;
   }
 
-  uint64_t chunk_size = no_of_datapoints / world_size;
-  uint64_t start_idx = rank * chunk_size;
-  uint64_t end_index = (rank < world_size - 1) ? ((rank + 1) * chunk_size - 1) : (no_of_datapoints - 1);
+  INDEX_TYPE chunk_size = no_of_datapoints / world_size;
+  INDEX_TYPE start_idx = rank * chunk_size;
+  INDEX_TYPE end_index = (rank < world_size - 1) ? ((rank + 1) * chunk_size - 1) : (no_of_datapoints - 1);
   chunk_size = end_index - start_idx + 1;
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<" end index "<<end_index<<endl;
   datamatrix->resize(chunk_size, vector<VALUE_TYPE>(dim));
 
-  shared_ptr<vector<float>> data = make_shared<vector<float>>(chunk_size * dim);
+  shared_ptr<vector<VALUE_TYPE>> data = make_shared<vector<VALUE_TYPE>>(chunk_size * dim);
 
   //MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
   MPI_Offset file_offset = start_idx * 4 * dim + 8;
   MPI_Status status_read;
-  MPI_File_read_at_all(file, file_offset, (*data).data(), chunk_size * dim, MPI_FLOAT, &status_read);
+  MPI_File_read_at_all(file, file_offset, (*data).data(), chunk_size * dim, MPI_VALUE_TYPE, &status_read);
 
 //  int error_code;
 //  MPI_Error_class(status_read.MPI_ERROR, &error_code);
@@ -306,8 +306,8 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 
   const double scaleParameter = 10000;
 
-  for (int i = 0; i < chunk_size; ++i) {
-    vector<float> vec(dim);
+  for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
+    vector<VALUE_TYPE> vec(dim);
     copy( (*data).begin() + i * dim, (*data).begin() + (i + 1) * dim, vec.begin());
     transform(vec.begin(), vec.end(), vec.begin(),
               [scaleParameter](double value) { return value * scaleParameter; });
