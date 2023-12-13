@@ -76,24 +76,24 @@ class MathOp {
     }
 
     INDEX_TYPE cols = data->size();
-    cout<<": size "<<cols<<endl;
+    cout<<": size "<<cols<<" rank "<<rank<<endl;
 
     INDEX_TYPE rows = (*data)[0].size();
 
-    cout<<": rows "<<rows<<endl;
+    cout<<": rows "<<rows<<" rank "<<rank<<endl;
 
     uint64_t total_size = cols * rows;
     cout<<": data allocation  before "<<endl;
     VALUE_TYPE *arr = (VALUE_TYPE *)malloc(sizeof(VALUE_TYPE) * total_size);
-    cout<<": data allocation  success "<<total_size<<endl;
+    cout<<": data allocation  success "<<total_size<<" rank "<<rank<<endl;
 //#pragma omp parallel for
     for (INDEX_TYPE i = 0; i < rows; i++) {
       for (INDEX_TYPE j = 0; j < cols; j++) {
         uint64_t access_index = j + i * cols;
-        arr[access_index] = 0.0;
         if (rank==0) {
           cout << ": access index  "<<access_index << endl;
         }
+        arr[access_index] = 0.0;
       }
     }
     cout<<": data inintialization  success "<<endl;
