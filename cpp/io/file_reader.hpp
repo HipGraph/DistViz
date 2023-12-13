@@ -262,6 +262,8 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   // Broadcast global_dim to all processes
   MPI_Bcast(&global_dim, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
+  cout<<" rank  "<<rank<<"  No of vectors  "<<nvecs<<" global_dim "<<global_dim<<endl;
+
   if (dim != global_dim) {
     cerr << "Error: Dimension mismatch!" << endl;
     MPI_Abort(MPI_COMM_WORLD, 1);
@@ -272,7 +274,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   int start_idx = rank * chunk_size;
   int end_index = (rank < world_size - 1) ? ((rank + 1) * chunk_size - 1) : (no_of_datapoints - 1);
   chunk_size = end_index - start_idx + 1;
-
+  cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<" end index "<<end_index<<endl;
   datamatrix->resize(chunk_size, vector<VALUE_TYPE>(dim));
 
   vector<float> data(chunk_size * dim);
