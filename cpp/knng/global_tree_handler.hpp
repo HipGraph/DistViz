@@ -230,7 +230,7 @@ public:
     }
 
     // calculation of bins
-        int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
+//        int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
     int no_of_bins = 7;
 
     //calculation of distributed median
@@ -244,10 +244,8 @@ public:
 //                                                      no_of_bins,
 //                                                      StorageFormat::RAW,grid);
 
-   if (grid->rank_in_col==0){
-     cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<< (*result)<<"q_select median"<<median_q_select<<endl;
-   }
-      *result = median_q_select;
+
+//      *result = median_q_select;
 
     for (int i = 0; i < current_nodes; i++)
     {
@@ -261,6 +259,10 @@ public:
 //      vector<VALUE_TYPE> data(data_vector.size());
 
       auto median =  *result[i];
+
+      if (grid->rank_in_col==0){
+        cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<< median<<endl;
+      }
 
 //     #pragma omp parallel for
 //      for (int j = 0; j < data_vector.size (); j++)
