@@ -88,7 +88,9 @@ public:
                               bool skip_self_loops=true) {
 
     unique_ptr<MathOp<INDEX_TYPE,VALUE_TYPE>> mathOp_ptr; //class uses for math operations
+    cout << " rank " << grid->rank_in_col << "convert_to_row_major_format started" << endl;
     VALUE_TYPE* row_data_array = mathOp_ptr.get()->convert_to_row_major_format(input_data); // this algorithm assumes row major format for operations
+    cout << " rank " << grid->rank_in_col << "convert_to_row_major_format completed" << endl;
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
 
     // generate random seed at process 0 and broadcast it to multiple processes.
@@ -96,7 +98,7 @@ public:
 
     // build global sparse random project matrix for all trees
     VALUE_TYPE* B = mathOp_ptr.get()->build_sparse_projection_matrix(this->data_dimension,global_tree_depth * this->ntrees, density, receive[0]);
-
+    cout << " rank " << grid->rank_in_col << "build_sparse_projection_matrix completed" << endl;
     // get the matrix projection
     // P= X.R
     VALUE_TYPE* P = mathOp_ptr.get()->multiply_mat(row_data_array, B, this->data_dimension,
