@@ -238,8 +238,13 @@ public:
                                                    global_data_row_count,
                                                    no_of_bins,
                                                    StorageFormat::RAW, grid->rank_in_col);
+
+    VALUE_TYPE median_q_select  = mathOp_ptr.get()->distributed_median_quick_select(data, local_data_row_count, current_nodes,
+                                                      global_data_row_count,
+                                                      no_of_bins,
+                                                      StorageFormat::RAW, grid->rank_in_col,grid);
    if (grid->rank_in_col==0){
-     cout<<" median for depth "<<depth<<" median "<< (*result)<<endl;
+     cout<<" median for depth "<<depth<<" median "<< (*result)<<"q_select median"<<median_q_select<<endl;
    }
 
     for (int i = 0; i < current_nodes; i++)

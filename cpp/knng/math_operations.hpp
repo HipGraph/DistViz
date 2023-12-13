@@ -5,8 +5,10 @@
 #include <string>
 #include <vector>
 #include "../common/common.h"
+#include "../net/process_3D_grid.hpp"
 
 using namespace std;
+using namespace hipgraph::distviz::net;
 
 namespace hipgraph::distviz::knng {
 
@@ -323,6 +325,101 @@ class MathOp {
     return medians;
 
   }
+
+  VALUE_TYPE *distributed_mean(vector<VALUE_TYPE> &data, vector<int> local_rows,
+                               int local_cols,
+                               vector<int> total_elements_per_col,
+                               StorageFormat format, int rank) {
+
+    VALUE_TYPE *sums = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * local_cols);
+    VALUE_TYPE *gsums = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * local_cols);
+    for (int i = 0; i < local_cols; i++)
+    {
+      sums[i] = 0.0;
+    }
+    if (format == StorageFormat::RAW)
+    {
+      int data_count_prev = 0;
+      for (int i = 0; i < local_cols; i++)
+      {
+        VALUE_TYPE sum = 0.0;
+        //#pragma omp parallel for reduction(+:sum)
+        for (int j = 0; j < local_rows[i]; j++)
+        {
+          sum += data[j + data_count_prev];
+
+        }
+        data_count_prev += local_rows[i];
+
+        sums[i] = sum;
+      }
+    }
+
+    auto t = start_clock();
+    MPI_Allreduce (sums, gsums, local_cols, MPI_VALUE_TYPE, MPI_SUM, MPI_COMM_WORLD);
+    stop_clock_and_add(t, "KNNG Communication Time");
+
+    for (int i = 0; i < local_cols; i++)
+    {
+
+      gsums[i] = gsums[i] / total_elements_per_col[i];
+    }
+    free (sums);
+    return gsums;
+
+  }
+
+
+  VALUE_TYPE distributed_median_quick_select(vector<VALUE_TYPE> &data,
+                                          vector<int> local_rows, int local_cols,
+                                          vector<int> total_elements_per_col,
+                                          int no_of_bins,
+                                          StorageFormat format,
+                                          Process3DGrid* grid) {
+    auto k = (data.size()%2==0)?data.size()/2:data.size()/2+1;
+    VALUE_TYPE local_median = select_k(k,data);
+
+    vector<VALUE_TYPE> all_medians(grid->col_world_size,0);
+    vector<VALUE_TYPE> local_medians(grid->col_world_size,local_median);
+    l
+
+    MPI_Alltoall(local_medians.data(),1,MPI_VALUE_TYPE,all_medians.data(),1,MPI_VALUE_TYPE,grid->col_world);
+
+    auto k_global = (all_medians.size()%2==0)?all_medians.size()/2:all_medians.size()/2+1;
+    return select_k(k_global,all_medians);
+  }
+
+  VALUE_TYPE select_k(INDEX_TYPE k, vector<VALUE_TYPE>& data){
+    auto len = data.size();
+    auto mid = len%2==0? (len+1)/2:(len/2);
+
+    auto pivot_index = rand()%len;
+    auto pivot = data[pivot_index];
+
+    vector<VALUE_TYPE> left;
+    vector<VALUE_TYPE> right;
+
+    for (int i=0;i<data.size();i++) {
+      if (i != pivot_index) {
+        if (data[i] < pivot) {
+          left.push_back(data[i]);
+        } else {
+          right.push_back(data[i]);
+        }
+      }
+    }
+
+    if (k<=left.size()){
+      return select_k(k,left);
+    }else if (k>(left.size()+1)){
+      return select_k(k-(left.size()+1),right);
+    }else {
+      return pivot;
+    }
+  }
+
+
+
 
 };
 }
