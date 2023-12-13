@@ -250,7 +250,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   MPI_File file;
   MPI_Status status;
 
-  int ranK = grid->rank_in_col;
+  int rank = grid->rank_in_col;
   int world_size = grid->col_world_size;
 
   cout << "Rank " << rank << " opening file " << filename << endl;
