@@ -326,49 +326,6 @@ class MathOp {
 
   }
 
-  VALUE_TYPE *distributed_mean(vector<VALUE_TYPE> &data, vector<int> local_rows,
-                               int local_cols,
-                               vector<int> total_elements_per_col,
-                               StorageFormat format, int rank) {
-
-    VALUE_TYPE *sums = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * local_cols);
-    VALUE_TYPE *gsums = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * local_cols);
-    for (int i = 0; i < local_cols; i++)
-    {
-      sums[i] = 0.0;
-    }
-    if (format == StorageFormat::RAW)
-    {
-      int data_count_prev = 0;
-      for (int i = 0; i < local_cols; i++)
-      {
-        VALUE_TYPE sum = 0.0;
-        //#pragma omp parallel for reduction(+:sum)
-        for (int j = 0; j < local_rows[i]; j++)
-        {
-          sum += data[j + data_count_prev];
-
-        }
-        data_count_prev += local_rows[i];
-
-        sums[i] = sum;
-      }
-    }
-
-    auto t = start_clock();
-    MPI_Allreduce (sums, gsums, local_cols, MPI_VALUE_TYPE, MPI_SUM, MPI_COMM_WORLD);
-    stop_clock_and_add(t, "KNNG Communication Time");
-
-    for (int i = 0; i < local_cols; i++)
-    {
-
-      gsums[i] = gsums[i] / total_elements_per_col[i];
-    }
-    free (sums);
-    return gsums;
-
-  }
-
 
   VALUE_TYPE distributed_median_quick_select(vector<VALUE_TYPE> &data,
                                           vector<int> local_rows, int local_cols,
