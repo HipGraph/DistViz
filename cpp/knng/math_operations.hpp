@@ -69,7 +69,7 @@ class MathOp {
 
   }
 
-  VALUE_TYPE *convert_to_row_major_format(vector<vector<VALUE_TYPE>>* data) {
+  VALUE_TYPE *convert_to_row_major_format(vector<vector<VALUE_TYPE>>* data, int rank) {
     cout<<": calling data "<<endl;
     if (data->empty()) {
       return (VALUE_TYPE *)malloc(0);
@@ -85,12 +85,15 @@ class MathOp {
     uint64_t total_size = cols * rows;
     cout<<": data allocation  before "<<endl;
     VALUE_TYPE *arr = (VALUE_TYPE *)malloc(sizeof(VALUE_TYPE) * total_size);
-    cout<<": data allocation  success "<<endl;
-#pragma omp parallel for
+    cout<<": data allocation  success "<<total_size<<endl;
+//#pragma omp parallel for
     for (INDEX_TYPE i = 0; i < rows; i++) {
       for (INDEX_TYPE j = 0; j < cols; j++) {
         uint64_t access_index = j + i * cols;
         arr[access_index] = 0.0;
+        if (rank==0) {
+          cout << ": access index  "<<access_index << endl;
+        }
       }
     }
     cout<<": data inintialization  success "<<endl;
