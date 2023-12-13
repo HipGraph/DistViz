@@ -243,6 +243,75 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 }
 
 
+void read_fbin_with_MPI(string filename, ValueType2DVector* datamatrix,
+               int no_of_datapoints, int dim, int rank, int world_size) {
+  MPI_File file;
+  MPI_Status status;
+
+  cout << "Rank " << rank << " opening file " << filename << endl;
+
+  MPI_File_open(MPI_COMM_WORLD, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &file);
+
+  int nvecs, global_dim;
+
+  if (rank == 0) {
+    MPI_File_read(file, &nvecs, 1, MPI_INT, &status);
+    MPI_File_read(file, &global_dim, 1, MPI_INT, &status);
+  }
+
+  // Broadcast global_dim to all processes
+  MPI_Bcast(&global_dim, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+  if (dim != global_dim) {
+    cerr << "Error: Dimension mismatch!" << endl;
+    MPI_Abort(MPI_COMM_WORLD, 1);
+    return;
+  }
+
+  int chunk_size = no_of_datapoints / world_size;
+  int start_idx = rank * chunk_size;
+  int end_index = (rank < world_size - 1) ? ((rank + 1) * chunk_size - 1) : (no_of_datapoints - 1);
+  chunk_size = end_index - start_idx + 1;
+
+  datamatrix->resize(chunk_size, vector<VALUE_TYPE>(dim));
+
+  vector<float> data(chunk_size * dim);
+  MPI_Offset offset = 8;
+
+  MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
+  MPI_File_read(file, data.data(), chunk_size * dim, MPI_FLOAT, &status);
+
+  const double scaleParameter = 10000;
+
+  for (int i = 0; i < chunk_size; ++i) {
+    vector<float> vec(dim);
+    copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
+    transform(vec.begin(), vec.end(), vec.begin(),
+              [scaleParameter](double value) { return value * scaleParameter; });
+    (*datamatrix)[i] = vec;
+  }
+
+  MPI_File_close(&file);
+
+  // MPI Barrier to synchronize all processes before writing to file
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  // Each process writes its data to a separate file
+  ofstream fout;
+  string name = "data_" + to_string(rank) + ".txt";
+  fout.open(name, ios::app);
+
+  for (int i = 0; i < chunk_size; ++i) {
+    for (int j = 0; j < dim; ++j) {
+      fout << (*datamatrix)[i][j] << " ";
+    }
+    fout << endl;
+  }
+
+  fout.close();
+}
+
+
 static int reverse_int (int i){
   unsigned char ch1, ch2, ch3, ch4;
   ch1 = i & 255;

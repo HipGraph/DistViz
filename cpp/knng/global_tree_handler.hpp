@@ -239,14 +239,6 @@ public:
                                                    no_of_bins,
                                                    StorageFormat::RAW, grid->rank_in_col);
 
-//    VALUE_TYPE median_q_select  = mathOp_ptr.get()->distributed_median_quick_select(data, local_data_row_count, current_nodes,
-//                                                      global_data_row_count,
-//                                                      no_of_bins,
-//                                                      StorageFormat::RAW,grid);
-
-
-//      *result = median_q_select;
-
     for (int i = 0; i < current_nodes; i++)
     {
       int left_index = (next_split + 2 * i);
@@ -263,21 +255,6 @@ public:
       if (grid->rank_in_col==0){
         cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<< median<<endl;
       }
-
-//     #pragma omp parallel for
-//      for (int j = 0; j < data_vector.size (); j++)
-//      {
-//        data[j] = data_vector[j].value;
-//      }
-//
-//
-//
-//      VALUE_TYPE median = mathOp_ptr.get()->distributed_median_quick_select(data, local_data_row_count, current_nodes,
-//                                                                            global_data_row_count,
-//                                                                            7,
-//                                                                            StorageFormat::RAW,grid);
-
-//      cout<<" rank "<<grid->rank_in_col<<" median for depth "<<depth<<" median "<<median<<endl;
 
       //store median in tree_splits
       (*trees_splits_ptr)[tree][split_starting_index + i] = median;

@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
       FileReader<float>::fvecs_read(input_path, data_matrix_ptr.get(), data_set_size, dimension,
                                     grid.get()->rank_in_col, grid.get()->col_world_size);
     }else if (file_format == 2) {
-      FileReader<float>::read_fbin(input_path, data_matrix_ptr.get(), data_set_size, dimension,
+      FileReader<float>::read_fbin_with_MPI(input_path, data_matrix_ptr.get(), data_set_size, dimension,
                                     grid.get()->rank_in_col, grid.get()->col_world_size);
 
     }
