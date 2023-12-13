@@ -255,7 +255,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 
   cout << "Rank " << rank << " opening file " << filename << endl;
 
-  MPI_File_open(grid->com_world, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &file);
+  MPI_File_open(grid->col_world, filename.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &file);
 
   int nvecs, global_dim;
 
@@ -268,13 +268,13 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   MPI_File_get_size(file, &file_size);
 
   // Broadcast global_dim to all processes
-  MPI_Bcast(&global_dim, 1, MPI_INT, 0, grid->com_world);
+  MPI_Bcast(&global_dim, 1, MPI_INT, 0, grid->col_world);
 
   cout<<" rank  "<<rank<<"  No of vectors  "<<nvecs<<" global_dim "<<global_dim<<endl;
 
   if (dim != global_dim) {
     cout << "Error: Dimension mismatch!" << endl;
-    MPI_Abort(grid->com_world, 1);
+    MPI_Abort(grid->col_world, 1);
     return;
   }
 
