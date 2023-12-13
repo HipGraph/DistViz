@@ -25,10 +25,10 @@ private:
   int tree_depth;
   double tree_depth_ratio;
   int data_dimension;
-  int starting_data_index;
+  INDEX_TYPE starting_data_index;
   Process3DGrid *grid;
-  int global_data_set_size;
-  int local_data_set_size;
+  INDEX_TYPE global_data_set_size;
+  INDEX_TYPE local_data_set_size;
   vector<vector<vector<DataNode<INDEX_TYPE, VALUE_TYPE>>>> trees_leaf_all;
   shared_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr;
   shared_ptr<vector<set<INDEX_TYPE>>> remote_index_distribution;
@@ -60,8 +60,8 @@ private:
 
 public:
   KNNGHandler(int ntrees, int tree_depth, double tree_depth_ratio,
-        int local_tree_offset, int total_data_set_size, int local_data_set_size,
-        int dimension, Process3DGrid* grid) {
+        int local_tree_offset, INDEX_TYPE total_data_set_size, INDEX_TYPE local_data_set_size,
+              int dimension, Process3DGrid* grid) {
 
     this->data_dimension = dimension;
     this->tree_depth = tree_depth;

@@ -26,10 +26,10 @@ private:
   int tree_depth;
   VALUE_TYPE *projected_matrix;
   VALUE_TYPE *projection_matrix;
-  int local_dataset_size;
+  INDEX_TYPE local_dataset_size;
   int ntrees;
-  int starting_data_index;
-  int global_dataset_size;
+  INDEX_TYPE starting_data_index;
+  INDEX_TYPE global_dataset_size;
   int data_dimension;
   Process3DGrid* grid;
 
@@ -267,7 +267,7 @@ public:
         vector <DataNode<INDEX_TYPE,VALUE_TYPE>> left_childs;
         vector <DataNode<INDEX_TYPE,VALUE_TYPE>> right_childs;
 #pragma omp for  nowait
-        for (int k = 0; k < data_vector.size (); k++)
+        for (INDEX_TYPE k = 0; k < data_vector.size (); k++)
         {
           auto index = data_vector[k].index;
 
@@ -551,7 +551,7 @@ public:
             (use_data_locality_optimization)? (*trees_leaf_first_indices_rearrange_ptr)[tree][i]:(*trees_leaf_first_indices_ptr)[tree][i];
 
         std::set<INDEX_TYPE>& firstSet = (*process_to_index_set_ptr)[process];
-        for (int j=0;j<all_points.size();j++){
+        for (INDEX_TYPE j=0;j<all_points.size();j++){
           firstSet.insert(all_points[j].index);
         }
       }
@@ -613,7 +613,7 @@ public:
 
         std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
         auto it = data_set.begin();
-        for (int j = 0; j < (*send_indices_count_ptr)[i]; j++) {
+        for (INDEX_TYPE j = 0; j < (*send_indices_count_ptr)[i]; j++) {
           // Access the value using the iterator
           (*send_indices_ptr)[offset + j] = (*it);
           ++it;
@@ -629,7 +629,8 @@ public:
 
     t = start_clock();
 
-    MPI_Alltoallv((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,(*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
+    MPI_Alltoallv((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,
+                  (*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
                   (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
 
     MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
