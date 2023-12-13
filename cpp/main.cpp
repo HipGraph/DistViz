@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
   std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
 
   std::cout << "calling KNNGHandler rank "<<rank<<" with input matrix:  "<<data_matrix_ptr->size()<<"*"<<(*data_matrix_ptr)[0].size()<<std::endl;
-  auto knng_handler = unique_ptr<KNNGHandler<int,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
+  auto knng_handler = unique_ptr<KNNGHandler<uint64_t ,float>>(new KNNGHandler<uint64_t,float>(ntrees,  tree_depth,  tree_depth_ratio,
                                                                                        local_tree_offset,  data_set_size,
                                                                                       data_matrix_ptr.get()->size(),
                                                                                       dimension,  grid.get()));
