@@ -8,6 +8,7 @@
 
 using namespace std;
 using namespace hipgraph::distviz::common;
+using namespace hipgraph::distviz::net;
 namespace hipgraph::distviz::io {
 template <typename VALUE_TYPE>
 class FileReader {
