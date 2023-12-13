@@ -558,15 +558,15 @@ public:
     }
 
 
-    shared_ptr<vector<INDEX_TYPE>> send_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-    shared_ptr<vector<INDEX_TYPE>> send_disps_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-    shared_ptr<vector<INDEX_TYPE>> send_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-    shared_ptr<vector<INDEX_TYPE>> send_disps_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> send_indices_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> send_disps_indices_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> send_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> send_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
 
-    shared_ptr<vector<INDEX_TYPE>> receive_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-    shared_ptr<vector<INDEX_TYPE>> receive_disps_indices_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-    shared_ptr<vector<INDEX_TYPE>> receive_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
-    shared_ptr<vector<INDEX_TYPE>> receive_disps_values_count_ptr =  make_shared<vector<INDEX_TYPE>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> receive_indices_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> receive_disps_indices_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> receive_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> receive_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
 
 
     auto total_send_count=0;
