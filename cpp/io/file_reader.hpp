@@ -301,18 +301,18 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 //  MPI_Barrier(MPI_COMM_WORLD);
 //  cout<<" rank  "<<rank<<" MPI barrieer passed "<<endl;
   // Each process writes its data to a separate file
-  ofstream fout;
-  string name = "data_" + to_string(rank) + ".txt";
-  fout.open(name, ios::app);
-  cout<<" rank  "<<rank<<" Writing to file "<<endl;
-  for (int i = 0; i < chunk_size; ++i) {
-    for (int j = 0; j < dim; ++j) {
-      fout << (*datamatrix)[i][j] << " ";
-    }
-    fout << endl;
-  }
+//  ofstream fout;
+//  string name = "data_" + to_string(rank) + ".txt";
+//  fout.open(name, ios::app);
+//  cout<<" rank  "<<rank<<" Writing to file "<<endl;
+//  for (int i = 0; i < chunk_size; ++i) {
+//    for (int j = 0; j < dim; ++j) {
+//      fout << (*datamatrix)[i][j] << " ";
+//    }
+//    fout << endl;
+//  }
 
-  fout.close();
+//  fout.close();
   MPI_File_close(&file);
 }
 
