@@ -282,7 +282,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 
   MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
   MPI_File_read(file, data.data(), chunk_size * dim, MPI_FLOAT, &status);
-
+  cout<<" rank  "<<rank<<" MPI file read success "<<endl;
   const double scaleParameter = 10000;
 
   for (int i = 0; i < chunk_size; ++i) {
