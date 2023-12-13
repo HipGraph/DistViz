@@ -289,15 +289,15 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 
   //MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
   MPI_Offset file_offset = start_idx * 4 * dim + 8;
-  MPI_Status status;
-  MPI_File_read_at_all(file, file_offset, data.data(), chunk_size * dim, MPI_FLOAT, status);
+  MPI_Status status_read;
+  MPI_File_read_at_all(file, file_offset, data.data(), chunk_size * dim, MPI_FLOAT, status_read);
 
   int error_code;
-  MPI_Error_class(status.MPI_ERROR, &error_code);
+  MPI_Error_class(status_read.MPI_ERROR, &error_code);
   if (error_code != MPI_SUCCESS) {
     char error_string[MPI_MAX_ERROR_STRING];
     int length;
-    MPI_Error_string(status.MPI_ERROR, error_string, &length);
+    MPI_Error_string(status_read.MPI_ERROR, error_string, &length);
     cout << " MPI File Read Error: "<< rank << error_string << endl;
     // Handle the error or terminate the program
   }else {
