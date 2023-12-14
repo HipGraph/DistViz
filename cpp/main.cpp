@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   int tree_depth = 0;
   double density = 0;
   int nn = 0;
-  double tree_depth_ratio = 0.6;
+  double tree_depth_ratio = 1;
   bool use_locality_optimization = true;
   int local_tree_offset = 2;
   int file_format = 0;
