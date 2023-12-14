@@ -186,7 +186,7 @@ static void fvecs_read(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 }
 
 static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
-                      int no_of_datapoints,int dim, int rank, int world_size) {
+                      INDEX_TYPE no_of_datapoints,int dim, int rank, int world_size) {
   cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
   std::ifstream file(filename, std::ios::binary);
   cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
@@ -202,9 +202,9 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 
   cout<<" rank  "<<rank<<"  nvecs "<<nvecs<<" dim "<<dim<<endl;
 
-  int chunk_size = no_of_datapoints / world_size;
-  int start_idx =rank*chunk_size;
-  int end_index = 0;
+  INDEX_TYPE chunk_size = no_of_datapoints / world_size;
+  INDEX_TYPE start_idx =rank*chunk_size;
+  INDEX_TYPE end_index = 0;
   if (rank < world_size - 1){
     end_index = (rank+1) * chunk_size -1;
   }else if (rank == world_size - 1){
@@ -218,7 +218,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   datamatrix->resize(chunk_size, vector<VALUE_TYPE> (dim));
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<endl;
   std::vector<float> data(chunk_size * dim);
-  int offset = 8;
+  INDEX_TYPE offset = 8;
 
   file.seekg(start_idx * 4 * dim+offset, std::ios::beg);
   file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
@@ -226,17 +226,17 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   cout<<" rank  "<<rank<<"  data reading  completed"<<endl;
 
   ofstream fout;
-  string name = "data_"+to_string(rank)+".txt";
+  string name = "/pscratch/sd/i/isjarana/dist_viz_datasets/large_datasets/YANDEX/data_"+to_string(rank)+".txt";
   fout.open(name, std::ios_base::app);
 
 
-  for (int i = 0; i < chunk_size; ++i) {
+  for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
     std::vector<float> vec(dim);
     std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
     std::transform(vec.begin(), vec.end(), vec.begin(),
                    [scaleParameter](double value) { return value * scaleParameter; });
     (*datamatrix)[i]=vec;
-    for(int j=0;j<vec.size();j++){
+    for(INDEX_TYPE j=0;j<vec.size();j++){
       fout<<vec[j]<<" ";
     }
     fout<<endl;
@@ -300,7 +300,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
        cout << " rank  " << rank << "  data size  " << (*data).size()<<" data offset "<<data_offset << endl;
      }
       int total_bytes =   reading_chunk*4;
-      MPI_File_read_at_all(file, file_offset, (*data).data(),total_bytes, MPI_VALUE_TYPE, MPI_STATUS_IGNORE);
+      MPI_File_read_at_all(file, file_offset, (*data).data(),total_bytes, MPI_CHAR, MPI_STATUS_IGNORE);
 
       const double scaleParameter = 10000;
 
