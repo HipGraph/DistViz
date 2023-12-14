@@ -289,12 +289,12 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 
   //MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
   MPI_Offset file_offset = start_idx * 4 * dim + 8;
-  uint64_t  data_offset =0;
-  uint64_t max_read_chunk = 10000;
-  uint64_t remaining = chunk_size;
-  uint64_t reading_chunk = min(remaining,max_read_chunk);
+  INDEX_TYPE  data_offset =0;
+  INDEX_TYPE max_read_chunk = 10000;
+  INDEX_TYPE remaining = chunk_size;
+  INDEX_TYPE reading_chunk = min(remaining,max_read_chunk);
   do{
-     uint64_t  total_size = reading_chunk * static_cast<uint64_t>(dim);
+    INDEX_TYPE  total_size = reading_chunk * dim;
      shared_ptr<vector<VALUE_TYPE>> data = make_shared<vector<VALUE_TYPE>>(total_size);
      if (rank==0) {
        cout << " rank  " << rank << "  data size  " << (*data).size()<<" data offset "<<data_offset << endl;
