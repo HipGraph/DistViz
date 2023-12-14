@@ -285,9 +285,9 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<" end index "<<end_index<<endl;
   datamatrix->resize(chunk_size, vector<VALUE_TYPE>(dim));
 
-  uint64_t  total_size = chunk_size * static_cast<uint64_t>(dim);
-  shared_ptr<vector<VALUE_TYPE>> data = make_shared<vector<VALUE_TYPE>>(total_size);
-  cout<<" rank  "<<rank<<"  data size  "<<(*data).size()<<endl;
+
+
+
   //MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
   MPI_Offset file_offset = start_idx * 4 * dim + 8;
   uint64_t  data_offset =0;
@@ -295,8 +295,22 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   uint64_t remaining = chunk_size;
   uint64_t reading_chunk = min(remaining,max_read_chunk);
   do{
-      MPI_File_read_at_all(file, file_offset, (*data).data() + data_offset,
+     uint64_t  total_size = reading_chunk * static_cast<uint64_t>(dim);
+     shared_ptr<vector<VALUE_TYPE>> data = make_shared<vector<VALUE_TYPE>>(total_size);
+      cout<<" rank  "<<rank<<"  data size  "<<(*data).size()<<endl;
+      MPI_File_read_at_all(file, file_offset, (*data).data(),
                            reading_chunk, MPI_VALUE_TYPE, MPI_STATUS_IGNORE);
+
+      const double scaleParameter = 10000;
+
+      for (INDEX_TYPE i = 0; i < reading_chunk; ++i) {
+        vector<VALUE_TYPE> vec(dim);
+        copy( (*data).begin() + i * dim, (*data).begin() + (i + 1) * dim, vec.begin());
+        transform(vec.begin(), vec.end(), vec.begin(),
+                  [scaleParameter](double value) { return value * scaleParameter; });
+        uint64_t index = i + data_offset;
+        (*datamatrix)[index] = vec;
+      }
       remaining = remaining - reading_chunk;
       file_offset = file_offset + reading_chunk;
       data_offset = data_offset +reading_chunk;
@@ -318,16 +332,6 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 //  }else {
 //    cout << " rank  " << rank << " MPI file read success " << endl;
 //  }
-
-  const double scaleParameter = 10000;
-
-  for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
-    vector<VALUE_TYPE> vec(dim);
-    copy( (*data).begin() + i * dim, (*data).begin() + (i + 1) * dim, vec.begin());
-    transform(vec.begin(), vec.end(), vec.begin(),
-              [scaleParameter](double value) { return value * scaleParameter; });
-    (*datamatrix)[i] = vec;
-  }
 
   ofstream fout;
   string file_name = "/pscratch/sd/i/isjarana/dist_viz_datasets/large_datasets/YANDEX/data_"+to_string(rank)+".txt";
