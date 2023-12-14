@@ -299,7 +299,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
      if (rank==0) {
        cout << " rank  " << rank << "  data size  " << (*data).size()<<" data offset "<<data_offset << endl;
      }
-      int total_bytes =   reading_chunk*8*dim;
+      int total_bytes =   reading_chunk*4;
       MPI_File_read_at_all(file, file_offset, (*data).data(),total_bytes, MPI_VALUE_TYPE, MPI_STATUS_IGNORE);
 
       const double scaleParameter = 10000;
