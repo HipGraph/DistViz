@@ -296,7 +296,9 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   do{
      uint64_t  total_size = reading_chunk * static_cast<uint64_t>(dim);
      shared_ptr<vector<VALUE_TYPE>> data = make_shared<vector<VALUE_TYPE>>(total_size);
-      cout<<" rank  "<<rank<<"  data size  "<<(*data).size()<<endl;
+     if (rank==0) {
+       cout << " rank  " << rank << "  data size  " << (*data).size()<<" data offset "<<data_offset << endl;
+     }
       MPI_File_read_at_all(file, file_offset, (*data).data(),reading_chunk, MPI_VALUE_TYPE, MPI_STATUS_IGNORE);
 
       const double scaleParameter = 10000;
