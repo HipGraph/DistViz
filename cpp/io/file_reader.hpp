@@ -290,9 +290,22 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   cout<<" rank  "<<rank<<"  data size  "<<(*data).size()<<endl;
   //MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
   MPI_Offset file_offset = start_idx * 4 * dim + 8;
-  MPI_Status status_read;
+  uint64_t  data_offset =0;
+  uint64_t max_read_chunk = 1000000;
+  uint64_t remaining = chunk_size;
+  uint64_t reading_chunk = min(remaining,max_read_chunk);
+  do{
+      MPI_File_read_at_all(file, file_offset, (*data).data() + data_offset,
+                           reading_chunk, MPI_VALUE_TYPE, MPI_STATUS_IGNORE);
+      remaining = remaining - reading_chunk;
+      file_offset = file_offset + reading_chunk;
+      data_offset = data_offset +reading_chunk;
+      reading_chunk = min(remaining,max_read_chunk);
+  }while(reading_chunk>0);
 
-  MPI_File_read_at_all(file, file_offset, (*data).data(),total_size,MPI_VALUE_TYPE,&status_read);
+//  MPI_Status status_read;
+
+
 
 //  int error_code;
 //  MPI_Error_class(status_read.MPI_ERROR, &error_code);
