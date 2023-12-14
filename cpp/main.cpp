@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
                                     grid.get()->rank_in_col, grid.get()->col_world_size);
     }else if (file_format == 2) {
       FileReader<uint64_t ,float>::read_fbin(input_path, data_matrix_ptr.get(), data_set_size, dimension,
-                                    grid.get());
+                                             grid.get()->rank_in_col, grid.get()->col_world_size);
 
     }
 //  stop_clock_and_add(t, "IO Time");
