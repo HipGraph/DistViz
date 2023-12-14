@@ -320,7 +320,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 //        (*datamatrix)[index] = vec;
       }
       remaining = remaining - reading_chunk;
-      file_offset = file_offset + reading_chunk;
+      file_offset = file_offset + reading_chunk*4*dim;
       data_offset = data_offset +reading_chunk;
       reading_chunk = min(remaining,max_read_chunk);
   }while(reading_chunk>0);
