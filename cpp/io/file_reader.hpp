@@ -299,7 +299,8 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
      if (rank==0) {
        cout << " rank  " << rank << "  data size  " << (*data).size()<<" data offset "<<data_offset << endl;
      }
-      MPI_File_read_at_all(file, file_offset, (*data).data(),reading_chunk, MPI_VALUE_TYPE, MPI_STATUS_IGNORE);
+      int total_bytes =   reading_chunk*8*dim;
+      MPI_File_read_at_all(file, file_offset, (*data).data(),total_bytes, MPI_VALUE_TYPE, MPI_STATUS_IGNORE);
 
       const double scaleParameter = 10000;
 
@@ -320,7 +321,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 //        (*datamatrix)[index] = vec;
       }
       remaining = remaining - reading_chunk;
-      file_offset = file_offset + reading_chunk*4*dim;
+      file_offset = file_offset + total_bytes;
       data_offset = data_offset +reading_chunk;
       reading_chunk = min(remaining,max_read_chunk);
   }while(reading_chunk>0);
