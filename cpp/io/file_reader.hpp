@@ -306,8 +306,15 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
       for (INDEX_TYPE i = 0; i < reading_chunk; ++i) {
         vector<VALUE_TYPE> vec(dim);
         copy( (*data).begin() + i * dim, (*data).begin() + (i + 1) * dim, vec.begin());
-        transform(vec.begin(), vec.end(), vec.begin(),
-                  [scaleParameter](double value) { return value * scaleParameter; });
+//        transform(vec.begin(), vec.end(), vec.begin(),
+//                  [scaleParameter](double value) {
+//                    return value * scaleParameter; });
+        if (rank==0) {
+          for (int k = 0; k < dim; k++) {
+            cout << vec[k] << " ";
+          }
+          cout << endl;
+        }
         uint64_t index = i + data_offset;
         (*datamatrix)[index] = vec;
       }
