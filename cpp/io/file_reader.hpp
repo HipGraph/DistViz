@@ -285,12 +285,14 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<" end index "<<end_index<<endl;
   datamatrix->resize(chunk_size, vector<VALUE_TYPE>(dim));
 
-  shared_ptr<vector<VALUE_TYPE>> data = make_shared<vector<VALUE_TYPE>>(chunk_size * dim);
+  uint64_t  total_size = chunk_size * static_cast<uint64_t>(dim);
+  shared_ptr<vector<VALUE_TYPE>> data = make_shared<vector<VALUE_TYPE>>(total_size);
 
   //MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
   MPI_Offset file_offset = start_idx * 4 * dim + 8;
   MPI_Status status_read;
-  MPI_File_read_at_all(file, file_offset, (*data).data(), chunk_size * dim, MPI_VALUE_TYPE, &status_read);
+
+  MPI_File_read_at_all(file, file_offset, (*data).data(),total_size , MPI_VALUE_TYPE, &status_read);
 
 //  int error_code;
 //  MPI_Error_class(status_read.MPI_ERROR, &error_code);
