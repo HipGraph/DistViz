@@ -310,6 +310,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 //                  [scaleParameter](double value) {
 //                    return value * scaleParameter; });
         if (rank==0) {
+          cout << " rank  " << rank << "  i  " <<i << endl;
           for (int k = 0; k < dim; k++) {
             cout << vec[k] << " ";
           }
