@@ -278,10 +278,10 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
     return;
   }
 
-  no_of_datapoints =100000;
+//  no_of_datapoints =100000;
   INDEX_TYPE chunk_size = no_of_datapoints / world_size;
-//  INDEX_TYPE start_idx = rank * chunk_size;
-  INDEX_TYPE start_idx = 0;
+  INDEX_TYPE start_idx = rank * chunk_size;
+//  INDEX_TYPE start_idx = 0;
   INDEX_TYPE end_index = (rank < world_size - 1) ? ((rank + 1) * chunk_size - 1) : (no_of_datapoints - 1);
   chunk_size = end_index - start_idx + 1;
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<" end index "<<end_index<<endl;
