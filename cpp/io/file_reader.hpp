@@ -236,10 +236,10 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
     std::transform(vec.begin(), vec.end(), vec.begin(),
                    [scaleParameter](double value) { return value * scaleParameter; });
     (*datamatrix)[i]=vec;
-    for(INDEX_TYPE j=0;j<vec.size();j++){
-      fout<<vec[j]<<" ";
-    }
-    fout<<endl;
+//    for(INDEX_TYPE j=0;j<vec.size();j++){
+//      fout<<vec[j]<<" ";
+//    }
+//    fout<<endl;
   }
   cout<<" rank  "<<rank<<"  data loading completed"<<endl;
 }
