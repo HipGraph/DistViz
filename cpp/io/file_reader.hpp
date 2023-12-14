@@ -278,15 +278,14 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
     return;
   }
 
+  no_of_datapoints =100000;
   INDEX_TYPE chunk_size = no_of_datapoints / world_size;
-  INDEX_TYPE start_idx = rank * chunk_size;
+//  INDEX_TYPE start_idx = rank * chunk_size;
+  INDEX_TYPE start_idx = 0;
   INDEX_TYPE end_index = (rank < world_size - 1) ? ((rank + 1) * chunk_size - 1) : (no_of_datapoints - 1);
   chunk_size = end_index - start_idx + 1;
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<" end index "<<end_index<<endl;
   datamatrix->resize(chunk_size, vector<VALUE_TYPE>(dim));
-
-
-
 
   //MPI_File_set_view(file, start_idx * 4 * dim + offset, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
   MPI_Offset file_offset = start_idx * 4 * dim + 8;
@@ -315,7 +314,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
           cout << endl;
         }
         uint64_t index = i + data_offset;
-        (*datamatrix)[index] = vec;
+//        (*datamatrix)[index] = vec;
       }
       remaining = remaining - reading_chunk;
       file_offset = file_offset + reading_chunk;
@@ -339,15 +338,15 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 //    cout << " rank  " << rank << " MPI file read success " << endl;
 //  }
 
-  ofstream fout;
-  string file_name = "/pscratch/sd/i/isjarana/dist_viz_datasets/large_datasets/YANDEX/data_"+to_string(rank)+".txt";
-  fout.open(file_name, std::ios_base::app);
-   for(int i=0;i<chunk_size;i++){
-     for(int j=0;j<dim;j++){
-      fout<<(*datamatrix)[i][j]<<" ";
-     }
-     fout<<endl;
-   }
+//  ofstream fout;
+//  string file_name = "/pscratch/sd/i/isjarana/dist_viz_datasets/large_datasets/YANDEX/data_"+to_string(rank)+".txt";
+//  fout.open(file_name, std::ios_base::app);
+//   for(int i=0;i<chunk_size;i++){
+//     for(int j=0;j<dim;j++){
+//      fout<<(*datamatrix)[i][j]<<" ";
+//     }
+//     fout<<endl;
+//   }
 
 //  fout.close();
   MPI_File_close(&file);
