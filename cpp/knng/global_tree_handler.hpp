@@ -580,6 +580,7 @@ public:
       total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
       (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
+      cout<<" sending count "<<(*send_indices_count_ptr)[i]<<" to rank "<<i<<endl;
     }
 
     auto t = start_clock();
@@ -597,6 +598,8 @@ public:
       total_receive_count += (*receive_indices_count_ptr)[i];
       (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
       (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
+      cout<<" receiving count "<<(*send_indices_count_ptr)[i]<<" from rank "<<i<<endl;
+
     }
 //
 //
