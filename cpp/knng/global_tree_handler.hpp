@@ -640,38 +640,38 @@ public:
     MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
                   (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
                   (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
-
+    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
     stop_clock_and_add(t, "KNNG Communication Time");
-
-    auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
-//    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
-
-    Eigen::MatrixXf data_matrix(data_dimension, rows);
-    auto total_data_count=0;
-    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
-      for(int j=0;j<data_dimension;j++){
-        auto index_trying = (*it) - starting_data_index;
-        data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
-      }
-      (*local_to_global_map)[total_data_count]=*it;
-
-      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-      total_data_count++;
-    }
-
-
-    for(auto i=0;i<total_receive_count;i++) {
-      INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
-
-      (*local_to_global_map)[total_data_count]= receive_index;
-
-      (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-      for( auto j =0;j<data_dimension;j++){
-        auto access_index = i*data_dimension+j;
-        data_matrix(j,total_data_count) =  (*receive_values_ptr)[access_index];
-      }
-      total_data_count++;
-    }
+//
+//    auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
+////    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
+//
+//    Eigen::MatrixXf data_matrix(data_dimension, rows);
+//    auto total_data_count=0;
+//    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
+//      for(int j=0;j<data_dimension;j++){
+//        auto index_trying = (*it) - starting_data_index;
+//        data_matrix(j,total_data_count)= (*data_points_ptr)[index_trying][j];
+//      }
+//      (*local_to_global_map)[total_data_count]=*it;
+//
+//      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
+//      total_data_count++;
+//    }
+//
+//
+//    for(auto i=0;i<total_receive_count;i++) {
+//      INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
+//
+//      (*local_to_global_map)[total_data_count]= receive_index;
+//
+//      (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
+//      for( auto j =0;j<data_dimension;j++){
+//        auto access_index = i*data_dimension+j;
+//        data_matrix(j,total_data_count) =  (*receive_values_ptr)[access_index];
+//      }
+//      total_data_count++;
+//    }
 
     return data_matrix;
   }
