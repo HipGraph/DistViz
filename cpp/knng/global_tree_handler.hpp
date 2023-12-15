@@ -600,36 +600,35 @@ public:
     }
 //
 //
-//
-    uint64_t  total_alloc = static_cast<uint64_t>(total_send_count)*static_cast<uint64_t >(data_dimension);
-    cout<<"total alloc "<<total_alloc<<endl;
+    uint64_t  total_send = static_cast<uint64_t>(total_send_count)*static_cast<uint64_t >(data_dimension);
     shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
-    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_alloc);
+    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send);
 
+    uint64_t  total_receive= static_cast<uint64_t>(total_send_count)*static_cast<uint64_t >(data_dimension);
     shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
-//    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_alloc);
+    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive);
 //
 //    cout<<" MPI value initialization  passed rank "<<grid->rank_in_col <<endl;
 //
-//    for(int i=0;i<grid->col_world_size;i++){
-//      if (i != grid->rank_in_col) {
-//        auto offset = (*send_disps_indices_count_ptr)[i];
-//
-//        std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
-//        auto it = data_set.begin();
-//        for (INDEX_TYPE j = 0; j < (*send_indices_count_ptr)[i]; j++) {
-//          // Access the value using the iterator
-//          (*send_indices_ptr)[offset + j] = (*it);
-//          ++it;
-//          auto index_trying = (*send_indices_ptr)[offset + j] - starting_data_index;
-//          auto access_index_dim = (offset + j) * data_dimension;
-//          for (int k = 0; k < data_dimension; ++k) {
-//            auto access_index_dim_d = access_index_dim + k;
-//             (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
-//          }
-//        }
-//      }
-//    }
+    for(int i=0;i<grid->col_world_size;i++){
+      if (i != grid->rank_in_col) {
+        auto offset = (*send_disps_indices_count_ptr)[i];
+
+        std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
+        auto it = data_set.begin();
+        for (INDEX_TYPE j = 0; j < (*send_indices_count_ptr)[i]; j++) {
+          // Access the value using the iterator
+          (*send_indices_ptr)[offset + j] = (*it);
+          ++it;
+          auto index_trying = (*send_indices_ptr)[offset + j] - starting_data_index;
+          auto access_index_dim = (offset + j) * data_dimension;
+          for (int k = 0; k < data_dimension; ++k) {
+            auto access_index_dim_d = access_index_dim + k;
+             (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
+          }
+        }
+      }
+    }
 //
 //    t = start_clock();
 //
