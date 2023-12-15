@@ -609,7 +609,7 @@ public:
     shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
     shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
 
-
+    cout<<" MPI value initialization  passed rank "<<grid->rank_in_col <<endl;
 
     for(int i=0;i<grid->col_world_size;i++){
       if (i != grid->rank_in_col) {
