@@ -583,70 +583,70 @@ public:
     }
 
     auto t = start_clock();
-    //send indices count
-    MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,(*receive_indices_count_ptr).data(), 1,MPI_INDEX_TYPE, grid->col_world);
-
-    MPI_Barrier(grid->col_world);
-
-    cout<<" first data point collection passed rank "<<grid->rank_in_col <<endl;
-
-    stop_clock_and_add(t, "KNNG Communication Time");
-
-
-    auto total_receive_count=0;
-    for(int i=0;i<grid->col_world_size;i++) {
-      (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
-      total_receive_count += (*receive_indices_count_ptr)[i];
-      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
-      (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
-    }
-
-
-
-    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
-    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
-
-    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
-    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
-
-    cout<<" MPI value initialization  passed rank "<<grid->rank_in_col <<endl;
-
-    for(int i=0;i<grid->col_world_size;i++){
-      if (i != grid->rank_in_col) {
-        auto offset = (*send_disps_indices_count_ptr)[i];
-
-        std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
-        auto it = data_set.begin();
-        for (INDEX_TYPE j = 0; j < (*send_indices_count_ptr)[i]; j++) {
-          // Access the value using the iterator
-          (*send_indices_ptr)[offset + j] = (*it);
-          ++it;
-          auto index_trying = (*send_indices_ptr)[offset + j] - starting_data_index;
-          auto access_index_dim = (offset + j) * data_dimension;
-          for (int k = 0; k < data_dimension; ++k) {
-            auto access_index_dim_d = access_index_dim + k;
-             (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
-          }
-        }
-      }
-    }
-
-    t = start_clock();
-
-    MPI_Alltoallv((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,
-                  (*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
-                  (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
-
-    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
-                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
-                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
-    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
-    stop_clock_and_add(t, "KNNG Communication Time");
+//    //send indices count
+//    MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,(*receive_indices_count_ptr).data(), 1,MPI_INDEX_TYPE, grid->col_world);
 //
-    auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
-////    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
+//    MPI_Barrier(grid->col_world);
 //
-    Eigen::MatrixXf data_matrix(data_dimension, rows);
+//    cout<<" first data point collection passed rank "<<grid->rank_in_col <<endl;
+//
+//    stop_clock_and_add(t, "KNNG Communication Time");
+//
+//
+//    auto total_receive_count=0;
+//    for(int i=0;i<grid->col_world_size;i++) {
+//      (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
+//      total_receive_count += (*receive_indices_count_ptr)[i];
+//      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
+//      (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
+//    }
+//
+//
+//
+//    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
+//    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
+//
+//    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
+//    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
+//
+//    cout<<" MPI value initialization  passed rank "<<grid->rank_in_col <<endl;
+//
+//    for(int i=0;i<grid->col_world_size;i++){
+//      if (i != grid->rank_in_col) {
+//        auto offset = (*send_disps_indices_count_ptr)[i];
+//
+//        std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
+//        auto it = data_set.begin();
+//        for (INDEX_TYPE j = 0; j < (*send_indices_count_ptr)[i]; j++) {
+//          // Access the value using the iterator
+//          (*send_indices_ptr)[offset + j] = (*it);
+//          ++it;
+//          auto index_trying = (*send_indices_ptr)[offset + j] - starting_data_index;
+//          auto access_index_dim = (offset + j) * data_dimension;
+//          for (int k = 0; k < data_dimension; ++k) {
+//            auto access_index_dim_d = access_index_dim + k;
+//             (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
+//          }
+//        }
+//      }
+//    }
+//
+//    t = start_clock();
+//
+//    MPI_Alltoallv((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,
+//                  (*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
+//                  (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
+//
+//    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
+//                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
+//                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
+//    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
+//    stop_clock_and_add(t, "KNNG Communication Time");
+////
+//    auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
+//////    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
+////
+    Eigen::MatrixXf data_matrix(data_dimension, 200);
 //    auto total_data_count=0;
 //    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
 //      for(int j=0;j<data_dimension;j++){
