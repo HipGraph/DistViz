@@ -586,6 +586,10 @@ public:
     //send indices count
     MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INDEX_TYPE,(*receive_indices_count_ptr).data(), 1,MPI_INDEX_TYPE, grid->col_world);
 
+
+
+    cout<<" first data point collection passed rank "<<grid->rank_in_col <<endl;
+
     stop_clock_and_add(t, "KNNG Communication Time");
 
 
