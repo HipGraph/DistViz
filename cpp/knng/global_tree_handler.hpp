@@ -585,29 +585,27 @@ public:
     auto t = start_clock();
 //    //send indices count
     MPI_Alltoall ((*send_indices_count_ptr).data(),1 , MPI_INT,(*receive_indices_count_ptr).data(), 1,MPI_INT, grid->col_world);
-//
-//    MPI_Barrier(grid->col_world);
-//
-//    cout<<" first data point collection passed rank "<<grid->rank_in_col <<endl;
-//
-//    stop_clock_and_add(t, "KNNG Communication Time");
-//
-//
-//    auto total_receive_count=0;
-//    for(int i=0;i<grid->col_world_size;i++) {
-//      (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
-//      total_receive_count += (*receive_indices_count_ptr)[i];
-//      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
-//      (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
-//    }
+
+    cout<<" first data point collection passed rank "<<grid->rank_in_col <<endl;
+
+    stop_clock_and_add(t, "KNNG Communication Time");
+
+
+    auto total_receive_count=0;
+    for(int i=0;i<grid->col_world_size;i++) {
+      (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
+      total_receive_count += (*receive_indices_count_ptr)[i];
+      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
+      (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
+    }
 //
 //
 //
-//    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
-//    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
-//
-//    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
-//    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
+    shared_ptr<vector<INDEX_TYPE>> send_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_send_count);
+    shared_ptr<vector<VALUE_TYPE>> send_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_send_count*data_dimension);
+
+    shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
+    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive_count*data_dimension);
 //
 //    cout<<" MPI value initialization  passed rank "<<grid->rank_in_col <<endl;
 //
