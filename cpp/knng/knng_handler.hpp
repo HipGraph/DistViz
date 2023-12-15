@@ -141,59 +141,59 @@ public:
 
     cout<<"rank "<<grid->rank_in_col<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
 //    int effective_nn = 2 * nn;
-    int effective_nn =  nn;
-    Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, effective_nn);
-
-    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
-    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
-
-    #pragma omp parallel for schedule (static)
-    for(int i=0;i<data_matrix.cols();i++){
-      Eigen::VectorXi tempRow(effective_nn);
-      Eigen::VectorXf tempDis(effective_nn);
-      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
-      neighbours.row(i)=tempRow;
-      distances.row(i)=tempDis;
-      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
-      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
-      edge.src_index=global_index;
-      for(int k=0;k<nn;k++){
-       edge.dst_index = (*datamap_ptr)[tempRow[k]];
-       edge.distance = tempDis[k];
-       (*local_nn_map_ptr)[global_index][k]=edge;
-      }
-    }
-    MPI_Barrier(grid->col_world);
-    cout<<"rank "<<grid->rank_in_col<<" local nn slection completed :"<<endl;
-
-    shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
-
-    communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
-
-    cout<<"rank "<<grid->rank_in_col<<" size :"<<(*final_nn_map).size()<<endl;
-
-    if (print_output) {
-      auto t = start_clock();
-      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
-      fileWriter.mpi_write_edge_list(final_nn_map.get(),output_path,nn-1,grid->rank_in_col,grid->col_world_size,true);
-      stop_clock_and_add(t, "IO Time");
-    }
-
-
-    for(auto it=(*final_nn_map).begin(); it!=(*final_nn_map).end();++it){
-      vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
-      for(int j=0;j<nn;j++){
-        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = edge_node_list[j];
-        Tuple<VALUE_TYPE> tuple;
-        if (edge_node.src_index != edge_node.dst_index) {
-          tuple.row = edge_node.src_index;
-          tuple.col = edge_node.dst_index;
-          tuple.value = edge_node.distance;
-          (*output_knng).push_back(tuple);
-        }
-      }
-    }
+//    int effective_nn =  nn;
+//    Mrpt mrpt(data_matrix);
+//    mrpt.grow_autotune(target_recall, effective_nn);
+//
+//    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
+//    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
+//
+//    #pragma omp parallel for schedule (static)
+//    for(int i=0;i<data_matrix.cols();i++){
+//      Eigen::VectorXi tempRow(effective_nn);
+//      Eigen::VectorXf tempDis(effective_nn);
+//      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
+//      neighbours.row(i)=tempRow;
+//      distances.row(i)=tempDis;
+//      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
+//      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
+//      edge.src_index=global_index;
+//      for(int k=0;k<nn;k++){
+//       edge.dst_index = (*datamap_ptr)[tempRow[k]];
+//       edge.distance = tempDis[k];
+//       (*local_nn_map_ptr)[global_index][k]=edge;
+//      }
+//    }
+//    MPI_Barrier(grid->col_world);
+//    cout<<"rank "<<grid->rank_in_col<<" local nn slection completed :"<<endl;
+//
+//    shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
+//
+//    communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
+//
+//    cout<<"rank "<<grid->rank_in_col<<" size :"<<(*final_nn_map).size()<<endl;
+//
+//    if (print_output) {
+//      auto t = start_clock();
+//      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+//      fileWriter.mpi_write_edge_list(final_nn_map.get(),output_path,nn-1,grid->rank_in_col,grid->col_world_size,true);
+//      stop_clock_and_add(t, "IO Time");
+//    }
+//
+//
+//    for(auto it=(*final_nn_map).begin(); it!=(*final_nn_map).end();++it){
+//      vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
+//      for(int j=0;j<nn;j++){
+//        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = edge_node_list[j];
+//        Tuple<VALUE_TYPE> tuple;
+//        if (edge_node.src_index != edge_node.dst_index) {
+//          tuple.row = edge_node.src_index;
+//          tuple.col = edge_node.dst_index;
+//          tuple.value = edge_node.distance;
+//          (*output_knng).push_back(tuple);
+//        }
+//      }
+//    }
   }
 
 
