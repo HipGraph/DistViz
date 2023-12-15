@@ -616,12 +616,13 @@ public:
 
         std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
         auto it = data_set.begin();
-        for (INDEX_TYPE j = 0; j < (*send_indices_count_ptr)[i]; j++) {
+        for (auto j = 0; j < (*send_indices_count_ptr)[i]; j++) {
           // Access the value using the iterator
-          (*send_indices_ptr)[offset + j] = (*it);
+          INDEX_TYPE in = offset + j;
+          (*send_indices_ptr)[in] = (*it);
           ++it;
-          auto index_trying = (*send_indices_ptr)[offset + j] - starting_data_index;
-          auto access_index_dim = (offset + j) * data_dimension;
+          auto index_trying = (*send_indices_ptr)[in] - starting_data_index;
+          auto access_index_dim = (in) * data_dimension;
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
              (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
@@ -632,9 +633,9 @@ public:
 //
     t = start_clock();
 //
-    MPI_Alltoallv((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,
-                  (*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
-                  (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
+//    MPI_Alltoallv((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,
+//                  (*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
+//                  (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
 
 //    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
 //                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
