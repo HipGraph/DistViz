@@ -625,6 +625,9 @@ public:
           auto access_index_dim = (in) * data_dimension;
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
+            if (access_index_dim_d>= total_send){
+              cout<<" wring index set"<<access_index_dim_d<<endl;
+            }
              (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
           }
         }
