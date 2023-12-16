@@ -598,7 +598,7 @@ public:
       total_receive_count += (*receive_indices_count_ptr)[i];
       (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
       (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
-      cout<<" rank "<<grid->rank_in_col<<" receiving count "<<(*receive_values_count_ptr)[i]<<" from rank "<<i<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" receiving count "<<(*receive_indices_count_ptr)[i]<<" from rank "<<i<<endl;
 
     }
 //
