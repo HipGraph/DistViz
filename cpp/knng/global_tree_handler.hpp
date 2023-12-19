@@ -561,15 +561,15 @@ public:
     shared_ptr<vector<int>> send_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> send_disps_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> send_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
-    shared_ptr<vector<int>> send_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
+//    shared_ptr<vector<int>> send_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
 
-//    shared_ptr<vector<MPI_Aint>> send_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> send_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
 
     shared_ptr<vector<int>> receive_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> receive_disps_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> receive_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
-    shared_ptr<vector<int>> receive_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
-//    shared_ptr<vector<MPI_Aint>> receive_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
+//    shared_ptr<vector<int>> receive_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> receive_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
 
     MPI_Datatype* data_type = new MPI_Datatype[grid->col_world_size];
 
