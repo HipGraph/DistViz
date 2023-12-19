@@ -301,7 +301,7 @@ public:
         }
       }
 
-      cout<<" rank "<<grid->rank_in_col<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<" depth"<<depth<<endl;
+//      cout<<" rank "<<grid->rank_in_col<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<" depth"<<depth<<endl;
       child_data_tracker[left_index] = left_childs_global;
       child_data_tracker[right_index] = right_childs_global;
       if (depth == tree_depth - 2) {
@@ -662,7 +662,7 @@ public:
     int periods[1] = {0};
     int reorder = 0;
     MPI_Comm cart_comm;
-    MPI_Cart_create(grid->col_world, 1, dims, periods, reorder, &cart_comm);
+    MPI_Cart_create(MPI_COMM_WORLD, 1, dims, periods, reorder, &cart_comm);
 //
 //    int left, right;
 //    MPI_Cart_shift(cart_comm, 0, 1, &left, &right);
