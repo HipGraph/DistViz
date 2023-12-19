@@ -674,7 +674,7 @@ public:
                            (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
                            (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, cart_comm);
 
-
+     MPI_Barrier(cart_comm);
 //    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
     stop_clock_and_add(t, "KNNG Communication Time");
 ////
