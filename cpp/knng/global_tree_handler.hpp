@@ -561,12 +561,15 @@ public:
     shared_ptr<vector<int>> send_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> send_disps_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> send_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
-    shared_ptr<vector<int>> send_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
+//    shared_ptr<vector<int>> send_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
+
+    shared_ptr<vector<MPI_Aint>> send_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
 
     shared_ptr<vector<int>> receive_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> receive_disps_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> receive_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
-    shared_ptr<vector<int>> receive_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
+//    shared_ptr<vector<int>> receive_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> receive_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
 
 
     auto total_send_count=0;
@@ -579,7 +582,12 @@ public:
       (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
       total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
-      (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
+
+      MPI_Aint displacement = (i > 0) ? (*send_disps_values_count_ptr)[i - 1] + (*send_indices_count_ptr)[i - 1] * data_dimension : 0;
+      (*send_disps_values_count_ptr)[i] = displacement;
+//      (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
+
+
       cout<<" rank "<<grid->rank_in_col<<" sending values "<<(*send_disps_values_count_ptr)[i]<<" to rank "<<i<<endl;
     }
 
@@ -596,7 +604,11 @@ public:
     for(int i=0;i<grid->col_world_size;i++) {
       (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
       total_receive_count += (*receive_indices_count_ptr)[i];
-      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
+//      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
+
+      MPI_Aint displacement = (i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
+      (*receive_disps_values_count_ptr)[i]=displacement;
+
       (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
       cout<<" rank "<<grid->rank_in_col<<" receiving count "<<(*receive_disps_values_count_ptr)[i]<<" from rank "<<i<<endl;
 

@@ -162,6 +162,8 @@ int main(int argc, char* argv[]) {
     cout << " tree depth " << tree_depth << endl;
   }
 
+  initialize_mpi_datatypes<int, float, embedding_dimension>();
+
   auto grid = unique_ptr<Process3DGrid>(new Process3DGrid(size, 1, 1, 1));
 
   Eigen::VectorXi indices(nn), indices_exact(nn);
