@@ -580,7 +580,7 @@ public:
       total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
       (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
-      cout<<" rank "<<grid->rank_in_col<<" sending count "<<(*send_indices_count_ptr)[i]<<" to rank "<<i<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" sending values "<<(*send_values_count_ptr)[i]<<" to rank "<<i<<endl;
     }
 
     auto t = start_clock();
@@ -598,7 +598,7 @@ public:
       total_receive_count += (*receive_indices_count_ptr)[i];
       (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
       (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
-      cout<<" rank "<<grid->rank_in_col<<" receiving count "<<(*receive_indices_count_ptr)[i]<<" from rank "<<i<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" receiving count "<<(*receive_values_count_ptr)[i]<<" from rank "<<i<<endl;
 
     }
 //
@@ -628,9 +628,6 @@ public:
           auto access_index_dim = (in) * data_dimension;
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
-            if (access_index_dim_d>= total_send){
-              cout<<" wring index set"<<access_index_dim_d<<endl;
-            }
              (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
           }
         }
