@@ -582,7 +582,7 @@ public:
       }
       (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
       total_send_count +=(*send_indices_count_ptr)[i];
-//      (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
+      (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
 
       MPI_Aint displacement = (i > 0) ? (*send_disps_values_count_ptr)[i - 1] + (*send_indices_count_ptr)[i - 1] * data_dimension : 0;
       (*send_disps_values_count_ptr)[i] = displacement;
