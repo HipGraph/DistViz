@@ -611,7 +611,7 @@ public:
 //      (*receive_disps_values_count_ptr)[i]=displacement;
 
       (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
-      cout<<" rank "<<grid->rank_in_col<<" receiving count "<<(*receive_disps_values_count_ptr)[i]<<" from rank "<<i<<endl;
+//      cout<<" rank "<<grid->rank_in_col<<" receiving count "<<(*receive_disps_values_count_ptr)[i]<<" from rank "<<i<<endl;
 
     }
 //
@@ -664,8 +664,11 @@ public:
     MPI_Comm cart_comm;
     MPI_Cart_create(MPI_COMM_WORLD, 1, dims, periods, reorder, &cart_comm);
 //
-//    int left, right;
-//    MPI_Cart_shift(cart_comm, 0, 1, &left, &right);
+    int left, right;
+    MPI_Cart_shift(cart_comm, 0, 1, &left, &right);
+
+
+    cout<<" rank "<<grid->rank_in_col<<" left "<<left<<" right "<<right<<endl;
 //
     MPI_Neighbor_alltoallv((*send_values_ptr).data(),(*send_values_count_ptr).data(),
                            (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
