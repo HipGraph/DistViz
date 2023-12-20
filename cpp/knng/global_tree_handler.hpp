@@ -658,24 +658,29 @@ public:
 //                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
 //                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
 
-    int dims[1] = {grid->col_world_size};
-    int periods[1] = {1};
-    int reorder = 0;
-    MPI_Comm cart_comm;
-    MPI_Dims_create(grid->col_world_size, 1, dims);
-    MPI_Cart_create(grid->col_world, 1, dims, periods, reorder, &cart_comm);
-//
-    int left, right;
-    MPI_Cart_shift(cart_comm, 0, 1, &left, &right);
+    MPI_Comm comm2d;
+
+    int sources[1]={grid->rank_in_col};
+    int degrees[1]={grid->col_world_size};
+    int destinations[grid->col_world_size];
+    int weights[grid->col_world_size];
+    for(int i=0;i<destinations;i++){
+      destinations[i]=i;
+      weights[i]=1;
+    }
+
+    MPI_Dist_graph_create(grid->col_world,1,
+                          &sources,&degrees,destinations,weights,
+         MPI_INFO_NULL,0,
+         &comm2d
+        );
 
 
-    cout<<" rank "<<grid->rank_in_col<<" left "<<left<<" right "<<right<<endl;
-//
     MPI_Neighbor_alltoallv((*send_values_ptr).data(),(*send_values_count_ptr).data(),
                            (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
-                           (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, cart_comm);
+                           (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, comm2d);
 
-//     MPI_Barrier(cart_comm);
+     MPI_Barrier(comm2d);
 //    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
     stop_clock_and_add(t, "KNNG Communication Time");
 ////
