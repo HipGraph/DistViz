@@ -662,7 +662,8 @@ public:
     int periods[1] = {1};
     int reorder = 0;
     MPI_Comm cart_comm;
-    MPI_Cart_create(MPI_COMM_WORLD, 1, dims, periods, reorder, &cart_comm);
+    MPI_Dims_create(grid->col_world_size, 1, dims);
+    MPI_Cart_create(grid->col_world, 1, dims, periods, reorder, &cart_comm);
 //
     int left, right;
     MPI_Cart_shift(cart_comm, 0, 1, &left, &right);
