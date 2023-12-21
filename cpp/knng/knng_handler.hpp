@@ -139,7 +139,7 @@ public:
 //                                                                                       local_nn_map_ptr.get(),
 //                                                                                       nn);
 
-    Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,
+     drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,
                                                                                        process_to_index_set_ptr.get(),
                                                                                        datamap_ptr.get(),
                                                                                        local_nn_map_ptr.get(),
