@@ -660,20 +660,24 @@ public:
 
     MPI_Comm comm2d;
 
-    int sources[1]={grid->rank_in_col};
-    int degrees[1]={grid->col_world_size};
-    int destinations[grid->col_world_size];
-    int weights[grid->col_world_size];
-    for(int i=0;i<grid->col_world_size;i++){
-      destinations[i]=i;
-      weights[i]=1;
+    int sources[grid->col_world_size * grid->col_world_size];
+    int degrees[grid->col_world_size];
+    int destinations[grid->col_world_size * grid->col_world_size];
+    int weights[grid->col_world_size * grid->col_world_size];
+
+    int index = 0;
+    for (int i = 0; i < grid->col_world_size; i++) {
+      for (int j = 0; j < grid->col_world_size; j++) {
+        sources[index] = i;
+        destinations[index] = j;
+        weights[index] = 1;
+        index++;
+      }
+      degrees[i] = grid->col_world_size;
     }
 
-    MPI_Dist_graph_create(grid->col_world,1,
-                          sources,degrees,destinations,weights,
-         MPI_INFO_NULL,0,
-         &comm2d
-        );
+    MPI_Dist_graph_create(grid->col_world, 1, sources, degrees, destinations, weights,
+                          MPI_INFO_NULL, 0, &comm2d);
 
 
     MPI_Neighbor_alltoallv((*send_values_ptr).data(),(*send_values_count_ptr).data(),
