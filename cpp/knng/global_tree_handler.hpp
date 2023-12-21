@@ -696,7 +696,7 @@ public:
     for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
       for(int j=0;j<data_dimension;j++){
         auto index_trying = (*it) - starting_data_index;
-//        (data_matrix)(j,total_data_count)= (*data_points_ptr)[index_trying][j];
+        (data_matrix)(j,total_data_count)= (*data_points_ptr)[index_trying][j];
       }
 //      (*local_to_global_map)[total_data_count]=*it;
 //
