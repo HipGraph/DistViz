@@ -673,7 +673,7 @@ public:
         weights[i] = 1;
     }
 
-    MPI_Dist_graph_create_adjacent(grid->col_world, degrees, sources,weights, degrees, destinations, weights,
+    MPI_Dist_graph_create_adjacent(grid->col_world,grid->col_world_size,  sources,weights, grid->col_world_size, destinations, weights,
                           MPI_INFO_NULL, 0, &comm2d);
 
 
