@@ -690,7 +690,7 @@ public:
     auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
 //////    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
 ////
-    Eigen::MatrixXf* data_matrix_ptr = new Eigen::MatrixXf data_matrix(data_dimension, rows);
+    Eigen::MatrixXf* data_matrix = new Eigen::MatrixXf data_matrix(data_dimension, rows);
     auto total_data_count=0;
     for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
       for(int j=0;j<data_dimension;j++){
