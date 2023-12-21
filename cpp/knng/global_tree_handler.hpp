@@ -670,7 +670,7 @@ public:
     }
 
     MPI_Dist_graph_create(grid->col_world,1,
-                          &sources,&degrees,destinations,weights,
+                          &sources,&degrees,&destinations,&weights,
          MPI_INFO_NULL,0,
          &comm2d
         );
