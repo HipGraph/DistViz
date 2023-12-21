@@ -561,15 +561,15 @@ public:
     shared_ptr<vector<int>> send_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> send_disps_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> send_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
-    shared_ptr<vector<int>> send_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
+//    shared_ptr<vector<int>> send_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
 
-//    shared_ptr<vector<MPI_Aint>> send_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> send_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
 
     shared_ptr<vector<int>> receive_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> receive_disps_indices_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> receive_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
-    shared_ptr<vector<int>> receive_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
-//    shared_ptr<vector<MPI_Aint>> receive_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
+//    shared_ptr<vector<int>> receive_disps_values_count_ptr =  make_shared<vector<int>>(grid->col_world_size);
+    shared_ptr<vector<MPI_Aint>> receive_disps_values_count_ptr =  make_shared<vector<MPI_Aint>>(grid->col_world_size);
 
     MPI_Datatype* data_type = new MPI_Datatype[grid->col_world_size];
 
@@ -584,9 +584,9 @@ public:
       total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
 
-//      MPI_Aint displacement = (i > 0) ? (*send_disps_values_count_ptr)[i - 1] + (*send_indices_count_ptr)[i - 1] * data_dimension : 0;
-//      (*send_disps_values_count_ptr)[i] = displacement;
-      (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
+      MPI_Aint displacement = (i > 0) ? (*send_disps_values_count_ptr)[i - 1] + (*send_indices_count_ptr)[i - 1] * data_dimension : 0;
+      (*send_disps_values_count_ptr)[i] = displacement;
+//      (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
 
       data_type[i]=MPI_VALUE_TYPE;
 //      cout<<" rank "<<grid->rank_in_col<<" sending values "<<(*send_disps_values_count_ptr)[i]<<" to rank "<<i<<endl;
@@ -605,10 +605,10 @@ public:
     for(int i=0;i<grid->col_world_size;i++) {
       (*receive_disps_indices_count_ptr)[i]=(i>0)?(*receive_disps_indices_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]:0;
       total_receive_count += (*receive_indices_count_ptr)[i];
-      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
+//      (*receive_disps_values_count_ptr)[i]=(i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
 
-//      MPI_Aint displacement = (i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
-//      (*receive_disps_values_count_ptr)[i]=displacement;
+      MPI_Aint displacement = (i>0)?(*receive_disps_values_count_ptr)[i-1]+(*receive_indices_count_ptr)[i-1]*data_dimension:0;
+      (*receive_disps_values_count_ptr)[i]=displacement;
 
       (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
 //      cout<<" rank "<<grid->rank_in_col<<" receiving count "<<(*receive_disps_values_count_ptr)[i]<<" from rank "<<i<<endl;
@@ -664,6 +664,7 @@ public:
     int degrees[grid->col_world_size];
     int destinations[grid->col_world_size];
     int weights[grid->col_world_size];
+    MPI_Datatype sendtypes[grid->col_world_size];
 
     int index = 0;
     for (int i = 0; i < grid->col_world_size; i++) {
@@ -671,15 +672,16 @@ public:
         sources[i]=i;
         degrees[i]=grid->col_world_size;
         weights[i] = 1;
+        sendtypes[i]=MPI_VALUE_TYPE;
     }
 
     MPI_Dist_graph_create_adjacent(grid->col_world,grid->col_world_size,  sources,weights, grid->col_world_size, destinations, weights,
                           MPI_INFO_NULL, 0, &comm2d);
 
 
-    MPI_Neighbor_alltoallv((*send_values_ptr).data(),(*send_values_count_ptr).data(),
-                           (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
-                           (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, comm2d);
+    MPI_Neighbor_alltoallw((*send_values_ptr).data(),(*send_values_count_ptr).data(),
+                           (*send_disps_values_count_ptr).data() , sendtypes,(*receive_values_ptr).data(),
+                           (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),sendtypes, comm2d);
 
      MPI_Barrier(comm2d);
 //    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
