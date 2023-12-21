@@ -688,6 +688,7 @@ public:
     stop_clock_and_add(t, "KNNG Communication Time");
 ////
     auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
+    cout<<"total rows"<<rows<<endl;
 //////    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
 ////
     Eigen::MatrixXf* data_matrix = new Eigen::MatrixXf(data_dimension, rows);
