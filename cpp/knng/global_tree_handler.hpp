@@ -664,7 +664,7 @@ public:
     int degrees[1]={grid->col_world_size};
     int destinations[grid->col_world_size];
     int weights[grid->col_world_size];
-    for(int i=0;i<destinations;i++){
+    for(int i=0;i<grid->col_world_size;i++){
       destinations[i]=i;
       weights[i]=1;
     }
