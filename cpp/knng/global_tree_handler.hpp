@@ -580,11 +580,11 @@ public:
 
     auto total_send_count=0;
     for(int i=0;i<grid->col_world_size;i++){
-      if (i!= grid->rank_in_col){
+//      if (i!= grid->rank_in_col){
         (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
-      }else {
+//      }else {
         (*send_indices_count_ptr)[i] = 0;
-      }
+//      }
       (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
       total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
@@ -632,7 +632,7 @@ public:
 //    cout<<" MPI value initialization  passed rank "<<grid->rank_in_col <<endl;
 //
     for(int i=0;i<grid->col_world_size;i++){
-      if (i != grid->rank_in_col) {
+//      if (i != grid->rank_in_col) {
         auto offset = (*send_disps_indices_count_ptr)[i];
 
         std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
@@ -647,7 +647,7 @@ public:
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
              (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
-          }
+//          }
         }
       }
     }
@@ -700,16 +700,16 @@ public:
     Eigen::Map<Eigen::MatrixXf> data_matrix((*receive_values_ptr).data(), data_dimension, total_receive_count);
 //     Eigen::MatrixXf  data_matrix(data_dimension, rows);
     auto total_data_count=0;
-    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
-      for(int j=0;j<data_dimension;j++){
-        auto index_trying = (*it) - starting_data_index;
-//        (data_matrix)(j,total_data_count)= (*data_points_ptr)[index_trying][j];
-      }
-      (*local_to_global_map)[total_data_count]=*it;
-//
-      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-      total_data_count++;
-    }
+//    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
+//      for(int j=0;j<data_dimension;j++){
+//        auto index_trying = (*it) - starting_data_index;
+////        (data_matrix)(j,total_data_count)= (*data_points_ptr)[index_trying][j];
+//      }
+//      (*local_to_global_map)[total_data_count]=*it;
+////
+//      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
+//      total_data_count++;
+//    }
 
 
     for(auto i=0;i<total_receive_count;i++) {
