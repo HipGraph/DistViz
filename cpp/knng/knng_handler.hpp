@@ -146,10 +146,22 @@ public:
 
 
     cout<<"rank "<<grid->rank_in_col<<" rows "<<(data_matrix).rows()<<" cols "<<(data_matrix).cols()<<endl;
+    if(grid->rank_in_col==0){
+      for(int i=0;i<data_matrix.cols();i++){
+        for(int j=0;j<data_matrix.rows();j++){
+          cout<<data_matrix(j,i)<<" "
+        }
+        cout<<endl;
+
+      }
+    }
+
+
+
 //    int effective_nn = 2 * nn;
     int effective_nn =  nn;
-    Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, effective_nn);
+//    Mrpt mrpt(data_matrix);
+//    mrpt.grow_autotune(target_recall, effective_nn);
 
 //    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
 //    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
