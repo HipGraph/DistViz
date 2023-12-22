@@ -140,6 +140,8 @@ public:
                                                          local_nn_map_ptr.get(),
                                                          nn);
 
+    int total_receive_count = (*receive_values_ptr).size()/data_dimension;
+
     Eigen::Map<Eigen::MatrixXf> data_matrix((*receive_values_ptr).data(), data_dimension, total_receive_count);
 
 
