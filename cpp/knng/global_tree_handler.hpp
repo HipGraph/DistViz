@@ -687,6 +687,7 @@ public:
      MPI_Barrier(comm2d);
 //    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
     stop_clock_and_add(t, "KNNG Communication Time");
+    cout<<"rank "<<grid->rank_in_col<<" real rows "<<total_receive_count<<endl;
 
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
