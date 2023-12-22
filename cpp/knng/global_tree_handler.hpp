@@ -698,18 +698,18 @@ public:
 ////
 
     Eigen::Map<Eigen::MatrixXf> data_matrix((*receive_values_ptr).data(), data_dimension, total_receive_count);
-//     Eigen::MatrixXf  data_matrix(data_dimension, rows);
-    auto total_data_count=0;
-//    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
-//      for(int j=0;j<data_dimension;j++){
-//        auto index_trying = (*it) - starting_data_index;
-////        (data_matrix)(j,total_data_count)= (*data_points_ptr)[index_trying][j];
-//      }
-//      (*local_to_global_map)[total_data_count]=*it;
-////
-//      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-//      total_data_count++;
-//    }
+////     Eigen::MatrixXf  data_matrix(data_dimension, rows);
+//    auto total_data_count=0;
+////    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
+////      for(int j=0;j<data_dimension;j++){
+////        auto index_trying = (*it) - starting_data_index;
+//////        (data_matrix)(j,total_data_count)= (*data_points_ptr)[index_trying][j];
+////      }
+////      (*local_to_global_map)[total_data_count]=*it;
+//////
+////      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
+////      total_data_count++;
+////    }
 
 
     for(auto i=0;i<total_receive_count;i++) {
