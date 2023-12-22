@@ -693,7 +693,7 @@ public:
 //////    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
 ////
 
-    data_matrix_origin = Eigen::Map<Eigen::MatrixXf> data_matrix((*receive_values_ptr).data(), data_dimension, total_receive_count);
+    data_matrix_origin = Eigen::Map<Eigen::MatrixXf>((*receive_values_ptr).data(), data_dimension, total_receive_count);
 ////     Eigen::MatrixXf  data_matrix(data_dimension, rows);
     auto total_data_count=0;
 ////    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
