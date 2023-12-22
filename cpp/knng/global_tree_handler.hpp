@@ -579,7 +579,7 @@ public:
 //      if (i!= grid->rank_in_col){
         (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
 //      }else {
-        (*send_indices_count_ptr)[i] = 0;
+//        (*send_indices_count_ptr)[i] = 0;
 //      }
       (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
       total_send_count +=(*send_indices_count_ptr)[i];
