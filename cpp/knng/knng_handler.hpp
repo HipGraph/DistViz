@@ -133,43 +133,38 @@ public:
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
 
-//    Eigen::MatrixXf data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,
-//                                                                                       process_to_index_set_ptr.get(),
-//                                                                                       datamap_ptr.get(),
-//                                                                                       local_nn_map_ptr.get(),
-//                                                                                       nn);
-
-     drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,
+    Eigen::MatrixXf* data_matrix =  drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,
                                                                                        process_to_index_set_ptr.get(),
                                                                                        datamap_ptr.get(),
                                                                                        local_nn_map_ptr.get(),
                                                                                        nn);
 
-    cout<<"rank "<<grid->rank_in_col<<" rows "<<(data_matrix).rows()<<" cols "<<(data_matrix).cols()<<endl;
-    int effective_nn = 2 * nn;
-    int effective_nn =  nn;
-    Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, effective_nn);
 
-    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
-    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
-
-    #pragma omp parallel for schedule (static)
-    for(int i=0;i<data_matrix.cols();i++){
-      Eigen::VectorXi tempRow(effective_nn);
-      Eigen::VectorXf tempDis(effective_nn);
-      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
-      neighbours.row(i)=tempRow;
-      distances.row(i)=tempDis;
-      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
-      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
-      edge.src_index=global_index;
-      for(int k=0;k<nn;k++){
-       edge.dst_index = (*datamap_ptr)[tempRow[k]];
-       edge.distance = tempDis[k];
-       (*local_nn_map_ptr)[global_index][k]=edge;
-      }
-    }
+    cout<<"rank "<<grid->rank_in_col<<" rows "<<(*data_matrix).rows()<<" cols "<<(*data_matrix).cols()<<endl;
+//    int effective_nn = 2 * nn;
+//    int effective_nn =  nn;
+//    Mrpt mrpt(data_matrix);
+//    mrpt.grow_autotune(target_recall, effective_nn);
+//
+//    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
+//    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
+//
+//    #pragma omp parallel for schedule (static)
+//    for(int i=0;i<data_matrix.cols();i++){
+//      Eigen::VectorXi tempRow(effective_nn);
+//      Eigen::VectorXf tempDis(effective_nn);
+//      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
+//      neighbours.row(i)=tempRow;
+//      distances.row(i)=tempDis;
+//      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
+//      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
+//      edge.src_index=global_index;
+//      for(int k=0;k<nn;k++){
+//       edge.dst_index = (*datamap_ptr)[tempRow[k]];
+//       edge.distance = tempDis[k];
+//       (*local_nn_map_ptr)[global_index][k]=edge;
+//      }
+//    }
 //    MPI_Barrier(grid->col_world);
 //    cout<<"rank "<<grid->rank_in_col<<" local nn slection completed :"<<endl;
 //
