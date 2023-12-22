@@ -149,7 +149,7 @@ public:
     if(grid->rank_in_col==0){
       for(int i=0;i<data_matrix.cols();i++){
         for(int j=0;j<data_matrix.rows();j++){
-          cout<<data_matrix(j,i)<<" "
+          cout<<data_matrix(j,i)<<" ";
         }
         cout<<endl;
 
