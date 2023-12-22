@@ -533,7 +533,7 @@ public:
   }
 
 
-  void collect_similar_data_points_of_all_trees(Eigen::MatrixXf& data_matrix_origin,bool use_data_locality_optimization,
+  vector<VALUE_TYPE>* collect_similar_data_points_of_all_trees(bool use_data_locality_optimization,
                                    vector<set<INDEX_TYPE>>* process_to_index_set_ptr,
                                                            map<INDEX_TYPE,INDEX_TYPE>* local_to_global_map,
                                                            map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nn_map, int nn) {
@@ -687,28 +687,6 @@ public:
      MPI_Barrier(comm2d);
 //    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
     stop_clock_and_add(t, "KNNG Communication Time");
-////
-    auto rows= (*process_to_index_set_ptr)[grid->rank_in_col].size()+total_receive_count;
-    cout<<"total rows"<<rows<<endl;
-//////    std::shared_ptr<Eigen::MatrixXf> matrixPtr = std::make_shared<Eigen::MatrixXf>(rows, data_dimension);
-////
-
-   Eigen::Map<Eigen::MatrixXf> data_matrix((*receive_values_ptr).data(), data_dimension, total_receive_count);
-////     Eigen::MatrixXf  data_matrix(data_dimension, rows);
-
-   cout<<" rows "<<data_matrix.rows()<<" cols "<<data_matrix.cols()<<endl;
-    auto total_data_count=0;
-////    for (auto it = (*process_to_index_set_ptr)[grid->rank_in_col].begin();it != (*process_to_index_set_ptr)[grid->rank_in_col].end(); ++it) {
-////      for(int j=0;j<data_dimension;j++){
-////        auto index_trying = (*it) - starting_data_index;
-//////        (data_matrix)(j,total_data_count)= (*data_points_ptr)[index_trying][j];
-////      }
-////      (*local_to_global_map)[total_data_count]=*it;
-//////
-////      (*local_nn_map)[*it] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-////      total_data_count++;
-////    }
-
 
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
@@ -716,7 +694,7 @@ public:
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
     }
 
-//    return data_matrix;
+    return (*receive_values_ptr).data();
   }
 };
 }

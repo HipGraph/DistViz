@@ -133,12 +133,14 @@ public:
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
 
-    Eigen::MatrixXf data_matrix;
-    drpt_global.collect_similar_data_points_of_all_trees(data_matrix,use_locality_optimization,
+
+    vector<VALUE_TYPE>* receive_values_ptr = drpt_global.collect_similar_data_points_of_all_trees(use_locality_optimization,
                                                          process_to_index_set_ptr.get(),
                                                          datamap_ptr.get(),
                                                          local_nn_map_ptr.get(),
                                                          nn);
+
+    Eigen::Map<Eigen::MatrixXf> data_matrix((*receive_values_ptr).data(), data_dimension, total_receive_count);
 
 
     cout<<"rank "<<grid->rank_in_col<<" rows "<<(data_matrix).rows()<<" cols "<<(data_matrix).cols()<<endl;
