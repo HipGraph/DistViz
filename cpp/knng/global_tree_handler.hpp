@@ -694,7 +694,7 @@ public:
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
     }
 
-    return (*receive_values_ptr).data();
+    return receive_values_ptr;
   }
 };
 }
