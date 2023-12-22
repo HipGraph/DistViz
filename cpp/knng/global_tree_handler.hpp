@@ -533,7 +533,7 @@ public:
   }
 
 
-  Eigen::MatrixXf* collect_similar_data_points_of_all_trees(Eigen::MatrixXf& data_matrix_origin,bool use_data_locality_optimization,
+  void collect_similar_data_points_of_all_trees(Eigen::MatrixXf& data_matrix_origin,bool use_data_locality_optimization,
                                    vector<set<INDEX_TYPE>>* process_to_index_set_ptr,
                                                            map<INDEX_TYPE,INDEX_TYPE>* local_to_global_map,
                                                            map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nn_map, int nn) {
@@ -714,7 +714,7 @@ public:
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
     }
 
-    return data_matrix;
+//    return data_matrix;
   }
 };
 }
