@@ -143,20 +143,20 @@ public:
     int total_receive_count = (*receive_values_ptr).size()/data_dimension;
 
 
-    Eigen::Map<Eigen::MatrixXf> data_matrix((*receive_values_ptr).data(), data_dimension, total_receive_count);
-
-
-    cout<<"rank "<<grid->rank_in_col<<" rows "<<(data_matrix).rows()<<" cols "<<(data_matrix).cols()<<endl;
-    if(grid->rank_in_col==0){
-      for(int i=0;i<data_matrix.cols();i++){
-        cout<<" row id #######"<<i<<endl;
-        for(int j=0;j<data_matrix.rows();j++){
-          int index = i*data_matrix.rows()+j;
-          cout<<(*receive_values_ptr)[index];
-        }
-        cout<<endl;
-      }
-    }
+//    Eigen::Map<Eigen::MatrixXf> data_matrix((*receive_values_ptr).data(), data_dimension, total_receive_count);
+//
+//
+//    cout<<"rank "<<grid->rank_in_col<<" rows "<<(data_matrix).rows()<<" cols "<<(data_matrix).cols()<<endl;
+//    if(grid->rank_in_col==0){
+//      for(int i=0;i<data_matrix.cols();i++){
+//        cout<<" row id #######"<<i<<endl;
+//        for(int j=0;j<data_matrix.rows();j++){
+//          int index = i*data_matrix.rows()+j;
+//          cout<<(*receive_values_ptr)[index];
+//        }
+//        cout<<endl;
+//      }
+//    }
 
 
 
