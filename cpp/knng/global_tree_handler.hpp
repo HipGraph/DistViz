@@ -533,7 +533,7 @@ public:
   }
 
 
-  vector<VALUE_TYPE>* collect_similar_data_points_of_all_trees(bool use_data_locality_optimization,
+  void collect_similar_data_points_of_all_trees(vector<VALUE_TYPE>* receive_values_ptr,bool use_data_locality_optimization,
                                    vector<set<INDEX_TYPE>>* process_to_index_set_ptr,
                                                            map<INDEX_TYPE,INDEX_TYPE>* local_to_global_map,
                                                            map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nn_map, int nn) {
@@ -623,7 +623,8 @@ public:
 
     uint64_t  total_receive= static_cast<uint64_t>(total_receive_count)*static_cast<uint64_t >(data_dimension);
     shared_ptr<vector<INDEX_TYPE>> receive_indices_ptr =  make_shared<vector<INDEX_TYPE>>(total_receive_count);
-    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive);
+//    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>(total_receive);
+    receive_values_ptr->resize(total_receive);
 //
 //    cout<<" MPI value initialization  passed rank "<<grid->rank_in_col <<endl;
 //
@@ -687,23 +688,6 @@ public:
      MPI_Barrier(comm2d);
 //    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
     stop_clock_and_add(t, "KNNG Communication Time");
-    cout<<"rank "<<grid->rank_in_col<<" real rows "<<total_receive_count<<endl;
-
-    Eigen::Map<Eigen::MatrixXf> data_matrix((*receive_values_ptr).data(), data_dimension, total_receive_count);
-
-    cout<<"rank "<<grid->rank_in_col<<" rows "<<(data_matrix).rows()<<" cols "<<(data_matrix).cols()<<endl;
-
-    if(grid->rank_in_col==0){
-      for(int i=0;i<data_matrix.cols();i++){
-        cout<<" row id #######"<<i<<endl;
-        for(int j=0;j<data_matrix.rows();j++){
-          cout<<data_matrix(j,i);
-        }
-        cout<<endl;
-      }
-    }
-
-
 
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
@@ -711,7 +695,6 @@ public:
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
     }
 
-    return receive_values_ptr.get();
   }
 };
 }
