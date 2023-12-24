@@ -147,18 +147,18 @@ public:
 
 
     cout<<"rank "<<grid->rank_in_col<<" rows "<<(data_matrix).rows()<<" cols "<<(data_matrix).cols()<<endl;
-    if(grid->rank_in_col==0){
-      for(int i=0;i<data_matrix.cols();i++){
-        cout<<" row id #######"<<i<<endl;
-        for(int j=0;j<data_matrix.rows();j++){
-          int index = i*data_matrix.cols()+j;
-          cout<<(*receive_values_ptr)[index];
-        }
-        cout<<endl;
-
-      }
-      cout<<data_matrix<<endl;
-    }
+//    if(grid->rank_in_col==0){
+//      for(int i=0;i<data_matrix.cols();i++){
+//        cout<<" row id #######"<<i<<endl;
+//        for(int j=0;j<data_matrix.rows();j++){
+//          int index = i*data_matrix.cols()+j;
+//          cout<<(*receive_values_ptr)[index];
+//        }
+//        cout<<endl;
+//
+//      }
+//      cout<<data_matrix<<endl;
+//    }
 
 
 
