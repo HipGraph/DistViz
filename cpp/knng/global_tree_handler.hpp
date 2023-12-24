@@ -695,17 +695,6 @@ public:
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
       (*local_to_global_map)[i]= receive_index;
       (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
-      if(grid->rank_in_col==0){
-        for(int i=0;i<total_receive_count;i++) {
-          cout << " row id #######" << i << endl;
-          for (int j = 0; j < data_dimension; j++) {
-            int index = i * data_dimension + j;
-            cout << (*receive_values_ptr)[index];
-          }
-          cout << endl;
-        }
-      }
-
     }
 
     return receive_values_ptr.get();
