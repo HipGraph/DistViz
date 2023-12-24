@@ -148,45 +148,33 @@ public:
 
 
     cout<<"rank "<<grid->rank_in_col<<" rows "<<(data_matrix).rows()<<" cols "<<(data_matrix).cols()<<endl;
-    if(grid->rank_in_col==0){
-      for(int i=0;i<data_matrix.cols();i++){
-        cout<<" row id #######"<<i<<endl;
-        for(int j=0;j<data_matrix.rows();j++){
-          int index = i*data_matrix.rows()+j;
-          cout<<(*receive_values_ptr)[index];
-        }
-        cout<<endl;
-      }
-    }
-
-
 
 //    int effective_nn = 2 * nn;
     int effective_nn =  nn;
-//    Mrpt mrpt(data_matrix);
-//    mrpt.grow_autotune(target_recall, effective_nn);
+    Mrpt mrpt(data_matrix);
+    mrpt.grow_autotune(target_recall, effective_nn);
 
-//    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
-//    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
-//
-//    #pragma omp parallel for schedule (static)
-//    for(int i=0;i<data_matrix.cols();i++){
-//      Eigen::VectorXi tempRow(effective_nn);
-//      Eigen::VectorXf tempDis(effective_nn);
-//      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
-//      neighbours.row(i)=tempRow;
-//      distances.row(i)=tempDis;
-//      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
-//      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
-//      edge.src_index=global_index;
-//      for(int k=0;k<nn;k++){
-//       edge.dst_index = (*datamap_ptr)[tempRow[k]];
-//       edge.distance = tempDis[k];
-//       (*local_nn_map_ptr)[global_index][k]=edge;
-//      }
-//    }
-//    MPI_Barrier(grid->col_world);
-//    cout<<"rank "<<grid->rank_in_col<<" local nn slection completed :"<<endl;
+    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
+    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
+
+    #pragma omp parallel for schedule (static)
+    for(int i=0;i<data_matrix.cols();i++){
+      Eigen::VectorXi tempRow(effective_nn);
+      Eigen::VectorXf tempDis(effective_nn);
+      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
+      neighbours.row(i)=tempRow;
+      distances.row(i)=tempDis;
+      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
+      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
+      edge.src_index=global_index;
+      for(int k=0;k<nn;k++){
+       edge.dst_index = (*datamap_ptr)[tempRow[k]];
+       edge.distance = tempDis[k];
+       (*local_nn_map_ptr)[global_index][k]=edge;
+      }
+    }
+    MPI_Barrier(grid->col_world);
+    cout<<"rank "<<grid->rank_in_col<<" local nn slection completed :"<<endl;
 //
 //    shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 //
