@@ -133,7 +133,7 @@ public:
 
     cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
 
-    shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>();
+     shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>();
 
      drpt_global.collect_similar_data_points_of_all_trees(receive_values_ptr.get(),use_locality_optimization,
                                                          process_to_index_set_ptr.get(),
@@ -176,33 +176,33 @@ public:
     MPI_Barrier(grid->col_world);
     cout<<"rank "<<grid->rank_in_col<<" local nn slection completed :"<<endl;
 //
-//    shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
-//
-//    communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
-//
-//    cout<<"rank "<<grid->rank_in_col<<" size :"<<(*final_nn_map).size()<<endl;
-//
-//    if (print_output) {
-//      auto t = start_clock();
-//      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
-//      fileWriter.mpi_write_edge_list(final_nn_map.get(),output_path,nn-1,grid->rank_in_col,grid->col_world_size,true);
-//      stop_clock_and_add(t, "IO Time");
-//    }
-//
-//
-//    for(auto it=(*final_nn_map).begin(); it!=(*final_nn_map).end();++it){
-//      vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
-//      for(int j=0;j<nn;j++){
-//        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = edge_node_list[j];
-//        Tuple<VALUE_TYPE> tuple;
-//        if (edge_node.src_index != edge_node.dst_index) {
-//          tuple.row = edge_node.src_index;
-//          tuple.col = edge_node.dst_index;
-//          tuple.value = edge_node.distance;
-//          (*output_knng).push_back(tuple);
-//        }
-//      }
-//    }
+    shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
+
+    communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
+
+    cout<<"rank "<<grid->rank_in_col<<" size :"<<(*final_nn_map).size()<<endl;
+
+    if (print_output) {
+      auto t = start_clock();
+      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+      fileWriter.mpi_write_edge_list(final_nn_map.get(),output_path,nn-1,grid->rank_in_col,grid->col_world_size,true);
+      stop_clock_and_add(t, "IO Time");
+    }
+
+
+    for(auto it=(*final_nn_map).begin(); it!=(*final_nn_map).end();++it){
+      vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
+      for(int j=0;j<nn;j++){
+        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = edge_node_list[j];
+        Tuple<VALUE_TYPE> tuple;
+        if (edge_node.src_index != edge_node.dst_index) {
+          tuple.row = edge_node.src_index;
+          tuple.col = edge_node.dst_index;
+          tuple.value = edge_node.distance;
+          (*output_knng).push_back(tuple);
+        }
+      }
+    }
   }
 
 
