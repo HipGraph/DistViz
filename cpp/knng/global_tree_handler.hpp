@@ -590,7 +590,7 @@ public:
 //      (*send_disps_values_count_ptr)[i]=(i>0)?(*send_disps_values_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]*data_dimension:0;
 
       data_type[i]=MPI_VALUE_TYPE;
-//      cout<<" rank "<<grid->rank_in_col<<" sending values "<<(*send_disps_values_count_ptr)[i]<<" to rank "<<i<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" sending values "<<(*send_values_count_ptr)[i]<<" to rank "<<i<<endl;
     }
 
     auto t = start_clock();
@@ -612,7 +612,7 @@ public:
       (*receive_disps_values_count_ptr)[i]=displacement;
 
       (*receive_values_count_ptr)[i]=(*receive_indices_count_ptr)[i]*data_dimension;
-//      cout<<" rank "<<grid->rank_in_col<<" receiving count "<<(*receive_disps_values_count_ptr)[i]<<" from rank "<<i<<endl;
+      cout<<" rank "<<grid->rank_in_col<<" receiving count "<<(*receive_values_count_ptr)[i]<<" from rank "<<i<<endl;
 
     }
 //
