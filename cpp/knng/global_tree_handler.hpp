@@ -655,11 +655,13 @@ public:
     MPI_Alltoallv((*send_indices_ptr).data(),(*send_indices_count_ptr).data(),(*send_disps_indices_count_ptr).data() , MPI_INDEX_TYPE,
                   (*receive_indices_ptr).data(), (*receive_indices_count_ptr).data(),
                   (*receive_disps_indices_count_ptr).data(),MPI_INDEX_TYPE, grid->col_world);
+
     cout<<" MPI value indices completed "<<grid->rank_in_col <<endl;
 
 //    MPI_Alltoallv ((*send_values_ptr).data(),(*send_values_count_ptr).data(),
 //                  (*send_disps_values_count_ptr).data() , MPI_VALUE_TYPE,(*receive_values_ptr).data(),
 //                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
+
 
     MPI_Comm comm2d;
 
@@ -678,19 +680,21 @@ public:
         sendtypes[i]=MPI_VALUE_TYPE;
     }
 
-    MPI_Dist_graph_create_adjacent(grid->col_world,grid->col_world_size,  sources,weights, grid->col_world_size, destinations, weights,
+
+     MPI_Dist_graph_create_adjacent(grid->col_world,grid->col_world_size,  sources,weights, grid->col_world_size, destinations, weights,
                           MPI_INFO_NULL, 0, &comm2d);
 
+     cout<<" MPI Neighbour all to all initiated "<<grid->rank_in_col <<endl;
 
-    MPI_Neighbor_alltoallw((*send_values_ptr).data(),(*send_values_count_ptr).data(),
+     MPI_Neighbor_alltoallw((*send_values_ptr).data(),(*send_values_count_ptr).data(),
                            (*send_disps_values_count_ptr).data() , sendtypes,(*receive_values_ptr).data(),
                            (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),sendtypes, comm2d);
 
-    cout<<" MPI Neighbour all to all completed "<<grid->rank_in_col <<endl;
+     cout<<" MPI Neighbour all to all completed "<<grid->rank_in_col <<endl;
 
      MPI_Barrier(comm2d);
 //    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
-    stop_clock_and_add(t, "KNNG Communication Time");
+     stop_clock_and_add(t, "KNNG Communication Time");
 
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
