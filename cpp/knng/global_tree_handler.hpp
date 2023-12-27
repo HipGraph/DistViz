@@ -576,11 +576,11 @@ public:
 
     auto total_send_count=0;
     for(int i=0;i<grid->col_world_size;i++){
-//      if (i!= grid->rank_in_col){
+      if (i!= grid->rank_in_col){
         (*send_indices_count_ptr)[i]= (*process_to_index_set_ptr)[i].size();
-//      }else {
-//        (*send_indices_count_ptr)[i] = 0;
-//      }
+      }else {
+        (*send_indices_count_ptr)[i] = 0;
+      }
       (*send_values_count_ptr)[i]= (*send_indices_count_ptr)[i]*data_dimension;
       total_send_count +=(*send_indices_count_ptr)[i];
       (*send_disps_indices_count_ptr)[i]=(i>0)?(*send_disps_indices_count_ptr)[i-1]+(*send_indices_count_ptr)[i-1]:0;
@@ -629,7 +629,7 @@ public:
 //    cout<<" MPI value initialization  passed rank "<<grid->rank_in_col <<endl;
 //
     for(int i=0;i<grid->col_world_size;i++){
-//      if (i != grid->rank_in_col) {
+      if (i != grid->rank_in_col) {
         auto offset = (*send_disps_indices_count_ptr)[i];
 
         std::set<INDEX_TYPE>& data_set = (*process_to_index_set_ptr)[i];
@@ -644,7 +644,7 @@ public:
           for (int k = 0; k < data_dimension; ++k) {
             auto access_index_dim_d = access_index_dim + k;
              (*send_values_ptr)[access_index_dim_d] =(*data_points_ptr)[index_trying][k];
-//          }
+          }
         }
       }
     }
@@ -663,32 +663,53 @@ public:
 //                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
 
 
-    MPI_Comm comm2d;
-
-    int sources[grid->col_world_size];
-    int degrees[grid->col_world_size];
-    int destinations[grid->col_world_size];
-    int weights[grid->col_world_size];
-    MPI_Datatype sendtypes[grid->col_world_size];
-
-    int index = 0;
-    for (int i = 0; i < grid->col_world_size; i++) {
-        destinations[i] = i;
-        sources[i]=i;
-        degrees[i]=grid->col_world_size;
-        weights[i] = 1;
-        sendtypes[i]=MPI_VALUE_TYPE;
+    MPI_Request sendRequests[grid->col_world_size-1];
+    MPI_Request recvRequests[grid->col_world_size-1];
+    uint64_t send_offset =0;
+    uint64_t receive_offset =0;
+    int TAG_MULTIPLIER = 10000;
+    cout<<" MPI send all  initiated "<<grid->rank_in_col <<endl;
+    for(int i=0;i<grid->grid->col_world_size;i++){
+      if (i!= grid->rank_in_col){
+        VALUE_TYPE* send_buf = (*send_values_ptr).data() +send_offset;
+        VALUE_TYPE* receive_buf = (*receive_values_ptr).data() +receive_offset;
+        MPI_Isend(send_buf, (*send_values_count_ptr)[i], MPI_VALUE_TYPE, i, TAG_MULTIPLIER+i, grid->col_world, &sendRequests[i]);
+        MPI_Irecv(receive_buf, (*receive_values_count_ptr)[i], MPI_VALUE_TYPE, i, TAG_MULTIPLIER+i, grid->col_world, &recvRequests[i]);
+        send_offset +=(*send_values_count_ptr)[i];
+        receive_offset+=(*receive_values_count_ptr)[i];
+      }
     }
+    cout<<" MPI send all  completed "<<grid->rank_in_col <<endl;
+    MPI_Waitall(grid->col_world_size-1, sendRequests, MPI_STATUSES_IGNORE);
+    MPI_Waitall(grid->col_world_size-1, recvRequests, MPI_STATUSES_IGNORE);
+    cout<<" MPI waiting  completed "<<grid->rank_in_col <<endl;
+
+//    MPI_Comm comm2d;
+//
+//    int sources[grid->col_world_size];
+//    int degrees[grid->col_world_size];
+//    int destinations[grid->col_world_size];
+//    int weights[grid->col_world_size];
+//    MPI_Datatype sendtypes[grid->col_world_size];
+//
+//    int index = 0;
+//    for (int i = 0; i < grid->col_world_size; i++) {
+//        destinations[i] = i;
+//        sources[i]=i;
+//        degrees[i]=grid->col_world_size;
+//        weights[i] = 1;
+//        sendtypes[i]=MPI_VALUE_TYPE;
+//    }
+//
+//
+//     MPI_Dist_graph_create_adjacent(grid->col_world,grid->col_world_size,  sources,weights, grid->col_world_size, destinations, weights,
+//                          MPI_INFO_NULL, 0, &comm2d);
 
 
-     MPI_Dist_graph_create_adjacent(grid->col_world,grid->col_world_size,  sources,weights, grid->col_world_size, destinations, weights,
-                          MPI_INFO_NULL, 0, &comm2d);
 
-     cout<<" MPI Neighbour all to all initiated "<<grid->rank_in_col <<endl;
-
-     MPI_Neighbor_alltoallw((*send_values_ptr).data(),(*send_values_count_ptr).data(),
-                           (*send_disps_values_count_ptr).data() , sendtypes,(*receive_values_ptr).data(),
-                           (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),sendtypes, comm2d);
+//     MPI_Neighbor_alltoallw((*send_values_ptr).data(),(*send_values_count_ptr).data(),
+//                           (*send_disps_values_count_ptr).data() , sendtypes,(*receive_values_ptr).data(),
+//                           (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),sendtypes, comm2d);
 
      cout<<" MPI Neighbour all to all completed "<<grid->rank_in_col <<endl;
 
