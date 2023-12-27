@@ -86,11 +86,13 @@ public:
 
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
-    std::shared_ptr<std::map<INDEX_TYPE, INDEX_TYPE>> datamap_ptr = std::make_shared<std::map<INDEX_TYPE, INDEX_TYPE>>();
-    std::shared_ptr<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> local_nn_map_ptr= std::make_shared<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
-    shared_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
-    shared_ptr<vector<set<INDEX_TYPE>>> remote_index_distribution =  make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
+
     for(int tree=0;tree< ntrees;tree++) {
+      std::shared_ptr<std::map<INDEX_TYPE, INDEX_TYPE>> datamap_ptr = std::make_shared<std::map<INDEX_TYPE, INDEX_TYPE>>();
+      std::shared_ptr<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> local_nn_map_ptr= std::make_shared<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
+      shared_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
+      shared_ptr<vector<set<INDEX_TYPE>>> remote_index_distribution =  make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
+
       int* receive = this->receive_random_seeds();
       // build global sparse random project matrix for all trees
       VALUE_TYPE *B = mathOp_ptr.get()->build_sparse_projection_matrix(
