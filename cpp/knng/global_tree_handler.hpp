@@ -671,14 +671,10 @@ public:
     cout<<" MPI send all  initiated "<<grid->rank_in_col <<endl;
     for(int i=0;i<grid->col_world_size;i++){
       if (i!= grid->rank_in_col){
-//        VALUE_TYPE* send_buf = (*send_values_ptr).data() +send_offset;
-//        VALUE_TYPE* receive_buf = (*receive_values_ptr).data() +receive_offset;
-        int message = 7;
-        int receive=0;
-//        MPI_Isend(send_buf, (*send_values_count_ptr)[i], MPI_VALUE_TYPE, i, TAG_MULTIPLIER+i, grid->col_world, &sendRequests[i]);
-//        MPI_Irecv(receive_buf, (*receive_values_count_ptr)[i], MPI_VALUE_TYPE, i, TAG_MULTIPLIER+i, grid->col_world, &recvRequests[i]);
-        MPI_Isend(&message, 1, MPI_INT, i, TAG_MULTIPLIER, grid->col_world, &send_requests[i]);
-        MPI_Irecv(&receive, 1, MPI_INT, i, TAG_MULTIPLIER, grid->col_world, &recv_requests[i]);
+        VALUE_TYPE* send_buf = (*send_values_ptr).data() +send_offset;
+        VALUE_TYPE* receive_buf = (*receive_values_ptr).data() +receive_offset;
+        MPI_Isend(send_buf, (*send_values_count_ptr)[i], MPI_VALUE_TYPE, i, TAG_MULTIPLIER+i, grid->col_world, &send_requests[i]);
+        MPI_Irecv(receive_buf, (*receive_values_count_ptr)[i], MPI_VALUE_TYPE, i, TAG_MULTIPLIER+i, grid->col_world, &recv_requests[i]);
         send_offset +=(*send_values_count_ptr)[i];
         receive_offset+=(*receive_values_count_ptr)[i];
       }
