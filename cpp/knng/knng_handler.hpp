@@ -36,7 +36,7 @@ private:
   int my_leaf_start_index;
   int my_leaf_end_index;
 
-  int *receive_random_seeds(int seed) {
+  int *receive_random_seeds() {
     int* receive = new int[grid->col_world_size]();
     if (grid->rank_in_col== 0) {
       for (int i = 0; i < grid->col_world_size; i++)
@@ -83,7 +83,7 @@ public:
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
 
     // generate random seed at process 0 and broadcast it to multiple processes.
-    int* receive = this->receive_random_seeds(1);
+
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
     std::shared_ptr<std::map<INDEX_TYPE, INDEX_TYPE>> datamap_ptr = std::make_shared<std::map<INDEX_TYPE, INDEX_TYPE>>();
@@ -91,7 +91,7 @@ public:
     shared_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
     shared_ptr<vector<set<INDEX_TYPE>>> remote_index_distribution =  make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
     for(int tree=0;tree< ntrees;tree++) {
-
+      int* receive = this->receive_random_seeds();
       // build global sparse random project matrix for all trees
       VALUE_TYPE *B = mathOp_ptr.get()->build_sparse_projection_matrix(
           this->data_dimension, global_tree_depth , density,
