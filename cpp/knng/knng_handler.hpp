@@ -175,16 +175,17 @@ public:
 //        }
       }
 
-      if (grid->rank_in_col==0) {
-        for (int i = 0; i < neighbours.rows(); i++) {
-          for (int j = 0; j < neighbours.cols(); j++) {
-            cout << neighbours(i, j) << endl;
-          }
-          cout << endl;
-        }
+#pragma omp parallel for schedule(static)
+      for(int i=0;i<data_matrix.cols()*effective_nn;i++){
+         int node_index = i/effective_nn;
+         int nn_index = i%effective_nn;
+        INDEX_TYPE global_index = (*datamap_ptr)[node_index];
+        EdgeNode<INDEX_TYPE, VALUE_TYPE> edge;
+        edge.src_index = global_index;
+        edge.dst_index =  neighbours.row(node_index,nn_index);
+        edge.distance = distances.row(node_index,nn_index);
+        (*local_nn_map_ptr)[global_index][nn_index] = edge;
       }
-
-
 
 //      MPI_Barrier(grid->col_world);
       cout << "rank " << grid->rank_in_col<< " local nn slection completed :" << endl;
