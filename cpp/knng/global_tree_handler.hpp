@@ -663,8 +663,8 @@ public:
 //                  (*receive_values_count_ptr).data(),(*receive_disps_values_count_ptr).data(),MPI_VALUE_TYPE, grid->col_world);
 
 
-    MPI_Request sendRequests[grid->col_world_size-1];
-    MPI_Request recvRequests[grid->col_world_size-1];
+    vector<MPI_Request> send_requests(grid->col_world_size-1, MPI_REQUEST_NULL);
+    vector<MPI_Request> recv_requests(grid->col_world_size-1, MPI_REQUEST_NULL);
     uint64_t send_offset =0;
     uint64_t receive_offset =0;
     int TAG_MULTIPLIER = 10000;
@@ -677,15 +677,15 @@ public:
         int receive=0;
 //        MPI_Isend(send_buf, (*send_values_count_ptr)[i], MPI_VALUE_TYPE, i, TAG_MULTIPLIER+i, grid->col_world, &sendRequests[i]);
 //        MPI_Irecv(receive_buf, (*receive_values_count_ptr)[i], MPI_VALUE_TYPE, i, TAG_MULTIPLIER+i, grid->col_world, &recvRequests[i]);
-        MPI_Isend(&message, 1, MPI_INT, i, TAG_MULTIPLIER+i, grid->col_world, &sendRequests[i]);
-        MPI_Irecv(&receive, 1, MPI_INT, i, TAG_MULTIPLIER+i, grid->col_world, &recvRequests[i]);
+        MPI_Isend(&message, 1, MPI_INT, i, TAG_MULTIPLIER, grid->col_world, &sendRequests[i]);
+        MPI_Irecv(&receive, 1, MPI_INT, i, TAG_MULTIPLIER, grid->col_world, &recvRequests[i]);
         send_offset +=(*send_values_count_ptr)[i];
         receive_offset+=(*receive_values_count_ptr)[i];
       }
     }
     cout<<" MPI send all  completed "<<grid->rank_in_col <<endl;
-    MPI_Waitall(grid->col_world_size-1, sendRequests, MPI_STATUSES_IGNORE);
-    MPI_Waitall(grid->col_world_size-1, recvRequests, MPI_STATUSES_IGNORE);
+    MPI_Waitall(grid->col_world_size-1, send_requests.data(), MPI_STATUSES_IGNORE);
+    MPI_Waitall(grid->col_world_size-1, recv_requests.data(), MPI_STATUSES_IGNORE);
     cout<<" MPI waiting  completed "<<grid->rank_in_col <<endl;
 
 //    MPI_Comm comm2d;
