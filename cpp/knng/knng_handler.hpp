@@ -189,9 +189,15 @@ public:
       stop_clock_and_add(t, "IO Time");
     }
 
+    uint64_t  total_nn_size = (*final_nn_map).size()*(nn-1);
+    (*output_knng).resize(total_nn_size);
 
-    for(auto it=(*final_nn_map).begin(); it!=(*final_nn_map).end();++it){
+    #pragma omp parallel for schedule (static)
+    for(size_t i = 0; i < final_nn_map.size(); ++i){
+      auto it = final_nn_map.begin() + i;
       vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
+      auto pre_index = i*(nn-1);
+      int offset =0;
       for(int j=0;j<nn;j++){
         EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = edge_node_list[j];
         Tuple<VALUE_TYPE> tuple;
@@ -199,7 +205,8 @@ public:
           tuple.row = edge_node.src_index;
           tuple.col = edge_node.dst_index;
           tuple.value = edge_node.distance;
-          (*output_knng).push_back(tuple);
+          (*output_knng)[pre_index+offset]=tuple;
+          offset++;
         }
       }
     }
