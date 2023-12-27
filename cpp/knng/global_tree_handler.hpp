@@ -669,7 +669,7 @@ public:
     uint64_t receive_offset =0;
     int TAG_MULTIPLIER = 10000;
     cout<<" MPI send all  initiated "<<grid->rank_in_col <<endl;
-    for(int i=0;i<grid->grid->col_world_size;i++){
+    for(int i=0;i<grid->col_world_size;i++){
       if (i!= grid->rank_in_col){
         VALUE_TYPE* send_buf = (*send_values_ptr).data() +send_offset;
         VALUE_TYPE* receive_buf = (*receive_values_ptr).data() +receive_offset;
@@ -713,7 +713,7 @@ public:
 
      cout<<" MPI Neighbour all to all completed "<<grid->rank_in_col <<endl;
 
-     MPI_Barrier(comm2d);
+     MPI_Barrier(grid->col_world);
 //    cout<<" MPI value seinding passed rank "<<grid->rank_in_col <<endl;
      stop_clock_and_add(t, "KNNG Communication Time");
 
