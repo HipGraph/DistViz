@@ -193,7 +193,7 @@ public:
     (*output_knng).resize(total_nn_size);
 
 //    #pragma omp parallel for schedule (static)
-    for(auto it = final_nn_map.begin();it!= final_nn_map.end();++it){
+    for(auto it = final_nn_map->begin();it!= final_nn_map->end();++it){
       vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
       for(int j=0;j<nn;j++){
         EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = edge_node_list[j];
