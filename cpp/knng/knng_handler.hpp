@@ -175,8 +175,7 @@ public:
         }
       }
       MPI_Barrier(grid->col_world);
-      cout << "rank " << grid->rank_in_col
-           << " local nn slection completed :" << endl;
+      cout << "rank " << grid->rank_in_col<< " local nn slection completed :" << endl;
       //
 
       communicate_nns((local_nn_map_ptr).get(), nn, final_nn_map.get());
