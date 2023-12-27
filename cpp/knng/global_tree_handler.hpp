@@ -677,8 +677,8 @@ public:
         int receive=0;
 //        MPI_Isend(send_buf, (*send_values_count_ptr)[i], MPI_VALUE_TYPE, i, TAG_MULTIPLIER+i, grid->col_world, &sendRequests[i]);
 //        MPI_Irecv(receive_buf, (*receive_values_count_ptr)[i], MPI_VALUE_TYPE, i, TAG_MULTIPLIER+i, grid->col_world, &recvRequests[i]);
-        MPI_Isend(&message, 1, MPI_INT, i, TAG_MULTIPLIER, grid->col_world, &sendRequests[i]);
-        MPI_Irecv(&receive, 1, MPI_INT, i, TAG_MULTIPLIER, grid->col_world, &recvRequests[i]);
+        MPI_Isend(&message, 1, MPI_INT, i, TAG_MULTIPLIER, grid->col_world, &send_requests[i]);
+        MPI_Irecv(&receive, 1, MPI_INT, i, TAG_MULTIPLIER, grid->col_world, &recv_requests[i]);
         send_offset +=(*send_values_count_ptr)[i];
         receive_offset+=(*receive_values_count_ptr)[i];
       }
