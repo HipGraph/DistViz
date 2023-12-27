@@ -96,89 +96,101 @@ public:
     // generate random seed at process 0 and broadcast it to multiple processes.
     int* receive = this->receive_random_seeds(1);
 
-    // build global sparse random project matrix for all trees
-    VALUE_TYPE* B = mathOp_ptr.get()->build_sparse_projection_matrix(this->data_dimension,global_tree_depth * this->ntrees, density, receive[0]);
-    cout << " rank " << grid->rank_in_col << "build_sparse_projection_matrix completed" << endl;
-    // get the matrix projection
-    // P= X.R
-    VALUE_TYPE* P = mathOp_ptr.get()->multiply_mat(row_data_array, B, this->data_dimension,
-                                        global_tree_depth * this->ntrees,
-                                        this->local_data_set_size,1.0);
-    cout << " rank " << grid->rank_in_col << " projected matrix created" << endl;
-    // creating DRPTGlobal class
-    GlobalTreeHandler<INDEX_TYPE,VALUE_TYPE> drpt_global = GlobalTreeHandler<INDEX_TYPE,VALUE_TYPE>(P,
-                                                    B,this->grid,
-                                                    this->local_data_set_size,
-                                                    this->data_dimension,
-                                                    global_tree_depth,
-                                                    this->ntrees,
-                                                    this->global_data_set_size);
-
-
-    cout << " rank " << grid->rank_in_col << " starting growing trees" << endl;
-    // start growing global tree
-    drpt_global.grow_global_tree(input_data);
-    cout << " rank " <<  grid->rank_in_col << " completing growing trees" << endl;
-
-    //
-    //	//calculate locality optimization to improve data locality
-    if (use_locality_optimization)
-    {
-      cout << " rank " << grid->rank_in_col << " starting tree leaf correlation " << endl;
-      drpt_global.calculate_tree_leaf_correlation();
-      cout << " rank " << grid->rank_in_col << "  tree leaf correlation completed " << endl;
-    }
-
-    shared_ptr<DataNode3DVector<INDEX_TYPE,VALUE_TYPE>> leaf_nodes_of_trees_ptr =  make_shared<DataNode3DVector<INDEX_TYPE, VALUE_TYPE>>(ntrees);
-
-    cout << " rank " << grid->rank_in_col << " running  datapoint collection  "<< endl;
-
-     shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =  make_shared<vector<VALUE_TYPE>>();
-
-     drpt_global.collect_similar_data_points_of_all_trees(receive_values_ptr.get(),use_locality_optimization,
-                                                         process_to_index_set_ptr.get(),
-                                                         datamap_ptr.get(),
-                                                         local_nn_map_ptr.get(),
-                                                         nn);
-
-    int total_receive_count = (*receive_values_ptr).size()/data_dimension;
-
-
-    Eigen::Map<Eigen::MatrixXf> data_matrix((*receive_values_ptr).data(), data_dimension, total_receive_count);
-
-
-    cout<<"rank "<<grid->rank_in_col<<" rows "<<(data_matrix).rows()<<" cols "<<(data_matrix).cols()<<endl;
-
-//    int effective_nn = 2 * nn;
-    int effective_nn =  nn;
-    Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, effective_nn);
-    cout<<"rank "<<grid->rank_in_col<<" auto tune completed :"<<endl;
-    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
-    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
-
-    #pragma omp parallel for schedule (static)
-    for(int i=0;i<data_matrix.cols();i++){
-      Eigen::VectorXi tempRow(effective_nn);
-      Eigen::VectorXf tempDis(effective_nn);
-      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
-      neighbours.row(i)=tempRow;
-      distances.row(i)=tempDis;
-      INDEX_TYPE  global_index =  (*datamap_ptr)[i];
-      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
-      edge.src_index=global_index;
-      for(int k=0;k<nn;k++){
-       edge.dst_index = (*datamap_ptr)[tempRow[k]];
-       edge.distance = tempDis[k];
-       (*local_nn_map_ptr)[global_index][k]=edge;
-      }
-    }
-    MPI_Barrier(grid->col_world);
-    cout<<"rank "<<grid->rank_in_col<<" local nn slection completed :"<<endl;
-//
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
 
-    communicate_nns((local_nn_map_ptr).get(),nn,final_nn_map.get());
+    for(int tree=0;tree< ntrees;tree++) {
+
+      // build global sparse random project matrix for all trees
+      VALUE_TYPE *B = mathOp_ptr.get()->build_sparse_projection_matrix(
+          this->data_dimension, global_tree_depth , density,
+          receive[0]);
+      cout << " rank " << grid->rank_in_col
+           << "build_sparse_projection_matrix completed" << endl;
+      // get the matrix projection
+      // P= X.R
+      VALUE_TYPE *P = mathOp_ptr.get()->multiply_mat(
+          row_data_array, B, this->data_dimension,
+          global_tree_depth, this->local_data_set_size, 1.0);
+      cout << " rank " << grid->rank_in_col << " projected matrix created"
+           << endl;
+      // creating DRPTGlobal class
+      GlobalTreeHandler<INDEX_TYPE, VALUE_TYPE> drpt_global = GlobalTreeHandler<INDEX_TYPE, VALUE_TYPE>(
+              P, B, this->grid, this->local_data_set_size, this->data_dimension,
+              global_tree_depth, 1, this->global_data_set_size);
+
+      cout << " rank " << grid->rank_in_col << " starting growing trees"
+           << endl;
+      // start growing global tree
+      drpt_global.grow_global_tree(input_data);
+      cout << " rank " << grid->rank_in_col << " completing growing trees"
+           << endl;
+
+      //
+      //	//calculate locality optimization to improve data locality
+      if (use_locality_optimization) {
+        cout << " rank " << grid->rank_in_col
+             << " starting tree leaf correlation " << endl;
+        drpt_global.calculate_tree_leaf_correlation();
+        cout << " rank " << grid->rank_in_col
+             << "  tree leaf correlation completed " << endl;
+      }
+
+      shared_ptr<DataNode3DVector<INDEX_TYPE, VALUE_TYPE>>
+          leaf_nodes_of_trees_ptr =
+              make_shared<DataNode3DVector<INDEX_TYPE, VALUE_TYPE>>(1);
+
+      cout << " rank " << grid->rank_in_col
+           << " running  datapoint collection  " << endl;
+
+      shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =
+          make_shared<vector<VALUE_TYPE>>();
+
+      drpt_global.collect_similar_data_points_of_all_trees(
+          receive_values_ptr.get(), use_locality_optimization,
+          process_to_index_set_ptr.get(), datamap_ptr.get(),
+          local_nn_map_ptr.get(), nn);
+
+      int total_receive_count = (*receive_values_ptr).size() / data_dimension;
+
+      Eigen::Map<Eigen::MatrixXf> data_matrix(
+          (*receive_values_ptr).data(), data_dimension, total_receive_count);
+
+      cout << "rank " << grid->rank_in_col << " rows " << (data_matrix).rows()
+           << " cols " << (data_matrix).cols() << endl;
+
+      //    int effective_nn = 2 * nn;
+      int effective_nn = nn;
+      Mrpt mrpt(data_matrix);
+      mrpt.grow_autotune(target_recall, effective_nn);
+      cout << "rank " << grid->rank_in_col << " auto tune completed :" << endl;
+      Eigen::MatrixXi neighbours(data_matrix.cols(), effective_nn);
+      Eigen::MatrixXf distances(data_matrix.cols(), effective_nn);
+
+#pragma omp parallel for schedule(static)
+      for (int i = 0; i < data_matrix.cols(); i++) {
+        Eigen::VectorXi tempRow(effective_nn);
+        Eigen::VectorXf tempDis(effective_nn);
+        mrpt.query(data_matrix.col(i), tempRow.data(), tempDis.data());
+        neighbours.row(i) = tempRow;
+        distances.row(i) = tempDis;
+        INDEX_TYPE global_index = (*datamap_ptr)[i];
+        EdgeNode<INDEX_TYPE, VALUE_TYPE> edge;
+        edge.src_index = global_index;
+        for (int k = 0; k < nn; k++) {
+          edge.dst_index = (*datamap_ptr)[tempRow[k]];
+          edge.distance = tempDis[k];
+          (*local_nn_map_ptr)[global_index][k] = edge;
+        }
+      }
+      MPI_Barrier(grid->col_world);
+      cout << "rank " << grid->rank_in_col
+           << " local nn slection completed :" << endl;
+      //
+
+      communicate_nns((local_nn_map_ptr).get(), nn, final_nn_map.get());
+      free(B);
+      free(P);
+    }
 
     cout<<"rank "<<grid->rank_in_col<<" size :"<<(*final_nn_map).size()<<endl;
 
@@ -358,7 +370,7 @@ public:
 //
     unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> in_index_dis = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(send_count);
     out_index_dis->resize(total_receiving);
-    cout<<" rank "<<grid->rank_in_col<<" before  total_receiving  "<<total_receiving<<endl;
+//    cout<<" rank "<<grid->rank_in_col<<" before  total_receiving  "<<total_receiving<<endl;
     int co_process = 0;
     for (int i = 0;i < grid->col_world_size;i++)
     {
@@ -376,7 +388,7 @@ public:
     MPI_Alltoallv((*in_index_dis).data(), (*sending_indices_count_ptr).data(), (*disps_sending_indices_ptr).data(), MPI_FLOAT_INT,(*out_index_dis).data(),
                   (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_FLOAT_INT, MPI_COMM_WORLD);
     stop_clock_and_add(t, "KNNG Communication Time");
-    cout<<" rank "<<grid->rank_in_col<<" after receiving  total_receiving  "<<(*out_index_dis).size()<<endl;
+//    cout<<" rank "<<grid->rank_in_col<<" after receiving  total_receiving  "<<(*out_index_dis).size()<<endl;
 
   }
 //
@@ -545,24 +557,22 @@ public:
           }
         }
         else {
-#pragma omp critical
-          {
+
             auto its = (*final_nn_map).find(selected_index);
+
             if (its == (*final_nn_map).end()) {
-              (*final_nn_map)
-                  .insert(pair<INDEX_TYPE,
-                               vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>>>(
-                      selected_index, (*local_nns)[selected_index]));
+#pragma omp critical
+              {
+                (*final_nn_map)
+                    .insert(pair<INDEX_TYPE,
+                                 vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>>>(
+                        selected_index, (*local_nns)[selected_index]));
+              }
             } else {
               vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>> vec =
                   (*local_nns)[selected_index];
               vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>> dst;
               vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>> ex_vec = its->second;
-              sort(vec.begin(), vec.end(),
-                   [](const EdgeNode<INDEX_TYPE, VALUE_TYPE> &lhs,
-                      const EdgeNode<INDEX_TYPE, VALUE_TYPE> &rhs) {
-                     return lhs.distance < rhs.distance;
-                   });
               std::merge(ex_vec.begin(), ex_vec.end(), vec.begin(), vec.end(),
                          std::back_inserter(dst),
                          [](const EdgeNode<INDEX_TYPE, VALUE_TYPE> &lhs,
@@ -577,7 +587,7 @@ public:
                         dst.end());
               (its->second) = dst;
             }
-          }
+
         }
       }
     }
