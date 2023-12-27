@@ -153,7 +153,7 @@ public:
     int effective_nn =  nn;
     Mrpt mrpt(data_matrix);
     mrpt.grow_autotune(target_recall, effective_nn);
-
+    cout<<"rank "<<grid->rank_in_col<<" auto tune completed :"<<endl;
     Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
     Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
 
