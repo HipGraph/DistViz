@@ -174,6 +174,7 @@ public:
 //          (*local_nn_map_ptr)[global_index][k] = edge;
 //        }
       }
+      cout << "rank " << grid->rank_in_col<< " local nn slection completed :" << endl;
 
 #pragma omp parallel for schedule(static)
       for(int i=0;i<data_matrix.cols()*effective_nn;i++){
@@ -187,11 +188,12 @@ public:
         (*local_nn_map_ptr)[global_index][nn_index] = edge;
       }
 
+      cout << "rank " << grid->rank_in_col<< " local_nn_map_ptr filling completed:" << endl;
 //      MPI_Barrier(grid->col_world);
-      cout << "rank " << grid->rank_in_col<< " local nn slection completed :" << endl;
+
       //
 
-//      communicate_nns((local_nn_map_ptr).get(), nn, final_nn_map.get());
+      communicate_nns((local_nn_map_ptr).get(), nn, final_nn_map.get());
       free(B);
       free(P);
     }
@@ -208,20 +210,20 @@ public:
 //    uint64_t  total_nn_size = (*final_nn_map).size()*(nn-1);
 //    (*output_knng).resize(total_nn_size);
 
-//    #pragma omp parallel for schedule (static)
-//    for(auto it = final_nn_map->begin();it!= final_nn_map->end();++it){
-//      vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
-//      for(int j=0;j<nn;j++){
-//        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = edge_node_list[j];
-//        Tuple<VALUE_TYPE> tuple;
-//        if (edge_node.src_index != edge_node.dst_index) {
-//          tuple.row = edge_node.src_index;
-//          tuple.col = edge_node.dst_index;
-//          tuple.value = edge_node.distance;
-//          (*output_knng).push_back(tuple);
-//        }
-//      }
-//    }
+    #pragma omp parallel for schedule (static)
+    for(auto it = final_nn_map->begin();it!= final_nn_map->end();++it){
+      vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
+      for(int j=0;j<nn;j++){
+        EdgeNode<INDEX_TYPE,VALUE_TYPE> edge_node = edge_node_list[j];
+        Tuple<VALUE_TYPE> tuple;
+        if (edge_node.src_index != edge_node.dst_index) {
+          tuple.row = edge_node.src_index;
+          tuple.col = edge_node.dst_index;
+          tuple.value = edge_node.distance;
+          (*output_knng).push_back(tuple);
+        }
+      }
+    }
   }
 
 
