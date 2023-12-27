@@ -29,17 +29,12 @@ private:
   Process3DGrid *grid;
   INDEX_TYPE global_data_set_size;
   INDEX_TYPE local_data_set_size;
-  vector<vector<vector<DataNode<INDEX_TYPE, VALUE_TYPE>>>> trees_leaf_all;
-  shared_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr;
-  shared_ptr<vector<set<INDEX_TYPE>>> remote_index_distribution;
+
   int local_tree_offset;
   int total_leaf_size;
   int leafs_per_node;
   int my_leaf_start_index;
   int my_leaf_end_index;
-  std::shared_ptr<std::map<INDEX_TYPE, INDEX_TYPE>> datamap_ptr = std::make_shared<std::map<INDEX_TYPE, INDEX_TYPE>>();
-  std::shared_ptr<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> local_nn_map_ptr= std::make_shared<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
-
 
   int *receive_random_seeds(int seed) {
     int* receive = new int[grid->col_world_size]();
@@ -71,12 +66,6 @@ public:
     this->ntrees = ntrees;
     this->tree_depth_ratio = tree_depth_ratio;
 
-    this->trees_leaf_all = vector<vector<vector<DataNode<INDEX_TYPE,VALUE_TYPE>>>>(ntrees);
-
-    this->process_to_index_set_ptr = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
-
-    this->remote_index_distribution = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
-
     this->local_tree_offset = local_tree_offset;
 
     this->starting_data_index = (global_data_set_size / grid->col_world_size) * grid->rank_in_col;
@@ -97,7 +86,10 @@ public:
     int* receive = this->receive_random_seeds(1);
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
-
+    std::shared_ptr<std::map<INDEX_TYPE, INDEX_TYPE>> datamap_ptr = std::make_shared<std::map<INDEX_TYPE, INDEX_TYPE>>();
+    std::shared_ptr<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> local_nn_map_ptr= std::make_shared<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
+    shared_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
+    shared_ptr<vector<set<INDEX_TYPE>>> remote_index_distribution =  make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
     for(int tree=0;tree< ntrees;tree++) {
 
       // build global sparse random project matrix for all trees
