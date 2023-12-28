@@ -42,6 +42,15 @@ private:
   double alpha;
 
 public:
+
+  shared_ptr<vector<int>> receive_counts_cyclic;
+  shared_ptr<vector<int>> rdispls_cyclic;
+  shared_ptr<vector<int>> send_counts_cyclic;
+  shared_ptr<vector<int>> sdispls_cyclic;
+
+  MPI_Request request = MPI_REQUEST_NULL;
+
+
   DataComm(SpMat<SPT,DENT> *sp_local_receiver,
            SpMat<SPT,DENT> *sp_local_sender,
            DenseMat<SPT, DENT, embedding_dim> *dense_local, Process3DGrid *grid,
@@ -56,8 +65,8 @@ public:
     this->receivecounts = make_shared<vector<int>>(grid->world_size, 0);
     this->send_counts_cyclic = make_shared<vector<int>>(grid->world_size, 0);
     this->receive_counts_cyclic = make_shared<vector<int>>(grid->world_size, 0);
-    this->sdispls_cyclic = vector<int>(grid->world_size, 0);
-    this->rdispls_cyclic = vector<int>(grid->world_size, 0);
+    this->sdispls_cyclic = make_shared<vector<int>>(grid->world_size, 0);
+    this->rdispls_cyclic = make_shared<vector<int>>(grid->world_size, 0);
     this->receive_col_ids_list = make_shared<vector<unordered_set<uint64_t>>>(grid->world_size);
     this->send_col_ids_list = make_shared<vector<unordered_set<uint64_t>>>(grid->world_size);
     this->send_indices_to_proc_map = make_shared<unordered_map<uint64_t, unordered_map<int,bool>>>();
@@ -66,13 +75,6 @@ public:
     this->alpha = alpha;
 
   }
-
-  shared_ptr<vector<int>> receive_counts_cyclic;
-  shared_ptr<vector<int>> rdispls_cyclic;
-  shared_ptr<vector<int>> send_counts_cyclic;
-  shared_ptr<vector<int>> sdispls_cyclic;
-
-   MPI_Request request = MPI_REQUEST_NULL;
 
   ~DataComm() {}
 

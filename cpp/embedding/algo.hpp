@@ -297,10 +297,10 @@ public:
 
       if (!sync and communication) {
         MPI_Ialltoallv(
-            (*sendbuf).data(), data_comm->send_counts_cyclic.data(),
-            data_comm->sdispls_cyclic.data(), DENSETUPLE, (*receivebuf).data(),
-            data_comm->receive_counts_cyclic.data(),
-            data_comm->rdispls_cyclic.data(), DENSETUPLE, grid->col_world, &req);
+            (*sendbuf).data(), (*(data_comm->send_counts_cyclic)).data(),
+            (*(data_comm->sdispls_cyclic)).data(), DENSETUPLE, (*receivebuf).data(),
+            (*(data_comm->receive_counts_cyclic)).data(),
+            (*(data_comm->rdispls_cyclic)).data(), DENSETUPLE, grid->col_world, &req);
       }
 
       if (k == comm_initial_start) {
@@ -361,11 +361,11 @@ public:
                                  (k + alpha_cyc_len), false);
       }
       if (!sync and communication) {
-        MPI_Ialltoallv((*sendbuf).data(), data_comm->send_counts_cyclic.data(),
-                       data_comm->sdispls_cyclic.data(), DENSETUPLE,
+        MPI_Ialltoallv((*sendbuf).data(), (*(data_comm->send_counts_cyclic)).data(),
+                       (*(data_comm->sdispls_cyclic)).data(), DENSETUPLE,
                        (*receivebuf).data(),
-                       data_comm->receive_counts_cyclic.data(),
-                       data_comm->rdispls_cyclic.data(), DENSETUPLE,
+                       (*(data_comm->receive_counts_cyclic)).data(),
+                       (*(data_comm->rdispls_cyclic)).data(), DENSETUPLE,
                        MPI_COMM_WORLD, &request_batch_update);
       }
 
