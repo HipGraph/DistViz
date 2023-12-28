@@ -596,38 +596,14 @@ public:
               }
             }
           }
-        }
-        else {
+        } else {
 
-            auto its = (*final_nn_map).find(selected_index);
-
-            if (its == (*final_nn_map).end()) {
 #pragma omp critical
               {
-                (*final_nn_map)
-                    .insert(pair<INDEX_TYPE,
-                                 vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>>>(
-                        selected_index, (*local_nns)[selected_index]));
+                (*final_nn_map).insert(pair<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>>>(selected_index,
+                                                                                                  (*local_nns)[selected_index]));
               }
-            } else {
-              vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>> vec =
-                  (*local_nns)[selected_index];
-              vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>> dst;
-              vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>> ex_vec = its->second;
-              std::merge(ex_vec.begin(), ex_vec.end(), vec.begin(), vec.end(),
-                         std::back_inserter(dst),
-                         [](const EdgeNode<INDEX_TYPE, VALUE_TYPE> &lhs,
-                            const EdgeNode<INDEX_TYPE, VALUE_TYPE> &rhs) {
-                           return lhs.distance < rhs.distance;
-                         });
-              dst.erase(unique(dst.begin(), dst.end(),
-                               [](const EdgeNode<INDEX_TYPE, VALUE_TYPE> &lhs,
-                                  const EdgeNode<INDEX_TYPE, VALUE_TYPE> &rhs) {
-                                 return lhs.dst_index == rhs.dst_index;
-                               }),
-                        dst.end());
-              (its->second) = dst;
-            }
+
 
         }
       }
