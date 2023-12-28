@@ -126,7 +126,7 @@ public:
         auto end_index =
             std::min(std::min((starting_index+batch_size),static_cast<uint64_t>((procs[r] + 1) * proc_row_width)), gRows);
 
-        for (int i = starting_index; i < end_index; i++) {
+        for (auto i = starting_index; i < end_index; i++) {
           if (rank != procs[r] and (handle->rowStart[i + 1] - handle->rowStart[i]) > 0) {
             for (auto j = handle->rowStart[i]; j < handle->rowStart[i + 1];j++) {
               auto col_val = handle->col_idx[j];
@@ -142,7 +142,7 @@ public:
         uint64_t starting_index = proc_col_width * procs[r];
         auto end_index =
             std::min(static_cast<uint64_t>((procs[r] + 1) * proc_col_width), gCols);
-        for (int i = starting_index; i < end_index; i++) {
+        for (auto i = starting_index; i < end_index; i++) {
           if (rank != procs[r] and
               (handle->rowStart[i + 1] - handle->rowStart[i]) > 0) {
             for (auto j = handle->rowStart[i]; j < handle->rowStart[i + 1]; j++) {
