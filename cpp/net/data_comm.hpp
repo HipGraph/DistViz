@@ -176,7 +176,7 @@ public:
 
     if (total_send_count > 0) {
       sendbuf_cyclic->resize(total_send_count);
-      for (const auto &pair : DataComm<SPT,DENT,embedding_dim>::send_indices_to_proc_map) {
+      for (const auto &pair : (*send_indices_to_proc_map)) {
         auto col_id = pair.first;
         bool already_fetched = false;
         std::array<DENT, embedding_dim> dense_vector;
