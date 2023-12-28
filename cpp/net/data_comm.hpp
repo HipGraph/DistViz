@@ -87,7 +87,7 @@ public:
          cout<<" rank "<<grid->rank_in_col<<" receiver values completed "<<endl;
          // calculating sending data cols
          this->sp_local_sender->fill_col_ids(batch_id,0,grid->col_world_size, send_col_ids_list,send_indices_to_proc_map, 0);
-         out<<" rank "<<grid->rank_in_col<<" sender values completed "<<endl;
+         cout<<" rank "<<grid->rank_in_col<<" sender values completed "<<endl;
     } else if (alpha == 1.0) {
       // This represents the case for pushing
          this->sp_local_receiver->fill_col_ids(batch_id, 0, grid->col_world_size, receive_col_ids_list,receive_indices_to_proc_map, 1);
