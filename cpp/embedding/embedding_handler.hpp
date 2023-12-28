@@ -63,6 +63,9 @@ public:
     cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
     shared_sparseMat_sender.get()->initialize_CSR_blocks();
     cout<<" rank "<<grid->rank_in_col<<" CSR  shared_sparseMat_sender initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
+    if (grid->rank_in_col==127){
+      shared_sparseMat_sender.get()->print_csr();
+    }
     shared_sparseMat_receiver.get()->initialize_CSR_blocks();
 
     cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat_receiver initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
@@ -78,7 +81,7 @@ public:
                     shared_sparseMat_sender.get(), dense_output, grid,
                     alpha, beta, 5, -5,col_major,sync_comm));
 
-   vector<VALUE_TYPE> error_convergence = embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr,drop_out_error_threshold);
+//   vector<VALUE_TYPE> error_convergence = embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr,drop_out_error_threshold);
 
 //   cout<<" rank  "<<grid->rank_in_col<<"erros #####"<<endl;
 //   if (grid->rank_in_col==0) {
