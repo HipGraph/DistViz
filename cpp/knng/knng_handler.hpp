@@ -238,13 +238,13 @@ public:
     communicate_nns((combined_local_nn_map_ptr).get(), nn, final_nn_map.get());
     cout<<"rank "<<grid->rank_in_col<<" size :"<<(*final_nn_map).size()<<endl;
 
-//    if (print_output) {
-//      auto t = start_clock();
-//      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
-//      fileWriter.mpi_write_edge_list(final_nn_map.get(),output_path,nn-1,grid->rank_in_col,grid->col_world_size,true);
-//      stop_clock_and_add(t, "IO Time");
-//    }
-//
+    if (print_output) {
+      auto t = start_clock();
+      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+      fileWriter.mpi_write_edge_list(final_nn_map.get(),output_path,nn-1,grid->rank_in_col,grid->col_world_size,true);
+      stop_clock_and_add(t, "IO Time");
+    }
+
 
     for(auto it = (*final_nn_map).begin();it!= (*final_nn_map).end();++it){
       vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
