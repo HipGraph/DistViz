@@ -243,10 +243,10 @@ int main(int argc, char* argv[]) {
   std::cout << "stop generating embedding "<< rank<< " "<<std::endl;
   stop_clock_and_add(t, "Embedding Total Time");
 
-  t = start_clock();
-  FileWriter<int,float> fileWriter;
-  fileWriter.parallel_write(output_path+"/embedding.txt",dense_mat.get()->nCoordinates,localARows, embedding_dimension);
-  stop_clock_and_add(t, "IO Time");
+//  t = start_clock();
+//  FileWriter<int,float> fileWriter;
+//  fileWriter.parallel_write(output_path+"/embedding.txt",dense_mat.get()->nCoordinates,localARows, embedding_dimension);
+//  stop_clock_and_add(t, "IO Time");
 
   ofstream fout;
   fout.open("perf_output", std::ios_base::app);
