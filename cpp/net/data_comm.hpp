@@ -28,14 +28,14 @@ private:
   SpMat<SPT,DENT> *sp_local_sender;
   DenseMat<SPT, DENT, embedding_dim> *dense_local;
   Process3DGrid *grid;
-  vector<int> sdispls;
-  vector<int> sendcounts;
-  vector<int> rdispls;
-  vector<int> receivecounts;
-  vector<unordered_set<uint64_t>> receive_col_ids_list;
-  vector<unordered_set<uint64_t>> send_col_ids_list;
-  unordered_map<uint64_t, unordered_map<int,bool>> send_indices_to_proc_map;
-  unordered_map<uint64_t, unordered_map<int,bool>> receive_indices_to_proc_map;
+  shared_ptr<vector<int>> sdispls;
+  shared_ptr<vector<int>> sendcounts;
+  shared_ptr<vector<int>> rdispls;
+  shared_ptr<vector<int>> receivecounts;
+  shared_ptr<vector<unordered_set<uint64_t>>> receive_col_ids_list;
+  shared_ptr<vector<unordered_set<uint64_t>>> send_col_ids_list;
+  shared_ptr<unordered_map<uint64_t, unordered_map<int,bool>>> send_indices_to_proc_map;
+  shared_ptr<unordered_map<uint64_t, unordered_map<int,bool>>> receive_indices_to_proc_map;
 
   int batch_id;
 
@@ -50,25 +50,27 @@ public:
     this->sp_local_sender = sp_local_sender;
     this->dense_local = dense_local;
     this->grid = grid;
-    this->sdispls = vector<int>(grid->world_size, 0);
-    this->sendcounts = vector<int>(grid->world_size, 0);
-    this->rdispls = vector<int>(grid->world_size, 0);
-    this->receivecounts = vector<int>(grid->world_size, 0);
-    this->send_counts_cyclic = vector<int>(grid->world_size, 0);
-    this->receive_counts_cyclic = vector<int>(grid->world_size, 0);
+    this->sdispls = make_shared<vector<int>>(grid->world_size, 0);
+    this->sendcounts = make_shared<vector<int>>(grid->world_size, 0);
+    this->rdispls = make_shared<vector<int>>(grid->world_size, 0);
+    this->receivecounts = make_shared<vector<int>>(grid->world_size, 0);
+    this->send_counts_cyclic = make_shared<vector<int>>(grid->world_size, 0);
+    this->receive_counts_cyclic = make_shared<vector<int>>(grid->world_size, 0);
     this->sdispls_cyclic = vector<int>(grid->world_size, 0);
     this->rdispls_cyclic = vector<int>(grid->world_size, 0);
-    this->receive_col_ids_list = vector<unordered_set<uint64_t>>(grid->world_size);
-    this->send_col_ids_list = vector<unordered_set<uint64_t>>(grid->world_size);
+    this->receive_col_ids_list = make_shared<vector<unordered_set<uint64_t>>>(grid->world_size);
+    this->send_col_ids_list = make_shared<vector<unordered_set<uint64_t>>>(grid->world_size);
+    this->send_indices_to_proc_map = make_shared<unordered_map<uint64_t, unordered_map<int,bool>>>();
+    this->receive_indices_to_proc_map = make_shared<unordered_map<uint64_t, unordered_map<int,bool>>>();
     this->batch_id = batch_id;
     this->alpha = alpha;
 
   }
 
-  vector<int> receive_counts_cyclic;
-  vector<int> rdispls_cyclic;
-  vector<int> send_counts_cyclic;
-  vector<int> sdispls_cyclic;
+  shared_ptr<vector<int>> receive_counts_cyclic;
+  shared_ptr<vector<int>> rdispls_cyclic;
+  shared_ptr<vector<int>> send_counts_cyclic;
+  shared_ptr<vector<int>> sdispls_cyclic;
 
    MPI_Request request = MPI_REQUEST_NULL;
 
@@ -83,32 +85,32 @@ public:
     if (alpha==0) {
       // This represents the case for pulling
       cout<<" rank "<<grid->rank_in_col<<" filling col values "<<endl;
-         this->sp_local_receiver->fill_col_ids(batch_id, 0, grid->col_world_size, receive_col_ids_list,receive_indices_to_proc_map, 0);
+         this->sp_local_receiver->fill_col_ids(batch_id, 0, grid->col_world_size, receive_col_ids_list.get(),receive_indices_to_proc_map.get(), 0);
          cout<<" rank "<<grid->rank_in_col<<" receiver values completed "<<endl;
          // calculating sending data cols
-         this->sp_local_sender->fill_col_ids(batch_id,0,grid->col_world_size, send_col_ids_list,send_indices_to_proc_map, 0);
+         this->sp_local_sender->fill_col_ids(batch_id,0,grid->col_world_size, send_col_ids_list.get(),send_indices_to_proc_map.get(), 0);
          cout<<" rank "<<grid->rank_in_col<<" sender values completed "<<endl;
     } else if (alpha == 1.0) {
       // This represents the case for pushing
-         this->sp_local_receiver->fill_col_ids(batch_id, 0, grid->col_world_size, receive_col_ids_list,receive_indices_to_proc_map, 1);
+         this->sp_local_receiver->fill_col_ids(batch_id, 0, grid->col_world_size, receive_col_ids_list.get(),receive_indices_to_proc_map.get(), 1);
 
          // calculating sending data cols
-         this->sp_local_sender->fill_col_ids(batch_id,0,grid->col_world_size, send_col_ids_list,send_indices_to_proc_map, 1);
+         this->sp_local_sender->fill_col_ids(batch_id,0,grid->col_world_size, send_col_ids_list.get(),send_indices_to_proc_map.get(), 1);
     } else if (alpha> 0 and alpha < 1.0){
 
       // This represents the case for pull and pushing
           int end_process = get_end_proc(1,alpha, grid->col_world_size);
 
-         this->sp_local_receiver->fill_col_ids(batch_id, 1, end_process, receive_col_ids_list,receive_indices_to_proc_map, 1);
+         this->sp_local_receiver->fill_col_ids(batch_id, 1, end_process, receive_col_ids_list.get(),receive_indices_to_proc_map.get(), 1);
 
          // calculating sending data cols
-         this->sp_local_sender->fill_col_ids(batch_id,1,end_process, send_col_ids_list,send_indices_to_proc_map, 1);
+         this->sp_local_sender->fill_col_ids(batch_id,1,end_process, send_col_ids_list.get(),send_indices_to_proc_map.get(), 1);
 
       if (batch_id>=0) {
-         this->sp_local_receiver->fill_col_ids(batch_id, end_process, grid->col_world_size, receive_col_ids_list,receive_indices_to_proc_map, 0);
+         this->sp_local_receiver->fill_col_ids(batch_id, end_process, grid->col_world_size, receive_col_ids_list.get(),receive_indices_to_proc_map.get(), 0);
 
          // calculating sending data cols
-         this->sp_local_sender->fill_col_ids(batch_id, end_process,grid->col_world_size, send_col_ids_list,send_indices_to_proc_map, 0);
+         this->sp_local_sender->fill_col_ids(batch_id, end_process,grid->col_world_size, send_col_ids_list.get(),send_indices_to_proc_map.get(), 0);
       }
 
     } else {
@@ -116,8 +118,8 @@ public:
     }
 
     for (int i = 0; i < grid->world_size; i++) {
-        receivecounts[i] = receive_col_ids_list[i].size();
-        sendcounts[i] = send_col_ids_list[i].size();
+        (*receivecounts)[i] = (*receive_col_ids_list)[i].size();
+        (*sendcounts)[i] = (*send_col_ids_list)[i].size();
     }
   }
 
@@ -131,10 +133,10 @@ public:
     vector<int> offset_vector(grid->col_world_size, 0);
 
     int total_send_count = 0;
-    send_counts_cyclic = vector<int>(grid->col_world_size, 0);
-    receive_counts_cyclic = vector<int>(grid->col_world_size, 0);
-    sdispls_cyclic = vector<int>(grid->col_world_size, 0);
-    rdispls_cyclic = vector<int>(grid->col_world_size, 0);
+    send_counts_cyclic = make_shared<vector<int>>(grid->col_world_size, 0);
+    receive_counts_cyclic = make_shared<vector<int>>(grid->col_world_size, 0);
+    sdispls_cyclic = make_shared<vector<int>>(grid->col_world_size, 0);
+    rdispls_cyclic = make_shared<vector<int>>(grid->col_world_size, 0);
 
     vector<int> sending_procs;
     vector<int> receiving_procs;
@@ -151,22 +153,22 @@ public:
     }
 
     for (int i = 0; i < sending_procs.size(); i++) {
-      send_counts_cyclic[sending_procs[i]] = sendcounts[sending_procs[i]];
-      receive_counts_cyclic[receiving_procs[i]] =
-          receivecounts[receiving_procs[i]];
-      total_send_count += send_counts_cyclic[sending_procs[i]];
-      total_receive_count += receive_counts_cyclic[receiving_procs[i]];
+      (*send_counts_cyclic)[sending_procs[i]] = (*sendcounts)[sending_procs[i]];
+      (*receive_counts_cyclic)[receiving_procs[i]] =
+          (*receivecounts)[receiving_procs[i]];
+      total_send_count += (*send_counts_cyclic)[sending_procs[i]];
+      total_receive_count += (*receive_counts_cyclic)[receiving_procs[i]];
 //      cout<<" rank "<<grid->rank_in_col<< " sending to "<<sending_procs[i]<<"  count "<<send_counts_cyclic[sending_procs[i]]
 //           <<" receiving from  "<<receiving_procs[i]<<" count "<<receive_counts_cyclic[receiving_procs[i]]<<endl;
     }
 
     for (int i = 0; i < grid->col_world_size; i++) {
-      sdispls_cyclic[i] =
-          (i > 0) ? sdispls_cyclic[i - 1] + send_counts_cyclic[i - 1]
-                  : sdispls_cyclic[i];
-      rdispls_cyclic[i] =
-          (i > 0) ? rdispls_cyclic[i - 1] + receive_counts_cyclic[i - 1]
-                  : rdispls_cyclic[i];
+      (*sdispls_cyclic)[i] =
+          (i > 0) ? (*sdispls_cyclic)[i - 1] + (*send_counts_cyclic)[i - 1]
+                  : (*sdispls_cyclic)[i];
+      (*rdispls_cyclic)[i] =
+          (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1]
+                  : (*rdispls_cyclic)[i];
     }
 
 
@@ -182,7 +184,7 @@ public:
               dense_vector = (this->dense_local)->fetch_local_data(col_id);
               already_fetched = true;
             }
-            int offset = sdispls_cyclic[sending_procs[i]];
+            int offset = (*sdispls_cyclic)[sending_procs[i]];
             int index = offset_vector[sending_procs[i]] + offset;
             (*sendbuf_cyclic)[index].col =
                 col_id + (this->sp_local_sender->proc_col_width *
@@ -200,9 +202,9 @@ public:
 
     if (synchronous) {
       auto t = start_clock();
-      MPI_Alltoallv((*sendbuf_cyclic).data(), send_counts_cyclic.data(),
-                    sdispls_cyclic.data(), DENSETUPLE, (*receivebuf).data(),
-                    receive_counts_cyclic.data(), rdispls_cyclic.data(),
+      MPI_Alltoallv((*sendbuf_cyclic).data(), (*send_counts_cyclic).data(),
+                    (*sdispls_cyclic).data(), DENSETUPLE, (*receivebuf).data(),
+                    (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
                     DENSETUPLE, grid->col_world);
       MPI_Request dumy;
       this->populate_cache(sendbuf_cyclic, receivebuf, &dumy, true, iteration, batch_id,temp_cache);
@@ -230,22 +232,22 @@ public:
     for (int i = 0; i < grid->col_world_size; i++) {
        total_send_count = send_col_ids_list.size();
       if (i != grid->rank_in_col) {
-        sendcounts[i] = total_send_count;
+        (*sendcounts)[i] = total_send_count;
       } else {
-        sendcounts[i] = 0;
+        (*sendcounts)[i] = 0;
       }
-      receive_counts_cyclic[i] = receive_col_ids_list[i].size();
+      (*receive_counts_cyclic)[i] = receive_col_ids_list[i].size();
     }
 
-    sdispls[0] = 0;
-    rdispls_cyclic[0] = 0;
+    (*sdispls)[0] = 0;
+    (*rdispls_cyclic)[0] = 0;
     for (int i = 0; i < grid->col_world_size; i++) {
 
-      sdispls[i] = 0;
-      rdispls_cyclic[i] =
-          (i > 0) ? rdispls_cyclic[i - 1] + receive_counts_cyclic[i - 1]
-                  : rdispls_cyclic[i];
-      total_receive_count = total_receive_count + receive_counts_cyclic[i];
+      (*sdispls)[i] = 0;
+      (*rdispls_cyclic)[i] =
+          (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1]
+                  : (*rdispls_cyclic)[i];
+      total_receive_count = total_receive_count + (*receive_counts_cyclic)[i];
     }
 
     unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf =
@@ -272,9 +274,9 @@ public:
     }
 
     auto t = start_clock();
-    MPI_Alltoallv((*sendbuf).data(), sendcounts.data(), sdispls.data(),
+    MPI_Alltoallv((*sendbuf).data(), (*sendcounts).data(), (*sdispls).data(),
                   DENSETUPLE, (*receivebuf_ptr.get()).data(),
-                  receive_counts_cyclic.data(), rdispls_cyclic.data(),
+                  (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
                   DENSETUPLE, grid->col_world);
     stop_clock_and_add(t, "Embedding Communication Time");
     MPI_Request dumy;
@@ -296,10 +298,10 @@ public:
     }
 
     for (int i = 0; i < this->grid->col_world_size; i++) {
-      int base_index = this->rdispls_cyclic[i];
-      int count = this->receive_counts_cyclic[i];
+      auto base_index = (*rdispls_cyclic)[i];
+      auto count = (*receive_counts_cyclic)[i];
 
-      for (int j = base_index; j < base_index + count; j++) {
+      for (auto j = base_index; j < base_index + count; j++) {
         DataTuple<DENT, embedding_dim> t = (*receivebuf)[j];
         (this->dense_local)->insert_cache(i, t.col, batch_id, iteration, t.value, temp);
       }
