@@ -86,10 +86,11 @@ public:
 
 
     shared_ptr<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> final_nn_map = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
+    std::shared_ptr<vector<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>> local_nn_map_ptr= std::make_shared<vector<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>>(ntrees);
 
     for(int tree=0;tree< ntrees;tree++) {
       std::shared_ptr<std::map<INDEX_TYPE, INDEX_TYPE>> datamap_ptr = std::make_shared<std::map<INDEX_TYPE, INDEX_TYPE>>();
-      std::shared_ptr<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> local_nn_map_ptr= std::make_shared<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
+
       shared_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
       shared_ptr<vector<set<INDEX_TYPE>>> remote_index_distribution =  make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
 
@@ -142,7 +143,7 @@ public:
       drpt_global.collect_similar_data_points_of_all_trees(
           receive_values_ptr.get(), use_locality_optimization,
           process_to_index_set_ptr.get(), datamap_ptr.get(),
-          local_nn_map_ptr.get(), nn);
+          (*local_nn_map_ptr)[tree], nn);
 
       int total_receive_count = (*receive_values_ptr).size() / data_dimension;
 
@@ -187,19 +188,54 @@ public:
         edge.src_index = global_index;
         edge.dst_index =  neighbours(node_index,nn_index);
         edge.distance = distances(node_index,nn_index);
-        (*local_nn_map_ptr)[global_index][nn_index] = edge;
+        (*local_nn_map_ptr)[tree][global_index][nn_index] = edge;
       }
 
       cout << "rank " << grid->rank_in_col<< " local_nn_map_ptr filling completed:" << endl;
 //      MPI_Barrier(grid->col_world);
-
-      //
-
-      communicate_nns((local_nn_map_ptr).get(), nn, final_nn_map.get());
       free(B);
       free(P);
     }
 
+    shared_ptr<map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>> combined_local_nn_map_ptr
+        = make_shared<map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>>();
+
+    for(int tree=0;tree<ntrees;tree++){
+       for(auto it=(*local_nn_map_ptr)[tree].begin(); it != (*local_nn_map_ptr)[tree].end();++it) {
+         auto selected_index = it->first;
+         auto its = (*combined_local_nn_map_ptr).find(selected_index);
+
+         if (its == (*combined_local_nn_map_ptr).end()) {
+           (*combined_local_nn_map_ptr)
+               .insert(
+                   pair<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>>>(
+                       selected_index,
+                       (*local_nn_map_ptr)[tree][selected_index]));
+
+         } else {
+           vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>> vec =
+               (*local_nn_map_ptr)[tree][selected_index];
+           vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>> dst;
+           vector<EdgeNode<INDEX_TYPE, VALUE_TYPE>> ex_vec = its->second;
+           std::merge(ex_vec.begin(), ex_vec.end(), vec.begin(), vec.end(),
+                      std::back_inserter(dst),
+                      [](const EdgeNode<INDEX_TYPE, VALUE_TYPE> &lhs,
+                         const EdgeNode<INDEX_TYPE, VALUE_TYPE> &rhs) {
+                        return lhs.distance < rhs.distance;
+                      });
+           dst.erase(unique(dst.begin(), dst.end(),
+                            [](const EdgeNode<INDEX_TYPE, VALUE_TYPE> &lhs,
+                               const EdgeNode<INDEX_TYPE, VALUE_TYPE> &rhs) {
+                              return lhs.dst_index == rhs.dst_index;
+                            }),
+                     dst.end());
+           (its->second) = dst;
+         }
+       }
+    }
+
+    cout << "rank " << grid->rank_in_col<< " locall nn merge  completed" << endl;
+    communicate_nns((combined_local_nn_map_ptr).get(), nn, final_nn_map.get());
     cout<<"rank "<<grid->rank_in_col<<" size :"<<(*final_nn_map).size()<<endl;
 
 //    if (print_output) {
@@ -209,9 +245,6 @@ public:
 //      stop_clock_and_add(t, "IO Time");
 //    }
 //
-//    uint64_t  total_nn_size = (*final_nn_map).size()*(nn-1);
-//    (*output_knng).resize(total_nn_size);
-
 
     for(auto it = (*final_nn_map).begin();it!= (*final_nn_map).end();++it){
       vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>> edge_node_list = (*it).second;
@@ -306,7 +339,7 @@ public:
                                         disps_receiving_indices.get(),
                                         send_count,total_receving,nn);
 
-    cout<<" rank "<<grid->rank_in_col<<" after receiving  method  "<<(*out_index_dis).size()<<endl;
+//    cout<<" rank "<<grid->rank_in_col<<" after receiving  method  "<<(*out_index_dis).size()<<endl;
 
     shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> final_sent_indices_to_rank_map = make_shared<vector<index_distance_pair<INDEX_TYPE>>>(local_data_set_size);
     //

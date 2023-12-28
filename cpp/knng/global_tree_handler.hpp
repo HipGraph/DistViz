@@ -536,7 +536,7 @@ public:
   void collect_similar_data_points_of_all_trees(vector<VALUE_TYPE>* receive_values_ptr,bool use_data_locality_optimization,
                                    vector<set<INDEX_TYPE>>* process_to_index_set_ptr,
                                                            map<INDEX_TYPE,INDEX_TYPE>* local_to_global_map,
-                                                           map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nn_map, int nn) {
+                                                           map<INDEX_TYPE,vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>& local_nn_map, int nn) {
 
 
     int total_leaf_size = (1 << (tree_depth)) - (1 << (tree_depth - 1));
@@ -694,7 +694,7 @@ public:
     for(auto i=0;i<total_receive_count;i++) {
       INDEX_TYPE receive_index = (*receive_indices_ptr)[i];
       (*local_to_global_map)[i]= receive_index;
-      (*local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
+      (local_nn_map)[receive_index] = vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>(nn);
     }
 
   }
