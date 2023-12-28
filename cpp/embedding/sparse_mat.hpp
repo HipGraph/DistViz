@@ -264,9 +264,9 @@ public:
 
     CSRHandle<INDEX_TYPE,VALUE_TYPE>* handle = csr_local_data.get()->handler.get();
     cout<<"  rank "<<rank<<" csr size "<<(*handle).rowStart.size()<<endl;
-    for(int i=0;i<((*handle).rowStart.size()-1);i++){
+    for(auto i=0;i<((*handle).rowStart.size()-1);i++){
       fout<<i<<" ";
-      for(int j=(*handle).rowStart[i];j<(*handle).rowStart[i+1];j++){
+      for(auto j=(*handle).rowStart[i];j<(*handle).rowStart[i+1];j++){
         fout<<(*handle).col_idx[j]<<" ";
       }
       fout<<endl;
