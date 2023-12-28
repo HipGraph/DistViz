@@ -219,48 +219,48 @@ int main(int argc, char* argv[]) {
 
   t = start_clock();
   cout<<" rank "<<rank<<" output size: "<<knng_graph_ptr.get()->size()<<endl;
-//
-//  initialize_mpi_datatypes<int, float, embedding_dimension>();
-//
-//  auto localARows = divide_and_round_up(data_set_size,grid.get()->col_world_size);
-//
-//  if(full_batch_training)
-//    batch_size = localARows;
-//
-//  auto dense_mat = shared_ptr<DenseMat<int, float, embedding_dimension>>(
-//      new DenseMat<int, float, embedding_dimension>(grid.get(), localARows));
-//
-////  dense_mat->print_matrix_rowptr(0);
-//
-//  auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,embedding_dimension>>(new EmbeddingHandler<int, float,embedding_dimension>(grid.get()));
-//  auto gNNZ = data_set_size* (nn-1);
-//
-//  std::cout << "start generating embedding "<< rank<< " rows "<<localARows<<" gNNZ "<<gNNZ <<std::endl;
-//  embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
-//                                        data_set_size,data_set_size,gNNZ,
-//                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm,drop_out_error_threshold);
-//
-//  std::cout << "stop generating embedding "<< rank<< " "<<std::endl;
-//  stop_clock_and_add(t, "Embedding Total Time");
-//
-//  t = start_clock();
-//  FileWriter<int,float> fileWriter;
-////  fileWriter.parallel_write(output_path+"/embedding.txt",dense_mat.get()->nCoordinates,localARows, embedding_dimension);
-//  stop_clock_and_add(t, "IO Time");
-//
-//  ofstream fout;
-//  fout.open("perf_output", std::ios_base::app);
-//
-//  json j_obj;
-//  j_obj["algo"] = "DistViz";
-//  j_obj["p"] = grid->col_world_size;
-//  j_obj["k"] = nn;
-//  j_obj["perf_stats"] = json_perf_statistics();
-//  if (rank == 0) {
-//    fout << j_obj.dump(4) << "," << endl;
-//  }
-//  //
-//  fout.close();
+
+  initialize_mpi_datatypes<int, float, embedding_dimension>();
+
+  auto localARows = divide_and_round_up(data_set_size,grid.get()->col_world_size);
+
+  if(full_batch_training)
+    batch_size = localARows;
+
+  auto dense_mat = shared_ptr<DenseMat<int, float, embedding_dimension>>(
+      new DenseMat<int, float, embedding_dimension>(grid.get(), localARows));
+
+//  dense_mat->print_matrix_rowptr(0);
+
+  auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,embedding_dimension>>(new EmbeddingHandler<int, float,embedding_dimension>(grid.get()));
+  auto gNNZ = data_set_size* (nn-1);
+
+  std::cout << "start generating embedding "<< rank<< " rows "<<localARows<<" gNNZ "<<gNNZ <<std::endl;
+  embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
+                                        data_set_size,data_set_size,gNNZ,
+                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm,drop_out_error_threshold);
+
+  std::cout << "stop generating embedding "<< rank<< " "<<std::endl;
+  stop_clock_and_add(t, "Embedding Total Time");
+
+  t = start_clock();
+  FileWriter<int,float> fileWriter;
+  fileWriter.parallel_write(output_path+"/embedding.txt",dense_mat.get()->nCoordinates,localARows, embedding_dimension);
+  stop_clock_and_add(t, "IO Time");
+
+  ofstream fout;
+  fout.open("perf_output", std::ios_base::app);
+
+  json j_obj;
+  j_obj["algo"] = "DistViz";
+  j_obj["p"] = grid->col_world_size;
+  j_obj["k"] = nn;
+  j_obj["perf_stats"] = json_perf_statistics();
+  if (rank == 0) {
+    fout << j_obj.dump(4) << "," << endl;
+  }
+  //
+  fout.close();
 
   MPI_Finalize();
 }
