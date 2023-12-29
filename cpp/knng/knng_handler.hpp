@@ -339,7 +339,7 @@ public:
                                         disps_receiving_indices.get(),
                                         send_count,total_receving,nn);
 
-//    cout<<" rank "<<grid->rank_in_col<<" after receiving  method  "<<(*out_index_dis).size()<<endl;
+    cout<<" rank "<<grid->rank_in_col<<" after receiving  method  "<<(*out_index_dis).size()<<endl;
 
     shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> final_sent_indices_to_rank_map = make_shared<vector<index_distance_pair<INDEX_TYPE>>>(local_data_set_size);
     //
@@ -349,6 +349,7 @@ public:
                              disps_receiving_indices.get(),
                              out_index_dis.get(),
                              final_sent_indices_to_rank_map.get());
+    cout<<" rank "<<grid->rank_in_col<<" data owner finialization completed  "<<endl;
 
     shared_ptr<vector<vector<index_distance_pair<INDEX_TYPE>>>> final_indices_allocation = make_shared<vector<vector<index_distance_pair<INDEX_TYPE>>>>(grid->col_world_size);
     //	//announce the selected dataowner to all interesting data holders
@@ -358,6 +359,7 @@ public:
                              out_index_dis.get(),
                              final_sent_indices_to_rank_map.get(),
                              final_indices_allocation.get());
+      cout<<" rank "<<grid->rank_in_col<<" announce_final_dataowner completed  "<<endl;
 
     shared_ptr<vector<int>> sending_selected_indices_count = make_shared<vector<int>>(grid->col_world_size);
     shared_ptr<vector<int>> sending_selected_indices_nn_count = make_shared<vector<int>>(grid->col_world_size);
@@ -370,9 +372,13 @@ public:
                                       sending_selected_indices_count.get(),
                                       sending_selected_indices_nn_count.get());
 
+    cout<<" rank "<<grid->rank_in_col<<" select_final_forwarding_nns completed  "<<endl;
+
     send_nns(sending_selected_indices_count.get(),sending_selected_indices_nn_count.get(),
                    receiving_selected_indices_count.get(),final_nn_map,
              final_nn_sending_map.get(),final_indices_allocation.get());
+
+    cout<<" rank "<<grid->rank_in_col<<"send_nns completed  "<<endl;
 
   }
 
