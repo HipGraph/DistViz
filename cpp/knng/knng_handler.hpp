@@ -186,7 +186,7 @@ public:
         INDEX_TYPE global_index = (*datamap_ptr)[node_index];
         EdgeNode<INDEX_TYPE, VALUE_TYPE> edge;
         edge.src_index = global_index;
-        edge.dst_index =  neighbours(node_index,nn_index);
+        edge.dst_index =   (*datamap_ptr)[neighbours(node_index,nn_index)];
         edge.distance = distances(node_index,nn_index);
         (*local_nn_map_ptr)[tree][global_index][nn_index] = edge;
       }
