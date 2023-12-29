@@ -234,7 +234,7 @@ public:
        }
     }
 
-    cout << "rank " << grid->rank_in_col<< " locall nn merge  completed" << endl;
+    cout << "rank " << grid->rank_in_col<< " local nn merge  completed" << endl;
     communicate_nns((combined_local_nn_map_ptr).get(), nn, final_nn_map.get());
     cout<<"rank "<<grid->rank_in_col<<" size :"<<(*final_nn_map).size()<<endl;
 
