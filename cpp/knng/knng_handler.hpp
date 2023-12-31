@@ -402,6 +402,7 @@ public:
     {
       send_count += (*sending_indices_count_ptr)[i];
       (*disps_sending_indices_ptr)[i] = (i > 0) ? (*disps_sending_indices_ptr)[i - 1] + (*sending_indices_count_ptr)[i - 1] : 0;
+      cout<<" rank "<<grid->rank_in_col<<" disps_sending_indices_ptr "<<(*disps_sending_indices_ptr)[i]<<endl;
     }
 
     auto t = start_clock();
