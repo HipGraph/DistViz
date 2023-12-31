@@ -333,6 +333,7 @@ public:
 
     //send distance threshold to original data owner
     shared_ptr<vector<index_distance_pair<INDEX_TYPE>>> out_index_dis =  make_shared<vector<index_distance_pair<INDEX_TYPE>>>();
+    cout<<" rank "<<grid->rank_in_col<<" before send_min_max_distance_to_data_owner  method  "<<(*out_index_dis).size()<<endl;
 
     send_min_max_distance_to_data_owner(local_nns,out_index_dis.get(),
                                         receiving_indices_count.get(),
