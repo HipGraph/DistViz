@@ -394,7 +394,9 @@ public:
     unique_ptr<vector<set<INDEX_TYPE>>> process_se_indexes_ptr = make_unique<vector<set<INDEX_TYPE>>>(grid->col_world_size);
     for (auto it = (*local_nns).begin(); it != (*local_nns).end(); ++it) {
       INDEX_TYPE key = it->first;
+      cout<<" rank "<<grid->rank_in_col<<" key "<<key<<endl;
       int target_rank = key/(global_data_set_size/grid->col_world_size);
+      cout<<" rank "<<grid->rank_in_col<<" target_rank "<<target_rank<<endl;
       (*sending_indices_count_ptr)[target_rank]++;
       (*process_se_indexes_ptr)[target_rank].insert(it->first);
     }
