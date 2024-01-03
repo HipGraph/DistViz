@@ -350,6 +350,7 @@ public:
                              disps_receiving_indices.get(),
                              out_index_dis.get(),
                              final_sent_indices_to_rank_map.get());
+
     cout<<" rank "<<grid->rank_in_col<<" data owner finialization completed  "<<endl;
 
     shared_ptr<vector<vector<index_distance_pair<INDEX_TYPE>>>> final_indices_allocation = make_shared<vector<vector<index_distance_pair<INDEX_TYPE>>>>(grid->col_world_size);
@@ -360,6 +361,7 @@ public:
                              out_index_dis.get(),
                              final_sent_indices_to_rank_map.get(),
                              final_indices_allocation.get());
+
       cout<<" rank "<<grid->rank_in_col<<" announce_final_dataowner completed  "<<endl;
 
     shared_ptr<vector<int>> sending_selected_indices_count = make_shared<vector<int>>(grid->col_world_size);
@@ -405,7 +407,6 @@ public:
     {
       send_count += (*sending_indices_count_ptr)[i];
       (*disps_sending_indices_ptr)[i] = (i > 0) ? (*disps_sending_indices_ptr)[i - 1] + (*sending_indices_count_ptr)[i - 1] : 0;
-      cout<<" rank "<<grid->rank_in_col<<" disps_sending_indices_ptr "<<(*disps_sending_indices_ptr)[i]<<endl;
     }
 
     auto t = start_clock();
@@ -492,6 +493,8 @@ public:
     unique_ptr<vector<INDEX_TYPE>> minimal_selected_rank_sending = make_unique<vector<INDEX_TYPE>>(total_receving);
     unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> minimal_index_distance = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_receving);
 
+    cout<<" rank "<<grid->rank_in_col<<" first allocation completed "<<endl;
+
 #pragma omp parallel for
     for (int i = 0;i < total_receving;i++)
     {
@@ -502,7 +505,7 @@ public:
 
     unique_ptr<vector<int>> receiving_indices_count_back = make_unique<vector<int>>(grid->col_world_size);
     unique_ptr<vector<int>> disps_receiving_indices_count_back = make_unique<vector<int>>(grid->col_world_size);
-
+    cout<<" rank "<<grid->rank_in_col<<" second allocation completed "<<endl;
     auto t = start_clock();
     // we recalculate how much we are receiving for minimal dst distribution
     MPI_Alltoall((*receiving_indices_count).data(),1, MPI_INDEX_TYPE, (*receiving_indices_count_back).data(), 1, MPI_INDEX_TYPE, grid->col_world);
@@ -519,7 +522,7 @@ public:
 
     unique_ptr<vector<INDEX_TYPE>> minimal_selected_rank_reciving =  make_unique<vector<INDEX_TYPE>>(total_receivce_back);
     unique_ptr<vector<index_distance_pair<INDEX_TYPE>>> minimal_index_distance_receiv = make_unique<vector<index_distance_pair<INDEX_TYPE>>>(total_receivce_back);
-
+    cout<<" rank "<<grid->rank_in_col<<" thrid allocation completed "<<endl;
 
     t = start_clock();
     MPI_Alltoallv((*minimal_index_distance).data(), (*receiving_indices_count).data(), (*disps_receiving_indices).data(), MPI_FLOAT_INT,
@@ -533,7 +536,7 @@ public:
 
     stop_clock_and_add(t, "KNNG Communication Time");
 
-
+    cout<<" rank "<<grid->rank_in_col<<" all communication completed "<<endl;
 //
 #pragma omp parallel
     {
