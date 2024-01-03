@@ -540,7 +540,7 @@ public:
 //
 #pragma omp parallel
     {
-      vector<vector<index_distance_pair<INDEX_TYPE>>> final_indices_allocation_local(grid->col_world_size);
+      unique_ptr<vector<vector<index_distance_pair<INDEX_TYPE>>>> final_indices_allocation_local = make_unique<vector<vector<index_distance_pair<INDEX_TYPE>>>>(grid->col_world_size);
 
 #pragma omp  for nowait
       for (int i = 0;i < total_receivce_back;i++)
@@ -548,7 +548,7 @@ public:
         index_distance_pair<INDEX_TYPE> distance_pair;
         distance_pair.index = (*minimal_index_distance_receiv)[i].index;
         distance_pair.distance = (*minimal_index_distance_receiv)[i].distance;
-        final_indices_allocation_local[(*minimal_selected_rank_reciving)[i]].
+        (*final_indices_allocation_local)[(*minimal_selected_rank_reciving)[i]].
             push_back(distance_pair);
 
       }
@@ -558,8 +558,8 @@ public:
         for (int i = 0;i < grid->col_world_size;i++)
         {
           (*final_indices_allocation)[i].insert((*final_indices_allocation)[i].end(),
-                                             final_indices_allocation_local[i].begin(),
-                                             final_indices_allocation_local[i].end());
+                                                (*final_indices_allocation_local)[i].begin(),
+                                                (*final_indices_allocation_local)[i].end());
         }
       }
     }
