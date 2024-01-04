@@ -552,9 +552,6 @@ public:
         index_distance_pair<INDEX_TYPE> distance_pair;
         distance_pair.index = (*minimal_index_distance_receiv)[i].index;
         distance_pair.distance = (*minimal_index_distance_receiv)[i].distance;
-
-        cout<<" rank "<< grid->rank_in_col<<" accessing " << (*minimal_selected_rank_reciving)[i]<<endl;
-
         (*final_indices_allocation_local)[(*minimal_selected_rank_reciving)[i]].push_back(distance_pair);
 
       }
