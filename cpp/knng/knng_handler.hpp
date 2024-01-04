@@ -397,7 +397,11 @@ public:
     for (auto it = (*local_nns).begin(); it != (*local_nns).end(); ++it) {
       INDEX_TYPE key = it->first;
 //      cout<<" rank "<<grid->rank_in_col<<" key "<<key<<endl;
-      int target_rank = key/divide_and_round_up(global_data_set_size,grid->col_world_size);
+
+      int target_rank = key/(global_data_set_size/grid->col_world_size);
+      if (target_rank>=grid->col_world_size){
+        target_rank = grid->col_world_size-1; //The last rank will own more data
+      }
 //      cout<<" rank "<<grid->rank_in_col<<" target_rank "<<target_rank<<endl;
       (*sending_indices_count_ptr)[target_rank]++;
       (*process_se_indexes_ptr)[target_rank].insert(it->first);
@@ -554,6 +558,8 @@ public:
         (*final_indices_allocation_local)[(*minimal_selected_rank_reciving)[i]].push_back(distance_pair);
 
       }
+
+      cout<<" rank "<< grid->rank_in_col<<" accessing  compleyed " << (*minimal_selected_rank_reciving)[i]<<endl;
 
 //#pragma omp critical
 //      {
