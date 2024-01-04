@@ -559,7 +559,7 @@ public:
 
       }
 
-      cout<<" rank "<< grid->rank_in_col<<" accessing  compleyed " << (*minimal_selected_rank_reciving)[i]<<endl;
+      cout<<" rank "<< grid->rank_in_col<<" accessing  compleyed " <<endl;
 
 //#pragma omp critical
 //      {
