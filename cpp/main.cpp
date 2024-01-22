@@ -201,6 +201,18 @@ int main(int argc, char* argv[]) {
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
    t = start_clock();
    if (grid.get()->col_world_size==1){
+
+     for(int i=0;i<data_matrix_ptr.get()->size();i++){
+       int co = 0;
+       for(int j=0;j<(*data_matrix_ptr)[i].size();j++){
+         if ((*data_matrix_ptr)[i][j]>0){
+           co++;
+         }
+       }
+       cout<<" count for i"<<i<<" "<<co<<endl;
+     }
+
+
      knng_handler.get()->build_local_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),nn,
                                                 target_local_recall,
                                                 generate_knng_output,
