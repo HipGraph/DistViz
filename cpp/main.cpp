@@ -190,7 +190,6 @@ int main(int argc, char* argv[]) {
     }
   stop_clock_and_add(t, "IO Time");
 
-  cout<<"rank "<<grid->rank_in_col<<" data_matrix_ptr size "<<data_matrix_ptr.get()->size()<<"* "<<(*data_matrix_ptr.get())[7499].size()<<endl;
   MPI_Barrier(MPI_COMM_WORLD);
   std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
 
