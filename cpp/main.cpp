@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 
   double drop_out_error_threshold = 0;
 
-  const int embedding_dimension = 2;
+  const int embedding_dimension = 32;
 
   int bytes_for_data_type = 4;
 
