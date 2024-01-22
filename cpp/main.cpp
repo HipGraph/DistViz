@@ -63,6 +63,8 @@ int main(int argc, char* argv[]) {
 
   int bytes_for_data_type = 4;
 
+  int file_offset=8;
+
   for (int p = 0; p < argc; p++) {
     if (strcmp(argv[p], "-input") == 0) {
       input_path = argv[p + 1];
@@ -118,6 +120,8 @@ int main(int argc, char* argv[]) {
       batch_size = atoi(argv[p + 1]);
     } else if (strcmp(argv[p], "-dropout-error-th") == 0) {
       drop_out_error_threshold = atof(argv[p + 1]);
+    }else if (strcmp(argv[p], "-file-offset") == 0) {
+      file_offset = atof(argv[p + 1]);
     }
   }
 
@@ -181,7 +185,7 @@ int main(int argc, char* argv[]) {
                                     grid.get()->rank_in_col, grid.get()->col_world_size);
     }else if (file_format == 2) {
       FileReader<uint64_t ,float>::read_fbin(input_path, data_matrix_ptr.get(), data_set_size, dimension,
-                                             grid.get()->rank_in_col, grid.get()->col_world_size);
+                                             grid.get()->rank_in_col, grid.get()->col_world_size,file_offset);
 
     }
   stop_clock_and_add(t, "IO Time");
