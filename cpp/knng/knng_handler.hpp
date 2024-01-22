@@ -263,7 +263,7 @@ public:
 
 
   void build_local_KNNG(ValueType2DVector<VALUE_TYPE>* input_data, vector<Tuple<VALUE_TYPE>> *output_knng,int nn, float target_recall,
-                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true) {
+                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0) {
 
     Eigen::MatrixXf data_matrix((*input_data)[0].size(), (*input_data).size());
 
@@ -276,7 +276,8 @@ public:
 
     int effective_nn = 2 * nn;
     Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, effective_nn);
+    mrpt.grow_autotune(target_recall, effective_nn, trees_max = -1,  depth_max = -1,  depth_min_ = -1,
+                        votes_max_ = -1,  density_ = density,  seed = 0,  n_test = 100);
 
     Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
     Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
