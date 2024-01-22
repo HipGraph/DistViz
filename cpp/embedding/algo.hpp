@@ -481,7 +481,7 @@ public:
 
 
         bool matched = false;
-        std::optional<std::array<DENT, embedding_dim>> array_ptr;
+       std::array<DENT, embedding_dim> array_ptr;
         bool col_inserted = false;
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
