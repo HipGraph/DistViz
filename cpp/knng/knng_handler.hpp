@@ -276,8 +276,8 @@ public:
 
     int effective_nn = 2 * nn;
     Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, effective_nn, trees_max = -1,  depth_max = -1,  depth_min_ = -1,
-                        votes_max_ = -1,  density_ = density,  seed = 0,  n_test = 100);
+    mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,
+                         -1, density,0,  100);
 
     Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
     Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
