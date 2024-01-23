@@ -269,8 +269,7 @@ public:
 //    int effective_nn = 2 * nn;
     int effective_nn = nn;
     Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,
-                         -1, density,0,  100);
+    mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
 
     Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
     Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
@@ -309,10 +308,9 @@ public:
       for(int i=0;i<data_matrix.cols()*effective_nn;i++){
         int node_index = i/effective_nn;
         int nn_index = i%effective_nn;
-        INDEX_TYPE global_index = (*datamap_ptr)[node_index];
         EdgeNode<INDEX_TYPE, VALUE_TYPE> edge;
-        edge.src_index = global_index;
-        edge.dst_index =   (*datamap_ptr)[neighbours(node_index,nn_index)];
+        edge.src_index = node_index;
+        edge.dst_index =   neighbours(node_index,nn_index);
         edge.distance = distances(node_index,nn_index);
         (*output_knng)[i]  = edge;
       }
