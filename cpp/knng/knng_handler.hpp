@@ -308,7 +308,7 @@ public:
       for(int i=0;i<data_matrix.cols()*effective_nn;i++){
         int node_index = i/effective_nn;
         int nn_index = i%effective_nn;
-        Tuple<INDEX_TYPE, VALUE_TYPE> edge;
+        Tuple<VALUE_TYPE> edge;
         edge.row = node_index;
         edge.col =   neighbours(node_index,nn_index);
         edge.value = distances(node_index,nn_index);
