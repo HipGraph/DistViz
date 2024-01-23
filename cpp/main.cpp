@@ -188,9 +188,10 @@ int main(int argc, char* argv[]) {
                                              grid.get()->rank_in_col, grid.get()->col_world_size,file_offset);
 
     }
-  stop_clock_and_add(t, "IO Time");
+
 
   MPI_Barrier(MPI_COMM_WORLD);
+  stop_clock_and_add(t, "IO Time");
   std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
 
   std::cout << "calling KNNGHandler rank "<<rank<<" with input matrix:  "<<data_matrix_ptr->size()<<"*"<<(*data_matrix_ptr)[0].size()<<std::endl;
@@ -204,17 +205,6 @@ int main(int argc, char* argv[]) {
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
    t = start_clock();
    if (grid.get()->col_world_size==1){
-
-     for(int i=0;i<data_matrix_ptr.get()->size();i++){
-       int co = 0;
-       for(int j=0;j<(*data_matrix_ptr)[i].size();j++){
-         if ((*data_matrix_ptr)[i][j]>0){
-           co++;
-         }
-       }
-       cout<<" count for i"<<i<<" "<<co<<endl;
-     }
-
 
      knng_handler.get()->build_local_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),nn,
                                                 target_local_recall,
