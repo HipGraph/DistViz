@@ -52,11 +52,11 @@ public:
                                                       dim(X_.rows()) {}
 
 
-  Mrpt(const Eigen::Ref<const Eigen::SparseMatrix<float>> &X_Sparse_) :
-                                                                        X_Sparse(X_Sparse_.rows(), X_Sparse_.cols(), X_Sparse_.outerIndexPtr(), X_Sparse_.innerIndexPtr(), X_Sparse_.valuePtr()),
-                                                                        n_samples(X_Sparse_.cols()),
-                                                                        dim(X_Sparse_.rows()),
-                                                                        sparse_input(true) {}
+  Mrpt(const Eigen::SparseMatrix<float>& X_Sparse_) :
+                                                      X_Sparse(X_Sparse_),
+                                                      n_samples(X_Sparse_.cols()),
+                                                      dim(X_Sparse_.rows()),
+                                                      sparse_input(true) {}
 
   /**
     * @param X_ a float array containing the data set with each data point
