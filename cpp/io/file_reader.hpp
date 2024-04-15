@@ -295,7 +295,7 @@ static void  read_fbin_sparse(string filename, Eigen::SparseMatrix<float, Eigen:
   cout<<" rank  "<<rank<<"  data loading completed"<<endl;
 }
 
-static std::vector<std::pair<int, float>> processNonZeroEntries(const std::vector<float>& data, int dim, float scaleParameter) {
+static std::pair<int, float> processNonZeroEntries(const std::vector<float>& data, int dim, float scaleParameter) {
   std::vector<std::pair<int, float>> result;
   result.reserve(dim); // Reserve space for maximum possible non-zero entries
 
