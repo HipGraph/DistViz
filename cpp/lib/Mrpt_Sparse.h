@@ -54,8 +54,8 @@ public:
 
   Mrpt(const Eigen::Ref<const Eigen::SparseMatrix<float>> &X_Sparse_) :
                                                       X_Sparse(Eigen::Map<const Eigen::SparseMatrix<float>>(X_Sparse_.data(), X_Sparse_.rows(), X_Sparse_.cols())),
-                                                      n_samples(X_.cols()),
-                                                      dim(X_.rows()),sparse_input(true) {}
+                                                      n_samples(X_Sparse_.cols()),
+                                                      dim(X_Sparse_.rows()),sparse_input(true) {}
 
   /**
     * @param X_ a float array containing the data set with each data point
