@@ -288,14 +288,18 @@ static void  read_fbin_sparse(string filename, Eigen::SparseMatrix<float, Eigen:
   for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
     std::vector<float> vec(dim);
     std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
-    std::pair<int, float> pair_val = processNonZeroEntries(vec,dim,scaleParameter);
-    triplets.push_back(Eigen::Triplet<double>(i,pair_val.first, pair_val.second));
+    for (int j = 0; j < dim; ++j) {
+      float value = data[j];
+      if (value != 0) {
+        triplets.push_back(Eigen::Triplet<double>(i,j,value*scaleParameter));
+      }
+    }
   }
   output.setFromTriplets(triplets.begin(), triplets.end());
   cout<<" rank  "<<rank<<"  data loading completed"<<endl;
 }
 
-static std::pair<int, float> processNonZeroEntries(const std::vector<float>& data, int dim, float scaleParameter) {
+static std::vector<std::pair<int, float>> processNonZeroEntries(const std::vector<float>& data, int dim, float scaleParameter) {
   std::vector<std::pair<int, float>> result;
   result.reserve(dim); // Reserve space for maximum possible non-zero entries
 
