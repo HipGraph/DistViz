@@ -217,7 +217,7 @@ int main(int argc, char* argv[]) {
    if (grid.get()->col_world_size==1){
 
      if (sparse_input) {
-       knng_handler.get()->build_local_KNNG(sparse_matrix,knng_graph_ptr.get(),nn,
+       knng_handler.get()->build_local_KNNG_Sparse(sparse_matrix,knng_graph_ptr.get(),nn,
                                             target_local_recall,
                                             generate_knng_output,
                                             output_path+"/knng.txt", true, density );
