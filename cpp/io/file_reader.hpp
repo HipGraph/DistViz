@@ -1,10 +1,14 @@
 #pragma once
 #include "Eigen/Dense"
+#include <Eigen/SparseCore>
+#include <Eigen/Sparse>
 #include <string>
 #include <fstream>
 #include <iostream>
 #include "../common/common.h"
 #include "../net/process_3D_grid.hpp"
+
+
 
 using namespace std;
 using namespace hipgraph::distviz::common;
@@ -230,11 +234,80 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
     std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
     std::transform(vec.begin(), vec.end(), vec.begin(),
                    [scaleParameter](double value) { return value * scaleParameter; });
+
     (*datamatrix)[i]=vec;
   }
   cout<<" rank  "<<rank<<"  data loading completed"<<endl;
 }
 
+
+static void  read_fbin_sparse(string filename, Eigen::SparseMatrix<float, Eigen::RowMajor> &output,
+                      INDEX_TYPE no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=8) {
+  cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
+  std::ifstream file(filename, std::ios::binary);
+  cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
+  if (!file.is_open()) {
+    // Handle file opening error
+    std::cerr << "Error: Unable to open the file " << filename << std::endl;
+    return;
+  }
+  cout<<" rank  "<<rank<<"  openinig completed "<<filename<<endl;
+  int nvecs=no_of_datapoints;
+
+  //  file.read(reinterpret_cast<char*>(&nvecs), sizeof(int));
+  //  file.read(reinterpret_cast<char*>(&dim), sizeof(int));
+  //
+  //  cout<<" rank  "<<rank<<"  nvecs "<<nvecs<<" dim "<<dim<<endl;
+
+  INDEX_TYPE chunk_size = no_of_datapoints / world_size;
+  INDEX_TYPE start_idx =rank*chunk_size;
+  INDEX_TYPE end_index = 0;
+  if (rank < world_size - 1){
+    end_index = (rank+1) * chunk_size -1;
+  }else if (rank == world_size - 1){
+    end_index = std::min((rank+1) * chunk_size -1,no_of_datapoints-1);
+    chunk_size = no_of_datapoints-(rank)*chunk_size;
+  }
+
+  if (chunk_size == -1) {
+    chunk_size = no_of_datapoints - start_idx;
+  }
+//  datamatrix->resize(chunk_size, vector<VALUE_TYPE> (dim));
+
+  std::vector<Eigen::Triplet<double>> triplets;
+
+
+  cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<endl;
+  std::vector<float> data(chunk_size * dim);
+
+  file.seekg(start_idx * 4 * dim+offset, std::ios::beg);
+  file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
+  const double scaleParameter = 100;
+  cout<<" rank  "<<rank<<"  data reading  completed"<<endl;
+
+  for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
+    std::vector<float> vec(dim);
+    std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
+    std::vector<std::pair<int, float>> pair_val = processNonZeroEntries(vec,dim,scaleParameter);
+    triplets.push_back(Eigen::Triplet<double>(i,pair_val.first, pair_val.second));
+  }
+  sparse_matrix.setFromTriplets(triplets.begin(), triplets.end());
+  cout<<" rank  "<<rank<<"  data loading completed"<<endl;
+}
+
+static std::vector<std::pair<int, float>> processNonZeroEntries(const std::vector<float>& data, int dim, float scaleParameter) {
+  std::vector<std::pair<int, float>> result;
+  result.reserve(dim); // Reserve space for maximum possible non-zero entries
+
+  for (int i = 0; i < dim; ++i) {
+    float value = data[i];
+    if (value != 0) {
+      result.emplace_back(i, value * scaleParameter);
+    }
+  }
+
+  return result;
+}
 
 static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
                                INDEX_TYPE no_of_datapoints, int dim, Process3DGrid* grid) {
