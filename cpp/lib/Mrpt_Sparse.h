@@ -132,7 +132,9 @@ public:
       Eigen::MatrixXf tree_projections;
       if (sparse_input){
         if (density < 1)
-          tree_projections.noalias() = sparse_random_matrix.middleRows(n_tree * depth, depth) * X_Sparse;
+//          tree_projections.noalias() = sparse_random_matrix.middleRows(n_tree * depth, depth) * X_Sparse;
+          Eigen::SparseMatrix<float> result_sparse = sparse_random_matrix.middleRows(n_tree * depth, depth) * X_Sparse;
+          tree_projections = Eigen::MatrixXf(result_sparse);
         else
           tree_projections.noalias() = dense_random_matrix.middleRows(n_tree * depth, depth) * X_Sparse;
       }else {
