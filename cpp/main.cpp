@@ -54,6 +54,8 @@ int main(int argc, char* argv[]) {
   int iterations = 1200;
   int batch_size = 256;
   bool full_batch_training = true;
+
+  bool sparse_input =false;
   float lr = 0.2;
   int nsamples = 5;
 
@@ -122,6 +124,8 @@ int main(int argc, char* argv[]) {
       drop_out_error_threshold = atof(argv[p + 1]);
     }else if (strcmp(argv[p], "-file-offset") == 0) {
       file_offset = atof(argv[p + 1]);
+    }else if (strcmp(argv[p], "-sparse-input") == 0) {
+      sparse_input = atoi(argv[p + 1]) == 1 ? true : false;
     }
   }
 
@@ -184,9 +188,14 @@ int main(int argc, char* argv[]) {
       FileReader<int,float>::fvecs_read(input_path, data_matrix_ptr.get(), data_set_size, dimension,
                                     grid.get()->rank_in_col, grid.get()->col_world_size);
     }else if (file_format == 2) {
-      FileReader<uint64_t ,float>::read_fbin(input_path, data_matrix_ptr.get(), data_set_size, dimension,
-                                             grid.get()->rank_in_col, grid.get()->col_world_size,file_offset);
-
+      if (sparse_input){
+        Eigen::SparseMatrix<double> sparse_matrix(data_set_size, dimension);
+        FileReader<uint64_t ,float>::read_fbin_sparse(input_path,sparse_matrix, data_set_size, dimension,
+                                               grid.get()->rank_in_col, grid.get()->col_world_size,file_offset);
+      }else {
+        FileReader<uint64_t ,float>::read_fbin(input_path, data_matrix_ptr.get(), data_set_size, dimension,
+                                               grid.get()->rank_in_col, grid.get()->col_world_size,file_offset);
+      }
     }
 
 
