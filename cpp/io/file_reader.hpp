@@ -291,7 +291,7 @@ static void  read_fbin_sparse(string filename, Eigen::SparseMatrix<float, Eigen:
     for (int j = 0; j < dim; ++j) {
       float value = vec[j];
       if (value != 0) {
-        cout<<"( "+i+" "+j+" "+value+")"<<endl;
+        cout<<"( "<<i<<" "<<j<<" "<<value<<")"<<endl;
         triplets.push_back(Eigen::Triplet<double>(i,j,value*scaleParameter));
       }
     }
