@@ -11,7 +11,8 @@
 #include "../common/common.h"
 #include "math_operations.hpp"
 #include <memory>
-#include "../lib/Mrpt.h"
+//#include "../lib/Mrpt.h"
+#include "../lib/Mrpt_Sparse.h"
 #include "../io/file_writer.hpp"
 
 using namespace hipgraph::distviz::common;
