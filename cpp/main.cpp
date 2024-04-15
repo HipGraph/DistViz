@@ -179,6 +179,7 @@ int main(int argc, char* argv[]) {
   std::cout << "calling data loading" << rank << " " << std::endl;
   unique_ptr<ValueType2DVector<float>> data_matrix_ptr = make_unique<ValueType2DVector<float>>();
   ;
+  Eigen::SparseMatrix<float,Eigen::RowMajor> sparse_matrix;
   auto t = start_clock();
   if (file_format == 0){
      FileReader<int,float>::ubyte_read(
@@ -189,7 +190,7 @@ int main(int argc, char* argv[]) {
                                     grid.get()->rank_in_col, grid.get()->col_world_size);
     }else if (file_format == 2) {
       if (sparse_input){
-        Eigen::SparseMatrix<float,Eigen::RowMajor> sparse_matrix(data_set_size, dimension);
+        sparse_matrix =  Eigen::SparseMatrix<float,Eigen::RowMajor>(data_set_size, dimension);
         FileReader<uint64_t ,float>::read_fbin_sparse(input_path,sparse_matrix, data_set_size, dimension,
                                                grid.get()->rank_in_col, grid.get()->col_world_size,file_offset);
       }else {
@@ -215,10 +216,18 @@ int main(int argc, char* argv[]) {
    t = start_clock();
    if (grid.get()->col_world_size==1){
 
-     knng_handler.get()->build_local_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),nn,
-                                                target_local_recall,
-                                                generate_knng_output,
-                                                output_path+"/knng.txt", true, density );
+     if (sparse_input) {
+       knng_handler.get()->build_local_KNNG(sparse_matrix,knng_graph_ptr.get(),nn,
+                                            target_local_recall,
+                                            generate_knng_output,
+                                            output_path+"/knng.txt", true, density );
+     }else {
+       knng_handler.get()->build_local_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),nn,
+                                            target_local_recall,
+                                            generate_knng_output,
+                                            output_path+"/knng.txt", true, density );
+     }
+
 
    } else{
      knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),
