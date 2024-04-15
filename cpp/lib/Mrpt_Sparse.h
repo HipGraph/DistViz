@@ -132,7 +132,7 @@ public:
       Eigen::MatrixXf tree_projections;
       if (sparse_input){
         if (density < 1) {
-          cout<<" tree"<<tree<<" multipling "<<X_Sparse.rows()<<" "<<X_Sparse.cols()<<endl;
+          std::cout<<" tree"<<n_tree<<" multipling "<<X_Sparse.rows()<<" "<<X_Sparse.cols()<<std::endl;
           Eigen::SparseMatrix<float> result_sparse = sparse_random_matrix.middleRows(n_tree * depth, depth) * X_Sparse;
           tree_projections = Eigen::MatrixXf(result_sparse);
         }else
