@@ -54,9 +54,9 @@ public:
 
   Mrpt(const Eigen::SparseMatrix<float>& X_Sparse_) :
                                                       X_Sparse(X_Sparse_),
-                                                      X(Eigen::Map<const Eigen::MatrixXf>(nullptr, 0, 0)),
-                                                      n_samples(X_Sparse_.cols()),
-                                                      dim(X_Sparse_.rows()),
+                                                      X(Eigen::Map<const Eigen::MatrixXf>({1}, 1, 1)),
+                                                      n_samples(X_Sparse_.rows()),
+                                                      dim(X_Sparse_.cols()),
                                                       sparse_input(true) {}
 
   /**
