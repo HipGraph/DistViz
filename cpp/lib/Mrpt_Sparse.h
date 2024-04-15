@@ -53,7 +53,7 @@ public:
 
 
   Mrpt(const Eigen::Ref<const Eigen::SparseMatrix<float>> &X_Sparse_) :
-                                                                        X_Sparse(Eigen::Map<const Eigen::SparseMatrix<float>>(X_Sparse_, X_Sparse_.rows(), X_Sparse_.cols())),
+                                                                        X_Sparse(X_Sparse_),
                                                                         n_samples(X_Sparse_.cols()),
                                                                         dim(X_Sparse_.rows()),
                                                                         sparse_input(true) {}
