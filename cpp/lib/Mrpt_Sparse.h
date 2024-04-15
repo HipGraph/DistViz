@@ -127,11 +127,12 @@ public:
     count_first_leaf_indices_all(leaf_first_indices_all, n_samples, depth);
     leaf_first_indices = leaf_first_indices_all[depth];
 
-#pragma omp parallel for
+//#pragma omp parallel for
     for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
       Eigen::MatrixXf tree_projections;
       if (sparse_input){
         if (density < 1) {
+          cout<<" tree"<<tree<<" multipling "<<X_Sparse.rows()<<" "<<X_Sparse.cols()<<endl;
           Eigen::SparseMatrix<float> result_sparse = sparse_random_matrix.middleRows(n_tree * depth, depth) * X_Sparse;
           tree_projections = Eigen::MatrixXf(result_sparse);
         }else
