@@ -1751,7 +1751,7 @@ private:
 
 
   const Eigen::Map<const Eigen::MatrixXf> X; // the data matrix
-  const Eigen::Map<const Eigen::SparseMatrix<float>> X_Sparse;
+  const Eigen::SparseMatrix<float> X_Sparse; // sparse data matrix
   Eigen::MatrixXf split_points; // all split points in all trees
   std::vector<std::vector<int>> tree_leaves; // contains all leaves of all trees
   Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> dense_random_matrix; // random vectors needed for all the RP-trees
