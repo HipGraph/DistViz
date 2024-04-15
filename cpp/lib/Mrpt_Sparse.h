@@ -1774,7 +1774,7 @@ private:
   enum itype {normal, autotuned, autotuned_unpruned};
   itype index_type = normal;
 
-  bool sparse_input;
+  bool sparse_input=false;
 
   // Member variables used in autotuning:
   int depth_min = 0;
