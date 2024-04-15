@@ -51,6 +51,12 @@ public:
                                                       n_samples(X_.cols()),
                                                       dim(X_.rows()) {}
 
+
+  Mrpt(const Eigen::Ref<const Eigen::SparseMatrix<float>> &X_Sparse_) :
+                                                      X_Sparse(Eigen::Map<const Eigen::SparseMatrix<float>>(X_Sparse_.data(), X_Sparse_.rows(), X_Sparse_.cols())),
+                                                      n_samples(X_.cols()),
+                                                      dim(X_.rows()),sparse_input(true)) {}
+
   /**
     * @param X_ a float array containing the data set with each data point
     * stored contiguously in memory
@@ -122,12 +128,17 @@ public:
 #pragma omp parallel for
     for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
       Eigen::MatrixXf tree_projections;
-
-      if (density < 1)
-        tree_projections.noalias() = sparse_random_matrix.middleRows(n_tree * depth, depth) * X;
-      else
-        tree_projections.noalias() = dense_random_matrix.middleRows(n_tree * depth, depth) * X;
-
+      if (sparse_input){
+        if (density < 1)
+          tree_projections.noalias() = sparse_random_matrix.middleRows(n_tree * depth, depth) * X_Sparse;
+        else
+          tree_projections.noalias() = dense_random_matrix.middleRows(n_tree * depth, depth) * X_Sparse;
+      }else {
+        if (density < 1)
+          tree_projections.noalias() = sparse_random_matrix.middleRows(n_tree * depth, depth) * X;
+        else
+          tree_projections.noalias() = dense_random_matrix.middleRows(n_tree * depth, depth) * X;
+      }
       tree_leaves[n_tree] = std::vector<int>(n_samples);
       std::vector<int> &indices = tree_leaves[n_tree];
       std::iota(indices.begin(), indices.end(), 0);
@@ -1739,6 +1750,7 @@ private:
 
 
   const Eigen::Map<const Eigen::MatrixXf> X; // the data matrix
+  const Eigen::Map<const Eigen::SparseMatrix<float>> X_Sparse;
   Eigen::MatrixXf split_points; // all split points in all trees
   std::vector<std::vector<int>> tree_leaves; // contains all leaves of all trees
   Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> dense_random_matrix; // random vectors needed for all the RP-trees
@@ -1758,6 +1770,8 @@ private:
   int k = 0;
   enum itype {normal, autotuned, autotuned_unpruned};
   itype index_type = normal;
+
+  bool sparse_input;
 
   // Member variables used in autotuning:
   int depth_min = 0;
