@@ -68,12 +68,6 @@ public:
                                                     n_samples(n_samples_),
                                                     dim(dim_) {}
 
-  Mrpt(const float *X_, int dim_, int n_samples_) :
-                                                    X_Sparse(Eigen::Map<const Eigen::SparseMatrix<float>>(X_, dim_, n_samples_)),
-                                                    n_samples(n_samples_),
-                                                    dim(dim_) {}
-
-
   /**@}*/
 
   /** @name Normal index building.
