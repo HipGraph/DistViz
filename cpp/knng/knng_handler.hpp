@@ -262,54 +262,54 @@ public:
     Mrpt mrpt(sparse_matrix);
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
 
-    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
-    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
+    Eigen::MatrixXi neighbours(sparse_matrix.rows(),effective_nn);
+    Eigen::MatrixXf distances(sparse_matrix.rows(),effective_nn);
 
     //    int neighhour_size = (skip_self_loops)?nn-1:nn;
-    output_knng->resize(data_matrix.cols()*effective_nn);
+    output_knng->resize(sparse_matrix.rows()*effective_nn);
     //
     //    int starting_index = skip_self_loops?1:0;
     //    int offset = skip_self_loops?-1:0;
 
-#pragma omp parallel for schedule (static)
-    for(int i=0;i<data_matrix.cols();i++){
-      Eigen::VectorXi tempRow(effective_nn);
-      Eigen::VectorXf tempDis(effective_nn);
-      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
-      neighbours.row(i)=tempRow;
-      distances.row(i)=tempDis;
-      //      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
-      //      edge.src_index=i;
-      //      for(int k=starting_index;k<nn;k++){
-      //        int index = i*(neighhour_size)+k+offset;
-      //        edge.dst_index = tempRow[k];
-      //        edge.distance = tempDis[k];
-      //        Tuple<VALUE_TYPE> tuple;
-      //        tuple.row = edge.src_index;
-      //        tuple.col = edge.dst_index;
-      //        if (tuple.row<0 or tuple.col<0){
-      //          cout<<" woring index found  "<<tuple.row<<"col "<<edge.dst_index<<" distance "<<edge.distance<<" k "<<k<<endl;
-      //        }
-      //        tuple.value = edge.distance;
-      //        (*output_knng)[index]= tuple;
-      //        }
-    }
-
-#pragma omp parallel for schedule(static)
-    for(int i=0;i<data_matrix.cols()*effective_nn;i++){
-      int node_index = i/effective_nn;
-      int nn_index = i%effective_nn;
-      Tuple<VALUE_TYPE> edge;
-      edge.row = node_index;
-      edge.col =   neighbours(node_index,nn_index);
-      edge.value = distances(node_index,nn_index);
-      (*output_knng)[i]  = edge;
-    }
-
-    if (print_output) {
-      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
-      fileWriter.write_list(output_knng,output_path);
-    }
+//#pragma omp parallel for schedule (static)
+//    for(int i=0;i<data_matrix.rows();i++){
+//      Eigen::VectorXi tempRow(effective_nn);
+//      Eigen::VectorXf tempDis(effective_nn);
+//      mrpt.query(data_matrix.row(i), tempRow.data(),tempDis.data());
+//      neighbours.row(i)=tempRow;
+//      distances.row(i)=tempDis;
+//      //      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
+//      //      edge.src_index=i;
+//      //      for(int k=starting_index;k<nn;k++){
+//      //        int index = i*(neighhour_size)+k+offset;
+//      //        edge.dst_index = tempRow[k];
+//      //        edge.distance = tempDis[k];
+//      //        Tuple<VALUE_TYPE> tuple;
+//      //        tuple.row = edge.src_index;
+//      //        tuple.col = edge.dst_index;
+//      //        if (tuple.row<0 or tuple.col<0){
+//      //          cout<<" woring index found  "<<tuple.row<<"col "<<edge.dst_index<<" distance "<<edge.distance<<" k "<<k<<endl;
+//      //        }
+//      //        tuple.value = edge.distance;
+//      //        (*output_knng)[index]= tuple;
+//      //        }
+//    }
+//
+//#pragma omp parallel for schedule(static)
+//    for(int i=0;i<sparse_matrix.cols()*effective_nn;i++){
+//      int node_index = i/effective_nn;
+//      int nn_index = i%effective_nn;
+//      Tuple<VALUE_TYPE> edge;
+//      edge.row = node_index;
+//      edge.col =   neighbours(node_index,nn_index);
+//      edge.value = distances(node_index,nn_index);
+//      (*output_knng)[i]  = edge;
+//    }
+//
+//    if (print_output) {
+//      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+//      fileWriter.write_list(output_knng,output_path);
+//    }
 
   }
 
