@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
                                     grid.get()->rank_in_col, grid.get()->col_world_size);
     }else if (file_format == 2) {
       if (sparse_input){
-        sparse_matrix =  Eigen::SparseMatrix<float,Eigen::RowMajor>(data_set_size, dimension);
+        sparse_matrix =  Eigen::SparseMatrix<float,Eigen::RowMajor>(dimension, data_set_size);
         FileReader<uint64_t ,float>::read_fbin_sparse(input_path,sparse_matrix, data_set_size, dimension,
                                                grid.get()->rank_in_col, grid.get()->col_world_size,file_offset);
       }else {
