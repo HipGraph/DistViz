@@ -204,10 +204,14 @@ int main(int argc, char* argv[]) {
   stop_clock_and_add(t, "IO Time");
   std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
 
-  std::cout << "calling KNNGHandler rank "<<rank<<" with input matrix:  "<<data_matrix_ptr->size()<<"*"<<(*data_matrix_ptr)[0].size()<<std::endl;
+
+
+  std::cout << "calling KNNGHandler rank "<<rank<<" with input matrix:  "<<sparse_input?sparse_matrix.rows():data_matrix_ptr->size()<<"*"<<sparse_input?sparse_matrix.cols():(*data_matrix_ptr)[0].size()<<std::endl;
+
+  auto data_set_size_local =  sparse_input?sparse_matrix.rows():data_matrix_ptr->size();
   auto knng_handler = unique_ptr<KNNGHandler<int ,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
                                                                                        local_tree_offset,  data_set_size,
-                                                                                      data_matrix_ptr.get()->size(),
+                                                                                      data_set_size_local,
                                                                                       dimension,  grid.get()));
 
   std::cout << "calling grow trees"<< rank<< " "<<std::endl;
