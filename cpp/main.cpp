@@ -207,8 +207,7 @@ int main(int argc, char* argv[]) {
 
 
   std::cout << "calling KNNGHandler rank "<<rank<<" with input matrix:  "
-            <<sparse_input?sparse_matrix.rows():data_matrix_ptr->size()<<"*"
-                            <<sparse_input?sparse_matrix.cols():(*data_matrix_ptr)[0].size()<<std::endl;
+            <<(sparse_input?sparse_matrix.rows():data_matrix_ptr->size())<<"*"<<(sparse_input?sparse_matrix.cols():(*data_matrix_ptr)[0].size())<<std::endl;
 
   auto data_set_size_local =  sparse_input?sparse_matrix.rows():data_matrix_ptr->size();
   auto knng_handler = unique_ptr<KNNGHandler<int ,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
