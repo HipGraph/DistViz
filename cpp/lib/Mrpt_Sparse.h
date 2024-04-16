@@ -616,11 +616,13 @@ public:
       std::cout<<" inside density < 1"<< std::endl;
       index2.sparse_random_matrix = Eigen::SparseMatrix<float, Eigen::RowMajor>(
           index2.n_pool, index2.dim);
-      for (int n_tree = 0; n_tree < index2.n_trees; ++n_tree)
-        std::cout<<" inside subset treee "<<n_tree<< std::endl;
+      for (int n_tree = 0; n_tree < index2.n_trees; ++n_tree) {
         index2.sparse_random_matrix.middleRows(n_tree * index2.depth,
                                                index2.depth) =
             sparse_random_matrix.middleRows(n_tree * depth_max, index2.depth);
+        std::cout<<" inside subset treee "<<n_tree<<std::endl;
+      }
+
     } else {
       index2.dense_random_matrix =
           Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>(
