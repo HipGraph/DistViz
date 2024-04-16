@@ -131,6 +131,7 @@ public:
 //#pragma omp parallel for
     for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
       Eigen::MatrixXf tree_projections;
+      std::cout<<" tree"<<n_tree<<" sparse_input "<<sparse_input<<std::endl;
       if (sparse_input){
         if (density < 1) {
           std::cout<<" tree"<<n_tree<<" multipling "<<X_Sparse.rows()<<" "<<X_Sparse.cols()<<std::endl;
