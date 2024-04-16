@@ -161,6 +161,7 @@ public:
       grow_subtree(indices.begin(), indices.end(), 0, 0, n_tree,
                    tree_projections);
     }
+    std::cout << " inside tree growing completed" << std::endl;
   }
 
   /**@}*/
@@ -255,6 +256,7 @@ public:
 
     grow(Q, n_test, k_, trees_max, depth_max, depth_min_, votes_max_, density,
          seed, indices_test);
+    std::cout << " major tree growing completed" << std::endl;
     prune(target_recall);
   }
 
@@ -450,7 +452,9 @@ public:
 
     grow(trees_max, depth_max, density_, seed);
     Eigen::MatrixXi exact(k, n_test);
+    std::cout << " computing exact " << std::endl;
     compute_exact(Q, exact, indices_test);
+    std::cout << " computing exact completed" << std::endl;
 
     std::vector<Eigen::MatrixXd> recalls(depth_max - depth_min + 1);
     cs_sizes = std::vector<Eigen::MatrixXd>(depth_max - depth_min + 1);
