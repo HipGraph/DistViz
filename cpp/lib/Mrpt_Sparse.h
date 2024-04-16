@@ -91,7 +91,7 @@ public:
     * a default value 0 initializes the rng randomly with std::random_device
    */
   void grow(int n_trees_, int depth_, float density_ = -1.0, int seed = 0) {
-
+    std::cout<<" calling grow"<<std::endl;
     if (!empty()) {
       throw std::logic_error("The index has already been grown.");
     }
@@ -275,11 +275,12 @@ public:
     if (n_test < 1) {
       throw std::out_of_range("Test set size must be > 0.");
     }
-
+    std::cout<<" calling autotune"<<std::endl;
     n_test = n_test > n_samples ? n_samples : n_test;
     std::vector<int> indices_test(sample_indices(n_test, seed));
     const Eigen::MatrixXf Q(subset(indices_test));
 
+    std::cout<<" calling grow in autotune"<<std::endl;
     grow(target_recall, Q.data(), Q.cols(), k_, trees_max,
          depth_max, depth_min_, votes_max_, density_, seed, indices_test);
   }
