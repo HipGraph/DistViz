@@ -1911,7 +1911,6 @@ private:
             if (it.col() == indices[i]) {
 //              Q.insert(it.row(), i) = it.value();
               Q.col(i) = it.value();
-              found=true;
             }
           }
         }
