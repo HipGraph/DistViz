@@ -1906,8 +1906,8 @@ private:
     for (int i = 0; i < n_test; ++i)
       if (sparse_input){
         Q.setConstant(0.0);
-        for (int k = 0; k < X.outerSize(); ++k) {
-          for (Eigen::SparseMatrix<double>::InnerIterator it(X, k); it; ++it) {
+        for (int k = 0; k < X_Sparse.outerSize(); ++k) {
+          for (Eigen::SparseMatrix<double>::InnerIterator it(X_Sparse, k); it; ++it) {
             if (it.col() == indices[i]) {
               Q(it.row(), i) = it.value();
             }
