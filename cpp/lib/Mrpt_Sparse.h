@@ -585,6 +585,7 @@ public:
     }
     if (sparse_input) {
       Mrpt index(X_Sparse);
+      std::cout<<" mrpte sparse index duplication completed"<< std::endl;
       return subset(target_recall, index);
     } else {
       Mrpt index(X);
@@ -612,9 +613,11 @@ public:
         split_points.topLeftCorner(index2.n_array, index2.n_trees);
     index2.leaf_first_indices = leaf_first_indices_all[index2.depth];
     if (index2.density < 1) {
+      std::cout<<" inside density < 1"<< std::endl;
       index2.sparse_random_matrix = Eigen::SparseMatrix<float, Eigen::RowMajor>(
           index2.n_pool, index2.dim);
       for (int n_tree = 0; n_tree < index2.n_trees; ++n_tree)
+        std::cout<<" inside subset treee "<<n_tree<< std::endl;
         index2.sparse_random_matrix.middleRows(n_tree * index2.depth,
                                                index2.depth) =
             sparse_random_matrix.middleRows(n_tree * depth_max, index2.depth);
