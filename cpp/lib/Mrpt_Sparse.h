@@ -584,6 +584,7 @@ public:
       throw std::out_of_range("Target recall must be on the interval [0,1].");
     }
     if (sparse_input) {
+      std::cout<<" mrpte sparse index duplication creating"<< std::endl;
       Mrpt index(X_Sparse);
       std::cout<<" mrpte sparse index duplication completed"<< std::endl;
       return subset(target_recall, index);
