@@ -275,10 +275,12 @@ public:
     if (n_test < 1) {
       throw std::out_of_range("Test set size must be > 0.");
     }
-    std::cout<<" calling autotune"<<std::endl;
+    std::cout<<" calling autotune n_samples"<<n_samples<<"n_test "<<n_test<<std::endl;
     n_test = n_test > n_samples ? n_samples : n_test;
     std::vector<int> indices_test(sample_indices(n_test, seed));
+    std::cout<<" calling autotune indices_test"<<std::endl;
     const Eigen::MatrixXf Q(subset(indices_test));
+    std::cout<<" calling MatrixXf done "<<std::endl;
 
     std::cout<<" calling grow in autotune"<<std::endl;
     grow(target_recall, Q.data(), Q.cols(), k_, trees_max,
