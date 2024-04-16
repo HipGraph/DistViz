@@ -548,12 +548,15 @@ public:
     if (target_recall < 0.0 - epsilon || target_recall > 1.0 + epsilon) {
       throw std::out_of_range("Target recall must be on the interval [0,1].");
     }
-    Mrpt index2;
-    if (sparse_input) {
-      index2 = Mrpt(X_Sparse);
+    if (sparse_input){
+     return subset(X_Sparse,target_recall);
     }else {
-      index2 = Mrpt(X);
+      return subset(X_,target_recall);
     }
+  }
+
+
+  MRPT subset(double target_recall, Mrpt& index2){
     index2.par = parameters(target_recall);
 
     int depth_max = depth;
@@ -584,6 +587,7 @@ public:
     index2.index_type = autotuned;
 
     return index2;
+
   }
 
 
