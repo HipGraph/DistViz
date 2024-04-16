@@ -56,8 +56,8 @@ public:
   Mrpt(const Eigen::SparseMatrix<float>& X_Sparse_) :
                                                       X_Sparse(X_Sparse_),
                                                       X(Eigen::Map<const Eigen::MatrixXf>(new float[1], 1, 1)),
-                                                      n_samples(X_Sparse_.rows()),
-                                                      dim(X_Sparse_.cols()),
+                                                      n_samples(X_Sparse_.cols()),
+                                                      dim(X_Sparse_.rows()),
                                                       sparse_input(true) {}
 
   /**
@@ -121,7 +121,7 @@ public:
 
     density < 1 ? build_sparse_random_matrix(sparse_random_matrix, n_pool, dim, density, seed) :
                 build_dense_random_matrix(dense_random_matrix, n_pool, dim, seed);
-
+    std::cout<<" building sparse projection completed"<<std::endl;
     split_points = Eigen::MatrixXf(n_array, n_trees);
     tree_leaves = std::vector<std::vector<int>>(n_trees);
 
