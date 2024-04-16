@@ -592,7 +592,7 @@ public:
     }
   }
 
-  Mrpt subset(double target_recall, Mrpt &index2) {
+  Mrpt subset(double target_recall, Mrpt &index2) const{
     index2.par = parameters(target_recall);
 
     int depth_max = depth;
