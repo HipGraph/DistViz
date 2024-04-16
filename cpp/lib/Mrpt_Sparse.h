@@ -589,6 +589,7 @@ public:
       std::cout<<" mrpte sparse index duplication completed"<< std::endl;
       return subset(target_recall, index);
     } else {
+      std::cout<<" mrpte sparse index creating wrong subset"<< std::endl;
       Mrpt index(X);
       return subset(target_recall, index);
     }
