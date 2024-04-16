@@ -584,10 +584,10 @@ public:
       throw std::out_of_range("Target recall must be on the interval [0,1].");
     }
     if (sparse_input) {
-      Mrpt index(X_Sparse_);
+      Mrpt index(X_Sparse);
       return subset(target_recall, index);
     } else {
-      Mrpt index(X_);
+      Mrpt index(X);
       return subset(target_recall, index);
     }
   }
