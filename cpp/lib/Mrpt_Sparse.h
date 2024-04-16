@@ -1909,8 +1909,7 @@ private:
         for (int k = 0; k < X_Sparse.outerSize(); ++k) {
           for (Eigen::SparseMatrix<double>::InnerIterator it(X_Sparse, k); it; ++it) {
             if (it.col() == indices[i]) {
-//              Q.insert(it.row(), i) = it.value();
-              Q.col(i) = it.value();
+              Q.insert(it.row(), i) = it.value();
             }
           }
         }
