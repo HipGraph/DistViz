@@ -135,15 +135,11 @@ public:
     count_first_leaf_indices_all(leaf_first_indices_all, n_samples, depth);
     leaf_first_indices = leaf_first_indices_all[depth];
 
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
       Eigen::MatrixXf tree_projections;
-      std::cout << " tree" << n_tree << " sparse_input " << sparse_input
-                << std::endl;
       if (sparse_input) {
         if (density < 1) {
-          std::cout << " tree" << n_tree << " multipling " << X_Sparse.rows()
-                    << " " << X_Sparse.cols() << std::endl;
           Eigen::SparseMatrix<float> result_sparse =
               sparse_random_matrix.middleRows(n_tree * depth, depth) * X_Sparse;
           tree_projections = Eigen::MatrixXf(result_sparse);
@@ -308,6 +304,7 @@ public:
     std::cout << " calling grow in autotune" << std::endl;
     grow(target_recall, Q.data(), Q.cols(), k_, trees_max, depth_max,
          depth_min_, votes_max_, density_, seed, indices_test);
+    std::cout << " calling grow  completed" << std::endl;
   }
 
   /**
