@@ -550,8 +550,8 @@ public:
     }
     Mrpt index2;
     if (sparse_input) {
-       index2 = Mrpt(X_Sparse);
-    }else
+      index2 = Mrpt(X_Sparse);
+    }else {
       index2 = Mrpt(X);
     }
     index2.par = parameters(target_recall);
