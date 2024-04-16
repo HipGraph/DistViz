@@ -1904,8 +1904,20 @@ private:
     int n_test = indices.size();
     Eigen::MatrixXf Q = Eigen::MatrixXf(dim, n_test);
     for (int i = 0; i < n_test; ++i)
-      Q.col(i) = X.col(indices[i]);
-
+      if (sparse_input){
+        Q.setConstant(0.0);
+        for (int k = 0; k < X_Sparse.outerSize(); ++k) {
+          for (Eigen::SparseMatrix<double>::InnerIterator it(X_Sparse, k); it; ++it) {
+            if (it.col() == indices[i]) {
+//              Q.insert(it.row(), i) = it.value();
+              Q.col(i) = it.value();
+              found=true;
+            }
+          }
+        }
+      }else {
+        Q.col(i) = X.col(indices[i]);
+      }
     return Q;
   }
 
