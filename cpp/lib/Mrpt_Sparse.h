@@ -260,7 +260,7 @@ public:
     prune(target_recall);
   }
 
-  void grow(double target_recall, Eigen::SparseMatrix<float> &Q, int n_test, int k_,
+  void grow_sparse(double target_recall, Eigen::SparseMatrix<float> &Q, int n_test, int k_,
             int trees_max = -1, int depth_max = -1, int depth_min_ = -1,
             int votes_max_ = -1, float density = -1.0, int seed = 0,
             const std::vector<int> &indices_test = {}) {
@@ -316,7 +316,7 @@ public:
     std::cout << " calling autotune indices_test" << std::endl;
     if (sparse_input){
        Eigen::SparseMatrix<float> Q = subset_sparse(indices_test);
-      grow(target_recall, Q, k_, trees_max, depth_max,
+      grow_sparse(target_recall, Q, k_, trees_max, depth_max,
            depth_min_, votes_max_, density_, seed, indices_test);
 
     }else {
