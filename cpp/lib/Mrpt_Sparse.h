@@ -315,7 +315,7 @@ public:
     std::vector<int> indices_test(sample_indices(n_test, seed));
     std::cout << " calling autotune indices_test" << std::endl;
     if (sparse_input){
-      const Eigen::SparseMatrix<float> Q = subset_sparse(indices_test);
+       Eigen::SparseMatrix<float> Q = subset_sparse(indices_test);
       grow(target_recall, Q, k_, trees_max, depth_max,
            depth_min_, votes_max_, density_, seed, indices_test);
 
