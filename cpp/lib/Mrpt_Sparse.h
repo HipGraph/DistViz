@@ -315,7 +315,7 @@ public:
     std::vector<int> indices_test(sample_indices(n_test, seed));
     std::cout << " calling autotune indices_test" << std::endl;
     if (sparse_input){
-      const Eigen::SparseMatrix<float> Q = subset_sparse(indices_test));
+      const Eigen::SparseMatrix<float> Q = subset_sparse(indices_test);
       grow(target_recall, Q, k_, trees_max, depth_max,
            depth_min_, votes_max_, density_, seed, indices_test);
 
@@ -613,7 +613,7 @@ public:
       cs_sizes[d - depth_min] /= n_test;
     }
 
-    fit_times(Q);
+//    fit_times(Q);
     std::set<Mrpt_Parameters, decltype(is_faster) *> pars =
         list_parameters(recalls);
     opt_pars = pareto_frontier(pars);
