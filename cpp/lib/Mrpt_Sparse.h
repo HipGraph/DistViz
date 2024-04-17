@@ -1224,8 +1224,7 @@ private:
 #pragma omp parallel for
     for (int i = 0; i < n_elected; ++i)
       if (sparse_input){
-        Eigen::SparseVector<double> col = X_Sparse.col(indices(i));
-        Eigen::VectorXd denseCol = col;
+        Eigen::VectorXf denseCol = X_Sparse.col(indices(i)).toDense();
         distances(i) = (denseCol - q).squaredNorm();
       }else {
         distances(i) = (X.col(indices(i)) - q).squaredNorm();
