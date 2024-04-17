@@ -260,6 +260,20 @@ public:
     prune(target_recall);
   }
 
+  void grow(double target_recall, Eigen::SparseMatrix<float> &Q, int n_test, int k_,
+            int trees_max = -1, int depth_max = -1, int depth_min_ = -1,
+            int votes_max_ = -1, float density = -1.0, int seed = 0,
+            const std::vector<int> &indices_test = {}) {
+    if (target_recall < 0.0 - epsilon || target_recall > 1.0 + epsilon) {
+      throw std::out_of_range("Target recall must be on the interval [0,1].");
+    }
+
+    grow_sparse(Q, n_test, k_, trees_max, depth_max, depth_min_, votes_max_, density,
+         seed, indices_test);
+    std::cout << " major tree growing completed" << std::endl;
+    prune(target_recall);
+  }
+
   /** Build an autotuned index sampling test queries from the training set.
    *
    * @param target_recall target recall level; on the range [0,1]
@@ -300,12 +314,17 @@ public:
     n_test = n_test > n_samples ? n_samples : n_test;
     std::vector<int> indices_test(sample_indices(n_test, seed));
     std::cout << " calling autotune indices_test" << std::endl;
-    const Eigen::MatrixXf Q(subset(indices_test));
-    std::cout << " calling MatrixXf done " << std::endl;
+    if (sparse_input){
+      const Eigen::SparseMatrix<float> Q = subset_sparse(indices_test));
+      grow(target_recall, Q, k_, trees_max, depth_max,
+           depth_min_, votes_max_, density_, seed, indices_test);
 
-    std::cout << " calling grow in autotune" << std::endl;
-    grow(target_recall, Q.data(), Q.cols(), k_, trees_max, depth_max,
-         depth_min_, votes_max_, density_, seed, indices_test);
+    }else {
+      const Eigen::MatrixXf Q(subset(indices_test));
+      grow(target_recall, Q.data(), Q.cols(), k_, trees_max, depth_max,
+           depth_min_, votes_max_, density_, seed, indices_test);
+    }
+
     std::cout << " calling grow  completed" << std::endl;
   }
 
@@ -454,6 +473,117 @@ public:
     Eigen::MatrixXi exact(k, n_test);
     std::cout << " computing exact " << std::endl;
     compute_exact(Q, exact, indices_test);
+    std::cout << " computing exact completed" << std::endl;
+
+    std::vector<Eigen::MatrixXd> recalls(depth_max - depth_min + 1);
+    cs_sizes = std::vector<Eigen::MatrixXd>(depth_max - depth_min + 1);
+
+    for (int d = depth_min; d <= depth_max; ++d) {
+      recalls[d - depth_min] = Eigen::MatrixXd::Zero(votes_max, trees_max);
+      cs_sizes[d - depth_min] = Eigen::MatrixXd::Zero(votes_max, trees_max);
+    }
+
+    for (int i = 0; i < n_test; ++i) {
+      std::vector<Eigen::MatrixXd> recall_tmp(depth_max - depth_min + 1);
+      std::vector<Eigen::MatrixXd> cs_size_tmp(depth_max - depth_min + 1);
+
+      count_elected(Q.col(i),
+                    Eigen::Map<Eigen::VectorXi>(exact.data() + i * k, k),
+                    votes_max, recall_tmp, cs_size_tmp);
+
+      for (int d = depth_min; d <= depth_max; ++d) {
+        recalls[d - depth_min] += recall_tmp[d - depth_min];
+        cs_sizes[d - depth_min] += cs_size_tmp[d - depth_min];
+      }
+    }
+
+    for (int d = depth_min; d <= depth_max; ++d) {
+      recalls[d - depth_min] /= (k * n_test);
+      cs_sizes[d - depth_min] /= n_test;
+    }
+
+    fit_times(Q);
+    std::set<Mrpt_Parameters, decltype(is_faster) *> pars =
+        list_parameters(recalls);
+    opt_pars = pareto_frontier(pars);
+
+    index_type = autotuned_unpruned;
+    par.k = k_;
+  }
+
+
+  void grow_sparse(Eigen::SparseMatrix<float>& Q, int n_test, int k_, int trees_max = -1,
+            int depth_max = -1, int depth_min_ = -1, int votes_max_ = -1,
+            float density_ = -1.0, int seed = 0,
+            const std::vector<int> &indices_test = {}) {
+
+    if (trees_max == -1) {
+      trees_max = std::min(std::sqrt(n_samples), 1000.0);
+    }
+
+    if (depth_min_ == -1) {
+      depth_min_ = std::max(static_cast<int>(std::log2(n_samples) - 11), 5);
+    }
+
+    if (depth_max == -1) {
+      depth_max =
+          std::max(static_cast<int>(std::log2(n_samples) - 4), depth_min_);
+    }
+
+    if (votes_max_ == -1) {
+      votes_max_ = std::max(trees_max / 10, std::min(trees_max, 10));
+    }
+
+    if (density_ > -1.0001 && density_ < -0.9999) {
+      density_ = 1.0 / std::sqrt(dim);
+    }
+
+    if (!empty()) {
+      throw std::logic_error("The index has already been grown.");
+    }
+
+    if (k_ <= 0 || k_ > n_samples) {
+      throw std::out_of_range("k_ must belong to the set {1, ..., n}.");
+    }
+
+    if (trees_max <= 0) {
+      throw std::out_of_range("trees_max must be positive.");
+    }
+
+    if (depth_max <= 0 || depth_max > std::log2(n_samples)) {
+      throw std::out_of_range(
+          "depth_max must belong to the set {1, ... , log2(n)}.");
+    }
+
+    if (depth_min_ <= 0 || depth_min_ > depth_max) {
+      throw std::out_of_range(
+          "depth_min_ must belong to the set {1, ... , depth_max}");
+    }
+
+    if (votes_max_ <= 0 || votes_max_ > trees_max) {
+      throw std::out_of_range(
+          "votes_max_ must belong to the set {1, ... , trees_max}.");
+    }
+
+    if (density_ < 0.0 || density_ > 1.0001) {
+      throw std::out_of_range("The density must be on the interval (0,1].");
+    }
+
+    if (n_samples < 101) {
+      throw std::out_of_range(
+          "Sample size must be at least 101 to autotune an index.");
+    }
+
+    depth_min = depth_min_;
+    votes_max = votes_max_;
+    k = k_;
+
+//    const Eigen::Map<const Eigen::MatrixXf> Q(data, dim, n_test);
+
+    grow(trees_max, depth_max, density_, seed);
+    Eigen::MatrixXi exact(k, n_test);
+    std::cout << " computing exact " << std::endl;
+    compute_exact_sparse(Q, exact, indices_test);
     std::cout << " computing exact completed" << std::endl;
 
     std::vector<Eigen::MatrixXd> recalls(depth_max - depth_min + 1);
@@ -1256,6 +1386,59 @@ private:
     }
   }
 
+  void exact_knn_sparse(Eigen::SparseVector<float> &q, int k,
+                 const Eigen::VectorXi &indices, int n_elected, int *out,
+                 float *out_distances = nullptr) const {
+
+    if (!n_elected) {
+      for (int i = 0; i < k; ++i)
+        out[i] = -1;
+
+      if (out_distances) {
+        for (int i = 0; i < k; ++i)
+          out_distances[i] = -1;
+      }
+
+      return;
+    }
+
+    Eigen::VectorXf distances(n_elected);
+
+#pragma omp parallel for
+    for (int i = 0; i < n_elected; ++i) {
+      Eigen::SparseVector<float> diff = X_Sparse.col(indices(i)) - q;
+      distances(i) = diff.squaredNorm();
+    }
+    if (k == 1) {
+      Eigen::MatrixXf::Index index;
+      distances.minCoeff(&index);
+      out[0] = n_elected ? indices(index) : -1;
+
+      if (out_distances)
+        out_distances[0] = n_elected ? std::sqrt(distances(index)) : -1;
+
+      return;
+    }
+
+    int n_to_sort = n_elected > k ? k : n_elected;
+    Eigen::VectorXi idx(n_elected);
+    std::iota(idx.data(), idx.data() + n_elected, 0);
+    std::partial_sort(
+        idx.data(), idx.data() + n_to_sort, idx.data() + n_elected,
+        [&distances](int i1, int i2) { return distances(i1) < distances(i2); });
+
+    for (int i = 0; i < k; ++i)
+      out[i] = i < n_elected ? indices(idx(i)) : -1;
+
+    if (out_distances) {
+      for (int i = 0; i < k; ++i)
+        out_distances[i] = i < n_elected ? std::sqrt(distances(idx(i))) : -1;
+    }
+  }
+
+
+
+
   void prune(double target_recall) {
     if (target_recall < 0.0 - epsilon || target_recall > 1.0 + epsilon) {
       throw std::out_of_range("Target recall must be on the interval [0,1].");
@@ -1431,6 +1614,28 @@ private:
   }
 
   void compute_exact(const Eigen::Map<const Eigen::MatrixXf> &Q,
+                     Eigen::MatrixXi &out_exact,
+                     const std::vector<int> &indices_test = {}) const {
+    int n_test = Q.cols();
+
+    Eigen::VectorXi idx(n_samples);
+    std::iota(idx.data(), idx.data() + n_samples, 0);
+
+    for (int i = 0; i < n_test; ++i) {
+      if (!indices_test.empty()) {
+        std::remove(idx.data(), idx.data() + n_samples, indices_test[i]);
+      }
+      exact_knn(Eigen::Map<const Eigen::VectorXf>(Q.data() + i * dim, dim), k,
+                idx, (indices_test.empty() ? n_samples : n_samples - 1),
+                out_exact.data() + i * k);
+      std::sort(out_exact.data() + i * k, out_exact.data() + i * k + k);
+      if (!indices_test.empty()) {
+        idx[n_samples - 1] = indices_test[i];
+      }
+    }
+  }
+
+  void compute_exact_sparse(Eigen::SparseMatrix<float> &Q,
                      Eigen::MatrixXi &out_exact,
                      const std::vector<int> &indices_test = {}) const {
     int n_test = Q.cols();
@@ -1909,18 +2114,21 @@ private:
     int n_test = indices.size();
     Eigen::MatrixXf Q = Eigen::MatrixXf(dim, n_test);
     for (int i = 0; i < n_test; ++i)
-      if (sparse_input){
-        Q.setConstant(0.0);
+        Q.col(i) = X.col(indices[i]);
+    return Q;
+  }
+
+  Eigen::SparseMatrix<float> subset_sparse(const std::vector<int> &indices) const {
+    int n_test = indices.size();
+    Eigen::SparseMatrix<float> Q(dim, n_test);
+    for (int i = 0; i < n_test; ++i)
         for (int k = 0; k < X_Sparse.outerSize(); ++k) {
           for (Eigen::SparseMatrix<float>::InnerIterator it(X_Sparse, k); it; ++it) {
             if (it.col() == indices[i]) {
-              Q(it.row(), i) = it.value();
+              Q.coeffRef(it.row(), i) = it.value();
             }
           }
         }
-      }else {
-        Q.col(i) = X.col(indices[i]);
-      }
     return Q;
   }
 
