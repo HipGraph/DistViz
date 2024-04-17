@@ -1647,7 +1647,7 @@ private:
       if (!indices_test.empty()) {
         std::remove(idx.data(), idx.data() + n_samples, indices_test[i]);
       }
-      exact_knn(Eigen::Map<const Eigen::VectorXf>(Q.data() + i * dim, dim), k,
+      exact_knn_sparse(Q.cols(i), k,
                 idx, (indices_test.empty() ? n_samples : n_samples - 1),
                 out_exact.data() + i * k);
       std::sort(out_exact.data() + i * k, out_exact.data() + i * k + k);
