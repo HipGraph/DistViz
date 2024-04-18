@@ -1030,7 +1030,7 @@ public:
     query(q.data(), out, out_distances, out_n_elected);
   }
 
-  void query_sparse(Eigen:SparseVector<float> &q, int *out,
+  void query_sparse(Eigen::SparseVector<float> &q, int *out,
              float *out_distances = nullptr,
              int *out_n_elected = nullptr) const {
     if (index_type == normal) {
@@ -1055,7 +1055,7 @@ public:
       throw std::logic_error("The index must be built before making queries.");
     }
 
-    const Eigen::Map<const Eigen::VectorXf> q(data, dim);
+//    const Eigen::Map<const Eigen::VectorXf> q(data, dim);
 
     Eigen::VectorXf projected_query(n_pool);
     if (density < 1) {
@@ -1099,7 +1099,7 @@ public:
       const std::vector<int> &indices = tree_leaves[n_tree];
       for (int i = leaf_begin; i < leaf_end; ++i) {
         int idx = indices[i];
-        if (++votes(idx) == vote_threshold)
+        if (++votes(idx) == votes)
           elected(n_elected++) = idx;
       }
     }
