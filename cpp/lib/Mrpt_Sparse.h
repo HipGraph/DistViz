@@ -1031,7 +1031,7 @@ public:
   }
 
   void query_sparse(Eigen::SparseVector<float> &q, int *out,
-             float *out_distances = nullptr,
+             float *out_distances = nullptr, int vote_threshold=votes,
              int *out_n_elected = nullptr) const {
     if (index_type == normal) {
       throw std::logic_error("The index is not autotuned: k and vote threshold "
@@ -1046,7 +1046,7 @@ public:
       throw std::out_of_range("k must belong to the set {1, ..., n}.");
     }
 
-    if (votes <= 0 || votes > n_trees) {
+    if (vote_threshold <= 0 || vote_threshold > n_trees) {
       throw std::out_of_range(
           "vote_threshold must belong to the set {1, ... , n_trees}.");
     }
@@ -1099,7 +1099,7 @@ public:
       const std::vector<int> &indices = tree_leaves[n_tree];
       for (int i = leaf_begin; i < leaf_end; ++i) {
         int idx = indices[i];
-        if (++votes(idx) == votes)
+        if (++votes(idx) == vote_threshold)
           elected(n_elected++) = idx;
       }
     }
