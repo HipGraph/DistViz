@@ -1553,6 +1553,7 @@ private:
       }
 
       recalls[depth_crnt - depth_min] = recall;
+      std::cout<<"recall"<<recall<<std::endl;
       cs_sizes[depth_crnt - depth_min] = candidate_set_size;
     }
   }
