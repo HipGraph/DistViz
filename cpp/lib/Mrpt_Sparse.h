@@ -612,7 +612,7 @@ public:
       recalls[d - depth_min] /= (k * n_test);
       cs_sizes[d - depth_min] /= n_test;
     }
-   cout<<"calling fit times"<<endl;
+   std::cout<<"calling fit times"<<std::endl;
 //    fit_times(Q);
     std::set<Mrpt_Parameters, decltype(is_faster) *> pars =
         list_parameters(recalls);
