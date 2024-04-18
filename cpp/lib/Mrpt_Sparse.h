@@ -1030,6 +1030,87 @@ public:
     query(q.data(), out, out_distances, out_n_elected);
   }
 
+  void query_sparse(Eigen:SparseVector<float> &q, int *out,
+             float *out_distances = nullptr,
+             int *out_n_elected = nullptr) const {
+    if (index_type == normal) {
+      throw std::logic_error("The index is not autotuned: k and vote threshold "
+                             "has to be specified.");
+    }
+
+    if (index_type == autotuned_unpruned) {
+      throw std::logic_error(
+          "The target recall level has to be set before making queries.");
+    }
+    if (k <= 0 || k > n_samples) {
+      throw std::out_of_range("k must belong to the set {1, ..., n}.");
+    }
+
+    if (votes <= 0 || votes > n_trees) {
+      throw std::out_of_range(
+          "vote_threshold must belong to the set {1, ... , n_trees}.");
+    }
+
+    if (empty()) {
+      throw std::logic_error("The index must be built before making queries.");
+    }
+
+    const Eigen::Map<const Eigen::VectorXf> q(data, dim);
+
+    Eigen::VectorXf projected_query(n_pool);
+    if (density < 1) {
+      Eigen::SparseVector<float> res;
+      res = sparse_random_matrix * q;
+      projected_query = Eigen::VectorXf(res);
+    }else
+      projected_query.noalias() = dense_random_matrix * q;
+
+    std::vector<int> found_leaves(n_trees);
+
+/*
+ * The following loops over all trees, and routes the query to exactly one
+ * leaf in each.
+ */
+#pragma omp parallel for
+    for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
+      int idx_tree = 0;
+      for (int d = 0; d < depth; ++d) {
+        const int j = n_tree * depth + d;
+        const int idx_left = 2 * idx_tree + 1;
+        const int idx_right = idx_left + 1;
+        const float split_point = split_points(idx_tree, n_tree);
+        if (projected_query(j) <= split_point) {
+          idx_tree = idx_left;
+        } else {
+          idx_tree = idx_right;
+        }
+      }
+      found_leaves[n_tree] = idx_tree - (1 << depth) + 1;
+    }
+
+    int n_elected = 0, max_leaf_size = n_samples / (1 << depth) + 1;
+    Eigen::VectorXi elected(n_trees * max_leaf_size);
+    Eigen::VectorXi votes = Eigen::VectorXi::Zero(n_samples);
+
+    // count votes
+    for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
+      int leaf_begin = leaf_first_indices[found_leaves[n_tree]];
+      int leaf_end = leaf_first_indices[found_leaves[n_tree] + 1];
+      const std::vector<int> &indices = tree_leaves[n_tree];
+      for (int i = leaf_begin; i < leaf_end; ++i) {
+        int idx = indices[i];
+        if (++votes(idx) == vote_threshold)
+          elected(n_elected++) = idx;
+      }
+    }
+
+    if (out_n_elected) {
+      *out_n_elected = n_elected;
+    }
+
+    exact_knn_sparse(q, k, elected, n_elected, out, out_distances);
+  }
+
   /**@}*/
 
   /** @name Exact k-nn search
