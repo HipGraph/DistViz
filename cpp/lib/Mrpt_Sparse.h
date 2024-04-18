@@ -267,7 +267,7 @@ public:
     if (target_recall < 0.0 - epsilon || target_recall > 1.0 + epsilon) {
       throw std::out_of_range("Target recall must be on the interval [0,1].");
     }
-
+    std::cout << " major grow_sparse starting" << std::endl;
     grow_sparse(Q, n_test, k_, trees_max, depth_max, depth_min_, votes_max_, density,
          seed, indices_test);
     std::cout << " major tree growing completed" << std::endl;
@@ -316,8 +316,10 @@ public:
     std::cout << " calling autotune indices_test" << std::endl;
     if (sparse_input){
        Eigen::SparseMatrix<float> Q = subset_sparse(indices_test);
+       std::cout << " calling grow_sparse indices_test" << std::endl;
       grow_sparse(target_recall, Q,Q.cols(), k_, trees_max, depth_max,
            depth_min_, votes_max_, density_, seed, indices_test);
+      std::cout << " calling grow_sparse completed" << std::endl;
 
     }else {
       const Eigen::MatrixXf Q(subset(indices_test));
@@ -597,12 +599,9 @@ public:
     for (int i = 0; i < n_test; ++i) {
       std::vector<Eigen::MatrixXd> recall_tmp(depth_max - depth_min + 1);
       std::vector<Eigen::MatrixXd> cs_size_tmp(depth_max - depth_min + 1);
-      std::cout << " calling count_elected i"<<i << std::endl;
       count_elected(Q.col(i),
                     Eigen::Map<Eigen::VectorXi>(exact.data() + i * k, k),
                     votes_max, recall_tmp, cs_size_tmp);
-      std::cout << " calling count_elected i"<<i <<" completed "<< std::endl;
-
       for (int d = depth_min; d <= depth_max; ++d) {
         recalls[d - depth_min] += recall_tmp[d - depth_min];
         cs_sizes[d - depth_min] += cs_size_tmp[d - depth_min];
