@@ -224,7 +224,7 @@ int main(int argc, char* argv[]) {
      if (sparse_input) {
        knng_handler.get()->build_local_KNNG_Sparse(sparse_matrix,knng_graph_ptr.get(),nn,
                                             target_local_recall,
-                                            generate_knng_output,print_output=true,
+                                            generate_knng_output,
                                             output_path+"/knng.txt", true, density );
      }else {
        knng_handler.get()->build_local_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),nn,
