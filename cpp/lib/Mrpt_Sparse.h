@@ -597,10 +597,11 @@ public:
     for (int i = 0; i < n_test; ++i) {
       std::vector<Eigen::MatrixXd> recall_tmp(depth_max - depth_min + 1);
       std::vector<Eigen::MatrixXd> cs_size_tmp(depth_max - depth_min + 1);
-
+      std::cout << " calling count_elected i"<<i << std::endl;
       count_elected(Q.col(i),
                     Eigen::Map<Eigen::VectorXi>(exact.data() + i * k, k),
                     votes_max, recall_tmp, cs_size_tmp);
+      std::cout << " calling count_elected i"<<i <<" completed "<< std::endl;
 
       for (int d = depth_min; d <= depth_max; ++d) {
         recalls[d - depth_min] += recall_tmp[d - depth_min];
