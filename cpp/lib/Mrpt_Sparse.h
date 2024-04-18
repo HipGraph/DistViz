@@ -1486,10 +1486,11 @@ private:
                      std::vector<Eigen::MatrixXd> &recalls,
                      std::vector<Eigen::MatrixXd> &cs_sizes) const {
     Eigen::VectorXf projected_query(n_pool);
-    if (density < 1)
+    if (density < 1) {
       Eigen::SparseVector<float> result_sparse = sparse_random_matrix * q;
-      projected_query  = Eigen::VectorXf(result_sparse);
-    else
+      projected_query = Eigen::VectorXf(result_sparse);
+
+    }else
       projected_query.noalias() = dense_random_matrix * q;
 
     int depth_min = depth - recalls.size() + 1;
