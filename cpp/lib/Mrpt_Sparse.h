@@ -613,8 +613,9 @@ public:
       recalls[d - depth_min] /= (k * n_test);
       cs_sizes[d - depth_min] /= n_test;
     }
-   std::cout<<"calling fit times"<<std::endl;
-//    fit_times(Q);
+    std::cout<<"calling fit times sparse"<<std::endl;
+    fit_times_sparse(Q);
+    std::cout<<"calling fit times sparse completed"<<std::endl;
     std::set<Mrpt_Parameters, decltype(is_faster) *> pars =
         list_parameters(recalls);
     opt_pars = pareto_frontier(pars);
@@ -1496,7 +1497,7 @@ private:
     int depth_min = depth - recalls.size() + 1;
     std::vector<std::vector<int>> start_indices(n_trees);
 
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
       start_indices[n_tree] = std::vector<int>(depth - depth_min + 1);
       int idx_tree = 0;
@@ -1506,7 +1507,6 @@ private:
         const int idx_right = idx_left + 1;
         const float split_point = split_points(idx_tree, n_tree);
         if (projected_query(j) <= split_point) {
-          std::cout<<" j "<<j<<"projected_query(j) "<<projected_query(j)<<" split_point "<<split_point<<std::endl;
           idx_tree = idx_left;
         } else {
           idx_tree = idx_right;
@@ -1839,6 +1839,63 @@ private:
     return fit_theil_sen(projection_x, projection_times);
   }
 
+
+  std::pair<double, double>
+  fit_projection_times_sparse(Eigen::SparseMatrix<float> &Q,
+                       std::vector<int> &exact_x) {
+    std::vector<double> projection_times, projection_x;
+    long double idx_sum = 0;
+
+    std::vector<int> tested_trees{1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 40, 50};
+    generate_x(tested_trees, n_trees, 10, n_trees);
+
+    for (int d = depth_min; d <= depth; ++d) {
+      for (int i = 0; i < (int)tested_trees.size(); ++i) {
+        int t = tested_trees[i];
+        int n_random_vectors = t * d;
+        projection_x.push_back(n_random_vectors);
+        Eigen::SparseMatrix<float, Eigen::RowMajor> sparse_mat;
+        Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
+            dense_mat;
+
+        if (density < 1) {
+          build_sparse_random_matrix(sparse_mat, n_random_vectors, dim,
+                                     density);
+        } else {
+          build_dense_random_matrix(dense_mat, n_random_vectors, dim);
+        }
+
+        double start_proj = omp_get_wtime();
+        Eigen::VectorXf projected_query(n_random_vectors);
+
+        if (density < 1) {
+          Eigen::SparseVector<float> sp_vec = Q.col(0);
+          Eigen::SparseVector<float> res;
+          res = sparse_mat * sp_vec;
+          projected_query = VectorXf(res);
+        } else {
+          projected_query.noalias() = dense_mat * Q.col(0);
+        }
+
+        double end_proj = omp_get_wtime();
+        projection_times.push_back(end_proj - start_proj);
+        idx_sum += projected_query.norm();
+
+        int votes_index = votes_max < t ? votes_max : t;
+        for (int v = 1; v <= votes_index; ++v) {
+          int cs_size = get_candidate_set_size(t, d, v);
+          if (cs_size > 0)
+            exact_x.push_back(cs_size);
+        }
+      }
+    }
+
+    // use results to ensure that the compiler does not optimize away the timed
+    // code.
+    projection_x[0] += idx_sum > 1.0 ? 0.0000 : 0.0001;
+    return fit_theil_sen(projection_x, projection_times);
+  }
+
   std::vector<std::map<int, std::pair<double, double>>>
   fit_voting_times(const Eigen::Map<const Eigen::MatrixXf> &Q) {
     int n_test = Q.cols();
@@ -1870,6 +1927,63 @@ private:
           Eigen::VectorXf projected_query(n_trees * depth);
           if (density < 1) {
             projected_query.noalias() = sparse_random_matrix * Q.col(ri);
+          } else {
+            projected_query.noalias() = dense_random_matrix * Q.col(ri);
+          }
+
+          double start_voting = omp_get_wtime();
+          vote(projected_query, v, elected, n_el, t, d);
+          double end_voting = omp_get_wtime();
+
+          voting_times.push_back(end_voting - start_voting);
+          voting_x.push_back(t);
+          for (int i = 0; i < n_el; ++i)
+            idx_sum += elected(i);
+        }
+        voting_x[0] += idx_sum > 1.0 ? 0.0 : 0.00001;
+        beta[v] = fit_theil_sen(voting_x, voting_times);
+      }
+      beta_voting.push_back(beta);
+    }
+
+    return beta_voting;
+  }
+
+
+  std::vector<std::map<int, std::pair<double, double>>>
+  fit_voting_times_sparse(Eigen::SparseMatrix<float> &Q) {
+    int n_test = Q.cols();
+
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::uniform_int_distribution<int> uni(0, n_test - 1);
+
+    std::vector<int> tested_trees{1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30, 40, 50};
+    generate_x(tested_trees, n_trees, 10, n_trees);
+    std::vector<int> vote_thresholds_x{1, 2,  3,  4,  5,  6,  7, 8,
+                                       9, 10, 11, 12, 13, 14, 15};
+    generate_x(vote_thresholds_x, votes_max, 10, votes_max);
+
+    beta_voting = std::vector<std::map<int, std::pair<double, double>>>();
+
+    for (int d = depth_min; d <= depth; ++d) {
+      std::map<int, std::pair<double, double>> beta;
+      for (const auto &v : vote_thresholds_x) {
+        long double idx_sum = 0;
+        std::vector<double> voting_times, voting_x;
+
+        for (int i = 0; i < (int)tested_trees.size(); ++i) {
+          int t = tested_trees[i];
+          int n_el = 0;
+          Eigen::VectorXi elected;
+          auto ri = uni(rng);
+
+          Eigen::VectorXf projected_query(n_trees * depth);
+          if (density < 1) {
+            Eigen::SparseVector<float> r = Q.col(ri);
+            Eigen::SparseVector<float> res
+            res = sparse_random_matrix *  r;
+            projected_query = Eigen::VectorXf(res);
           } else {
             projected_query.noalias() = dense_random_matrix * Q.col(ri);
           }
@@ -1954,6 +2068,53 @@ private:
     return fit_theil_sen(ex, exact_times);
   }
 
+
+  std::pair<double, double>
+  fit_exact_times_sparse(Eigen::SparseMatrix<float> &Q) {
+    std::vector<int> s_tested{1,  2,   5,   10,  20,  35,  50,
+                              75, 100, 150, 200, 300, 400, 500};
+    generate_x(s_tested, n_samples / 20, 20, n_samples);
+
+    int n_test = Q.cols();
+    std::vector<double> exact_times;
+    long double idx_sum = 0;
+
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::uniform_int_distribution<int> uni(0, n_test - 1);
+    std::uniform_int_distribution<int> uni2(0, n_samples - 1);
+
+    std::vector<double> ex;
+    int n_sim = 20;
+    for (int i = 0; i < (int)s_tested.size(); ++i) {
+      double mean_exact_time = 0;
+      int s_size = s_tested[i];
+      ex.push_back(s_size);
+
+      for (int m = 0; m < n_sim; ++m) {
+        auto ri = uni(rng);
+        Eigen::VectorXi elected(s_size);
+        for (int j = 0; j < elected.size(); ++j)
+          elected(j) = uni2(rng);
+
+        double start_exact = omp_get_wtime();
+        std::vector<int> res(k);
+        Eigen::SparseVector<float> q = Q.col(ri);
+        exact_knn_sparse(q,k, elected, s_size, &res[0]);
+        double end_exact = omp_get_wtime();
+        mean_exact_time += (end_exact - start_exact);
+
+        for (int l = 0; l < k; ++l)
+          idx_sum += res[l];
+      }
+      mean_exact_time /= n_sim;
+      exact_times.push_back(mean_exact_time);
+    }
+
+    ex[0] += idx_sum > 1.0 ? 0.0 : 0.00001;
+    return fit_theil_sen(ex, exact_times);
+  }
+
   std::set<Mrpt_Parameters, decltype(is_faster) *>
   list_parameters(const std::vector<Eigen::MatrixXd> &recalls) {
     std::set<Mrpt_Parameters, decltype(is_faster) *> pars(is_faster);
@@ -2003,6 +2164,13 @@ private:
     beta_projection = fit_projection_times(Q, exact_x);
     beta_voting = fit_voting_times(Q);
     beta_exact = fit_exact_times(Q);
+  }
+
+  void fit_times_sparse(Eigen::SparseMatrix<float> &Q) {
+    std::vector<int> exact_x;
+    beta_projection = fit_projection_times_sparse(Q, exact_x);
+    beta_voting = fit_voting_times_sparse(Q);
+    beta_exact = fit_exact_times_sparse(Q);
   }
 
   static std::pair<double, double> fit_theil_sen(const std::vector<double> &x,
