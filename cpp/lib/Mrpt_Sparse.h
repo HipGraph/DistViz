@@ -1653,7 +1653,7 @@ private:
                 out_exact.data() + i * k);
       std::sort(out_exact.data() + i * k, out_exact.data() + i * k + k);
       if (!indices_test.empty()) {
-        idx[n_samples - 1] = indices_test[i];module
+        idx[n_samples - 1] = indices_test[i];
       }
     }
   }
