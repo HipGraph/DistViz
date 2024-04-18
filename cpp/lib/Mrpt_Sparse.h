@@ -599,7 +599,7 @@ public:
     for (int i = 0; i < n_test; ++i) {
       std::vector<Eigen::MatrixXd> recall_tmp(depth_max - depth_min + 1);
       std::vector<Eigen::MatrixXd> cs_size_tmp(depth_max - depth_min + 1);
-      count_elected(Q.col(i),
+      count_elected_sparse(Q.col(i),
                     Eigen::Map<Eigen::VectorXi>(exact.data() + i * k, k),
                     votes_max, recall_tmp, cs_size_tmp);
       for (int d = depth_min; d <= depth_max; ++d) {
@@ -1478,6 +1478,84 @@ private:
     }
 
     index_type = autotuned;
+  }
+
+  void count_elected_sparse(Eigen::SparseVector<float> &q,
+                     const Eigen::Map<Eigen::VectorXi> &exact, int votes_max,
+                     std::vector<Eigen::MatrixXd> &recalls,
+                     std::vector<Eigen::MatrixXd> &cs_sizes) const {
+    Eigen::VectorXf projected_query(n_pool);
+    if (density < 1)
+      projected_query.noalias() = sparse_random_matrix * q;
+    else
+      projected_query.noalias() = dense_random_matrix * q;
+
+    int depth_min = depth - recalls.size() + 1;
+    std::vector<std::vector<int>> start_indices(n_trees);
+
+    //#pragma omp parallel for
+    for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
+      start_indices[n_tree] = std::vector<int>(depth - depth_min + 1);
+      int idx_tree = 0;
+      for (int d = 0; d < depth; ++d) {
+        const int j = n_tree * depth + d;
+        const int idx_left = 2 * idx_tree + 1;
+        const int idx_right = idx_left + 1;
+        const float split_point = split_points(idx_tree, n_tree);
+        if (projected_query(j) <= split_point) {
+          std::cout<<" j "<<j<<"projected_query(j) "<<projected_query(j)<<" split_point "<<split_point<<std::endl;
+          idx_tree = idx_left;
+        } else {
+          idx_tree = idx_right;
+        }
+        if (d >= depth_min - 1)
+          start_indices[n_tree][d - depth_min + 1] =
+              idx_tree - (1 << (d + 1)) + 1;
+      }
+    }
+
+    const int *exact_begin = exact.data();
+    const int *exact_end = exact.data() + exact.size();
+
+    for (int depth_crnt = depth_min; depth_crnt <= depth; ++depth_crnt) {
+      Eigen::VectorXi votes = Eigen::VectorXi::Zero(n_samples);
+      const std::vector<int> &leaf_first_indices =
+          leaf_first_indices_all[depth_crnt];
+
+      Eigen::MatrixXd recall(votes_max, n_trees);
+      Eigen::MatrixXd candidate_set_size(votes_max, n_trees);
+      recall.col(0) = Eigen::VectorXd::Zero(votes_max);
+      candidate_set_size.col(0) = Eigen::VectorXd::Zero(votes_max);
+
+      // count votes
+      for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
+        std::vector<int> &found_leaves = start_indices[n_tree];
+
+        if (n_tree) {
+          recall.col(n_tree) = recall.col(n_tree - 1);
+          candidate_set_size.col(n_tree) = candidate_set_size.col(n_tree - 1);
+        }
+
+        int leaf_begin =
+            leaf_first_indices[found_leaves[depth_crnt - depth_min]];
+        int leaf_end =
+            leaf_first_indices[found_leaves[depth_crnt - depth_min] + 1];
+
+        const std::vector<int> &indices = tree_leaves[n_tree];
+        for (int i = leaf_begin; i < leaf_end; ++i) {
+          int idx = indices[i];
+          int v = ++votes(idx);
+          if (v <= votes_max) {
+            candidate_set_size(v - 1, n_tree)++;
+            if (std::find(exact_begin, exact_end, idx) != exact_end)
+              recall(v - 1, n_tree)++;
+          }
+        }
+      }
+
+      recalls[depth_crnt - depth_min] = recall;
+      cs_sizes[depth_crnt - depth_min] = candidate_set_size;
+    }
   }
 
   void count_elected(const Eigen::VectorXf &q,
