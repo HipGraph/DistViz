@@ -272,7 +272,7 @@ public:
 
 
 #pragma omp parallel for schedule (static)
-    for(int i=0;i<data_matrix.rows();i++){
+    for(int i=0;i<sparse_matrix.cols();i++){
       Eigen::VectorXi tempRow(effective_nn);
       Eigen::VectorXf tempDis(effective_nn);
       mrpt.query(sparse_matrix.col(i), tempRow.data(),tempDis.data());
