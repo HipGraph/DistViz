@@ -17,7 +17,7 @@
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 
-struct Mrpt_Parameters {
+struct MrptSparse_Parameters {
   int n_trees = 0; /**< Number of trees in the index. */
   int depth = 0;   /**< Depth of the trees in the index. */
   int k = 0;     /**< Number of nearest neighbors searched for (if the index is
@@ -341,9 +341,9 @@ public:
    *
    * @return parameters of the index
    */
-  Mrpt_Parameters parameters() const {
+  MrptSparse_Parameters parameters() const {
     if (index_type == normal || index_type == autotuned_unpruned) {
-      Mrpt_Parameters p;
+      MrptSparse_Parameters p;
       p.n_trees = n_trees;
       p.depth = depth;
       p.k = par.k;
@@ -505,7 +505,7 @@ public:
     }
 
     fit_times(Q);
-    std::set<Mrpt_Parameters, decltype(is_faster) *> pars =
+    std::set<MrptSparse_Parameters, decltype(is_faster) *> pars =
         list_parameters(recalls);
     opt_pars = pareto_frontier(pars);
 
@@ -616,7 +616,7 @@ public:
     std::cout<<"calling fit times sparse"<<std::endl;
     fit_times_sparse(Q);
     std::cout<<"calling fit times sparse completed"<<std::endl;
-    std::set<Mrpt_Parameters, decltype(is_faster) *> pars =
+    std::set<MrptSparse_Parameters, decltype(is_faster) *> pars =
         list_parameters(recalls);
     opt_pars = pareto_frontier(pars);
 
@@ -709,26 +709,26 @@ public:
    * highest possible recall level.
    *
    * @param target_recall target recall level; on the range [0,1]
-   * @return an autotuned Mrpt index with a recall level at least as high as
+   * @return an autotuned MrptSparseSparse index with a recall level at least as high as
    * target_recall
    */
-  Mrpt subset(double target_recall) const {
+  MrptSparse subset(double target_recall) const {
     if (target_recall < 0.0 - epsilon || target_recall > 1.0 + epsilon) {
       throw std::out_of_range("Target recall must be on the interval [0,1].");
     }
     if (sparse_input) {
       std::cout<<" mrpte sparse index duplication creating"<< std::endl;
-      Mrpt index(X_Sparse);
+      MrptSparse index(X_Sparse);
       std::cout<<" mrpte sparse index duplication completed"<< std::endl;
       return subset(target_recall, index);
     } else {
       std::cout<<" mrpte sparse index creating wrong subset"<< std::endl;
-      Mrpt index(X);
+      MrptSparse index(X);
       return subset(target_recall, index);
     }
   }
 
-  Mrpt subset(double target_recall, Mrpt &index2) const{
+  MrptSparse subset(double target_recall, MrptSparse &index2) const{
     index2.par = parameters(target_recall);
 
     int depth_max = depth;
@@ -780,15 +780,15 @@ public:
    * by the return value.
    *
    * @param target_recall target recall level; on the range [0,1]
-   * @return pointer to a dynamically allocated autotuned Mrpt index with
+   * @return pointer to a dynamically allocated autotuned MrptSparse index with
    * a recall level at least as high as target_recall
    */
-  Mrpt *subset_pointer(double target_recall) const {
+  MrptSparse *subset_pointer(double target_recall) const {
     if (target_recall < 0.0 - epsilon || target_recall > 1.0 + epsilon) {
       throw std::out_of_range("Target recall must be on the interval [0,1].");
     }
 
-    Mrpt *index2 = new Mrpt(X);
+    MrptSparse *index2 = new MrptSparse(X);
     index2->par = parameters(target_recall);
 
     int depth_max = depth;
@@ -838,7 +838,7 @@ public:
    *
    * @return vector of optimal parameters
    */
-  std::vector<Mrpt_Parameters> optimal_parameters() const {
+  std::vector<MrptSparse_Parameters> optimal_parameters() const {
     if (index_type == normal) {
       throw std::logic_error("The list of optimal parameters cannot be "
                              "retrieved for the non-autotuned index.");
@@ -850,7 +850,7 @@ public:
           "level.");
     }
 
-    std::vector<Mrpt_Parameters> new_pars;
+    std::vector<MrptSparse_Parameters> new_pars;
     std::copy(opt_pars.begin(), opt_pars.end(), std::back_inserter(new_pars));
     return new_pars;
   }
@@ -1186,7 +1186,7 @@ public:
   static void exact_knn(const Eigen::Ref<const Eigen::VectorXf> &q,
                         const Eigen::Ref<const Eigen::MatrixXf> &X, int k,
                         int *out, float *out_distances = nullptr) {
-    Mrpt::exact_knn(q.data(), X.data(), X.rows(), X.cols(), k, out,
+    MrptSparse::exact_knn(q.data(), X.data(), X.rows(), X.cols(), k, out,
                     out_distances);
   }
 
@@ -1199,7 +1199,7 @@ public:
    */
   void exact_knn(const float *q, int k, int *out,
                  float *out_distances = nullptr) const {
-    Mrpt::exact_knn(q, X.data(), dim, n_samples, k, out, out_distances);
+    MrptSparse::exact_knn(q, X.data(), dim, n_samples, k, out, out_distances);
   }
 
   /**
@@ -1211,7 +1211,7 @@ public:
    */
   void exact_knn(const Eigen::Ref<const Eigen::VectorXf> &q, int k, int *out,
                  float *out_distances = nullptr) const {
-    Mrpt::exact_knn(q.data(), X.data(), dim, n_samples, k, out, out_distances);
+    MrptSparse::exact_knn(q.data(), X.data(), dim, n_samples, k, out, out_distances);
   }
 
   /**@}*/
@@ -1366,7 +1366,7 @@ public:
    * Friend declarations for test fixtures. Tests are located at
    * https://github.com/vioshyvo/RP-test.
    */
-  friend class MrptTest;
+  friend class MrptSparseTest;
   friend class UtilityTest;
 
   /**@}*/
@@ -1819,8 +1819,8 @@ private:
     }
   }
 
-  static bool is_faster(const Mrpt_Parameters &par1,
-                        const Mrpt_Parameters &par2) {
+  static bool is_faster(const MrptSparse_Parameters &par1,
+                        const MrptSparse_Parameters &par2) {
     return par1.estimated_qtime < par2.estimated_qtime;
   }
 
@@ -2194,9 +2194,9 @@ private:
     return fit_theil_sen(ex, exact_times);
   }
 
-  std::set<Mrpt_Parameters, decltype(is_faster) *>
+  std::set<MrptSparse_Parameters, decltype(is_faster) *>
   list_parameters(const std::vector<Eigen::MatrixXd> &recalls) {
-    std::set<Mrpt_Parameters, decltype(is_faster) *> pars(is_faster);
+    std::set<MrptSparse_Parameters, decltype(is_faster) *> pars(is_faster);
     std::vector<Eigen::MatrixXd> query_times(depth - depth_min + 1);
     for (int d = depth_min; d <= depth; ++d) {
       Eigen::MatrixXd query_time = Eigen::MatrixXd::Zero(votes_max, n_trees);
@@ -2206,7 +2206,7 @@ private:
         for (int v = 1; v <= votes_index; ++v) {
           double qt = get_query_time(t, d, v);
           query_time(v - 1, t - 1) = qt;
-          Mrpt_Parameters p;
+          MrptSparse_Parameters p;
           p.n_trees = t;
           p.depth = d;
           p.votes = v;
@@ -2223,9 +2223,9 @@ private:
     return pars;
   }
 
-  std::set<Mrpt_Parameters, decltype(is_faster) *> pareto_frontier(
-      const std::set<Mrpt_Parameters, decltype(is_faster) *> &pars) {
-    opt_pars = std::set<Mrpt_Parameters, decltype(is_faster) *>(is_faster);
+  std::set<MrptSparse_Parameters, decltype(is_faster) *> pareto_frontier(
+      const std::set<MrptSparse_Parameters, decltype(is_faster) *> &pars) {
+    opt_pars = std::set<MrptSparse_Parameters, decltype(is_faster) *>(is_faster);
     double best_recall = -1.0;
     for (const auto &p :
          pars) { // compute pareto frontier for query times and recalls
@@ -2279,7 +2279,7 @@ private:
     return std::make_pair(intercept, slope);
   }
 
-  void write_parameters(const Mrpt_Parameters *p, FILE *fd) const {
+  void write_parameters(const MrptSparse_Parameters *p, FILE *fd) const {
     if (!fd) {
       return;
     }
@@ -2292,7 +2292,7 @@ private:
     fwrite(&p->estimated_recall, sizeof(double), 1, fd);
   }
 
-  void read_parameters(Mrpt_Parameters *p, FILE *fd) {
+  void read_parameters(MrptSparse_Parameters *p, FILE *fd) {
     fread(&p->n_trees, sizeof(int), 1, fd);
     fread(&p->depth, sizeof(int), 1, fd);
     fread(&p->votes, sizeof(int), 1, fd);
@@ -2302,7 +2302,7 @@ private:
   }
 
   void write_parameter_list(
-      const std::set<Mrpt_Parameters, decltype(is_faster) *> &pars,
+      const std::set<MrptSparse_Parameters, decltype(is_faster) *> &pars,
       FILE *fd) const {
     if (!fd) {
       return;
@@ -2320,18 +2320,18 @@ private:
       return;
     }
 
-    opt_pars = std::set<Mrpt_Parameters, decltype(is_faster) *>(is_faster);
+    opt_pars = std::set<MrptSparse_Parameters, decltype(is_faster) *>(is_faster);
     int par_sz = 0;
     fread(&par_sz, sizeof(int), 1, fd);
 
     for (int i = 0; i < par_sz; ++i) {
-      Mrpt_Parameters p;
+      MrptSparse_Parameters p;
       read_parameters(&p, fd);
       opt_pars.insert(p);
     }
   }
 
-  Mrpt_Parameters parameters(double target_recall) const {
+  MrptSparse_Parameters parameters(double target_recall) const {
     double tr = target_recall - epsilon;
     for (const auto &p : opt_pars) {
       if (p.estimated_recall > tr) {
@@ -2343,7 +2343,7 @@ private:
       return *(opt_pars.rbegin());
     }
 
-    return Mrpt_Parameters();
+    return MrptSparse_Parameters();
   }
 
   /**
@@ -2477,7 +2477,7 @@ private:
 
   const int n_samples; // sample size of data
   const int dim;       // dimension of data
-  Mrpt_Parameters par;
+  MrptSparse_Parameters par;
   int n_trees = 0; // number of RP-trees
   int depth = 0;   // depth of an RP-tree with median split
   float density =
@@ -2498,7 +2498,7 @@ private:
   std::vector<Eigen::MatrixXd> cs_sizes;
   std::pair<double, double> beta_projection, beta_exact;
   std::vector<std::map<int, std::pair<double, double>>> beta_voting;
-  std::set<Mrpt_Parameters, decltype(is_faster) *> opt_pars;
+  std::set<MrptSparse_Parameters, decltype(is_faster) *> opt_pars;
 };
 
 #endif // CPP_MRPT_SPARSE_H_
