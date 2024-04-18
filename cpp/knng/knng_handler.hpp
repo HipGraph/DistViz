@@ -11,7 +11,7 @@
 #include "../common/common.h"
 #include "math_operations.hpp"
 #include <memory>
-//#include "../lib/Mrpt.h"
+#include "../lib/Mrpt.h"
 #include "../lib/Mrpt_Sparse.h"
 #include "../io/file_writer.hpp"
 
@@ -260,7 +260,7 @@ public:
     //    int effective_nn = 2 * nn;
     int effective_nn = nn;
     cout<<" sparse_matrix size"<<sparse_matrix.rows()<<" * "<<sparse_matrix.cols()<<endl;
-    Mrpt mrpt(sparse_matrix);
+    MrptSparse mrpt(sparse_matrix);
 
     cout<<" mrpt completed"<<endl;
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);

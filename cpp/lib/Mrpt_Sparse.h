@@ -32,7 +32,7 @@ struct Mrpt_Parameters {
               recall is set; otherwise 0.0). */
 };
 
-class Mrpt {
+class MrptSparse {
 public:
   /** @name Constructors
    * The constructor does not actually build the index. The building is done
@@ -54,11 +54,11 @@ public:
   /**
    * @param X_ Eigen ref to the data set, stored as one data point per column
    */
-  Mrpt(const Eigen::Ref<const Eigen::MatrixXf> &X_)
+  MrptSparse(const Eigen::Ref<const Eigen::MatrixXf> &X_)
       : X(Eigen::Map<const Eigen::MatrixXf>(X_.data(), X_.rows(), X_.cols())),
         n_samples(X_.cols()), dim(X_.rows()) {}
 
-  Mrpt(const Eigen::SparseMatrix<float> &X_Sparse_)
+  MrptSparse(const Eigen::SparseMatrix<float> &X_Sparse_)
       : X_Sparse(X_Sparse_),
         X(Eigen::Map<const Eigen::MatrixXf>(new float[1], 1, 1)),
         n_samples(X_Sparse_.cols()), dim(X_Sparse_.rows()), sparse_input(true) {
@@ -70,7 +70,7 @@ public:
    * @param dim_ dimension of the data
    * @param n_samples_ number of data points
    */
-  Mrpt(const float *X_, int dim_, int n_samples_)
+  MrptSparse(const float *X_, int dim_, int n_samples_)
       : X(Eigen::Map<const Eigen::MatrixXf>(X_, dim_, n_samples_)),
         n_samples(n_samples_), dim(dim_) {}
 
