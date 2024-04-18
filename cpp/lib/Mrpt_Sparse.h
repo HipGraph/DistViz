@@ -1503,7 +1503,7 @@ private:
         const int idx_right = idx_left + 1;
         const float split_point = split_points(idx_tree, n_tree);
         if (projected_query(j) <= split_point) {
-          std::cout<<" j "<<j"projected_query(j) "<<projected_query(j)<<" split_point "<<split_point<<std::endl;
+          std::cout<<" j "<<j<<"projected_query(j) "<<projected_query(j)<<" split_point "<<split_point<<std::endl;
           idx_tree = idx_left;
         } else {
           idx_tree = idx_right;
