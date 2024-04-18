@@ -1487,7 +1487,8 @@ private:
                      std::vector<Eigen::MatrixXd> &cs_sizes) const {
     Eigen::VectorXf projected_query(n_pool);
     if (density < 1)
-      projected_query.noalias() = sparse_random_matrix * q;
+      Eigen::SparseVector<float> result_sparse = sparse_random_matrix * q;
+      projected_query  = Eigen::VectorXf(result_sparse);
     else
       projected_query.noalias() = dense_random_matrix * q;
 
