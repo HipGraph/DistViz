@@ -277,7 +277,7 @@ public:
       Eigen::VectorXf tempDis(effective_nn);
       Eigen::SparseVector<float> q = sparse_matrix.col(i);
 //      Eigen::VectorXf q_dens = Eigen::VectorXf(q);
-      mrpt.query(q, tempRow.data(),tempDis.data());
+      mrpt.query_sparse(q, tempRow.data(),tempDis.data());
       neighbours.row(i)=tempRow;
       distances.row(i)=tempDis;
     }
