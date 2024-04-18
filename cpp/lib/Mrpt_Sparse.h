@@ -1872,7 +1872,7 @@ private:
           Eigen::SparseVector<float> sp_vec = Q.col(0);
           Eigen::SparseVector<float> res;
           res = sparse_mat * sp_vec;
-          projected_query = VectorXf(res);
+          projected_query = Eigen::VectorXf(res);
         } else {
           projected_query.noalias() = dense_mat * Q.col(0);
         }
@@ -1981,7 +1981,7 @@ private:
           Eigen::VectorXf projected_query(n_trees * depth);
           if (density < 1) {
             Eigen::SparseVector<float> r = Q.col(ri);
-            Eigen::SparseVector<float> res
+            Eigen::SparseVector<float> res;
             res = sparse_random_matrix *  r;
             projected_query = Eigen::VectorXf(res);
           } else {
