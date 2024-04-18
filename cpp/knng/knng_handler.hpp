@@ -275,7 +275,9 @@ public:
     for(int i=0;i<sparse_matrix.cols();i++){
       Eigen::VectorXi tempRow(effective_nn);
       Eigen::VectorXf tempDis(effective_nn);
-      mrpt.query(sparse_matrix.col(i), tempRow.data(),tempDis.data());
+      Eigen::SparseVector<float> q = sparse_matrix.col(i);
+      Eigen::VectorXf q_dens = VectorXf(q);
+      mrpt.query(q_dens, tempRow.data(),tempDis.data());
       neighbours.row(i)=tempRow;
       distances.row(i)=tempDis;
       //      EdgeNode<INDEX_TYPE,VALUE_TYPE> edge;
