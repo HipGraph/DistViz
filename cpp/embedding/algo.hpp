@@ -65,9 +65,8 @@ public:
                 SpMat<SPT,DENT> *sp_local_sender,
                 DenseMat<SPT, DENT, embedding_dim> *dense_local,
                 Process3DGrid *grid, double alpha, double beta, DENT MAX_BOUND,
-                DENT MIN_BOUND, bool col_major, bool sync_comm, bool sparse_input=false,
-                Eigen::SparseMatrix<DENT,Eigen::RowMajor> &sparse_matrix=Eigen::SparseMatrix<float>(),
-                ValueType2DVector<DENT> *dense_matrix=Eigen::MatrixXf())
+                DENT MIN_BOUND, bool col_major, bool sync_comm,Eigen::SparseMatrix<DENT,Eigen::RowMajor> &sparse_matrix,
+                ValueType2DVector<DENT> *dense_matrix, bool sparse_input=false)
       : sp_local_native(sp_local_native), sp_local_receiver(sp_local_receiver),
         sp_local_sender(sp_local_sender), dense_local(dense_local), grid(grid),
         alpha(alpha), beta(beta), MAX_BOUND(MAX_BOUND), MIN_BOUND(MIN_BOUND),
