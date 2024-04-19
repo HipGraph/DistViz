@@ -1127,6 +1127,12 @@ class Mrpt {
       }
     }
 
+    double calculate_distance(int source_index, int dst_index) {
+      Eigen::VectorXf q = X.col(source_index);
+      Eigen::VectorXf v = X.col(dst_index);
+      return  (q - v).squaredNorm();
+    }
+
     void prune(double target_recall) {
       if (target_recall < 0.0 - epsilon || target_recall > 1.0 + epsilon) {
         throw std::out_of_range("Target recall must be on the interval [0,1].");

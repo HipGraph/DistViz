@@ -254,8 +254,8 @@ public:
     }
   }
 
-  void build_local_KNNG_Sparse(Eigen::SparseMatrix<float,Eigen::RowMajor> &sparse_matrix, vector<Tuple<VALUE_TYPE>> *output_knng,int nn, float target_recall,
-                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0) {
+  MrptSparse build_local_KNNG_Sparse(Eigen::SparseMatrix<float,Eigen::RowMajor> &sparse_matrix, vector<Tuple<VALUE_TYPE>> *output_knng,int nn, float target_recall,
+                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0, ) {
 
     //    int effective_nn = 2 * nn;
     int effective_nn = nn;
@@ -297,21 +297,11 @@ public:
       FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
       fileWriter.write_list(output_knng,output_path);
     }
-
+    return mrpt;
   }
 
-  void build_local_KNNG(ValueType2DVector<VALUE_TYPE>* input_data, vector<Tuple<VALUE_TYPE>> *output_knng,int nn, float target_recall,
+  Mrpt build_local_KNNG(Eigen::MatrixXf &data_matrix, vector<Tuple<VALUE_TYPE>> *output_knng,int nn, float target_recall,
                         bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0) {
-
-    Eigen::MatrixXf data_matrix((*input_data)[0].size(), (*input_data).size());
-
-   #pragma omp parallel for schedule (static)
-    for (int i = 0; i < (*input_data).size(); ++i) {
-      for (int j = 0; j < (*input_data)[0].size(); ++j) {
-        data_matrix(j, i) = (*input_data)[i][j];
-      }
-    }
-
 //    int effective_nn = 2 * nn;
     int effective_nn = nn;
     Mrpt mrpt(data_matrix);
@@ -365,7 +355,7 @@ public:
         FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
         fileWriter.write_list(output_knng,output_path);
       }
-
+   return mrpt;
   }
 
   void communicate_nns(map<INDEX_TYPE, vector<EdgeNode<INDEX_TYPE,VALUE_TYPE>>>* local_nns,int nn,

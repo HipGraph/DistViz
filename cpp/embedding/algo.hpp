@@ -17,6 +17,8 @@
 #include <mpi.h>
 #include <random>
 #include <unordered_map>
+#include "../lib/Mrpt.h"
+#include "../lib/Mrpt_Sparse.h"
 
 using namespace std;
 using namespace hipgraph::distviz::common;
@@ -50,17 +52,29 @@ protected:
   //hyper parameter controls the col major or row major  data access
   bool col_major = true;
 
+  bool  sparse_input=false;
+
+  Eigen::SparseMatrix<DENT,Eigen::RowMajor> *sparse_matrix;
+
+  Eigen::MatrixXf *dense_matrix;
+
+
 public:
   EmbeddingAlgo(SpMat<SPT,DENT> *sp_local_native,
                 SpMat<SPT,DENT> *sp_local_receiver,
                 SpMat<SPT,DENT> *sp_local_sender,
                 DenseMat<SPT, DENT, embedding_dim> *dense_local,
                 Process3DGrid *grid, double alpha, double beta, DENT MAX_BOUND,
-                DENT MIN_BOUND, bool col_major, bool sync_comm)
+                DENT MIN_BOUND, bool col_major, bool sync_comm, bool sparse_input=false,
+                Eigen::SparseMatrix<DENT,Eigen::RowMajor> &sparse_matrix=nullptr,
+                ValueType2DVector<DENT> *dense_matrix=nullptr)
       : sp_local_native(sp_local_native), sp_local_receiver(sp_local_receiver),
         sp_local_sender(sp_local_sender), dense_local(dense_local), grid(grid),
         alpha(alpha), beta(beta), MAX_BOUND(MAX_BOUND), MIN_BOUND(MIN_BOUND),
-        col_major(col_major),sync(sync_comm) {}
+        col_major(col_major),sync(sync_comm),sparse_input(sparse_input) {
+    this->sparse_matrix = sparse_matrix;
+    this->dense_matrix = dense_matrix;
+  }
 
   DENT scale(DENT v) {
     if (v > MAX_BOUND)
@@ -676,6 +690,19 @@ public:
       total_error +=sqrt(error);
     }
     return total_error;
+  }
+
+
+  double calculate_distance(int source_id, int dst_id){
+    if (sparse_input) {
+      Eigen::SparseVector<float> q = (*sparse_matrix).col(source_index);
+      Eigen::SparseVector<float> v = (*sparse_matrix).col(dst_index);
+      return  (q - v).squaredNorm();
+    }else {
+      Eigen::VectorXf q = (*dense_matrix).col(source_index);
+      Eigen::VectorXf v = (*dense_matrix).col(dst_index);
+      return  (q - v).squaredNorm();
+    }
   }
 };
 } // namespace distblas::algo

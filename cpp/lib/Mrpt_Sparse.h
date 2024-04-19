@@ -1718,6 +1718,12 @@ private:
     }
   }
 
+   double calculate_distance_sparse(int source_index, int dst_index) {
+     Eigen::SparseVector<float> q = X_Sparse.col(source_index);
+     Eigen::SparseVector<float> v = X_Sparse.col(dst_index);
+     return  (q - v).squaredNorm();
+  }
+
   /**
    * Builds a random sparse matrix for use in random projection. The components
    * of the matrix are drawn from the distribution

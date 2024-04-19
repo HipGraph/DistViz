@@ -218,6 +218,7 @@ int main(int argc, char* argv[]) {
   std::cout << "calling grow trees"<< rank<< " "<<std::endl;
 
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
+  Eigen::MatrixXf data_matrix((*data_matrix_ptr)[0].size(), (*data_matrix_ptr).size());
    t = start_clock();
    if (grid.get()->col_world_size==1){
 
@@ -227,7 +228,15 @@ int main(int argc, char* argv[]) {
                                             generate_knng_output,
                                             output_path+"/knng.txt", true, density);
      }else {
-       knng_handler.get()->build_local_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),nn,
+
+
+       #pragma omp parallel for schedule (static)
+       for (int i = 0; i < (*data_matrix_ptr).size(); ++i) {
+         for (int j = 0; j < (*data_matrix_ptr)[0].size(); ++j) {
+           data_matrix(j, i) = (*data_matrix_ptr)[i][j];
+         }
+       }
+       knng_handler.get()->build_local_KNNG(data_matrix,knng_graph_ptr.get(),nn,
                                             target_local_recall,
                                             generate_knng_output,
                                             output_path+"/knng.txt", true, density );
@@ -260,13 +269,17 @@ int main(int argc, char* argv[]) {
 
 //  dense_mat->print_matrix_rowptr(0);
 
-  auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,embedding_dimension>>(new EmbeddingHandler<int, float,embedding_dimension>(grid.get()));
+   auto embedding_handler = unique_ptr<EmbeddingHandler<int,float,embedding_dimension>>(new EmbeddingHandler<int, float,embedding_dimension>(grid.get()));
+
+
+
   auto gNNZ = data_set_size* (nn-1);
 
   std::cout << "start generating embedding "<< rank<< " rows "<<localARows<<" gNNZ "<<gNNZ <<std::endl;
   embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
                                         data_set_size,data_set_size,gNNZ,
-                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm,drop_out_error_threshold);
+                                         batch_size,iterations,lr,nsamples,alpha,beta,col_major,sync_comm,drop_out_error_threshold,
+                                        sparse_input,sparse_matrix,data_matrix);
 
   std::cout << "stop generating embedding "<< rank<< " "<<std::endl;
   stop_clock_and_add(t, "Embedding Total Time");
