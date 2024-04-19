@@ -218,7 +218,7 @@ int main(int argc, char* argv[]) {
   std::cout << "calling grow trees"<< rank<< " "<<std::endl;
 
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
-  Eigen::MatrixXf =Eigen::MatrixXf();
+  Eigen::MatrixXf data_matrix =Eigen::MatrixXf();
    t = start_clock();
    if (grid.get()->col_world_size==1){
 
