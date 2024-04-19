@@ -255,7 +255,7 @@ public:
   }
 
   MrptSparse build_local_KNNG_Sparse(Eigen::SparseMatrix<float,Eigen::RowMajor> &sparse_matrix, vector<Tuple<VALUE_TYPE>> *output_knng,int nn, float target_recall,
-                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0, ) {
+                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0) {
 
     //    int effective_nn = 2 * nn;
     int effective_nn = nn;

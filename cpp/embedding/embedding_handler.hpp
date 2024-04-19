@@ -27,7 +27,7 @@ public:
                           uint64_t gRows, uint64_t gCols, uint64_t gNNZ, int batch_size,
                           int iterations, float lr, int nsamples, float alpha,float beta,
                           bool col_major=false, bool sync_comm=false, double drop_out_error_threshold=0, bool sparse_input=false,
-                          Eigen::SparseMatrix<float> &sparse_matrix=nullptr, Eigen::MatrixXf &dense_matrix=nullptr){
+                          Eigen::SparseMatrix<float> &sparse_matrix=Eigen::SparseMatrix<float>(), Eigen::MatrixXf &dense_matrix=Eigen::MatrixXf()){
 
     auto localBRows = divide_and_round_up(gCols,
                                           grid->col_world_size);

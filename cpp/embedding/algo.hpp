@@ -66,8 +66,8 @@ public:
                 DenseMat<SPT, DENT, embedding_dim> *dense_local,
                 Process3DGrid *grid, double alpha, double beta, DENT MAX_BOUND,
                 DENT MIN_BOUND, bool col_major, bool sync_comm, bool sparse_input=false,
-                Eigen::SparseMatrix<DENT,Eigen::RowMajor> &sparse_matrix=nullptr,
-                ValueType2DVector<DENT> *dense_matrix=nullptr)
+                Eigen::SparseMatrix<DENT,Eigen::RowMajor> &sparse_matrix=Eigen::SparseMatrix<float>(),
+                ValueType2DVector<DENT> *dense_matrix=Eigen::MatrixXf())
       : sp_local_native(sp_local_native), sp_local_receiver(sp_local_receiver),
         sp_local_sender(sp_local_sender), dense_local(dense_local), grid(grid),
         alpha(alpha), beta(beta), MAX_BOUND(MAX_BOUND), MIN_BOUND(MIN_BOUND),
@@ -695,12 +695,12 @@ public:
 
   double calculate_distance(int source_id, int dst_id){
     if (sparse_input) {
-      Eigen::SparseVector<float> q = (*sparse_matrix).col(source_index);
-      Eigen::SparseVector<float> v = (*sparse_matrix).col(dst_index);
+      Eigen::SparseVector<float> q = (*sparse_matrix).col(source_id);
+      Eigen::SparseVector<float> v = (*sparse_matrix).col(dst_id);
       return  (q - v).squaredNorm();
     }else {
-      Eigen::VectorXf q = (*dense_matrix).col(source_index);
-      Eigen::VectorXf v = (*dense_matrix).col(dst_index);
+      Eigen::VectorXf q = (*dense_matrix).col(source_id);
+      Eigen::VectorXf v = (*dense_matrix).col(dst_id);
       return  (q - v).squaredNorm();
     }
   }
