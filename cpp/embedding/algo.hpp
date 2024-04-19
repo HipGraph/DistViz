@@ -58,14 +58,14 @@ protected:
 
   Eigen::MatrixXf *dense_matrix;
 
-
 public:
   EmbeddingAlgo(SpMat<SPT,DENT> *sp_local_native,
                 SpMat<SPT,DENT> *sp_local_receiver,
                 SpMat<SPT,DENT> *sp_local_sender,
                 DenseMat<SPT, DENT, embedding_dim> *dense_local,
                 Process3DGrid *grid, double alpha, double beta, DENT MAX_BOUND,
-                DENT MIN_BOUND, bool col_major, bool sync_comm,Eigen::SparseMatrix<DENT,Eigen::RowMajor> *sparse_matrix,
+                DENT MIN_BOUND, bool col_major, bool sync_comm,
+                Eigen::SparseMatrix<DENT,Eigen::RowMajor> *sparse_matrix,
                 Eigen::MatrixXf *dense_matrix, bool sparse_input=false)
       : sp_local_native(sp_local_native), sp_local_receiver(sp_local_receiver),
         sp_local_sender(sp_local_sender), dense_local(dense_local), grid(grid),
@@ -590,10 +590,12 @@ public:
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     (this->dense_local)
                         ->nCoordinates[local_dst * embedding_dim + d];
+                double distance =
               } else {
                 forceDiff[d] =
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     array_ptr[d];
+                double distance =
               }
               attrc += forceDiff[d] * forceDiff[d];
             }

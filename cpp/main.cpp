@@ -218,7 +218,7 @@ int main(int argc, char* argv[]) {
   std::cout << "calling grow trees"<< rank<< " "<<std::endl;
 
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
-  Eigen::MatrixXf data_matrix((*data_matrix_ptr)[0].size(), (*data_matrix_ptr).size());
+  Eigen::MatrixXf =Eigen::MatrixXf();
    t = start_clock();
    if (grid.get()->col_world_size==1){
 
@@ -229,7 +229,7 @@ int main(int argc, char* argv[]) {
                                             output_path+"/knng.txt", true, density);
      }else {
 
-
+       data_matrix = Eigen::MatrixXf((*data_matrix_ptr)[0].size(), (*data_matrix_ptr).size());
        #pragma omp parallel for schedule (static)
        for (int i = 0; i < (*data_matrix_ptr).size(); ++i) {
          for (int j = 0; j < (*data_matrix_ptr)[0].size(); ++j) {
