@@ -278,7 +278,7 @@ int main(int argc, char* argv[]) {
   std::cout << "start generating embedding "<< rank<< " rows "<<localARows<<" gNNZ "<<gNNZ <<std::endl;
   embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
                                         data_set_size,data_set_size,gNNZ,
-                                         batch_size,iterations,lr,nsamples,alpha,beta,sparse_matrix,data_matrix,
+                                         batch_size,iterations,lr,nsamples,alpha,beta,&sparse_matrix,&data_matrix,
                                         col_major,sync_comm,drop_out_error_threshold,
                                         sparse_input);
 
