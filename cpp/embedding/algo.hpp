@@ -52,11 +52,6 @@ protected:
   //hyper parameter controls the col major or row major  data access
   bool col_major = true;
 
-  bool  sparse_input=false;
-
-  Eigen::SparseMatrix<DENT,Eigen::RowMajor> *sparse_matrix;
-
-  Eigen::MatrixXf *dense_matrix;
 
 public:
   EmbeddingAlgo(SpMat<SPT,DENT> *sp_local_native,
@@ -64,16 +59,11 @@ public:
                 SpMat<SPT,DENT> *sp_local_sender,
                 DenseMat<SPT, DENT, embedding_dim> *dense_local,
                 Process3DGrid *grid, double alpha, double beta, DENT MAX_BOUND,
-                DENT MIN_BOUND, bool col_major, bool sync_comm,
-                Eigen::SparseMatrix<DENT,Eigen::RowMajor> *sparse_matrix,
-                Eigen::MatrixXf *dense_matrix, bool sparse_input=false)
+                DENT MIN_BOUND, bool col_major, bool sync_comm)
       : sp_local_native(sp_local_native), sp_local_receiver(sp_local_receiver),
         sp_local_sender(sp_local_sender), dense_local(dense_local), grid(grid),
         alpha(alpha), beta(beta), MAX_BOUND(MAX_BOUND), MIN_BOUND(MIN_BOUND),
-        col_major(col_major),sync(sync_comm),sparse_input(sparse_input) {
-    this->sparse_matrix = sparse_matrix;
-    this->dense_matrix = dense_matrix;
-  }
+        col_major(col_major),sync(sync_comm) {}
 
   DENT scale(DENT v) {
     if (v > MAX_BOUND)
@@ -573,7 +563,6 @@ public:
 
             DENT forceDiff[embedding_dim];
             std::array<DENT, embedding_dim> array_ptr;
-            double distance =0;
             if (fetch_from_cache) {
               unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
                   &arrayMap =
@@ -581,9 +570,6 @@ public:
                           ? (*this->dense_local->tempCachePtr)[target_rank]
                           : (*this->dense_local->cachePtr)[target_rank];
               array_ptr = arrayMap[dst_id].value;
-              distance = this->calculate_distance(i,dst_id);
-            }else {
-              distance = this->calculate_distance(i,dst_id);
             }
 
             DENT attrc = 0;
