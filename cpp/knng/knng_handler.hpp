@@ -259,7 +259,7 @@ public:
 
     //    int effective_nn = 2 * nn;
     int effective_nn = nn;
-    if (nn_repulsive>0) {
+    if (nn_repulsive>0 and repulsive != nullptr) {
       effective_nn = nn+nn_repulsive;
       repulsive->resize(sparse_matrix.cols(),nn_repulsive);
     }
