@@ -682,17 +682,5 @@ public:
     return total_error;
   }
 
-
-  double calculate_distance(int source_id, int dst_id){
-    if (sparse_input) {
-      Eigen::SparseVector<float> q = (*sparse_matrix).col(source_id);
-      Eigen::SparseVector<float> v = (*sparse_matrix).col(dst_id);
-      return  (q - v).squaredNorm();
-    }else {
-      Eigen::VectorXf q = (*dense_matrix).col(source_id);
-      Eigen::VectorXf v = (*dense_matrix).col(dst_id);
-      return  (q - v).squaredNorm();
-    }
-  }
 };
 } // namespace distblas::algo
