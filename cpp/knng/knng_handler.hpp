@@ -261,7 +261,7 @@ public:
     int effective_nn = nn;
     if (nn_repulsive>0 and repulsive != nullptr) {
       effective_nn = nn+nn_repulsive;
-      repulsive->resize(sparse_matrix.cols(),nn_repulsive);
+      (*repulsive).resize(sparse_matrix.cols(),nn_repulsive);
     }
     cout<<" sparse_matrix size"<<sparse_matrix.rows()<<" * "<<sparse_matrix.cols()<<endl;
     MrptSparse mrpt(sparse_matrix);
