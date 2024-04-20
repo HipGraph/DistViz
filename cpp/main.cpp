@@ -218,6 +218,7 @@ int main(int argc, char* argv[]) {
   std::cout << "calling grow trees"<< rank<< " "<<std::endl;
 
   shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
+  shared_ptr<vector<Tuple<float>>> repulsive_graph_ptr = make_shared<vector<Tuple<float>>>();
   Eigen::MatrixXf data_matrix =Eigen::MatrixXf();
    t = start_clock();
    if (grid.get()->col_world_size==1){
@@ -226,7 +227,7 @@ int main(int argc, char* argv[]) {
        knng_handler.get()->build_local_KNNG_Sparse(sparse_matrix,knng_graph_ptr.get(),nn,
                                             target_local_recall,
                                             generate_knng_output,
-                                            output_path+"/knng.txt", true, density);
+                                            output_path+"/knng.txt", true, density,100,repulsive_graph_ptr.get());
      }else {
 
        data_matrix = Eigen::MatrixXf((*data_matrix_ptr)[0].size(), (*data_matrix_ptr).size());
