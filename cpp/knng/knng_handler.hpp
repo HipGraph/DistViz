@@ -295,7 +295,7 @@ public:
       edge.col =   neighbours(node_index,nn_index);
       edge.value = distances(node_index,nn_index);
       if (nn_repulsive>0 and i >= nn){
-        (*repulsive)[i-nn]=edge;
+//        (*repulsive)[i-nn]=edge;
       }else {
         (*output_knng)[i]  = edge;
       }
