@@ -228,7 +228,7 @@ int main(int argc, char* argv[]) {
                                             target_local_recall,
                                             generate_knng_output,
                                             output_path+"/knng.txt", true, density,100,repulsive_graph_ptr.get());
-     }else {
+     } else {
 
        data_matrix = Eigen::MatrixXf((*data_matrix_ptr)[0].size(), (*data_matrix_ptr).size());
        #pragma omp parallel for schedule (static)

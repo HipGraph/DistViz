@@ -586,7 +586,9 @@ public:
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     array_ptr[d];
               }
+              forceDiff[d] = forceDiff[d]*distance;
               attrc += forceDiff[d] * forceDiff[d];
+
             }
 
             DENT d1 = -2.0 / (1.0 + attrc);

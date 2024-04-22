@@ -255,7 +255,8 @@ public:
   }
 
   MrptSparse build_local_KNNG_Sparse(Eigen::SparseMatrix<float,Eigen::RowMajor> &sparse_matrix, vector<Tuple<VALUE_TYPE>> *output_knng,int nn, float target_recall,
-                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0, int nn_repulsive =-1,vector<Tuple<VALUE_TYPE>> *repulsive=nullptr) {
+                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0,
+                                     int nn_repulsive =-1,vector<Tuple<VALUE_TYPE>> *repulsive=nullptr) {
 
     //    int effective_nn = 2 * nn;
     int effective_nn = nn;
@@ -294,6 +295,8 @@ public:
       edge.row = node_index;
       edge.col =   neighbours(node_index,nn_index);
       edge.value = distances(node_index,nn_index);
+      double max_value = distances(node_index,nn-1);
+      edge.value =  edge.value/max_value;
       if (nn_repulsive>0 and i >= nn){
 //        (*repulsive)[i-nn]=edge;
       }else {
