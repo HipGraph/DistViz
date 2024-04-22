@@ -586,7 +586,7 @@ public:
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     array_ptr[d];
               }
-              forceDiff[d] = forceDiff[d]*distance;
+              forceDiff[d] = forceDiff[d]*exp(-1*distance);
               attrc += forceDiff[d] * forceDiff[d];
 
             }
