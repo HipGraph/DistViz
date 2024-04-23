@@ -316,7 +316,7 @@ public:
                         int nn_repulsive =-1,vector<unordered_map<int64_t,VALUE_TYPE>> *repulsive_map=nullptr) {
 //    int effective_nn = 2 * nn;
     int effective_nn = nn;
-    if (nn_repulsive>0 and repulsive != nullptr) {
+    if (nn_repulsive>0 and repulsive_map != nullptr) {
       effective_nn = nn+nn_repulsive;
       repulsive_map->resize(data_matrix.cols());
     }
