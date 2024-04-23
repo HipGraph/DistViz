@@ -75,7 +75,7 @@ public:
   }
 
   vector<DENT> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr, double drop_out_error_threshold=0,
-                                  vector<unordered_map<int64_t,VALUE_TYPE>> *repulsive_map=nullptr) {
+                                  vector<unordered_map<int64_t,DENT>> *repulsive_map=nullptr) {
     int batches = 0;
     int last_batch_size = batch_size;
 
@@ -611,7 +611,7 @@ public:
                                         vector<uint64_t> &col_ids, DENT lr,
                                         int batch_id, int batch_size,
                                         int block_size,
-                                        vector<unordered_map<int64_t,VALUE_TYPE>> *repulsive_map=nullptr) {
+                                        vector<unordered_map<int64_t,DENT>> *repulsive_map=nullptr) {
 
     int row_base_index = batch_id * batch_size;
 
