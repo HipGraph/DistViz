@@ -74,7 +74,8 @@ public:
       return v;
   }
 
-  vector<DENT> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr, double drop_out_error_threshold=0) {
+  vector<DENT> algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr, double drop_out_error_threshold=0,
+                                  vector<unordered_map<int64_t,VALUE_TYPE>> *repulsive_map=nullptr) {
     int batches = 0;
     int last_batch_size = batch_size;
 
@@ -183,11 +184,12 @@ public:
           // local computations for 1 process
           this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates_ptr.get(), lr, j,
                                         batch_size, considering_batch_size,
-                                        true, false, 0, 0, false);
+                                        true, false, 0, 0,
+                                        false);
 
           this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(), random_number_vec,
                                           lr, j, batch_size,
-                                          considering_batch_size);
+                                          considering_batch_size,repulsive_map);
 
 
           batch_error += this->update_data_matrix_rowptr(prevCoordinates_ptr.get(), j, batch_size);
@@ -608,7 +610,8 @@ public:
   inline void calc_t_dist_replus_rowptr(vector<DENT> *prevCoordinates,
                                         vector<uint64_t> &col_ids, DENT lr,
                                         int batch_id, int batch_size,
-                                        int block_size) {
+                                        int block_size,
+                                        vector<unordered_map<int64_t,VALUE_TYPE>> *repulsive_map=nullptr) {
 
     int row_base_index = batch_id * batch_size;
 
@@ -642,7 +645,12 @@ public:
             forceDiff[d] =
                 (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
                 colvec[d];
+
+            if (repulsive_map != nullptr and repulsive_map[row_id].find(global_col_id)!= repulsive_map[row_id].end()) {
+              forceDiff[d] = forceDiff[d] * exp(-1*repulsive_map[row_id][global_col_id]);
+            }
             repuls += forceDiff[d] * forceDiff[d];
+
           }
         } else {
           for (int d = 0; d < embedding_dim; d++) {
@@ -650,6 +658,10 @@ public:
                 (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
                 (this->dense_local)
                     ->nCoordinates[local_col_id * embedding_dim + d];
+
+            if (repulsive_map != nullptr and repulsive_map[row_id].find(global_col_id)!= repulsive_map[row_id].end()) {
+              forceDiff[d] = forceDiff[d] * exp(-1*repulsive_map[row_id][global_col_id]);
+            }
             repuls += forceDiff[d] * forceDiff[d];
           }
         }
