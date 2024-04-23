@@ -229,7 +229,7 @@ int main(int argc, char* argv[]) {
                                             generate_knng_output,
                                             output_path+"/knng.txt", true, density,100,repulsive_graph_ptr.get());
      } else {
-
+       shared_ptr<vector<unordered_map<int64_t,float>>> repulsive_graph_map = make_shared<vector<unordered_map<int64_t,float>>>();
        data_matrix = Eigen::MatrixXf((*data_matrix_ptr)[0].size(), (*data_matrix_ptr).size());
        #pragma omp parallel for schedule (static)
        for (int i = 0; i < (*data_matrix_ptr).size(); ++i) {
@@ -240,7 +240,7 @@ int main(int argc, char* argv[]) {
        knng_handler.get()->build_local_KNNG(data_matrix,knng_graph_ptr.get(),nn,
                                             target_local_recall,
                                             generate_knng_output,
-                                            output_path+"/knng.txt", true, density );
+                                            output_path+"/knng.txt", true, density,100,repulsive_graph_map.get());
      }
 
 
