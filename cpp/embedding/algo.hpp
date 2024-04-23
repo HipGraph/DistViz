@@ -588,7 +588,7 @@ public:
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     array_ptr[d];
               }
-              forceDiff[d] = forceDiff[d]*exp(-1*distance);
+//              forceDiff[d] = forceDiff[d]*exp(-1*distance);
               attrc += forceDiff[d] * forceDiff[d];
 
             }
@@ -596,7 +596,7 @@ public:
             DENT d1 = -2.0 / (1.0 + attrc);
 
             for (int d = 0; d < embedding_dim; d++) {
-              DENT l = scale(forceDiff[d] * d1);
+              DENT l = scale(forceDiff[d] * d1*exp(-1*distance));
 
               (*prevCoordinates)[index * embedding_dim + d] =
                   (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
