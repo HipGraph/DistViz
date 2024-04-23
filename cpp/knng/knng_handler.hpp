@@ -364,10 +364,12 @@ public:
         edge.row = node_index;
         edge.col =   neighbours(node_index,nn_index);
         edge.value = distances(node_index,nn_index);
+        double max_value = distances(node_index,effective_nn-1);
+        (*repulsive_map)[node_index][node_index]= edge.value/max_value;
         if (nn_repulsive>0 and i >= nn){
-          double max_value = distances(node_index,effective_nn-1);
-          edge.value =  edge.value/max_value;
-          (*repulsive_map)[node_index][node_index]=edge.value;
+//          double max_value = distances(node_index,effective_nn-1);
+//          edge.value =  edge.value/max_value;
+//          (*repulsive_map)[node_index][node_index]=edge.value;
         }else {
           double max_value = distances(node_index,nn-1);
           edge.value =  edge.value/max_value;
