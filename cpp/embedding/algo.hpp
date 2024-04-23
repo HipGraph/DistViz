@@ -646,8 +646,8 @@ public:
                 (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
                 colvec[d];
 
-            if (repulsive_map != nullptr and repulsive_map[row_id].find(global_col_id)!= repulsive_map[row_id].end()) {
-              forceDiff[d] = forceDiff[d] * exp(-1*repulsive_map[row_id][global_col_id]);
+            if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
+              forceDiff[d] = forceDiff[d] * exp(-1*(*repulsive_map)[row_id][global_col_id]);
             }
             repuls += forceDiff[d] * forceDiff[d];
 
@@ -659,8 +659,8 @@ public:
                 (this->dense_local)
                     ->nCoordinates[local_col_id * embedding_dim + d];
 
-            if (repulsive_map != nullptr and repulsive_map[row_id].find(global_col_id)!= repulsive_map[row_id].end()) {
-              forceDiff[d] = forceDiff[d] * exp(-1*repulsive_map[row_id][global_col_id]);
+            if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
+              forceDiff[d] = forceDiff[d] * exp(-1*(*repulsive_map)[row_id][global_col_id]);
             }
             repuls += forceDiff[d] * forceDiff[d];
           }
