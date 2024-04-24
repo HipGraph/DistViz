@@ -700,11 +700,11 @@ public:
   }
 
   double smooth_knn_distance(CSRHandle<SPT,DENT> *csr_handle, int node_index, int nn){
-    double lo=0;
-    double hi = INT_MAX;
-    double tolerance = 1e-5;
+    double lo=0.0;
+    double hi = 1.0*INT_MAX;
+    double tolerance = 0.001;
     double target = log2(nn);
-    double  mid = 1;
+    double  mid = 1.0;
     double value=0;
     do {
        value = 0;
@@ -716,6 +716,7 @@ public:
       if (abs(target-value)<=tolerance){
         return mid;
       }
+      cout<<"mid calc "<<mid<<" "<<endl;
       if (value>target){
         hi=mid;
         mid = (lo+hi)/2;
