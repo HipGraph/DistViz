@@ -599,7 +599,8 @@ public:
 
             DENT d1 = -2.0 *exp(-1*distance/smoothe_factor) / (1.0 + attrc);
             for (int d = 0; d < embedding_dim; d++) {
-              DENT l = scale(forceDiff[d] * d1 );
+//              DENT l = scale(forceDiff[d] * d1 );
+              DENT l = (forceDiff[d] * d1 );
               l=l*exp(-1*distance/smoothe_factor);
               (*prevCoordinates)[index * embedding_dim + d] =
                   (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
@@ -673,7 +674,8 @@ public:
         }
 
         for (int d = 0; d < embedding_dim; d++) {
-          forceDiff[d] = scale(forceDiff[d] * d1);
+//          forceDiff[d] = scale(forceDiff[d] * d1);
+          forceDiff[d] = (forceDiff[d] * d1);
           (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
         }
       }
