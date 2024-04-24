@@ -592,15 +592,15 @@ public:
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     array_ptr[d];
               }
-              forceDiff[d] = forceDiff[d]*exp(-1*distance/smoothe_factor);
+//              forceDiff[d] = forceDiff[d]*exp(-1*distance/smoothe_factor);
               attrc += forceDiff[d] * forceDiff[d];
 
             }
 
-            DENT d1 = -2.0 / (1.0 + attrc);
+            DENT d1 = -2.0 *exp(-1*distance/smoothe_factor) / (1.0 + attrc);
             for (int d = 0; d < embedding_dim; d++) {
               DENT l = scale(forceDiff[d] * d1 );
-
+              l=l*exp(-1*distance/smoothe_factor);
               (*prevCoordinates)[index * embedding_dim + d] =
                   (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
             }
@@ -648,9 +648,9 @@ public:
             forceDiff[d] =
                 (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
                 colvec[d];
-            if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
-              forceDiff[d] = forceDiff[d] * (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]));
-            }
+//            if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
+//              forceDiff[d] = forceDiff[d] * (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]));
+//            }
             repuls += forceDiff[d] * forceDiff[d];
 
           }
@@ -660,14 +660,14 @@ public:
                 (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
                 (this->dense_local)
                     ->nCoordinates[local_col_id * embedding_dim + d];
-
-            if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
-              forceDiff[d] = forceDiff[d] * (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]));
-            }
+//
+//            if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
+//              forceDiff[d] = forceDiff[d] * (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]));
+//            }
             repuls += forceDiff[d] * forceDiff[d];
           }
         }
-        DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
+        DENT d1 = 2.0* (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]))/ ((repuls + 0.000001) * (1.0 + repuls));
 
         for (int d = 0; d < embedding_dim; d++) {
           forceDiff[d] = scale(forceDiff[d] * d1);
