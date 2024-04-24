@@ -716,7 +716,7 @@ public:
       if (abs(target-value)<=tolerance){
         return mid;
       }
-      cout<<"mid calc "<<mid<<" "<<endl;
+      cout<<"mid calc "<<mid<<" value "<<value<<"target"<<target <<endl;
       if (value>target){
         hi=mid;
         mid = (lo+hi)/2;
