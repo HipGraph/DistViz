@@ -667,7 +667,10 @@ public:
             repuls += forceDiff[d] * forceDiff[d];
           }
         }
-        DENT d1 = 2.0* (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]))/ ((repuls + 0.000001) * (1.0 + repuls));
+        DENT d1 = 2.0/ ((repuls + 0.000001) * (1.0 + repuls));
+        if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
+          d1 = d1 * (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]));
+        }
 
         for (int d = 0; d < embedding_dim; d++) {
           forceDiff[d] = scale(forceDiff[d] * d1);
