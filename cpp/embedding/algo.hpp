@@ -550,6 +550,8 @@ public:
 
         uint64_t index = i - batch_id * batch_size;
 
+        int nn_size = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
+        double smoothe_factor =   smooth_knn_distance(csr_block,i,nn_size);
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           auto dst_id = csr_handle->col_idx[j];
@@ -588,7 +590,7 @@ public:
                     (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                     array_ptr[d];
               }
-//              forceDiff[d] = forceDiff[d]*exp(-1*distance);
+              forceDiff[d] = forceDiff[d]*exp(-1*distance/smoothe_factor);
               attrc += forceDiff[d] * forceDiff[d];
 
             }
@@ -694,6 +696,35 @@ public:
       total_error +=sqrt(error);
     }
     return total_error;
+  }
+
+  double smooth_knn_distance(CSRHandle<SPT,DENT> *csr_handle, int node_index, int nn){
+    double lo=0;
+    double hi = INT_MAX;
+    double tolerance = 1e-5;
+    double target = log2(nn);
+    double value = 0;
+    double  mid = 1;
+    do {
+      double minimum = distances(node_index,0);
+      for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[node_index]);
+           j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]); j++) {
+        auto distance = csr_handle->values[j];
+        value += exp(distance/mid);
+      }
+      if (value>target){
+        hi=mid;
+        mid = (lo+hi)/2;
+      }else {
+        lo=mid;
+        if (hi==INT_MAX) {
+          mid *=2;
+        }else {
+          mid = (lo+hi)/2;
+        }
+      }
+    }while(abs(target-value)>tolerance);
+    return mid;
   }
 
 };
