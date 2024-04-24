@@ -553,7 +553,7 @@ public:
         uint64_t index = i - batch_id * batch_size;
 
         int nn_size = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
-        double smoothe_factor =   smooth_knn_distance(csr_handle,i,nn_size);
+//        double smoothe_factor =   smooth_knn_distance(csr_handle,i,nn_size);
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           auto dst_id = csr_handle->col_idx[j];
@@ -649,9 +649,9 @@ public:
             forceDiff[d] =
                 (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
                 colvec[d];
-            if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
-              forceDiff[d] = forceDiff[d] * (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]));
-            }
+//            if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
+//              forceDiff[d] = forceDiff[d] * (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]));
+//            }
             repuls += forceDiff[d] * forceDiff[d];
 
           }
@@ -662,9 +662,9 @@ public:
                 (this->dense_local)
                     ->nCoordinates[local_col_id * embedding_dim + d];
 
-            if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
-              forceDiff[d] = forceDiff[d] * (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]));
-            }
+//            if (repulsive_map != nullptr and (*repulsive_map)[row_id].find(global_col_id)!= (*repulsive_map)[row_id].end()) {
+//              forceDiff[d] = forceDiff[d] * (1 - exp(-1*(*repulsive_map)[row_id][global_col_id]));
+//            }
             repuls += forceDiff[d] * forceDiff[d];
           }
         }
