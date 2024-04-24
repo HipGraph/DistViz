@@ -712,7 +712,7 @@ public:
            j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]); j++) {
         auto distance = csr_handle->values[j];
         distance = max(0,distance);
-        value += exp(distance/mid);
+        value += exp(-1*distance/mid);
       }
       if (abs(target-value)<=tolerance){
         return mid;
