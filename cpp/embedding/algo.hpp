@@ -545,13 +545,14 @@ public:
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT,DENT> *csr_handle = csr_block->handler.get();
 
-#pragma omp parallel for schedule(static) // enable for full batch training or // batch size larger than 1000000
+//#pragma omp parallel for schedule(static) // enable for full batch training or // batch size larger than 1000000
       for (uint64_t i = source_start_index; i <= source_end_index; i++) {
 
         uint64_t index = i - batch_id * batch_size;
 
         int nn_size = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
         double smoothe_factor =   smooth_knn_distance(csr_handle,i,nn_size);
+        cout<<"mid "<<smoothe_factor<<" "<<endl;
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           auto dst_id = csr_handle->col_idx[j];
