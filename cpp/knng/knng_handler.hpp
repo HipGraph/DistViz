@@ -346,9 +346,9 @@ public:
         edge.col =   neighbours(node_index,nn_index);
         edge.value = distances(node_index,nn_index);
         if (repulsive_map != nullptr){
-//          double max_value = distances(node_index,effective_nn-1);
+          double max_value = distances(node_index,effective_nn-1);
           double min_value = distances(node_index,0);
-          (*repulsive_map)[node_index][node_index]= (edge.value-min_value);
+          (*repulsive_map)[node_index][node_index]= (edge.value-min_value)/max_value;
           (*repulsive_map)[node_index][node_index]=edge.value;
         }else {
 //          double max_value = distances(node_index,effective_nn-1);
@@ -357,9 +357,6 @@ public:
           (*output_knng)[i]  = edge;
         }
       }
-
-
-
 
       if (print_output) {
         FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
