@@ -711,6 +711,7 @@ public:
       for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[node_index]);
            j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]); j++) {
         auto distance = csr_handle->values[j];
+        distance = max(0,distance);
         value += exp(distance/mid);
       }
       if (abs(target-value)<=tolerance){
