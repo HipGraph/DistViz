@@ -713,6 +713,9 @@ public:
         auto distance = csr_handle->values[j];
         value += exp(distance/mid);
       }
+      if (abs(target-value)>tolerance){
+        return mid;
+      }
       if (value>target){
         hi=mid;
         mid = (lo+hi)/2;
@@ -724,8 +727,7 @@ public:
           mid = (lo+hi)/2;
         }
       }
-    }while(abs(target-value)>tolerance);
-    return mid;
+    }while(true);
   }
 
 };
