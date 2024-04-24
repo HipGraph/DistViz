@@ -594,7 +594,7 @@ public:
             }
 
             DENT d1 = -2.0 / (1.0 + attrc);
-//            d1 = d1 * exp(-1*distance);
+            d1 = d1 * exp(-1*distance);
             for (int d = 0; d < embedding_dim; d++) {
               DENT l = scale(forceDiff[d] * d1 );
 
