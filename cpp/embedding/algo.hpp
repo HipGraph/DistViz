@@ -40,6 +40,8 @@ protected:
   std::unordered_map<int, unique_ptr<DataComm<SPT, DENT, embedding_dim>>>
       data_comm_cache;
 
+  std::unordered_map<SPT,double> value_cache;
+
   //cache size controlling hyper parameter
   double alpha = 1.0;
 
@@ -705,6 +707,9 @@ public:
     double target = log2(nn);
     double  mid = 1.0;
     double value=0;
+    if (value_cache.find(node_index)!= value_cache.end()){
+      return value_cache[node_index];
+    }
     do {
        value = 0;
       for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[node_index]);
@@ -714,6 +719,8 @@ public:
         value += exp(-1*distance/mid);
       }
       if (abs(target-value)<=tolerance){
+        #pragma omp barrier
+        value_cache[node_index]=mid;
         return mid;
       }
       if (value>target){
