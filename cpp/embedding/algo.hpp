@@ -704,8 +704,9 @@ public:
     double tolerance = 1e-5;
     double target = log2(nn);
     double  mid = 1;
+    double value=0;
     do {
-      double value = 0;
+       value = 0;
       for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[node_index]);
            j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]); j++) {
         auto distance = csr_handle->values[j];
