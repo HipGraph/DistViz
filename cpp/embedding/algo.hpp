@@ -713,7 +713,7 @@ public:
         auto distance = csr_handle->values[j];
         value += exp(distance/mid);
       }
-      if (abs(target-value)>tolerance){
+      if (abs(target-value)<=tolerance){
         return mid;
       }
       if (value>target){
