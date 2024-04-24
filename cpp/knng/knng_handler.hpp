@@ -368,11 +368,13 @@ public:
         edge.value = distances(node_index,nn_index);
         if (repulsive_map != nullptr){
           double max_value = distances(node_index,effective_nn-1);
-          (*repulsive_map)[node_index][node_index]= edge.value/max_value;
+          double min_value = distances(node_index,0);
+          (*repulsive_map)[node_index][node_index]= (edge.value-min_value)/max_value;
           (*repulsive_map)[node_index][node_index]=edge.value;
         }else {
           double max_value = distances(node_index,effective_nn-1);
-          edge.value =  edge.value/max_value;
+          double min_value = distances(node_index,0);
+          edge.value =  (edge.value-min_value)/max_value;
           (*output_knng)[i]  = edge;
         }
       }
