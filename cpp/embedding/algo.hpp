@@ -551,7 +551,7 @@ public:
         uint64_t index = i - batch_id * batch_size;
 
         int nn_size = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
-        double smoothe_factor =   smooth_knn_distance(csr_block,i,nn_size);
+        double smoothe_factor =   smooth_knn_distance(csr_handle,i,nn_size);
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           auto dst_id = csr_handle->col_idx[j];
