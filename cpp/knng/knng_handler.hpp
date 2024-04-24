@@ -319,6 +319,8 @@ public:
     if (nn_repulsive>0 and repulsive_map != nullptr) {
       effective_nn = nn+nn_repulsive;
       repulsive_map->resize(data_matrix.cols());
+    }else {
+      output_knng->resize(data_matrix.cols()*effective_nn);
     }
     Mrpt mrpt(data_matrix);
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
@@ -327,7 +329,7 @@ public:
     Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
 
 //    int neighhour_size = (skip_self_loops)?nn-1:nn;
-    output_knng->resize(data_matrix.cols()*effective_nn);
+
 //
 //    int starting_index = skip_self_loops?1:0;
 //    int offset = skip_self_loops?-1:0;
@@ -364,15 +366,13 @@ public:
         edge.row = node_index;
         edge.col =   neighbours(node_index,nn_index);
         edge.value = distances(node_index,nn_index);
-//        double max_value = distances(node_index,effective_nn-1);
-//        (*repulsive_map)[node_index][node_index]= edge.value/max_value;
-        if (nn_repulsive>0 and nn_index >= nn){
-//          double max_value = distances(node_index,effective_nn-1);
-//          edge.value =  edge.value/max_value;
-//          (*repulsive_map)[node_index][node_index]=edge.value;
+        if (repulsive_map != nullptr){
+          double max_value = distances(node_index,effective_nn-1);
+          (*repulsive_map)[node_index][node_index]= edge.value/max_value;
+          (*repulsive_map)[node_index][node_index]=edge.value;
         }else {
-//          double max_value = distances(node_index,nn-1);
-//          edge.value =  edge.value/max_value;
+          double max_value = distances(node_index,effective_nn-1);
+          edge.value =  edge.value/max_value;
           (*output_knng)[i]  = edge;
         }
       }
