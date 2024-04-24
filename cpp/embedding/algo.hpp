@@ -706,7 +706,6 @@ public:
     double value = 0;
     double  mid = 1;
     do {
-      double minimum = distances(node_index,0);
       for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[node_index]);
            j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]); j++) {
         auto distance = csr_handle->values[j];
