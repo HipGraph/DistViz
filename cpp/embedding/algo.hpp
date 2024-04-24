@@ -40,7 +40,7 @@ protected:
   std::unordered_map<int, unique_ptr<DataComm<SPT, DENT, embedding_dim>>>
       data_comm_cache;
 
-  std::unordered_map<SPT,double> value_cache;
+  std::vector<SPT> value_cache;
 
   //cache size controlling hyper parameter
   double alpha = 1.0;
@@ -80,7 +80,7 @@ public:
                                   vector<unordered_map<int64_t,DENT>> *repulsive_map=nullptr) {
     int batches = 0;
     int last_batch_size = batch_size;
-
+    value_cache.resize(sp_local_receiver->proc_row_width,-1);
     if (sp_local_receiver->proc_row_width % batch_size == 0) {
       batches = static_cast<int>(sp_local_receiver->proc_row_width / batch_size);
     } else {
@@ -707,7 +707,7 @@ public:
     double target = log2(nn);
     double  mid = 1.0;
     double value=0;
-    if (value_cache.find(node_index)!= value_cache.end()){
+    if (value_cache[node_index]>-1){
       return value_cache[node_index];
     }
     do {
@@ -719,7 +719,6 @@ public:
         value += exp(-1*distance/mid);
       }
       if (abs(target-value)<=tolerance){
-        #pragma omp barrier
         value_cache[node_index]=mid;
         return mid;
       }
