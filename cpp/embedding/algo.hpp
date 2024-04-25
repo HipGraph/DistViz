@@ -755,7 +755,7 @@ public:
       if (csr_handle != nullptr) {
         for (uint64_t j =static_cast<uint64_t>(csr_handle->rowStart[node_index]);
              j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]);j++) {
-         auto distance = max(0, csr_handle->values[j]);
+         auto distance = max(0.0, csr_handle->values[j]);
           value += exp(-1 * distance / mid);
         }
       }else {
