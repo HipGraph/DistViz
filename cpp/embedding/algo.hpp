@@ -583,7 +583,7 @@ public:
 
         int nn_size = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
         unordered_map<int64_t, float> distance_map;
-        double smoothe_factor = smooth_knn_distance(i, nn_size,distance_map,csr_handle);
+//        double smoothe_factor = smooth_knn_distance(i, nn_size,distance_map,csr_handle);
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           auto dst_id = csr_handle->col_idx[j];
