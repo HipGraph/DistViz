@@ -622,6 +622,7 @@ public:
 #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
+      double smooth_factor = smooth_knn_distance((*repulsive_map)[row_id],row_id,(*repulsive_map)[row_id].size());
       DENT forceDiff[embedding_dim];
       for (int j = 0; j < col_ids.size(); j++) {
         uint64_t global_col_id = col_ids[j];
@@ -699,7 +700,7 @@ public:
     return total_error;
   }
 
-  double smooth_knn_distance(CSRHandle<SPT,DENT> *csr_handle, int node_index, int nn){
+  double smooth_knn_distance(unordered_map<int64_t,float> distance_map, int node_index, int nn){
     double lo=0.0;
     double hi = 1.0*INT_MAX;
     double tolerance = 0.001;
@@ -711,9 +712,10 @@ public:
     }
     do {
        value = 0;
-      for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[node_index]);
-           j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]); j++) {
-        auto distance = csr_handle->values[j];
+//      for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[node_index]);
+//           j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]); j++) {
+       for(auto it=distance_map.begin();it!= distance_map.end();it++){
+        auto distance = it->second;
         distance = max(static_cast<double>(0),static_cast<double>(distance));
         value += exp(-1*distance/mid);
       }
