@@ -651,7 +651,7 @@ public:
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       double smooth_factor = smooth_knn_distance(
-           row_id, (*repulsive_map)[row_id].size(),(*repulsive_map)[row_id]);
+           row_id, 30,(*repulsive_map)[row_id]);
       DENT forceDiff[embedding_dim];
       for (int j = 0; j < col_ids.size(); j++) {
         uint64_t global_col_id = col_ids[j];
