@@ -650,8 +650,8 @@ public:
 #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
-      double smooth_factor = smooth_knn_distance(
-           row_id, 30,(*repulsive_map)[row_id]);
+//      double smooth_factor = smooth_knn_distance(
+//           row_id, 30,(*repulsive_map)[row_id]);
       DENT forceDiff[embedding_dim];
       for (int j = 0; j < col_ids.size(); j++) {
         uint64_t global_col_id = col_ids[j];
@@ -679,14 +679,14 @@ public:
             forceDiff[d] =
                 (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
                 colvec[d];
-            if (repulsive_map != nullptr and
-                (*repulsive_map)[row_id].find(global_col_id) !=
-                    (*repulsive_map)[row_id].end()) {
-              forceDiff[d] =
-                  forceDiff[d] *
-                  (1 - exp(-1 * (*repulsive_map)[row_id][global_col_id] /
-                           smooth_factor));
-            }
+//            if (repulsive_map != nullptr and
+//                (*repulsive_map)[row_id].find(global_col_id) !=
+//                    (*repulsive_map)[row_id].end()) {
+//              forceDiff[d] =
+//                  forceDiff[d] *
+//                  (1 - exp(-1 * (*repulsive_map)[row_id][global_col_id] /
+//                           smooth_factor));
+//            }
             repuls += forceDiff[d] * forceDiff[d];
           }
         } else {
@@ -696,14 +696,14 @@ public:
                 (this->dense_local)
                     ->nCoordinates[local_col_id * embedding_dim + d];
 
-            if (repulsive_map != nullptr and
-                (*repulsive_map)[row_id].find(global_col_id) !=
-                    (*repulsive_map)[row_id].end()) {
-              forceDiff[d] =
-                  forceDiff[d] *
-                  (1 - exp(-1 * (*repulsive_map)[row_id][global_col_id] /
-                           smooth_factor));
-            }
+//            if (repulsive_map != nullptr and
+//                (*repulsive_map)[row_id].find(global_col_id) !=
+//                    (*repulsive_map)[row_id].end()) {
+//              forceDiff[d] =
+//                  forceDiff[d] *
+//                  (1 - exp(-1 * (*repulsive_map)[row_id][global_col_id] /
+//                           smooth_factor));
+//            }
             repuls += forceDiff[d] * forceDiff[d];
           }
         }

@@ -243,10 +243,10 @@ int main(int argc, char* argv[]) {
                                             generate_knng_output,
                                             output_path+"/knng.txt", true, density);
 
-       knng_handler.get()->build_local_KNNG(data_matrix,knng_graph_ptr.get(),nn,
-                                            target_local_recall,
-                                            generate_knng_output,
-                                            output_path+"/knng.txt", true, density,4000,repulsive_graph_map.get());
+//       knng_handler.get()->build_local_KNNG(data_matrix,knng_graph_ptr.get(),nn,
+//                                            target_local_recall,
+//                                            generate_knng_output,
+//                                            output_path+"/knng.txt", true, density,4000,repulsive_graph_map.get());
      }
 
 
