@@ -75,7 +75,7 @@ public:
                 new EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>(
                     shared_sparseMat.get(), shared_sparseMat_receiver.get(),
                     shared_sparseMat_sender.get(), dense_output, grid,
-                    alpha, beta, 100, -100,col_major,sync_comm));
+                    alpha, beta, 5, -5,col_major,sync_comm));
 
    vector<VALUE_TYPE> error_convergence = embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr,drop_out_error_threshold,repulsive_map);
 
