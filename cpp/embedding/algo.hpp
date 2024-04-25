@@ -679,14 +679,14 @@ public:
             forceDiff[d] =
                 (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
                 colvec[d];
-//            if (repulsive_map != nullptr and
-//                (*repulsive_map)[row_id].find(global_col_id) !=
-//                    (*repulsive_map)[row_id].end()) {
-//              forceDiff[d] =
-//                  forceDiff[d] *
-//                  (1 - exp(-1 * (*repulsive_map)[row_id][global_col_id] /
-//                           smooth_factor));
-//            }
+            if (repulsive_map != nullptr and
+                (*repulsive_map)[row_id].find(global_col_id) !=
+                    (*repulsive_map)[row_id].end()) {
+              forceDiff[d] =
+                  forceDiff[d] *
+                  (1 - exp(-1 * (*repulsive_map)[row_id][global_col_id] /
+                           smooth_factor));
+            }
             repuls += forceDiff[d] * forceDiff[d];
           }
         } else {
@@ -696,14 +696,14 @@ public:
                 (this->dense_local)
                     ->nCoordinates[local_col_id * embedding_dim + d];
 
-//            if (repulsive_map != nullptr and
-//                (*repulsive_map)[row_id].find(global_col_id) !=
-//                    (*repulsive_map)[row_id].end()) {
-//              forceDiff[d] =
-//                  forceDiff[d] *
-//                  (1 - exp(-1 * (*repulsive_map)[row_id][global_col_id] /
-//                           smooth_factor));
-//            }
+            if (repulsive_map != nullptr and
+                (*repulsive_map)[row_id].find(global_col_id) !=
+                    (*repulsive_map)[row_id].end()) {
+              forceDiff[d] =
+                  forceDiff[d] *
+                  (1 - exp(-1 * (*repulsive_map)[row_id][global_col_id] /
+                           smooth_factor));
+            }
             repuls += forceDiff[d] * forceDiff[d];
           }
         }
