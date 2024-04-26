@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
   int file_format = 0;
   int data_starting_index = 8;
   bool generate_knng_output = false;
-  float target_local_recall = 0.9;
+  float target_local_recall = 0.99;
 
   float alpha = 0;
   float beta = 0.5;
