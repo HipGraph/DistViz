@@ -360,7 +360,7 @@ public:
 
       if (print_output) {
         FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
-        fileWriter.parallel_write_knng(output_path,output_knng,false);
+        fileWriter.parallel_write_knng(grid,output_path,output_knng,false);
       }
    return mrpt;
   }
