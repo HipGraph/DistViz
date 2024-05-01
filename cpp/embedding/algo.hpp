@@ -748,7 +748,6 @@ public:
       }
       if (abs(target - value) <= tolerance) {
         value_cache[node_index] = mid;
-        csr_handle->values[j] = csr_handle->values[j]/mid;
         return mid;
       }
       if (value > target) {
