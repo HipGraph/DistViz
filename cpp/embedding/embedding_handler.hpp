@@ -26,7 +26,7 @@ public:
   void generate_embedding(vector<Tuple<VALUE_TYPE>>* input_graph,DenseMat<INDEX_TYPE, VALUE_TYPE, dimension>* dense_output,
                           uint64_t gRows, uint64_t gCols, uint64_t gNNZ, int batch_size,
                           int iterations, float lr, int nsamples, float alpha,float beta,
-                          bool col_major=false, bool sync_comm=false, double drop_out_error_threshold=0,vector<unordered_map<int64_t,VALUE_TYPE>> *repulsive_map=nullptr){
+                          bool col_major=false, bool sync_comm=false, double drop_out_error_threshold=0){
 
     auto localBRows = divide_and_round_up(gCols,
                                           grid->col_world_size);
@@ -77,7 +77,7 @@ public:
                     shared_sparseMat_sender.get(), dense_output, grid,
                     alpha, beta, 5, -5,col_major,sync_comm));
 
-   vector<VALUE_TYPE> error_convergence = embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr,drop_out_error_threshold,repulsive_map);
+   vector<VALUE_TYPE> error_convergence = embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr,drop_out_error_threshold);
 
    cout<<" rank  "<<grid->rank_in_col<<"erros #####"<<endl;
    if (grid->rank_in_col==0) {
