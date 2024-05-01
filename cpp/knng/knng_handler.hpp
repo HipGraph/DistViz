@@ -312,16 +312,11 @@ public:
   }
 
   Mrpt build_local_KNNG(Eigen::MatrixXf &data_matrix, vector<Tuple<VALUE_TYPE>> *output_knng,int nn, float target_recall,
-                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0,
-                        int nn_repulsive =-1,vector<unordered_map<int64_t,VALUE_TYPE>> *repulsive_map=nullptr) {
+                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0) {
 
     int effective_nn = nn;
-    if (nn_repulsive>0 and repulsive_map != nullptr) {
-      effective_nn = nn+nn_repulsive;
-      repulsive_map->resize(data_matrix.cols());
-    }else {
-      output_knng->resize(data_matrix.cols()*effective_nn);
-    }
+    output_knng->resize(data_matrix.cols()*effective_nn);
+
     Mrpt mrpt(data_matrix);
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
 
@@ -345,17 +340,7 @@ public:
         edge.row = node_index;
         edge.col =   neighbours(node_index,nn_index);
         edge.value = distances(node_index,nn_index);
-        if (repulsive_map != nullptr){
-//          double max_value = distances(node_index,effective_nn-1);
-          double min_value = distances(node_index,0);
-          (*repulsive_map)[node_index][node_index]= (edge.value-min_value);
-//          (*repulsive_map)[node_index][node_index]=edge.value;
-        }else {
-//          double max_value = distances(node_index,effective_nn-1);
-          double min_value = distances(node_index,0);
-          edge.value =  (edge.value-min_value);
-          (*output_knng)[i]  = edge;
-        }
+        (*output_knng)[i]  = edge;
       }
 
       if (print_output) {

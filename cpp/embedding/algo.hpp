@@ -78,8 +78,7 @@ public:
 
   vector<DENT> algo_force2_vec_ns(
       int iterations, int batch_size, int ns, DENT lr,
-      double drop_out_error_threshold = 0,
-      vector<unordered_map<int64_t, DENT>> *repulsive_map = nullptr) {
+      double drop_out_error_threshold = 0) {
     int batches = 0;
     int last_batch_size = batch_size;
     value_cache.resize(sp_local_receiver->proc_row_width, -1);
@@ -208,7 +207,7 @@ public:
 
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), random_number_vec, lr, j, batch_size,
-              considering_batch_size, repulsive_map);
+              considering_batch_size);
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
@@ -583,7 +582,7 @@ public:
 
         int nn_size = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
         unordered_map<int64_t, float> distance_map;
-//        double smoothe_factor = smooth_knn_distance(i, nn_size,distance_map,csr_handle);
+       double smoothe_factor = smooth_knn_distance(i, nn_size,csr_handle);
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           auto dst_id = csr_handle->col_idx[j];
@@ -642,16 +641,13 @@ public:
 
   inline void calc_t_dist_replus_rowptr(
       vector<DENT> *prevCoordinates, vector<uint64_t> &col_ids, DENT lr,
-      int batch_id, int batch_size, int block_size,
-      vector<unordered_map<int64_t, DENT>> *repulsive_map = nullptr) {
+      int batch_id, int batch_size, int block_size, int nn) {
 
     int row_base_index = batch_id * batch_size;
 
 #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
-//      double smooth_factor = smooth_knn_distance(
-//           row_id, 30,(*repulsive_map)[row_id]);
       DENT forceDiff[embedding_dim];
       for (int j = 0; j < col_ids.size(); j++) {
         uint64_t global_col_id = col_ids[j];
@@ -679,14 +675,6 @@ public:
             forceDiff[d] =
                 (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
                 colvec[d];
-//            if (repulsive_map != nullptr and
-//                (*repulsive_map)[row_id].find(global_col_id) !=
-//                    (*repulsive_map)[row_id].end()) {
-//              forceDiff[d] =
-//                  forceDiff[d] *
-//                  (1 - exp(-1 * (*repulsive_map)[row_id][global_col_id] /
-//                           smooth_factor));
-//            }
             repuls += forceDiff[d] * forceDiff[d];
           }
         } else {
@@ -696,14 +684,6 @@ public:
                 (this->dense_local)
                     ->nCoordinates[local_col_id * embedding_dim + d];
 
-//            if (repulsive_map != nullptr and
-//                (*repulsive_map)[row_id].find(global_col_id) !=
-//                    (*repulsive_map)[row_id].end()) {
-//              forceDiff[d] =
-//                  forceDiff[d] *
-//                  (1 - exp(-1 * (*repulsive_map)[row_id][global_col_id] /
-//                           smooth_factor));
-//            }
             repuls += forceDiff[d] * forceDiff[d];
           }
         }
@@ -738,36 +718,37 @@ public:
     return total_error;
   }
 
-  double smooth_knn_distance(int node_index, int nn,
-                             unordered_map<int64_t, float> distance_map,
-                             CSRHandle<SPT, DENT> *csr_handle = nullptr) {
+  double smooth_knn_distance(int node_index, int nn,CSRHandle<SPT, DENT> *csr_handle = nullptr) {
     double lo = 0.0;
     double hi = 1.0 * INT_MAX;
     double tolerance = 0.001;
     double target = log2(nn);
     double mid = 1.0;
     double value = 0;
+    DENT minimum_value=std::numeric_limits<DENT>::max();
     if (value_cache[node_index] > -1) {
       return value_cache[node_index];
     }
     do {
       value = 0;
       if (csr_handle != nullptr) {
+
         for (uint64_t j =static_cast<uint64_t>(csr_handle->rowStart[node_index]);
              j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]);j++) {
-         auto distance = max(static_cast<double>(0.0), static_cast<double>(csr_handle->values[j]));
+          if (minimum_value> csr_handle->values[j]){
+            minimum_value = csr_handle->values[j];
+          }
+        }
+        for (uint64_t j =static_cast<uint64_t>(csr_handle->rowStart[node_index]);
+             j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]);j++) {
+         auto distance = max(static_cast<double>(0.0), (static_cast<double>(csr_handle->values[j])-static_cast<double>(minimum_value)));
+         csr_handle->values[j] = distance;
           value += exp(-1 * distance / mid);
         }
-      }else {
-        for (auto it = distance_map.begin(); it != distance_map.end(); it++) {
-          auto distance = it->second;
-          distance = max(static_cast<double>(0), static_cast<double>(distance));
-          value += exp(-1 * distance / mid);
-        }
-
       }
       if (abs(target - value) <= tolerance) {
         value_cache[node_index] = mid;
+        csr_handle->values[j] = csr_handle->values[j]/mid;
         return mid;
       }
       if (value > target) {
