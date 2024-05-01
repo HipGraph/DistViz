@@ -135,9 +135,12 @@ public:
     int considering_batch_size = batch_size;
     vector<DENT> error_convergence;
 
+    if (csr_block->handler != nullptr) {
+      CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
+      calculate_membership_strength(csr_handle);
+    }
 
 
-    calculate_membership_strength(csr_block);
 
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
@@ -419,7 +422,6 @@ public:
 
         int nn_size = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
         unordered_map<int64_t, float> distance_map;
-       double smoothe_factor = smooth_knn_distance(i, nn_size,csr_handle);
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           auto dst_id = csr_handle->col_idx[j];
