@@ -641,7 +641,7 @@ public:
 
   inline void calc_t_dist_replus_rowptr(
       vector<DENT> *prevCoordinates, vector<uint64_t> &col_ids, DENT lr,
-      int batch_id, int batch_size, int block_size, int nn) {
+      int batch_id, int batch_size, int block_size) {
 
     int row_base_index = batch_id * batch_size;
 
