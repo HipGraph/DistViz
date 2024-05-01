@@ -318,7 +318,8 @@ public:
     output_knng->resize(data_matrix.cols()*effective_nn);
 
     Mrpt mrpt(data_matrix);
-    mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
+    mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,
+                       -1,-1, density,0,  100);
 
     Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
     Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
