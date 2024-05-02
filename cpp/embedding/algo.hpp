@@ -627,7 +627,7 @@ public:
     auto source_start_index = 0;
     auto source_end_index =this->sp_local_receiver->proc_row_width;
     DENT maxElement = *std::max_element(csr_handle->values.begin(), csr_handle->values.end());
-//    #pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static)
     for(SPT i=source_start_index;i<source_end_index;i++){
       int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
       for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
@@ -636,7 +636,6 @@ public:
        DENT n_samples = static_cast<DENT>(iterations) * (value / maxElement);
        if(n_samples>0){
          samples_per_epoch[i] =  static_cast<DENT>(iterations) /n_samples;
-         cout<<" i "<<i<<" samples per epch "<<samples_per_epoch[i]<<endl;
        }
       }
     }
