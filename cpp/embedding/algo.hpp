@@ -611,9 +611,9 @@ public:
     for (uint64_t j =static_cast<uint64_t>(csr_handle->rowStart[source_start_index]);
          j < static_cast<uint64_t>(csr_handle->rowStart[source_end_index]);j++) {
       int nn = csr_handle->rowStart[j+1]- csr_handle->rowStart[j];
-      double sigma = smooth_knn_distance(j,nn,csr_handle);
-      double value = exp(-1*csr_handle->values[j]/sigma);
-      csr_handle->values[j]=value;
+//      double sigma = smooth_knn_distance(j,nn,csr_handle);
+//      double value = exp(-1*csr_handle->values[j]/sigma);
+//      csr_handle->values[j]=value;
     }
   }
 };
