@@ -633,7 +633,7 @@ public:
       for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
        DENT value = csr_handle->values[j];
-       DENT n_samples = static_cast<DENT>(iterations) * (value / maxElement)
+       DENT n_samples = static_cast<DENT>(iterations) * (value / maxElement);
        if(n_samples>0){
          samples_per_epoch[i] =  static_cast<DENT>(iterations) /n_samples;
          cout<<" i "<<i<<" samples per epch "<<samples_per_epoch[i]<<endl;
