@@ -30,23 +30,6 @@ void hipgraph::distviz::common::prefix_sum(vector<int> &values, vector<int> &off
   }
 }
 
-vector<uint64_t> hipgraph::distviz::common::generate_random_numbers(int lower_bound,
-                                                         int upper_bound,
-                                                         int seed, int ns) {
-  vector<uint64_t> vec(ns);
-  std::minstd_rand generator(seed);
-
-  // Define the range of the uniform distribution
-  std::uniform_int_distribution<int> distribution(lower_bound, upper_bound-1);
-
-  // Generate and print random numbers
-  //#pragma omp parallel
-  for (int i = 0; i < ns; ++i) {
-    int random_number = distribution(generator);
-    vec[i] = static_cast<uint64_t>(random_number);
-  }
-  return vec;
-}
 
 size_t hipgraph::distviz::common::get_memory_usage() {
   std::ifstream statm("/proc/self/statm");

@@ -121,9 +121,25 @@ template <typename VALUE_TYPE>
 using ValueType2DVector = vector<vector<VALUE_TYPE>>;
 
 int divide_and_round_up(uint64_t num, int denom);
+template <typename INDEX_TYPE>
+vector<INDEX_TYPE> hipgraph::distviz::common::generate_random_numbers(int lower_bound,
+                                                                    int upper_bound,
+                                                                    int seed, int ns) {
+  vector<uint64_t> vec(ns);
+  std::minstd_rand generator(seed);
 
-vector<uint64_t> generate_random_numbers(int lower_bound, int upper_bound, int seed,
-                                         int ns);
+  // Define the range of the uniform distribution
+  std::uniform_int_distribution<int> distribution(lower_bound, upper_bound-1);
+
+  // Generate and print random numbers
+  //#pragma omp parallel
+  for (int i = 0; i < ns; ++i) {
+    int random_number = distribution(generator);
+    vec[i] = static_cast<INDEX_TYPE>(random_number);
+  }
+  return vec;
+}
+
 
 void prefix_sum(vector<int> &values, vector<int> &offsets);
 

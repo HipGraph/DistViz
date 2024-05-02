@@ -170,7 +170,7 @@ public:
                                     considering_batch_size,seed);
         }
             // negative samples generation
-        vector<uint64_t> random_number_vec = generate_random_numbers(
+        vector<SPT> random_number_vec = generate_random_numbers(
             0, (this->sp_local_receiver)->gRows, seed, ns);
 
         // One process computations without MPI operations
@@ -684,7 +684,7 @@ public:
         int index = j -static_cast<int>(csr_handle->rowStart[i]);
         int ns = (iteration - samples_per_epoch_negative_next[i][index]) / samples_per_epoch_negative[i][index];
         if (ns>0) {
-          vector<uint64_t> random_number_vec = generate_random_numbers(
+          vector<SPT> random_number_vec = generate_random_numbers(
               0, (this->sp_local_receiver)->gRows, seed, ns);
           (*negative_samples_ptr)[i][index]=random_number_vec;
         }
