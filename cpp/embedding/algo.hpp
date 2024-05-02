@@ -195,10 +195,10 @@ public:
 
         } else {
           // These operations are for more than one processes.
-          full_comm.get()->transfer_data(random_number_vec, i, j);
-          this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
-                                          random_number_vec, lr, j, batch_size,
-                                          considering_batch_size);
+//          full_comm.get()->transfer_data(random_number_vec, i, j);
+//          this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
+//                                          random_number_vec, lr, j, batch_size,
+//                                          considering_batch_size);
 
             this->execute_pull_model_computations(
                 sendbuf_ptr.get(), update_ptr.get(), i, j,
@@ -502,7 +502,7 @@ public:
   }
 
   inline void calc_t_dist_replus_rowptr(
-      vector<DENT> *prevCoordinates, vector<uint64_t> &col_ids, DENT lr,
+      vector<DENT> *prevCoordinates, vector<SPT> &col_ids, DENT lr,
       int batch_id, int batch_size, int block_size) {
 
     int row_base_index = batch_id * batch_size;
