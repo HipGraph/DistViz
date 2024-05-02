@@ -166,7 +166,7 @@ public:
             make_unique<vector<vector<vector<SPT>>>>(considering_batch_size, vector<vector<SPT>>(ns, vector<SPT>()));
         if (csr_block->handler != nullptr) {
           CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
-          generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_sie,
+          generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
         }
             // negative samples generation
