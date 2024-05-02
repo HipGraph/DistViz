@@ -169,9 +169,9 @@ public:
         generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
 
-            // negative samples generation
-        vector<SPT> random_number_vec = generate_random_numbers<SPT>(
-            0, (this->sp_local_receiver)->gRows, seed, ns);
+//            // negative samples generation
+//        vector<SPT> random_number_vec = generate_random_numbers<SPT>(
+//            0, (this->sp_local_receiver)->gRows, seed, ns);
 
         // One process computations without MPI operations
         if (grid->col_world_size == 1) {
@@ -749,7 +749,8 @@ public:
         if (ns>0) {
           vector<SPT> random_number_vec = generate_random_numbers<SPT>(
               0, (this->sp_local_receiver)->gRows, seed, ns);
-          (*negative_samples_ptr)[i][index]=random_number_vec;
+          (*negative_samples_ptr)[i][index] = random_number_vec;
+          samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
         }
       }
     }
