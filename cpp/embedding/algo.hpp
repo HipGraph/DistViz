@@ -647,7 +647,7 @@ public:
        DENT value = csr_handle->values[j];
        DENT n_samples = static_cast<DENT>(iterations) * (value / maxElement);
        if(n_samples>0){
-         int index = i -static_cast<uint64_t>(csr_handle->rowStart[i]);
+         int index = j -static_cast<int>(csr_handle->rowStart[i]);
          samples_per_epoch[i][index] =  static_cast<DENT>(iterations) /n_samples;
          samples_per_epoch_next[i][index] =  samples_per_epoch_next[i][index];
          samples_per_epoch_negative[i][index] =  samples_per_epoch[i][index]/ns;
