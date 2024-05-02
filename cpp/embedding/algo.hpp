@@ -162,7 +162,14 @@ public:
           considering_batch_size = last_batch_size;
         }
 
-        // negative samples generation
+        unique_ptr<vector<vector<vector<SPT>>>> negative_samples_ptr =
+            make_unique<vector<vector<vector<SPT>>>(considering_batch_size,vector<vector<SPT>>());
+        if (csr_block->handler != nullptr) {
+          CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
+          generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_sie,
+                                    considering_batch_size,seed);
+        }
+            // negative samples generation
         vector<uint64_t> random_number_vec = generate_random_numbers(
             0, (this->sp_local_receiver)->gRows, seed, ns);
 
@@ -658,6 +665,26 @@ public:
          samples_per_epoch_negative[i][index] =  samples_per_epoch[i][index]/ns;
          samples_per_epoch_negative_next[i][index] =  samples_per_epoch_negative[i][index];
        }
+      }
+    }
+  }
+
+
+  void generate_negative_samples(vector<vector<vector<SPT>>> *negative_samples_ptr,CSRHandle<SPT, DENT> *csr_handle, int iteration,
+                                 int batch_id, int batch_size, int block_size, int seed) {
+    auto source_start_index = batch_id * batch_size;
+    auto source_end_index = std::min((batch_id + 1) * batch_size,
+                                     this->sp_local_receiver->proc_row_width);
+
+    for(int i=source_start_index;i<source_end_index;i++){
+      int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
+      (*negative_samples_ptr)[i]->resize(nn,vector<DENT>());
+      for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
+           j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
+        int index = j -static_cast<int>(csr_handle->rowStart[i]);
+        int ns = (iteration - samples_per_epoch_negative_next[i][index]) / samples_per_epoch_negative[i][index];
+        vector<uint64_t> random_number_vec = generate_random_numbers(
+            0, (this->sp_local_receiver)->gRows, seed, ns);
       }
     }
   }
