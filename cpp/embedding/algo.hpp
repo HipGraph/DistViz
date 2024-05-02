@@ -186,8 +186,9 @@ public:
               csr_block, prevCoordinates_ptr.get(), lr, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false);
 
-          this->calc_t_dist_replus_rowptr(
-              prevCoordinates_ptr.get(), random_number_vec, lr, j, batch_size,
+          this->calc_t_dist_replus_rowptr_new(
+              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
+              csr_handle,lr, j, batch_size,
               considering_batch_size);
 
           batch_error += this->update_data_matrix_rowptr(
