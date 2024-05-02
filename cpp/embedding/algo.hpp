@@ -683,8 +683,9 @@ public:
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
         int index = j -static_cast<int>(csr_handle->rowStart[i]);
         int ns = (iteration - samples_per_epoch_negative_next[i][index]) / samples_per_epoch_negative[i][index];
-        vector<uint64_t> random_number_vec = generate_random_numbers(
-            0, (this->sp_local_receiver)->gRows, seed, ns);
+        cout<<" i "<<i<<" index "<<index <<" value  "<<ns<<endl;
+//        vector<uint64_t> random_number_vec = generate_random_numbers(
+//            0, (this->sp_local_receiver)->gRows, seed, ns);
       }
     }
   }
