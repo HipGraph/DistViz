@@ -751,8 +751,6 @@ public:
 
           int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
           if (ns > 0) {
-            unsigned int time_ui = unsigned int( time(NULL) );
-            srand( time_ui );
             vector<SPT> random_number_vec = generate_random_numbers<SPT>(
                 0, (this->sp_local_receiver)->gRows, rand(), ns);
             (*negative_samples_ptr)[access_index][index] = random_number_vec;
