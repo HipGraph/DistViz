@@ -42,7 +42,10 @@ protected:
       data_comm_cache;
 
   std::vector<SPT> value_cache;
-  std::vector<DENT> samples_per_epoch;
+  std::vector<vector<DENT>> samples_per_epoch;
+  std::vector<vector<DENT>> samples_per_epoch_next;
+  std::vector<vector<DENT>> samples_per_epoch_negative;
+  std::vector<vector<DENT>> samples_per_epoch_negative_next;
 
   // cache size controlling hyper parameter
   double alpha = 1.0;
@@ -82,7 +85,12 @@ public:
     int batches = 0;
     int last_batch_size = batch_size;
     value_cache.resize(sp_local_receiver->proc_row_width, -1);
-    samples_per_epoch.resize(sp_local_receiver->proc_row_width, -1);
+
+    samples_per_epoch.resize(sp_local_receiver->proc_row_width, vector<DENT>());
+    samples_per_epoch_next.resize(sp_local_receiver->proc_row_width, vector<DENT>());
+    samples_per_epoch_negative.resize(sp_local_receiver->proc_row_width, vector<DENT>());
+    samples_per_epoch_negative_next.resize(sp_local_receiver->proc_row_width, vector<DENT>());
+
     if (sp_local_receiver->proc_row_width % batch_size == 0) {
       batches = static_cast<int>(sp_local_receiver->proc_row_width / batch_size);
     } else {
@@ -623,23 +631,29 @@ public:
     }
   }
 
-  void make_epochs_per_sample(vector<DENT> &samples_per_epoch,CSRHandle<SPT, DENT> *csr_handle, int iterations){
+  void make_epochs_per_sample(CSRHandle<SPT, DENT> *csr_handle, int iterations, int ns){
     auto source_start_index = 0;
     auto source_end_index =this->sp_local_receiver->proc_row_width;
     DENT maxElement = *std::max_element(csr_handle->values.begin(), csr_handle->values.end());
     #pragma omp parallel for schedule(static)
     for(SPT i=source_start_index;i<source_end_index;i++){
       int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
+      samples_per_epoch[i].resize(nn);
+      samples_per_epoch_next[i].resize(nn);
+      samples_per_epoch_negative[i].resize(nn);
+      samples_per_epoch_negative_next[i].resize(nn);
       for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
        DENT value = csr_handle->values[j];
        DENT n_samples = static_cast<DENT>(iterations) * (value / maxElement);
        if(n_samples>0){
-         samples_per_epoch[i] =  static_cast<DENT>(iterations) /n_samples;
+         samples_per_epoch[i][j] =  static_cast<DENT>(iterations) /n_samples;
+         samples_per_epoch_next[i][j] =  samples_per_epoch_next[i][j];
+         samples_per_epoch_negative[i][j] =  samples_per_epoch_negative[i][j]/ns;
+         samples_per_epoch_negative_next[i][j] =  samples_per_epoch_negative[i][j];
        }
       }
     }
-
   }
 
 };
