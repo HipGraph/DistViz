@@ -122,7 +122,7 @@ using ValueType2DVector = vector<vector<VALUE_TYPE>>;
 
 int divide_and_round_up(uint64_t num, int denom);
 template <typename INDEX_TYPE>
-vector<INDEX_TYPE> hipgraph::distviz::common::generate_random_numbers(int lower_bound,
+vector<INDEX_TYPE> generate_random_numbers(int lower_bound,
                                                                     int upper_bound,
                                                                     int seed, int ns) {
   vector<INDEX_TYPE> vec(ns);
