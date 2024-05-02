@@ -607,13 +607,16 @@ public:
   void calculate_membership_strength(CSRHandle<SPT, DENT> *csr_handle){
     auto source_start_index = 0;
     auto source_end_index =this->sp_local_receiver->proc_row_width;
-    #pragma omp parallel for schedule(static)
 
+    #pragma omp parallel for schedule(static)
     for(SPT i=source_start_index;i<source_end_index;i++){
         int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
-        double sigma = smooth_knn_distance(i,nn,csr_handle->values[j]);
-        double value = exp(-1*csr_handle->values[j]/sigma);
-        csr_handle->values[j]=value;
+        double sigma = smooth_knn_distance(i,nn,csr_handle);
+        for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
+             j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
+          double value = exp(-1*csr_handle->values[j]/sigma);
+          csr_handle->values[j]=value;
+        }
     }
   }
 };
