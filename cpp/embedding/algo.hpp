@@ -626,7 +626,7 @@ public:
   void make_epochs_per_sample(vector<DENT> &samples_per_epoch,CSRHandle<SPT, DENT> *csr_handle, int iterations){
     auto source_start_index = 0;
     auto source_end_index =this->sp_local_receiver->proc_row_width;
-    DENT* maxElement = std::max_element(csr_handle->values.begin(), csr_handle->values.end());
+    DENT maxElement = std::max_element(csr_handle->values.begin(), csr_handle->values.end());
 //    #pragma omp parallel for schedule(static)
     for(SPT i=source_start_index;i<source_end_index;i++){
       int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
