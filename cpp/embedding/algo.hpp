@@ -737,7 +737,7 @@ public:
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
                                      this->sp_local_receiver->proc_row_width);
-//    #pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static)
     for(int i=source_start_index;i<source_end_index;i++){
       int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
       int access_index = i-source_start_index;
@@ -748,8 +748,6 @@ public:
         if (samples_per_epoch_next[i][index]>=iteration) {
           int ns = (iteration - samples_per_epoch_negative_next[i][index]) /
                    samples_per_epoch_negative[i][index];
-          cout << " access_index " << access_index << " index " << index
-               << " ns " << ns << endl;
           if (ns > 0) {
             vector<SPT> random_number_vec = generate_random_numbers<SPT>(
                 0, (this->sp_local_receiver)->gRows, seed, ns);
