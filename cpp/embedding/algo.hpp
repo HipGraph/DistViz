@@ -675,7 +675,7 @@ public:
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
                                      this->sp_local_receiver->proc_row_width);
-
+    #pragma omp parallel for
     for(int i=source_start_index;i<source_end_index;i++){
       int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
       (*negative_samples_ptr)[i].resize(nn,vector<SPT>());
@@ -683,9 +683,11 @@ public:
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
         int index = j -static_cast<int>(csr_handle->rowStart[i]);
         int ns = (iteration - samples_per_epoch_negative_next[i][index]) / samples_per_epoch_negative[i][index];
-        cout<<" i "<<i<<" index "<<index <<" value  "<<ns<<endl;
-//        vector<uint64_t> random_number_vec = generate_random_numbers(
-//            0, (this->sp_local_receiver)->gRows, seed, ns);
+        if (ns>0) {
+          vector<uint64_t> random_number_vec = generate_random_numbers(
+              0, (this->sp_local_receiver)->gRows, seed, ns);
+          (*negative_samples_ptr)[i][index]=random_number_vec;
+        }
       }
     }
   }
