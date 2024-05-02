@@ -125,7 +125,7 @@ template <typename INDEX_TYPE>
 vector<INDEX_TYPE> hipgraph::distviz::common::generate_random_numbers(int lower_bound,
                                                                     int upper_bound,
                                                                     int seed, int ns) {
-  vector<uint64_t> vec(ns);
+  vector<INDEX_TYPE> vec(ns);
   std::minstd_rand generator(seed);
 
   // Define the range of the uniform distribution
