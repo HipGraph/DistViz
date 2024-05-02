@@ -148,7 +148,7 @@ public:
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
       calculate_membership_strength(csr_handle);
-      make_epochs_per_sample(samples_per_epoch,csr_handle,iterations);
+      make_epochs_per_sample(csr_handle,iterations);
     }
 
 
