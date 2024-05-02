@@ -176,7 +176,7 @@ public:
           }
           // local computations for 1 process
           this->calc_t_dist_grad_rowptr(
-              csr_block, prevCoordinates_ptr.get(), lr, j, batch_size,
+              csr_block, prevCoordinates_ptr.get(), lr, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false);
 
           this->calc_t_dist_replus_rowptr(
@@ -248,7 +248,7 @@ public:
       if (k == comm_initial_start) {
         // local computation
         this->calc_t_dist_grad_rowptr(
-            csr_block, prevCoordinates, lr, batch, batch_size,
+            csr_block, prevCoordinates, lr, iteration,batch, batch_size,
             considering_batch_size, local_execution, col_major,
             first_execution_proc, prev_start, local_execution);
 
@@ -256,7 +256,7 @@ public:
         int prev_end_process =
             get_end_proc(prev_start, beta, grid->col_world_size);
 
-        this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, batch,
+        this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, iteration,batch,
                                       batch_size, considering_batch_size, false,
                                       col_major, prev_start, prev_end_process,
                                       true);
@@ -274,7 +274,7 @@ public:
 
     // updating last remote fetched data vectors
     this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, batch,
-                                  batch_size, considering_batch_size, false,
+                                  iteration,batch_size, considering_batch_size, false,
                                   col_major, prev_start, prev_end_process,
                                   true);
 
@@ -285,7 +285,7 @@ public:
 
   inline void calc_t_dist_grad_rowptr(
       CSRLocal<SPT, DENT> *csr_block, vector<DENT> *prevCoordinates, DENT lr,
-      int batch_id, int batch_size, int block_size, bool local, bool col_major,
+      int iteration,int batch_id, int batch_size, int block_size, bool local, bool col_major,
       int start_process, int end_process, bool fetch_from_temp_cache) {
 
     auto source_start_index = batch_id * batch_size;
@@ -307,7 +307,7 @@ public:
                        dst_end_index, csr_block, prevCoordinates, lr, batch_id,
                        batch_size, block_size, fetch_from_temp_cache);
       } else {
-        calc_embedding_row_major(source_start_index, source_end_index,
+        calc_embedding_row_major(iteration,source_start_index, source_end_index,
                                  dst_start_index, dst_end_index, csr_block,
                                  prevCoordinates, lr, batch_id, batch_size,
                                  block_size, fetch_from_temp_cache);
@@ -331,17 +331,17 @@ public:
                                    this->sp_local_receiver->gCols) -
                           1;
 
-          if (col_major) {
-            calc_embedding(source_start_index, source_end_index,
-                           dst_start_index, dst_end_index, csr_block,
-                           prevCoordinates, lr, batch_id, batch_size,
-                           block_size, fetch_from_temp_cache);
-          } else {
-            calc_embedding_row_major(source_start_index, source_end_index,
+//          if (col_major) {
+//            calc_embedding(source_start_index, source_end_index,
+//                           dst_start_index, dst_end_index, csr_block,
+//                           prevCoordinates, lr, batch_id, batch_size,
+//                           block_size, fetch_from_temp_cache);
+//          } else {
+            calc_embedding_row_major(iteration,source_start_index, source_end_index,
                                      dst_start_index, dst_end_index, csr_block,
                                      prevCoordinates, lr, batch_id, batch_size,
                                      block_size, fetch_from_temp_cache);
-          }
+//          }
         }
       }
     }
@@ -417,7 +417,7 @@ public:
     }
   }
 
-  inline void calc_embedding_row_major(
+  inline void calc_embedding_row_major(int iteration,
       uint64_t source_start_index, uint64_t source_end_index,
       uint64_t dst_start_index, uint64_t dst_end_index,
       CSRLocal<SPT, DENT> *csr_block, vector<DENT> *prevCoordinates, DENT lr,
@@ -435,55 +435,60 @@ public:
         unordered_map<int64_t, float> distance_map;
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
-          auto dst_id = csr_handle->col_idx[j];
-          auto distance = csr_handle->values[j];
-          if (dst_id >= dst_start_index and dst_id < dst_end_index) {
-            uint64_t local_dst =
-                dst_id -
-                (grid)->rank_in_col * (this->sp_local_receiver)->proc_col_width;
-            int target_rank =
-                (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
-            bool fetch_from_cache =
-                target_rank == (grid)->rank_in_col ? false : true;
+          int dst_index = j - static_cast<uint64_t>(csr_handle->rowStart[i]);
+          if (samples_per_epoch_next[i][dst_index] <= iteration) {
+            auto dst_id = csr_handle->col_idx[j];
+            auto distance = csr_handle->values[j];
+            if (dst_id >= dst_start_index and dst_id < dst_end_index) {
+              uint64_t local_dst =
+                  dst_id - (grid)->rank_in_col *
+                               (this->sp_local_receiver)->proc_col_width;
+              int target_rank =
+                  (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
+              bool fetch_from_cache =
+                  target_rank == (grid)->rank_in_col ? false : true;
 
-            DENT forceDiff[embedding_dim];
-            std::array<DENT, embedding_dim> array_ptr;
-            if (fetch_from_cache) {
-              unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
-                  &arrayMap =
-                      (temp_cache)
-                          ? (*this->dense_local->tempCachePtr)[target_rank]
-                          : (*this->dense_local->cachePtr)[target_rank];
-              array_ptr = arrayMap[dst_id].value;
-            }
-
-            DENT attrc = 0;
-
-            for (int d = 0; d < embedding_dim; d++) {
-              if (!fetch_from_cache) {
-                forceDiff[d] =
-                    (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-                    (this->dense_local)
-                        ->nCoordinates[local_dst * embedding_dim + d];
-
-              } else {
-                forceDiff[d] =
-                    (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-                    array_ptr[d];
+              DENT forceDiff[embedding_dim];
+              std::array<DENT, embedding_dim> array_ptr;
+              if (fetch_from_cache) {
+                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
+                    &arrayMap =
+                        (temp_cache)
+                            ? (*this->dense_local->tempCachePtr)[target_rank]
+                            : (*this->dense_local->cachePtr)[target_rank];
+                array_ptr = arrayMap[dst_id].value;
               }
-//              forceDiff[d] = forceDiff[d] * exp(-1 * distance / smoothe_factor);
-              attrc += forceDiff[d] * forceDiff[d];
-            }
 
-            DENT d1 = -2.0 / (1.0 + attrc);
-            for (int d = 0; d < embedding_dim; d++) {
-              DENT l = scale(forceDiff[d] * d1);
-              //              DENT l = (forceDiff[d] * d1 );
-              //              l=l*exp(-1*distance/smoothe_factor);
-              (*prevCoordinates)[index * embedding_dim + d] =
-                  (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
+              DENT attrc = 0;
+
+              for (int d = 0; d < embedding_dim; d++) {
+                if (!fetch_from_cache) {
+                  forceDiff[d] =
+                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
+                      (this->dense_local)
+                          ->nCoordinates[local_dst * embedding_dim + d];
+
+                } else {
+                  forceDiff[d] =
+                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
+                      array_ptr[d];
+                }
+                //              forceDiff[d] = forceDiff[d] * exp(-1 * distance / smoothe_factor);
+                attrc += forceDiff[d] * forceDiff[d];
+              }
+
+              DENT d1 = -2.0 / (1.0 + attrc);
+              for (int d = 0; d < embedding_dim; d++) {
+                DENT l = scale(forceDiff[d] * d1);
+                //              DENT l = (forceDiff[d] * d1 );
+                //              l=l*exp(-1*distance/smoothe_factor);
+                (*prevCoordinates)[index * embedding_dim + d] =
+                    (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
+              }
             }
+            samples_per_epoch_next[i][dst_index] += samples_per_epoch[i][dst_index];
           }
+
         }
       }
     }
