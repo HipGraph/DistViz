@@ -913,7 +913,7 @@ public:
 
 
 
-      int numRows = row_offsets.size() - 1;
+      MKL_INT numRows = row_offsets_mkl.size() - 1;
 
       // Create CSR matrix
       sparse_matrix_t csrMatrix;
