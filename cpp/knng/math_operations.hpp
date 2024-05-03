@@ -379,5 +379,18 @@ class MathOp {
     }
   }
 
+  std::pair<VALUE_TYPE, std::vector<VALUE_TYPE>> euclidean_grad(const VALUE_TYPE *x, const VALUE_TYPE *y, int size) {
+    VALUE_TYPE result = 0.0;
+    for (size_t i = 0; i < size; ++i) {
+      result += std::pow(x[i] - y[i], 2);
+    }
+    VALUE_TYPE d = std::sqrt(result);
+    std::vector<VALUE_TYPE> grad(x.size());
+    for (size_t i = 0; i < size; ++i) {
+      grad[i] = (x[i] - y[i]) / (1e-6 + d);
+    }
+    return std::make_pair(d, grad);
+  }
+
 };
 }

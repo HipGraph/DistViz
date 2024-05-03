@@ -20,6 +20,7 @@
 #include <mpi.h>
 #include <random>
 #include <unordered_map>
+#include "../knng/math_operations.hpp"
 
 using namespace std;
 using namespace hipgraph::distviz::common;
@@ -41,7 +42,7 @@ protected:
   std::unordered_map<int, unique_ptr<DataComm<SPT, DENT, embedding_dim>>>
       data_comm_cache;
 
-  std::vector<SPT> value_cache;
+  std::vector<SPT> sigma_cache;
   std::vector<vector<DENT>> samples_per_epoch;
   std::vector<vector<DENT>> samples_per_epoch_next;
   std::vector<vector<DENT>> samples_per_epoch_negative;
@@ -84,7 +85,7 @@ public:
       double drop_out_error_threshold = 0) {
     int batches = 0;
     int last_batch_size = batch_size;
-    value_cache.resize(sp_local_receiver->proc_row_width, -1);
+    sigma_cache.resize(sp_local_receiver->proc_row_width, -1);
 
     samples_per_epoch.resize(sp_local_receiver->proc_row_width, vector<DENT>());
     samples_per_epoch_next.resize(sp_local_receiver->proc_row_width, vector<DENT>());
@@ -318,7 +319,7 @@ public:
                        dst_end_index, csr_block, prevCoordinates, lr, batch_id,
                        batch_size, block_size, fetch_from_temp_cache);
       } else {
-        calc_embedding_row_major(iteration,source_start_index, source_end_index,
+        calc_embedding_row_major_new(iteration,source_start_index, source_end_index,
                                  dst_start_index, dst_end_index, csr_block,
                                  prevCoordinates, lr, batch_id, batch_size,
                                  block_size, fetch_from_temp_cache);
@@ -505,6 +506,92 @@ public:
     }
   }
 
+
+  inline void calc_embedding_row_major_new(int iteration,
+                                       uint64_t source_start_index, uint64_t source_end_index,
+                                       uint64_t dst_start_index, uint64_t dst_end_index,
+                                       CSRLocal<SPT, DENT> *csr_block, vector<DENT> *prevCoordinates, DENT lr,
+                                       int batch_id, int batch_size, int block_size, bool temp_cache) {
+    if (csr_block->handler != nullptr) {
+      CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
+
+#pragma omp parallel for schedule(static) // enable for full batch training or
+                                          // // batch size larger than 1000000
+      for (uint64_t i = source_start_index; i <= source_end_index; i++) {
+
+        uint64_t index = i - batch_id * batch_size;
+
+        int nn_size = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
+        unordered_map<int64_t, float> distance_map;
+        for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
+             j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
+          int dst_index = j - static_cast<uint64_t>(csr_handle->rowStart[i]);
+          //          cout<<" i "<<i<<" j"<<dst_index<<" itr"<<iteration<<" val "<<samples_per_epoch_next[i][dst_index]<<endl;
+          if (samples_per_epoch_next[i][dst_index] <= iteration+1) {
+            auto dst_id = csr_handle->col_idx[j];
+            auto distance = csr_handle->values[j];
+            if (dst_id >= dst_start_index and dst_id < dst_end_index) {
+              uint64_t local_dst =
+                  dst_id - (grid)->rank_in_col *
+                               (this->sp_local_receiver)->proc_col_width;
+              int target_rank =
+                  (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
+              bool fetch_from_cache =
+                  target_rank == (grid)->rank_in_col ? false : true;
+
+              DENT forceDiff[embedding_dim];
+              std::array<DENT, embedding_dim> array_ptr;
+              if (fetch_from_cache) {
+                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
+                    &arrayMap =
+                        (temp_cache)
+                            ? (*this->dense_local->tempCachePtr)[target_rank]
+                            : (*this->dense_local->cachePtr)[target_rank];
+                array_ptr = arrayMap[dst_id].value;
+              }
+
+              DENT attrc = 0;
+
+             pair<DENT,vector<DENT>> distance_gradient =  euclidean_grad((this->dense_local)->nCoordinates+(i * embedding_dim),
+                             (this->dense_local)->nCoordinates+(local_dst * embedding_dim),embedding_dim);
+             DENT low_dim_distance = distance_gradient.first;
+             DENT grd  = distance_gradient.second;
+
+//              for (int d = 0; d < embedding_dim; d++) {
+//                if (!fetch_from_cache) {
+//                  forceDiff[d] =
+//                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
+//                      (this->dense_local)
+//                          ->nCoordinates[local_dst * embedding_dim + d];
+//
+//                } else {
+//                  forceDiff[d] =
+//                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
+//                      array_ptr[d];
+//                }
+//                //              forceDiff[d] = forceDiff[d] * exp(-1 * distance / smoothe_factor);
+//                attrc += forceDiff[d] * forceDiff[d];
+//              }
+
+//              DENT d1 = -2.0 / (1.0 + attrc);
+
+              DENT grad_coeff = -(1 / (distance * sigma_cache[local_dst] + 1e-6))
+              for (int d = 0; d < embedding_dim; d++) {
+//                DENT l = scale(forceDiff[d] * d1);
+                DENT grad_d = scale(grad_coeff * grd[d])
+                //              DENT l = (forceDiff[d] * d1 );
+                //              l=l*exp(-1*distance/smoothe_factor);
+                (*prevCoordinates)[index * embedding_dim + d] =
+                    (*prevCoordinates)[index * embedding_dim + d] + (lr)*grad_d;
+              }
+            }
+          }
+
+        }
+      }
+    }
+  }
+
   inline void calc_t_dist_replus_rowptr(
       vector<DENT> *prevCoordinates, vector<SPT> &col_ids, DENT lr,
       int batch_id, int batch_size, int block_size) {
@@ -654,8 +741,8 @@ public:
     double mid = 1.0;
     double value = 0;
     DENT minimum_value=std::numeric_limits<DENT>::max();
-    if (value_cache[node_index] > -1) {
-      return value_cache[node_index];
+    if (sigma_cache[node_index] > -1) {
+      return sigma_cache[node_index];
     }
     do {
       value = 0;
@@ -675,7 +762,7 @@ public:
         }
       }
       if (abs(target - value) <= tolerance) {
-        value_cache[node_index] = mid;
+        sigma_cache[node_index] = mid;
         return mid;
       }
       if (value > target) {
