@@ -941,8 +941,8 @@ public:
       std::vector<MKL_INT> result_row_offsets_mkl;
       std::vector<MKL_INT> result_col_offsets_mkl;
       vector<float> result_mkl;
-
-      status = mkl_sparse_s_export_csr(result, SPARSE_INDEX_BASE_ZERO,numRows,numRows,
+      sparse_index_base_t indexing=SPARSE_INDEX_BASE_ONE;
+      status = mkl_sparse_s_export_csr(result, &indexing,numRows,numRows,
                                                  result_row_offsets_mkl.data(), result_row_offsets_mkl.data() + 1,
                                                  result_col_offsets_mkl.data(), result_mkl.data());
 
