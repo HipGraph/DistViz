@@ -159,9 +159,9 @@ public:
     }
     double min_dist=0.1;
     double spread=1.0;
-    pair<double,double> ab = find_ab_params(spread,min_dist);
-    double a =  ab.first;
-    double b = ab.second;
+//    pair<double,double> ab = find_ab_params(spread,min_dist);
+    double a = 0.58;
+    double b = 0.87;
     cout<<"a "<<a<<"b "<<b<<endl;
     int seed =0;
     for (int i = 0; i < iterations; i++) {
@@ -900,34 +900,7 @@ public:
     }
   }
 
-  std::pair<double, double> find_ab_params(double spread, double min_dist) {
-    const int num_points = 300;
-    double xv[num_points], yv[num_points];
-    double x_step = spread * 3.0 / (num_points - 1);
 
-    // Generate x values
-    for (int i = 0; i < num_points; ++i) {
-      xv[i] = i * x_step;
-    }
-
-    // Generate y values
-    for (int i = 0; i < num_points; ++i) {
-      if (xv[i] < min_dist) {
-        yv[i] = 1.0;
-      } else {
-        yv[i] = exp(-(xv[i] - min_dist) / spread);
-      }
-    }
-
-    // Fit the curve
-    double a, b;
-    VSLStreamStatePtr stream;
-    vslNewStream(&stream, VSL_BRNG_MT19937, 1);
-    mkl_fit_linear(num_points, 1, xv, 1, yv, 1, &a, &b, NULL, NULL, stream);
-    vslDeleteStream(&stream);
-
-    return std::make_pair(a, b);
-  }
 
 
 };
