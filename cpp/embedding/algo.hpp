@@ -43,6 +43,7 @@ protected:
       data_comm_cache;
 
   std::vector<SPT> sigma_cache;
+  std::vector<SPT> minimum_dis_cache;
   std::vector<vector<DENT>> samples_per_epoch;
   std::vector<vector<DENT>> samples_per_epoch_next;
   std::vector<vector<DENT>> samples_per_epoch_negative;
@@ -86,6 +87,7 @@ public:
     int batches = 0;
     int last_batch_size = batch_size;
     sigma_cache.resize(sp_local_receiver->proc_row_width, -1);
+    minimum_dis_cache.resize(sp_local_receiver->proc_row_width, -1);
 
     samples_per_epoch.resize(sp_local_receiver->proc_row_width, vector<DENT>());
     samples_per_epoch_next.resize(sp_local_receiver->proc_row_width, vector<DENT>());
@@ -678,33 +680,42 @@ public:
           }
 
           DENT repuls = 0;
-          if (fetch_from_cache) {
-            unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> &arrayMap =
-                (*this->dense_local->tempCachePtr)[owner_rank];
-            std::array<DENT, embedding_dim> &colvec =
-                arrayMap[global_col_id].value;
 
-            for (int d = 0; d < embedding_dim; d++) {
-              forceDiff[d] = (this->dense_local)
-                                 ->nCoordinates[row_id * embedding_dim + d] -
-                             colvec[d];
-              repuls += forceDiff[d] * forceDiff[d];
-            }
-          } else {
-            for (int d = 0; d < embedding_dim; d++) {
-              forceDiff[d] =
-                  (this->dense_local)
-                      ->nCoordinates[row_id * embedding_dim + d] -
-                  (this->dense_local)
-                      ->nCoordinates[local_col_id * embedding_dim + d];
+          hipgraph::distviz::knng::MathOp<SPT,DENT> mapOp;
+          pair<DENT,vector<DENT>> distance_gradient =  mapOp.euclidean_grad((this->dense_local)->nCoordinates+(row_id * embedding_dim),
+                                                                            (this->dense_local)->nCoordinates+(local_col_id * embedding_dim),embedding_dim);
+          DENT low_dim_distance = distance_gradient.first;
+          vector<DENT> grd  = distance_gradient.second;
 
-              repuls += forceDiff[d] * forceDiff[d];
-            }
-          }
-          DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
+//          if (fetch_from_cache) {
+//            unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> &arrayMap =
+//                (*this->dense_local->tempCachePtr)[owner_rank];
+//            std::array<DENT, embedding_dim> &colvec =
+//                arrayMap[global_col_id].value;
+//
+//            for (int d = 0; d < embedding_dim; d++) {
+//              forceDiff[d] = (this->dense_local)
+//                                 ->nCoordinates[row_id * embedding_dim + d] -
+//                             colvec[d];
+//              repuls += forceDiff[d] * forceDiff[d];
+//            }
+//          } else {
+//            for (int d = 0; d < embedding_dim; d++) {
+//              forceDiff[d] =
+//                  (this->dense_local)
+//                      ->nCoordinates[row_id * embedding_dim + d] -
+//                  (this->dense_local)
+//                      ->nCoordinates[local_col_id * embedding_dim + d];
+//
+//              repuls += forceDiff[d] * forceDiff[d];
+//            }
+//          }
+         DENT gamma = 1.0;
+         DENT w_h = np.exp(-max(low_dim_distance - minimum_dis_cache[row_id], 1e-6) / (sigma_cache[row_id] + 1e-6));
+         DENT grad_coeff = -gamma * ((0 - w_h) / ((1 - w_h) * sigma_cache[row_id] + 1e-6));
           for (int d = 0; d < embedding_dim; d++) {
-            forceDiff[d] = scale(forceDiff[d] * d1);
-            (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
+            DENT grad_d = scale(grad_coeff * grd[d]);
+            (*prevCoordinates)[i * embedding_dim + d] += (lr)*grad_d;
           }
         }
       }
@@ -754,6 +765,7 @@ public:
             minimum_value = csr_handle->values[j];
           }
         }
+        minimum_dis_cache[node_index]=minimum_value;
         for (uint64_t j =static_cast<uint64_t>(csr_handle->rowStart[node_index]);
              j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]);j++) {
          auto distance = max(static_cast<double>(0.0), (static_cast<double>(csr_handle->values[j])-static_cast<double>(minimum_value)));
