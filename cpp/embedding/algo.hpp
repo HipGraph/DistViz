@@ -42,8 +42,8 @@ protected:
   std::unordered_map<int, unique_ptr<DataComm<SPT, DENT, embedding_dim>>>
       data_comm_cache;
 
-  std::vector<SPT> sigma_cache;
-  std::vector<SPT> minimum_dis_cache;
+  std::vector<DENT> sigma_cache;
+  std::vector<DENT> minimum_dis_cache;
   std::vector<vector<DENT>> samples_per_epoch;
   std::vector<vector<DENT>> samples_per_epoch_next;
   std::vector<vector<DENT>> samples_per_epoch_negative;
