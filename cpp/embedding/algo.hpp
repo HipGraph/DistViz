@@ -907,17 +907,23 @@ public:
                             std::vector<int>& row_offsets, std::vector<int>& col_indices,
                             std::vector<float>& values) {
     if (apply_set_operations) {
+
+      std::vector<MKL_INT> row_offsets_mkl(row_offsets.begin(), row_offsets.end());
+      std::vector<MKL_INT> col_offsets_mkl(col_indices.begin(), col_indices.end());
+
+
+
       int numRows = row_offsets.size() - 1;
 
       // Create CSR matrix
       sparse_matrix_t csrMatrix;
       mkl_sparse_s_create_csr(&csrMatrix, SPARSE_INDEX_BASE_ZERO, numRows, numRows,
-                              row_offsets.data(), row_offsets.data() + 1,
-                              col_indices.data(), values.data());
+                              row_offsets_mkl.data(), row_offsets_mkl.data() +1 ,
+                              col_offsets_mkl.data(), values.data());
 
       // Transpose the CSR matrix
       sparse_matrix_t csrTranspose;
-      mkl_sparse_transpose(csrMatrix, &csrTranspose);
+      mkl_sparse_convert_csr(csrMatrix,SPARSE_OPERATION_TRANSPOSE, &csrTranspose);
 
       // Multiply result with its transpose
       sparse_matrix_t prodMatrix;
@@ -925,30 +931,31 @@ public:
 
       // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
       sparse_status_t status;
-      mkl_sparse_set_operation(SPARSE_OPERATION_NON_TRANSPOSE, csrMatrix);
-      status = mkl_sparse_s_add(SPARSE_OPERATION_NON_TRANSPOSE, 1.0, csrMatrix,
-                                SPARSE_OPERATION_NON_TRANSPOSE, 1.0, csrTranspose, &csrMatrix);
-      status = mkl_sparse_s_add(SPARSE_OPERATION_NON_TRANSPOSE, 1.0, csrMatrix,
-                                SPARSE_OPERATION_NON_TRANSPOSE, -1.0, prodMatrix, &csrMatrix);
-
-      mkl_sparse_set_operation(SPARSE_OPERATION_NON_TRANSPOSE, prodMatrix);
-      status = mkl_sparse_s_scale(prodMatrix, (1.0 - set_op_mix_ratio), prodMatrix);
-
-      mkl_sparse_set_operation(SPARSE_OPERATION_NON_TRANSPOSE, csrMatrix);
-      status = mkl_sparse_s_scale(csrMatrix, set_op_mix_ratio, csrMatrix);
-
-      status = mkl_sparse_s_add(SPARSE_OPERATION_NON_TRANSPOSE, 1.0, csrMatrix,
-                                SPARSE_OPERATION_NON_TRANSPOSE, 1.0, prodMatrix, &csrMatrix);
+      sparse_matrix_t tempMatrix;
+      status = mkl_sparse_s_add(SPARSE_OPERATION_NON_TRANSPOSE,  csrMatrix,1.0, csrTranspose, &tempMatrix);
+      sparse_matrix_t result;
+      status = mkl_sparse_s_add(SPARSE_OPERATION_NON_TRANSPOSE, prodMatrix,-1.0, tempMatrix, &result);
 
       // Retrieve result as CSR format
-      status = mkl_sparse_export_csr(csrMatrix, SPARSE_INDEX_BASE_ZERO,
-                                     row_offsets.data(), row_offsets.data() + 1,
-                                     col_indices.data(), values.data());
 
+      std::vector<MKL_INT> result_row_offsets_mkl;
+      std::vector<MKL_INT> result_col_offsets_mkl
+      vector<float> result_mkl
+
+      status = mkl_sparse_export_csr(result, SPARSE_INDEX_BASE_ZERO,
+                                                 result_row_offsets_mkl.data(), result_row_offsets_mkl.data() + 1,
+                                                 result_col_offsets_mkl.data(), result_mkl.data());
+
+
+      row_offsets = vector<int>(result_row_offsets_mkl.begin(),result_row_offsets_mkl.end());
+      col_indices = vector<int>(result_col_offsets_mkl.begin(),result_col_offsets_mkl.end());
+      values = vector<float>(result_mkl.begin(),result_mkl.end());
       // Deallocate matrices
       mkl_sparse_destroy(csrMatrix);
       mkl_sparse_destroy(csrTranspose);
       mkl_sparse_destroy(prodMatrix);
+      mkl_sparse_destroy(tempMatrix);
+      mkl_sparse_destroy(result);
     }
   }
 
