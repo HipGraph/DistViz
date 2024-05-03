@@ -161,7 +161,7 @@ public:
     pair<double,double> ab = find_ab_params(spread,min_dist);
     double a =  ab.first;
     double b = ab.second;
-    cout<"a "<<a<<" b"<<b<<endl;
+    cout<<"a "<<a<<"b "<<b<<endl;
     int seed =0;
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
