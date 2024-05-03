@@ -555,7 +555,7 @@ public:
              pair<DENT,vector<DENT>> distance_gradient =  mapOp.euclidean_grad((this->dense_local)->nCoordinates+(i * embedding_dim),
                              (this->dense_local)->nCoordinates+(local_dst * embedding_dim),embedding_dim);
              DENT low_dim_distance = distance_gradient.first;
-             DENT grd  = distance_gradient.second;
+             vector<DENT> grd  = distance_gradient.second;
 
 //              for (int d = 0; d < embedding_dim; d++) {
 //                if (!fetch_from_cache) {
