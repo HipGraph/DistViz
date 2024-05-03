@@ -24,6 +24,7 @@
 #include "../knng/math_operations.hpp"
 #include <gsl/gsl_fit.h>
 #include <gsl/gsl_errno.h>
+#include <mkl.h>
 
 using namespace std;
 using namespace hipgraph::distviz::common;
