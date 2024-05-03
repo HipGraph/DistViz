@@ -953,7 +953,7 @@ public:
       result_row_offsets_mkl.resize(numRows+1);
       result_cols_offsets_mkl.resize(total_nnz);
 
-      memcpy(values.data(), values, sizeof(float) * max(total_nnz, static_cast<MKL_INT>(1)));
+      memcpy(values.data(), values_ptr, sizeof(float) * max(total_nnz, static_cast<MKL_INT>(1)));
       memcpy(result_cols_offsets_mkl.data(), col_idx,
                    sizeof(MKL_INT) * max(total_nnz, static_cast<MKL_INT>(1)));
       memcpy(result_row_offsets_mkl.data(), rows_start,
