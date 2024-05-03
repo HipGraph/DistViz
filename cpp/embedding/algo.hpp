@@ -156,6 +156,8 @@ public:
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
       calculate_membership_strength(csr_handle);
       make_epochs_per_sample(csr_handle,iterations,ns);
+      apply_set_operations(true,1.0,
+                           csr_handle->rowStart,csr_handle->col_idx,csr_handle->values);
     }
     double min_dist=0.1;
     double spread=1.0;
@@ -897,6 +899,55 @@ public:
           samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
         }
       }
+    }
+  }
+
+  void apply_set_operations(bool apply_set_operations, float set_op_mix_ratio,
+                            std::vector<int>& row_offsets, std::vector<int>& col_indices,
+                            std::vector<float>& values) {
+    if (apply_set_operations) {
+      int numRows = row_offsets.size() - 1;
+
+      // Create CSR matrix
+      sparse_matrix_t csrMatrix;
+      mkl_sparse_s_create_csr(&csrMatrix, SPARSE_INDEX_BASE_ZERO, numRows, numRows,
+                              row_offsets.data(), row_offsets.data() + 1,
+                              col_indices.data(), values.data());
+
+      // Transpose the CSR matrix
+      sparse_matrix_t csrTranspose;
+      mkl_sparse_transpose(csrMatrix, &csrTranspose);
+
+      // Multiply result with its transpose
+      sparse_matrix_t prodMatrix;
+      mkl_sparse_spmm(SPARSE_OPERATION_NON_TRANSPOSE, csrMatrix, csrTranspose, &prodMatrix);
+
+      // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
+      sparse_status_t status;
+      mkl_sparse_set_operation(SPARSE_OPERATION_NON_TRANSPOSE, csrMatrix);
+      status = mkl_sparse_s_add(SPARSE_OPERATION_NON_TRANSPOSE, 1.0, csrMatrix,
+                                SPARSE_OPERATION_NON_TRANSPOSE, 1.0, csrTranspose, &csrMatrix);
+      status = mkl_sparse_s_add(SPARSE_OPERATION_NON_TRANSPOSE, 1.0, csrMatrix,
+                                SPARSE_OPERATION_NON_TRANSPOSE, -1.0, prodMatrix, &csrMatrix);
+
+      mkl_sparse_set_operation(SPARSE_OPERATION_NON_TRANSPOSE, prodMatrix);
+      status = mkl_sparse_s_scale(prodMatrix, (1.0 - set_op_mix_ratio), prodMatrix);
+
+      mkl_sparse_set_operation(SPARSE_OPERATION_NON_TRANSPOSE, csrMatrix);
+      status = mkl_sparse_s_scale(csrMatrix, set_op_mix_ratio, csrMatrix);
+
+      status = mkl_sparse_s_add(SPARSE_OPERATION_NON_TRANSPOSE, 1.0, csrMatrix,
+                                SPARSE_OPERATION_NON_TRANSPOSE, 1.0, prodMatrix, &csrMatrix);
+
+      // Retrieve result as CSR format
+      status = mkl_sparse_export_csr(csrMatrix, SPARSE_INDEX_BASE_ZERO,
+                                     row_offsets.data(), row_offsets.data() + 1,
+                                     col_indices.data(), values.data());
+
+      // Deallocate matrices
+      mkl_sparse_destroy(csrMatrix);
+      mkl_sparse_destroy(csrTranspose);
+      mkl_sparse_destroy(prodMatrix);
     }
   }
 
