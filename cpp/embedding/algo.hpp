@@ -575,7 +575,7 @@ public:
 
 //              DENT d1 = -2.0 / (1.0 + attrc);
 
-              DENT grad_coeff = -(1 / (distance * sigma_cache[local_dst] + 1e-6))
+              DENT grad_coeff = -(1 / (distance * sigma_cache[local_dst] + 1e-6));
               for (int d = 0; d < embedding_dim; d++) {
 //                DENT l = scale(forceDiff[d] * d1);
                 DENT grad_d = scale(grad_coeff * grd[d])
