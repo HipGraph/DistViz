@@ -939,12 +939,12 @@ public:
       // Retrieve result as CSR format
 
       MKL_INT *rows_start, *rows_end, *col_idx;
-      double *values;
+      float *values;
       sparse_index_base_t indexing=SPARSE_INDEX_BASE_ONE;
       status = mkl_sparse_s_export_csr(result, &indexing,&numRows,&numRows,&rows_start, &rows_end,&col_idx, &values);
 
 
-      MKL total_nnz = (*rows_start)[numRows];
+      MKL_INT total_nnz = rows_start[numRows];
 
       cout<<"total nnz: "<<total_nnz<<endl;
 
