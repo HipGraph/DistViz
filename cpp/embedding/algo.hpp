@@ -551,8 +551,8 @@ public:
               }
 
               DENT attrc = 0;
-
-             pair<DENT,vector<DENT>> distance_gradient =  euclidean_grad((this->dense_local)->nCoordinates+(i * embedding_dim),
+             hipgraph::distviz::knng::MathOp<SPT,DENT> mapOp;
+             pair<DENT,vector<DENT>> distance_gradient =  mapOp.euclidean_grad((this->dense_local)->nCoordinates+(i * embedding_dim),
                              (this->dense_local)->nCoordinates+(local_dst * embedding_dim),embedding_dim);
              DENT low_dim_distance = distance_gradient.first;
              DENT grd  = distance_gradient.second;
