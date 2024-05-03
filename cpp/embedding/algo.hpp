@@ -154,8 +154,12 @@ public:
       calculate_membership_strength(csr_handle);
       make_epochs_per_sample(csr_handle,iterations,ns);
     }
-
-
+    double min_dist=0.1;
+    double spread=1.0;
+    pair<double,double> ab = find_ab_params(spread,min_dist);
+    double a =  ab.first;
+    double b = ab.second;
+    cout<"a "<<a<<" b"<<b<<" "<<endl;
     int seed =0;
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
@@ -189,14 +193,14 @@ public:
           // local computations for 1 process
           this->calc_t_dist_grad_rowptr(
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
-              considering_batch_size, true, false, 0, 0, false);
+              considering_batch_size, true, false, 0, 0, false, a, b);
 
           generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
           this->calc_t_dist_replus_rowptr_new(
               prevCoordinates_ptr.get(), negative_samples_ptr.get(),
               csr_handle,alpha, j, batch_size,
-              considering_batch_size);
+              considering_batch_size, a, b);
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
@@ -301,7 +305,7 @@ public:
   inline void calc_t_dist_grad_rowptr(
       CSRLocal<SPT, DENT> *csr_block, vector<DENT> *prevCoordinates, DENT lr,
       int iteration,int batch_id, int batch_size, int block_size, bool local, bool col_major,
-      int start_process, int end_process, bool fetch_from_temp_cache) {
+      int start_process, int end_process, bool fetch_from_temp_cache, double a=1.0, double b=1.0) {
 
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
@@ -325,7 +329,7 @@ public:
         calc_embedding_row_major_new(iteration,source_start_index, source_end_index,
                                  dst_start_index, dst_end_index, csr_block,
                                  prevCoordinates, lr, batch_id, batch_size,
-                                 block_size, fetch_from_temp_cache);
+                                 block_size, fetch_from_temp_cache,a,b);
       }
     } else {
       for (int r = start_process; r < end_process; r++) {
@@ -514,7 +518,7 @@ public:
                                        uint64_t source_start_index, uint64_t source_end_index,
                                        uint64_t dst_start_index, uint64_t dst_end_index,
                                        CSRLocal<SPT, DENT> *csr_block, vector<DENT> *prevCoordinates, DENT lr,
-                                       int batch_id, int batch_size, int block_size, bool temp_cache) {
+                                       int batch_id, int batch_size, int block_size, bool temp_cache,double a=1.0, double b=1.0) {
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
@@ -578,8 +582,8 @@ public:
 
 //              DENT d1 = -2.0 / (1.0 + attrc);
               DENT w_l=1.0;
-              DENT a = 1.0;
-              DENT b = 1.0;
+//              DENT a = 1.0;
+//              DENT b = 1.0;
               if (low_dim_distance > 0.0)
               {
                       w_l = pow((1 + a * pow(low_dim_distance, 2 * b)), -1);
@@ -662,7 +666,7 @@ public:
   inline void calc_t_dist_replus_rowptr_new(
       vector<DENT> *prevCoordinates, vector<vector<vector<SPT>>> *negative_samples_ptr,
       CSRHandle<SPT,DENT> *csr_handle,DENT lr,
-      int batch_id, int batch_size, int block_size) {
+      int batch_id, int batch_size, int block_size,double a=1.0, double b=1.0) {
 
     int row_base_index = batch_id * batch_size;
 
@@ -718,8 +722,6 @@ public:
 //            }
 //          }
           DENT w_l=1.0;
-          DENT a = 1.0;
-          DENT b = 1.0;
           DENT gamma = 1.0;
           if (low_dim_distance > 0.0)
           {
@@ -893,6 +895,37 @@ public:
         }
       }
     }
+  }
+
+  std::pair<double, double> find_ab_params(double spread, double min_dist) {
+    // Define the curve function
+    auto curve = [](double x, double a, double b) {
+      return 1.0 / (1.0 + a * pow(x, 2 * b));
+    };
+
+    const int num_points = 300;
+    double xv[num_points], yv[num_points];
+    double x_step = spread * 3.0 / (num_points - 1);
+
+    // Generate x values
+    for (int i = 0; i < num_points; ++i) {
+      xv[i] = i * x_step;
+    }
+
+    // Generate y values
+    for (int i = 0; i < num_points; ++i) {
+      if (xv[i] < min_dist) {
+        yv[i] = 1.0;
+      } else {
+        yv[i] = exp(-(xv[i] - min_dist) / spread);
+      }
+    }
+
+    // Fit the curve
+    double a, b, cov00, cov01, cov11, sumsq;
+    gsl_fit_linear(xv, 1, yv, 1, num_points, &a, &b, &cov00, &cov01, &cov11, &sumsq);
+
+    return std::make_pair(a, b);
   }
 
 };
