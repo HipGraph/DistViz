@@ -434,7 +434,7 @@ public:
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
-#pragma omp parallel for schedule(static) // enable for full batch training or
+//#pragma omp parallel for schedule(static) // enable for full batch training or
                                           // // batch size larger than 1000000
       for (uint64_t i = source_start_index; i <= source_end_index; i++) {
 
@@ -445,6 +445,7 @@ public:
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           int dst_index = j - static_cast<uint64_t>(csr_handle->rowStart[i]);
+          cout<<" i "<<i<<" j"<<dst_index<<" itr"<<iteration<<" val "<<samples_per_epoch_next[i][dst_index]<<endl;
           if (samples_per_epoch_next[i][dst_index] <= iteration) {
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
