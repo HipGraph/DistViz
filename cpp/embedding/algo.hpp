@@ -446,7 +446,7 @@ public:
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           int dst_index = j - static_cast<uint64_t>(csr_handle->rowStart[i]);
           cout<<" i "<<i<<" j"<<dst_index<<" itr"<<iteration<<" val "<<samples_per_epoch_next[i][dst_index]<<endl;
-          if (samples_per_epoch_next[i][dst_index] <= iteration) {
+          if (samples_per_epoch_next[i][dst_index] <= iteration-1) {
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
             if (dst_id >= dst_start_index and dst_id < dst_end_index) {
@@ -751,7 +751,7 @@ public:
       for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
         int index = j - static_cast<int>(csr_handle->rowStart[i]);
-        if (samples_per_epoch_next[i][index] >= iteration) {
+        if (samples_per_epoch_next[i][index] <= iteration-1) {
 
           int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
           if (ns > 0) {
