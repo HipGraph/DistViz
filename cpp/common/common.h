@@ -145,6 +145,8 @@ void prefix_sum(vector<int> &values, vector<int> &offsets);
 
 size_t get_memory_usage();
 
+int32_t tau_rand_int(int64_t state[3]);
+
 void reset_performance_timers();
 
 void stop_clock_and_add(my_timer_t &start, string counter_name);
@@ -201,19 +203,7 @@ struct CSRHandle {
   vector<INDEX_TYPE> row_idx;
 };
 
-int32_t tau_rand_int(int64_t state[3]) {
-  state[0] = (((state[0] & 4294967294LL) << 12) & 0xFFFFFFFFLL) ^ (
-                                                                      (((state[0] << 13) & 0xFFFFFFFFLL) ^ state[0]) >> 19
-                                                                  );
-  state[1] = (((state[1] & 4294967288LL) << 4) & 0xFFFFFFFFLL) ^ (
-                                                                     (((state[1] << 2) & 0xFFFFFFFFLL) ^ state[1]) >> 25
-                                                                 );
-  state[2] = (((state[2] & 4294967280LL) << 17) & 0xFFFFFFFFLL) ^ (
-                                                                      (((state[2] << 3) & 0xFFFFFFFFLL) ^ state[2]) >> 11
-                                                                  );
 
-  return static_cast<int32_t>(state[0] ^ state[1] ^ state[2]);
-}
 
 template <typename T>
 bool CompareTuple(const Tuple<T>& obj1, const Tuple<T>& obj2) {
