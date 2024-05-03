@@ -923,7 +923,7 @@ public:
     double a, b;
     VSLStreamStatePtr stream;
     vslNewStream(&stream, VSL_BRNG_MT19937, 1);
-    mkl_fit_linear(num_points, 1, xv, 1, yv, 1, &a, &b, VSL_NONUNIFORM_USER, NULL, stream);
+    mkl_fit_linear(num_points, 1, xv, 1, yv, 1, &a, &b, NULL, NULL, stream);
     vslDeleteStream(&stream);
 
     return std::make_pair(a, b);
