@@ -939,18 +939,27 @@ public:
       // Retrieve result as CSR format
 
       MKL_INT *rows_start, *rows_end, *col_idx;
-      float *values;
+      float *values_ptr;
       sparse_index_base_t indexing=SPARSE_INDEX_BASE_ONE;
-      status = mkl_sparse_s_export_csr(result, &indexing,&numRows,&numRows,&rows_start, &rows_end,&col_idx, &values);
+      status = mkl_sparse_s_export_csr(result, &indexing,&numRows,&numRows,&rows_start, &rows_end,&col_idx, &values_ptr);
 
 
       MKL_INT total_nnz = rows_start[numRows];
 
-      cout<<"total nnz: "<<total_nnz<<endl;
+      vector<MKL_INT>  result_row_offsets_mkl;
+      vector<MKL_INT>  result_cols_offsets_mkl;
 
-//      row_offsets = vector<int>(result_row_offsets_mkl.begin(),result_row_offsets_mkl.end());
-//      col_indices = vector<int>(result_col_offsets_mkl.begin(),result_col_offsets_mkl.end());
-//      values = vector<float>(result_mkl.begin(),result_mkl.end());
+      values.resize(total_nnz);
+      result_row_offsets_mkl.resize(numRows+1);
+      result_cols_offsets_mkl.resize(total_nnz);
+
+      memcpy(values.data(), values, sizeof(float) * max(total_nnz, 1));
+      memcpy(result_cols_offsets_mkl.data(), col_idx,
+                   sizeof(MKL_INT) * max(total_nnz, 1));
+      memcpy(result_row_offsets_mkl.data(), rows_start,
+                   sizeof(MKL_INT) * (numRows+1));
+      row_offsets = vector<int>(result_row_offsets_mkl.begin(),result_row_offsets_mkl.end());
+      col_indices = vector<int>(result_col_offsets_mkl.begin(),result_col_offsets_mkl.end());
       // Deallocate matrices
       mkl_sparse_destroy(csrMatrix);
       mkl_sparse_destroy(csrTranspose);
