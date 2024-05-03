@@ -22,6 +22,8 @@
 #include <random>
 #include <unordered_map>
 #include "../knng/math_operations.hpp"
+#include <gsl/gsl_fit.h>
+#include <gsl/gsl_errno.h>
 
 using namespace std;
 using namespace hipgraph::distviz::common;
@@ -159,7 +161,7 @@ public:
     pair<double,double> ab = find_ab_params(spread,min_dist);
     double a =  ab.first;
     double b = ab.second;
-    cout<"a "<<a<<" b"<<b<<" "<<endl;
+    cout<"a "<<a<<" b"<<b<<endl;
     int seed =0;
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
