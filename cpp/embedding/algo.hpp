@@ -728,11 +728,11 @@ public:
          int index = j -static_cast<int>(csr_handle->rowStart[i]);
          samples_per_epoch[i][index] =  static_cast<DENT>(iterations) /n_samples;
        }else {
-         samples_per_epoch[i][index] = -1.0;
+         samples_per_epoch[i][index] = static_cast<DENT>(-1.0);
        }
-       samples_per_epoch_next[i][index] =  samples_per_epoch[i][index];
-       samples_per_epoch_negative[i][index] =  samples_per_epoch[i][index]/ns;
-       samples_per_epoch_negative_next[i][index] =  samples_per_epoch_negative[i][index];
+       samples_per_epoch_next[i][index] =  static_cast<DENT>(samples_per_epoch[i][index]);
+       samples_per_epoch_negative[i][index] =  static_cast<DENT>(samples_per_epoch[i][index]/ns);
+       samples_per_epoch_negative_next[i][index] =  static_cast<DENT>(samples_per_epoch_negative[i][index]);
       }
     }
   }
