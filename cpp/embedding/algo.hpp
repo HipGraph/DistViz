@@ -160,8 +160,8 @@ public:
     double min_dist=0.1;
     double spread=1.0;
 //    pair<double,double> ab = find_ab_params(spread,min_dist);
-    double a = 0.58;
-    double b = 0.87;
+    double a = 1;
+    double b = 1;
     cout<<"a "<<a<<"b "<<b<<endl;
     int seed =0;
     for (int i = 0; i < iterations; i++) {
