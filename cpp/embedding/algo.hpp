@@ -156,7 +156,7 @@ public:
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
       DENT alpha = lr;
-      alpha = lr * (1.0 - (float(i) / float(iterations)))
+      alpha = lr * (1.0 - (float(i) / float(iterations)));
       for (int j = 0; j < batches; j++) {
 //        int seed = j + i;
 
