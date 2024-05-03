@@ -701,6 +701,9 @@ public:
         for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
           double value = exp(-1*csr_handle->values[j]/sigma);
+          if (value<0) {
+            value = 1.0;
+          }
           csr_handle->values[j]=value;
         }
     }
@@ -724,10 +727,12 @@ public:
        if(n_samples>0){
          int index = j -static_cast<int>(csr_handle->rowStart[i]);
          samples_per_epoch[i][index] =  static_cast<DENT>(iterations) /n_samples;
-         samples_per_epoch_next[i][index] =  samples_per_epoch_next[i][index];
-         samples_per_epoch_negative[i][index] =  samples_per_epoch[i][index]/ns;
-         samples_per_epoch_negative_next[i][index] =  samples_per_epoch_negative[i][index];
+       }else {
+         samples_per_epoch[i][index] = -1;
        }
+       samples_per_epoch_next[i][index] =  samples_per_epoch[i][index];
+       samples_per_epoch_negative[i][index] =  samples_per_epoch[i][index]/ns;
+       samples_per_epoch_negative_next[i][index] =  samples_per_epoch_negative[i][index];
       }
     }
   }
