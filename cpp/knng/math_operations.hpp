@@ -385,7 +385,7 @@ class MathOp {
       result += std::pow(x[i] - y[i], 2);
     }
     VALUE_TYPE d = std::sqrt(result);
-    std::vector<VALUE_TYPE> grad(x.size());
+    std::vector<VALUE_TYPE> grad(size);
     for (size_t i = 0; i < size; ++i) {
       grad[i] = (x[i] - y[i]) / (1e-6 + d);
     }
