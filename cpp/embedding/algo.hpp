@@ -764,7 +764,11 @@ public:
     double target = log2(nn);
     double mid = 1.0;
     double value = 0;
-    DENT minimum_value=std::numeric_limits<DENT>::max();
+    DENT max_value=std::numeric_limits<DENT>::min();
+    DENT max_value=0;
+    DENT distance_sum=0;
+    DENT mean_distance =0;
+    DENT MIN_K_DIST_SCALE=1e-3;
     if (sigma_cache[node_index] > -1) {
       return sigma_cache[node_index];
     }
@@ -774,20 +778,28 @@ public:
 
         for (uint64_t j =static_cast<uint64_t>(csr_handle->rowStart[node_index]);
              j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]);j++) {
-          if (minimum_value> csr_handle->values[j]){
-            minimum_value = csr_handle->values[j];
+          if (max_value< csr_handle->values[j]){
+            distance_sum += csr_handle->values[j];
           }
         }
-        minimum_dis_cache[node_index]=minimum_value;
+        mean_distance = distance_sum/( static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]) - static_cast<uint64_t>(csr_handle->rowStart[node_index]));
+        minimum_dis_cache[node_index]=max_value;
         for (uint64_t j =static_cast<uint64_t>(csr_handle->rowStart[node_index]);
              j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]);j++) {
-         auto distance = max(static_cast<double>(0.0), (static_cast<double>(csr_handle->values[j])-static_cast<double>(minimum_value)));
-         csr_handle->values[j] = distance;
-          value += exp(-1 * distance / mid);
+//         auto distance = max(static_cast<double>(0.0), (static_cast<double>(csr_handle->values[j])-static_cast<double>(max_value)));
+         auto distance = static_cast<double>(csr_handle->values[j])-static_cast<double>(max_value);
+         if (distance>0) {
+              value += exp(-1 * distance / mid);
+           } else {
+              value +=1;
+           }
         }
       }
       if (abs(target - value) <= tolerance) {
         sigma_cache[node_index] = mid;
+          if (sigma_cache[node_index]<MIN_K_DIST_SCALE*mean_distance){
+               sigma_cache[node_index] = MIN_K_DIST_SCALE * mean_distance;
+          }
         return mid;
       }
       if (value > target) {
@@ -813,11 +825,14 @@ public:
     for(SPT i=source_start_index;i<source_end_index;i++){
         int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
         double sigma = smooth_knn_distance(i,nn,csr_handle);
+        double value=1.0;
         for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
-          double value = exp(-1*csr_handle->values[j]/sigma);
-          if (value<0) {
+          if ((csr_handle->values[j]-minimum_cache[j])<=0 or sigma==0){
             value = 1.0;
+          }else {
+            value = exp(-1*(csr_handle->values[j]-minimum_cache[j])/sigma);
+
           }
           csr_handle->values[j]=value;
         }
