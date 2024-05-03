@@ -152,11 +152,13 @@ public:
     }
 
 
-
+    int seed =0;
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
+      DENT alpha = lr;
+      alpha = lr * (1.0 - (float(i) / float(iterations)))
       for (int j = 0; j < batches; j++) {
-        int seed = j + i;
+//        int seed = j + i;
 
         if (j == batches - 1) {
           considering_batch_size = last_batch_size;
@@ -182,14 +184,14 @@ public:
           }
           // local computations for 1 process
           this->calc_t_dist_grad_rowptr(
-              csr_block, prevCoordinates_ptr.get(), lr, i,j, batch_size,
+              csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false);
 
           generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
           this->calc_t_dist_replus_rowptr_new(
               prevCoordinates_ptr.get(), negative_samples_ptr.get(),
-              csr_handle,lr, j, batch_size,
+              csr_handle,alpha, j, batch_size,
               considering_batch_size);
 
           batch_error += this->update_data_matrix_rowptr(
@@ -756,7 +758,7 @@ public:
           int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
           if (ns > 0) {
             vector<SPT> random_number_vec = generate_random_numbers<SPT>(
-                0, (this->sp_local_receiver)->gRows, rand(), ns);
+                0, (this->sp_local_receiver)->gRows, seed, ns);
             (*negative_samples_ptr)[access_index][index] = random_number_vec;
             samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
           }
