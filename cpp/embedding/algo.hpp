@@ -711,7 +711,7 @@ public:
 //            }
 //          }
          DENT gamma = 1.0;
-         DENT w_h = np.exp(-max(low_dim_distance - minimum_dis_cache[row_id], 1e-6) / (sigma_cache[row_id] + 1e-6));
+         DENT w_h = exp(-max(static_cast<DENT>(low_dim_distance - minimum_dis_cache[row_id]), static_cast<DENT>(1e-6)) / (sigma_cache[row_id] + 1e-6));
          DENT grad_coeff = -gamma * ((0 - w_h) / ((1 - w_h) * sigma_cache[row_id] + 1e-6));
           for (int d = 0; d < embedding_dim; d++) {
             DENT grad_d = scale(grad_coeff * grd[d]);
