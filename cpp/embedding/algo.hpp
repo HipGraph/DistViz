@@ -765,7 +765,6 @@ public:
     double mid = 1.0;
     double value = 0;
     DENT max_value=std::numeric_limits<DENT>::min();
-    DENT max_value=0;
     DENT distance_sum=0;
     DENT mean_distance =0;
     DENT MIN_K_DIST_SCALE=1e-3;
@@ -828,10 +827,10 @@ public:
         double value=1.0;
         for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
-          if ((csr_handle->values[j]-minimum_cache[j])<=0 or sigma==0){
+          if ((csr_handle->values[j]-minimum_dis_cache[j])<=0 or sigma==0){
             value = 1.0;
           }else {
-            value = exp(-1*(csr_handle->values[j]-minimum_cache[j])/sigma);
+            value = exp(-1*(csr_handle->values[j]-minimum_dis_cache[j])/sigma);
 
           }
           csr_handle->values[j]=value;
