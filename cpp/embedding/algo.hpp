@@ -954,10 +954,13 @@ public:
       result_cols_offsets_mkl.resize(total_nnz);
 
       memcpy(values.data(), values_ptr, sizeof(float) * max(total_nnz, static_cast<MKL_INT>(1)));
+      cout<<" values copied"<<endl;
       memcpy(result_cols_offsets_mkl.data(), col_idx,
                    sizeof(MKL_INT) * max(total_nnz, static_cast<MKL_INT>(1)));
+      cout<<" cols copied"<<endl;
       memcpy(result_row_offsets_mkl.data(), rows_start,
                    sizeof(MKL_INT) * (numRows+1));
+      cout<<" rows copied"<<endl;
       row_offsets = vector<int>(result_row_offsets_mkl.begin(),result_row_offsets_mkl.end());
       col_indices = vector<int>(result_cols_offsets_mkl.begin(),result_cols_offsets_mkl.end());
       // Deallocate matrices
