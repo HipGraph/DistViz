@@ -900,11 +900,6 @@ public:
   }
 
   std::pair<double, double> find_ab_params(double spread, double min_dist) {
-    // Define the curve function
-    auto curve = [](double x, double a, double b) {
-      return 1.0 / (1.0 + a * pow(x, 2 * b));
-    };
-
     const int num_points = 300;
     double xv[num_points], yv[num_points];
     double x_step = spread * 3.0 / (num_points - 1);
@@ -924,11 +919,15 @@ public:
     }
 
     // Fit the curve
-    double a, b, cov00, cov01, cov11, sumsq;
-    gsl_fit_linear(xv, 1, yv, 1, num_points, &a, &b, &cov00, &cov01, &cov11, &sumsq);
+    double a, b;
+    VSLStreamStatePtr stream;
+    vslNewStream(&stream, VSL_BRNG_MT19937, 1);
+    mkl_fit_linear(num_points, 1, xv, 1, yv, 1, &a, &b, VSL_NONUNIFORM_USER, NULL, stream);
+    vslDeleteStream(&stream);
 
     return std::make_pair(a, b);
   }
+
 
 };
 } // namespace hipgraph::distviz::embedding
