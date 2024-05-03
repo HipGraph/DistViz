@@ -16,6 +16,7 @@
 #include <Eigen/Dense>
 #include <chrono>
 #include <math.h>
+#include <cmath>
 #include <memory>
 #include <mpi.h>
 #include <random>
@@ -576,8 +577,14 @@ public:
 //              }
 
 //              DENT d1 = -2.0 / (1.0 + attrc);
-
-              DENT grad_coeff = -(1 / (distance * sigma_cache[local_dst] + 1e-6));
+              DENT w_l=1.0;
+              DENT a = 1.0;
+              DENT b = 1.0;
+              if (low_dim_distance > 0.0)
+              {
+                      w_l = pow((1 + a * pow(low_dim_distance, 2 * b)), -1);
+              }
+              DENT grad_coeff = 2 * b * (w_l - 1) / (low_dim_distance + 1e-6);
               for (int d = 0; d < embedding_dim; d++) {
 //                DENT l = scale(forceDiff[d] * d1);
                 DENT grad_d = scale(grad_coeff * grd[d]);
@@ -710,9 +717,15 @@ public:
 //              repuls += forceDiff[d] * forceDiff[d];
 //            }
 //          }
-         DENT gamma = 1.0;
-         DENT w_h = exp(-max(static_cast<DENT>(low_dim_distance - minimum_dis_cache[row_id]), static_cast<DENT>(1e-6)) / (sigma_cache[row_id] + 1e-6));
-         DENT grad_coeff = -gamma * ((0 - w_h) / ((1 - w_h) * sigma_cache[row_id] + 1e-6));
+          DENT w_l=1.0;
+          DENT a = 1.0;
+          DENT b = 1.0;
+          DENT gamma = 1.0;
+          if (low_dim_distance > 0.0)
+          {
+            w_l = pow((1 + a * pow(low_dim_distance, 2 * b)), -1);
+          }
+          DENT grad_coeff = gamma* 2 * b * w_l / (low_dim_distance + 1e-6);
           for (int d = 0; d < embedding_dim; d++) {
             DENT grad_d = scale(grad_coeff * grd[d]);
             (*prevCoordinates)[i * embedding_dim + d] += (lr)*grad_d;
