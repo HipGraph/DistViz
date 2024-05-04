@@ -965,12 +965,20 @@ public:
       cout<<" rows copied to origin "<<endl;
       col_indices = vector<int>(result_cols_offsets_mkl.begin(),result_cols_offsets_mkl.end());
       cout<<" cols copied to origin "<<endl;
+
+      for(int i=0;i<numRows;i++){
+        for(int j=row_offsets[i];j<row_offsets[i+1];j++){
+          cout<<" i "<<i<<" j "<<j<<" value "<<values[j]<<endl;
+        }
+      }
+
+
       // Deallocate matrices
-      mkl_sparse_destroy(csrMatrix);
-      mkl_sparse_destroy(csrTranspose);
-      mkl_sparse_destroy(prodMatrix);
-      mkl_sparse_destroy(tempMatrix);
-      mkl_sparse_destroy(result);
+//      mkl_sparse_destroy(csrMatrix);
+//      mkl_sparse_destroy(csrTranspose);
+//      mkl_sparse_destroy(prodMatrix);
+//      mkl_sparse_destroy(tempMatrix);
+//      mkl_sparse_destroy(result);
     }
   }
 
