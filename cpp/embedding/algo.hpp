@@ -908,12 +908,22 @@ public:
                             std::vector<float>& values) {
     if (apply_set_operations) {
 
+
+
       std::vector<MKL_INT> row_offsets_mkl(row_offsets.begin(), row_offsets.end());
       std::vector<MKL_INT> col_offsets_mkl(col_indices.begin(), col_indices.end());
 
 
 
       MKL_INT numRows = row_offsets_mkl.size() - 1;
+
+      for(int i=0;i<numRows;i++){
+        for(int j=row_offsets[i];j<row_offsets[i+1];j++){
+          cout<<" i "<<i<<" j "<<col_indices[j]<<" before value "<<values[j]<<endl;
+        }
+      }
+
+
 
       // Create CSR matrix
       sparse_matrix_t csrMatrix;
@@ -968,7 +978,7 @@ public:
 
       for(int i=0;i<numRows;i++){
         for(int j=row_offsets[i];j<row_offsets[i+1];j++){
-          cout<<" i "<<i<<" j "<<j<<" value "<<values[j]<<endl;
+          cout<<" i "<<i<<" j "<<col_indices[j]<<" value "<<values[j]<<endl;
         }
       }
 
