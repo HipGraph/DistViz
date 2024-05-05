@@ -1015,15 +1015,15 @@ public:
 
         // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
         Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTranspose - prodMatrix;
-        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
+//        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
 
         // Retrieve result in CSR format
         std::vector<int> result_row_offsets;
         std::vector<int> result_col_indices;
         std::vector<float> result_values;
 
-        for (int i = 0; i < result.rows(); ++i) {
-          for (typename Eigen::SparseMatrix<float>::InnerIterator it(result, i); it; ++it) {
+        for (int i = 0; i < tempMatrix.rows(); ++i) {
+          for (typename Eigen::SparseMatrix<float>::InnerIterator it(tempMatrix, i); it; ++it) {
             result_row_offsets.push_back(it.row());
             result_col_indices.push_back(it.col());
             result_values.push_back(it.value());
@@ -1037,13 +1037,10 @@ public:
 
         // Print result for verification
         for (int i = 0; i < result_row_offsets.size(); ++i) {
-          std::cout << "i " << result_row_offsets[i] << " j " << result_col_indices[i] << " value " << result_values[i] << std::endl;
+          std::cout << "i " << row_offsets[i] << " j " << col_indices[i] << " value " << values[i] << std::endl;
         }
       }
     }
-  }
-
-
 
 
 };
