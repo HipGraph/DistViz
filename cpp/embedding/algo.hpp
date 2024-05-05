@@ -917,11 +917,11 @@ public:
 
       MKL_INT numRows = row_offsets_mkl.size() - 1;
 
-      for(int i=0;i<numRows;i++){
-        for(int j=row_offsets[i];j<row_offsets[i+1];j++){
-          cout<<" i "<<i<<" j "<<col_indices[j]<<" before value "<<values[j]<<endl;
-        }
-      }
+//      for(int i=0;i<numRows;i++){
+//        for(int j=row_offsets[i];j<row_offsets[i+1];j++){
+//          cout<<" i "<<i<<" j "<<col_indices[j]<<" before value "<<values[j]<<endl;
+//        }
+//      }
 
 
 
@@ -951,7 +951,7 @@ public:
       MKL_INT *rows_start, *rows_end, *col_idx;
       float *values_ptr;
       sparse_index_base_t indexing=SPARSE_INDEX_BASE_ONE;
-      status = mkl_sparse_s_export_csr(result, &indexing,&numRows,&numRows,&rows_start, &rows_end,&col_idx, &values_ptr);
+      status = mkl_sparse_s_export_csr(prodMatrix, &indexing,&numRows,&numRows,&rows_start, &rows_end,&col_idx, &values_ptr);
 
 
       MKL_INT total_nnz = rows_start[numRows];
