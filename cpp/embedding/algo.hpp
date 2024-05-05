@@ -1036,8 +1036,10 @@ public:
         values = std::move(result_values);
 
         // Print result for verification
-        for (int i = 0; i < result_row_offsets.size(); ++i) {
-          std::cout << "i " << row_offsets[i] << " j " << col_indices[i] << " value " << values[i] << std::endl;
+        for (int i = 0; i < numRows; ++i) {
+          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
+            cout<<" i "<<i<<" j "<<col_indices[j]<<" values "<<values[j]<<endl;
+          }
         }
       }
     }
