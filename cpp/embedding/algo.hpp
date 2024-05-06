@@ -202,8 +202,8 @@ public:
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false, a, b);
 
-//          generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
-//                                    considering_batch_size,seed);
+          generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
+                                    considering_batch_size,seed);
 //          this->calc_t_dist_replus_rowptr_new(
 //              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
 //              csr_handle,alpha, j, batch_size,
