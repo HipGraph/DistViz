@@ -159,7 +159,9 @@ public:
       calculate_membership_strength(csr_handle);
       apply_set_operations(true,1.0,
                            csr_handle->rowStart,csr_handle->col_idx,csr_handle->values);
+      cout<<"apply_set_operations"<<endl;
       make_epochs_per_sample(csr_handle,iterations,ns);
+      cout<<"make_epochs_per_sample completed"<<endl;
 
     }
     double min_dist=0.1;
