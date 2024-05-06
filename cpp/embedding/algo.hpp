@@ -856,7 +856,7 @@ public:
     DENT maxElement = *std::max_element(csr_handle->values.begin(), csr_handle->values.end());
     #pragma omp parallel for schedule(static)
     for(SPT i=source_start_index;i<source_end_index;i++){
-//      int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
+      int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
 //      samples_per_epoch[i].resize(nn,-1.0);
 //      samples_per_epoch_next[i].resize(nn,-1.0);
 //      samples_per_epoch_negative[i].resize(nn,-1.0/ns);
