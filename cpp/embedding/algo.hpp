@@ -923,7 +923,7 @@ public:
 
         // Create sparse matrix in CSR format
         Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
-        for (int i = 0; i < numRows; ++i) {
+        for (int i = 0; i < numRows+1; ++i) {
           for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
             csrMatrix.coeffRef(i, col_indices[j]) = values[j];
           }
@@ -939,23 +939,17 @@ public:
         Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTranspose - prodMatrix;
 //        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
 
-        // Retrieve result in CSR format
-        std::vector<int> result_row_offsets;
-        std::vector<int> result_col_indices;
-        std::vector<float> result_values;
+        int rows = tempMatrix.rows();
+        int cols = tempMatrix.cols();
+        int nnz = tempMatrix.nonZeros();
 
-        for (int i = 0; i < tempMatrix.rows(); ++i) {
-          for (typename Eigen::SparseMatrix<float>::InnerIterator it(tempMatrix, i); it; ++it) {
-            result_row_offsets.push_back(it.row());
-            result_col_indices.push_back(it.col());
-            result_values.push_back(it.value());
-          }
-        }
+        col_indices.resize(nnz);
+        values.resize(nnz);
 
-        // Update input vectors with the result
-        row_offsets = std::move(result_row_offsets);
-        col_indices = std::move(result_col_indices);
-        values = std::move(result_values);
+        std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
+        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
+        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
+
       }
     }
 
