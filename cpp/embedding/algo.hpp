@@ -207,10 +207,10 @@ public:
 
           generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
-//          this->calc_t_dist_replus_rowptr_new(
-//              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
-//              csr_handle,alpha, j, batch_size,
-//              considering_batch_size, a, b);
+          this->calc_t_dist_replus_rowptr_new(
+              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
+              csr_handle,alpha, j, batch_size,
+              considering_batch_size, a, b);
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
