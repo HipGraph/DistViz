@@ -864,14 +864,14 @@ public:
       for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
          DENT value = csr_handle->values[j];
-         DENT n_samples = static_cast<DENT>(iterations) * (value / maxElement);
-         if(n_samples>0){
-           int index = j -static_cast<int>(csr_handle->rowStart[i]);
-           samples_per_epoch[i][index] =  static_cast<DENT>(iterations) /n_samples;
-           samples_per_epoch_next[i][index] =  static_cast<DENT>(samples_per_epoch[i][index]);
-           samples_per_epoch_negative[i][index] =  static_cast<DENT>(samples_per_epoch[i][index]/ns);
-           samples_per_epoch_negative_next[i][index] =  static_cast<DENT>(samples_per_epoch_negative[i][index]);
-         }
+//         DENT n_samples = static_cast<DENT>(iterations) * (value / maxElement);
+//         if(n_samples>0){
+//           int index = j -static_cast<int>(csr_handle->rowStart[i]);
+//           samples_per_epoch[i][index] =  static_cast<DENT>(iterations) /n_samples;
+//           samples_per_epoch_next[i][index] =  static_cast<DENT>(samples_per_epoch[i][index]);
+//           samples_per_epoch_negative[i][index] =  static_cast<DENT>(samples_per_epoch[i][index]/ns);
+//           samples_per_epoch_negative_next[i][index] =  static_cast<DENT>(samples_per_epoch_negative[i][index]);
+//         }
 
       }
     }
