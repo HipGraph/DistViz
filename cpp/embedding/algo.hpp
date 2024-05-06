@@ -1034,13 +1034,6 @@ public:
         row_offsets = std::move(result_row_offsets);
         col_indices = std::move(result_col_indices);
         values = std::move(result_values);
-
-        // Print result for verification
-        for (int i = 0; i < numRows; ++i) {
-          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
-            cout<<" i "<<i<<" j "<<col_indices[j]<<" values "<<values[j]<<endl;
-          }
-        }
       }
     }
 
