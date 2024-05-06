@@ -157,9 +157,10 @@ public:
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
       calculate_membership_strength(csr_handle);
-      make_epochs_per_sample(csr_handle,iterations,ns);
       apply_set_operations(true,1.0,
                            csr_handle->rowStart,csr_handle->col_idx,csr_handle->values);
+      make_epochs_per_sample(csr_handle,iterations,ns);
+
     }
     double min_dist=0.1;
     double spread=1.0;
@@ -903,94 +904,6 @@ public:
       }
     }
   }
-
-//  void apply_set_operations(bool apply_set_operations, float set_op_mix_ratio,
-//                            std::vector<int>& row_offsets, std::vector<int>& col_indices,
-//                            std::vector<float>& values) {
-//    if (apply_set_operations) {
-//
-//
-//
-//      std::vector<MKL_INT> row_offsets_mkl(row_offsets.begin(), row_offsets.end());
-//      std::vector<MKL_INT> col_offsets_mkl(col_indices.begin(), col_indices.end());
-//
-//
-//
-//      MKL_INT numRows = row_offsets_mkl.size() - 1;
-//
-////      for(int i=0;i<numRows;i++){
-////        for(int j=row_offsets[i];j<row_offsets[i+1];j++){
-////          cout<<" i "<<i<<" j "<<col_indices[j]<<" before value "<<values[j]<<endl;
-////        }
-////      }
-//
-//
-//
-//      // Create CSR matrix
-//      sparse_matrix_t csrMatrix;
-//      mkl_sparse_s_create_csr(&csrMatrix, SPARSE_INDEX_BASE_ZERO, numRows, numRows,
-//                              row_offsets_mkl.data(), row_offsets_mkl.data() +1 ,
-//                              col_offsets_mkl.data(), values.data());
-//
-//      // Transpose the CSR matrix
-//      sparse_matrix_t csrTranspose;
-//      mkl_sparse_convert_csr(csrMatrix,SPARSE_OPERATION_TRANSPOSE, &csrTranspose);
-//
-//      // Multiply result with its transpose
-//      sparse_matrix_t prodMatrix;
-//      mkl_sparse_spmm(SPARSE_OPERATION_NON_TRANSPOSE, csrMatrix, csrTranspose, &prodMatrix);
-//
-//      // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
-//      sparse_status_t status;
-//      sparse_matrix_t tempMatrix;
-//      status = mkl_sparse_s_add(SPARSE_OPERATION_NON_TRANSPOSE,  csrMatrix,1.0, csrTranspose, &tempMatrix);
-//      sparse_matrix_t result;
-//      status = mkl_sparse_s_add(SPARSE_OPERATION_NON_TRANSPOSE, prodMatrix,-1.0, tempMatrix, &result);
-//
-//      // Retrieve result as CSR format
-//
-//      MKL_INT *rows_start, *rows_end, *col_idx;
-//      float *values_ptr;
-//      sparse_index_base_t indexing=SPARSE_INDEX_BASE_ONE;
-//      status = mkl_sparse_s_export_csr(prodMatrix, &indexing,&numRows,&numRows,&rows_start, &rows_end,&col_idx, &values_ptr);
-//
-//
-//      MKL_INT total_nnz = rows_start[numRows];
-//
-//      vector<MKL_INT>  result_row_offsets_mkl;
-//      vector<MKL_INT>  result_cols_offsets_mkl;
-//
-//      values.resize(total_nnz);
-//      result_row_offsets_mkl.resize(numRows+1);
-//      result_cols_offsets_mkl.resize(total_nnz);
-//
-//      memcpy(values.data(), values_ptr, sizeof(float) * max(total_nnz, static_cast<MKL_INT>(1)));
-//      cout<<" values copied"<<endl;
-//      memcpy(result_cols_offsets_mkl.data(), col_idx,
-//                   sizeof(MKL_INT) * max(total_nnz, static_cast<MKL_INT>(1)));
-//      cout<<" cols copied"<<endl;
-//      memcpy(result_row_offsets_mkl.data(), rows_start,
-//                   sizeof(MKL_INT) * (numRows+1));
-//      cout<<" rows copied"<<endl;
-//      row_offsets = vector<int>(result_row_offsets_mkl.begin(),result_row_offsets_mkl.end());
-//      cout<<" rows copied to origin "<<endl;
-//      col_indices = vector<int>(result_cols_offsets_mkl.begin(),result_cols_offsets_mkl.end());
-//      cout<<" cols copied to origin "<<endl;
-//
-//      for(int i=0;i<numRows;i++){
-//        for(int j=row_offsets[i];j<row_offsets[i+1];j++){
-//          cout<<" i "<<i<<" j "<<col_indices[j]<<" value "<<values[j]<<endl;
-//        }
-//      }
-//
-//
-//      // Deallocate matrices
-////      mkl_sparse_destroy(csrMatrix);
-////      mkl_sparse_destroy(csrTranspose);
-////      mkl_sparse_destroy(prodMatrix);
-////      mkl_sparse_destroy(tempMatrix);
-////      mkl_sparse_destroy(result);
-//    }
 
 
     void apply_set_operations(bool apply_set_operations, float set_op_mix_ratio,
