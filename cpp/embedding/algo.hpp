@@ -162,6 +162,7 @@ public:
       cout<<"apply_set_operations"<<endl;
       make_epochs_per_sample(csr_handle,iterations,ns);
       cout<<"make_epochs_per_sample completed"<<endl;
+      computeTopKEigenvectorsFromLaplacian(csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,,10)
 
     }
     double min_dist=0.1;
@@ -950,6 +951,34 @@ public:
         std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
 
       }
+    }
+
+    Eigen::SparseMatrix<float> computeTopKEigenvectorsFromLaplacian(
+        const std::vector<int>& row_offsets,
+        const std::vector<int>& col_indices,
+        const std::vector<float>& values,
+        int k) {
+      int num_nodes = row_offsets.size()-1;
+      // Step 1: Compute the normalized Laplacian matrix
+      Eigen::SparseMatrix<float> normalized_laplacian = computeNormalizedLaplacianFromCSR(row_offsets, col_indices, values, num_nodes);
+
+      // Step 2: Compute the eigenvectors of the Laplacian matrix
+      Eigen::SelfAdjointEigenSolver<Eigen::SparseMatrix<float>> solver(normalized_laplacian);
+      Eigen::SparseMatrix<float> laplacian_eigenvectors = solver.eigenvectors();
+      Eigen::VectorXs eigenvalues = solver.eigenvalues();
+
+      // Step 3: Sort eigenvalues and eigenvectors
+      std::vector<int> order(num_nodes);
+      std::iota(order.begin(), order.end(), 0);
+      std::sort(order.begin(), order.end(), [&](int i, int j) { return eigenvalues(i) < eigenvalues(j); });
+
+      // Step 4: Select the top k eigenvectors
+      Eigen::SparseMatrix<float> top_k_eigenvectors(laplacian_eigenvectors.rows(), k);
+      for (int i = 0; i < k; ++i) {
+        top_k_eigenvectors.col(i) = laplacian_eigenvectors.col(order[i]);
+      }
+
+      return top_k_eigenvectors;
     }
 
 
