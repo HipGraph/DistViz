@@ -976,7 +976,7 @@ public:
       std::sort(order.begin(), order.end(), [&](int i, int j) { return eigenvalues(i) < eigenvalues(j); });
 
       // Step 4: Select the top k eigenvectors
-      Eigen::SparseMatrix<float> top_k_eigenvectors(laplacian_eigenvectors.rows(), k);
+      Eigen::SparseMatrix<float> top_k_eigenvectors(laplacian_eigenvectors_dense.rows(), k);
       for (int i = 0; i < k; ++i) {
         top_k_eigenvectors.col(i) = laplacian_eigenvectors_dense.col(order[i]);
       }
@@ -985,10 +985,10 @@ public:
     }
 
 
-    Eigen::SparseMatrix<double> computeNormalizedLaplacianFromCSR(
+    Eigen::SparseMatrix<float> computeNormalizedLaplacianFromCSR(
         const std::vector<int>& row_offsets,
         const std::vector<int>& col_indices,
-        const std::vector<double>& values,
+        const std::vector<float>& values,
         int num_nodes) {
 
       // Step 1: Compute the degree vector
@@ -999,7 +999,7 @@ public:
       }
 
       // Step 2: Compute the degree matrix
-      Eigen::SparseMatrix<double> degree_matrix(num_nodes, num_nodes);
+      Eigen::SparseMatrix<float> degree_matrix(num_nodes, num_nodes);
       degree_matrix.reserve(Eigen::VectorXi::Constant(num_nodes, 1));
       for (int i = 0; i < num_nodes; ++i) {
         degree_matrix.insert(i, i) = degree_vector(i);
@@ -1007,7 +1007,7 @@ public:
       degree_matrix.makeCompressed();
 
       // Step 3: Compute the unnormalized Laplacian matrix
-      Eigen::SparseMatrix<double> adjacency_matrix(num_nodes, num_nodes);
+      Eigen::SparseMatrix<float> adjacency_matrix(num_nodes, num_nodes);
       adjacency_matrix.reserve(Eigen::VectorXi::Constant(num_nodes, 1));
       for (int i = 0; i < num_nodes; ++i) {
         for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
@@ -1017,15 +1017,15 @@ public:
       }
       adjacency_matrix.makeCompressed();
 
-      Eigen::SparseMatrix<double> unnormalized_laplacian = degree_matrix - adjacency_matrix;
+      Eigen::SparseMatrix<float> unnormalized_laplacian = degree_matrix - adjacency_matrix;
 
       // Step 4: Compute the normalized Laplacian matrix
-      Eigen::SparseMatrix<double> degree_sqrt_inv = degree_matrix;
+      Eigen::SparseMatrix<float> degree_sqrt_inv = degree_matrix;
       for (int i = 0; i < num_nodes; ++i) {
-        double degree_sqrt_inv_value = 1.0 / std::sqrt(degree_vector(i));
+        float degree_sqrt_inv_value = 1.0 / std::sqrt(degree_vector(i));
         degree_sqrt_inv.coeffRef(i, i) = degree_sqrt_inv_value;
       }
-      Eigen::SparseMatrix<double> normalized_laplacian = degree_sqrt_inv * unnormalized_laplacian * degree_sqrt_inv;
+      Eigen::SparseMatrix<float> normalized_laplacian = degree_sqrt_inv * unnormalized_laplacian * degree_sqrt_inv;
 
       return normalized_laplacian;
     }
