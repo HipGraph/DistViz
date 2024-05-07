@@ -965,27 +965,27 @@ public:
      // Step 1: Compute the normalized Laplacian matrix
       Eigen::SparseMatrix<float> normalized_laplacian = computeNormalizedLaplacianFromCSR(row_offsets, col_indices, values, num_nodes);
 
-      // Step 2: Compute the eigenvectors of the Laplacian matrix
-      Eigen::SelfAdjointEigenSolver<Eigen::SparseMatrix<float>> solver(normalized_laplacian);
-      Eigen::MatrixXf laplacian_eigenvectors_dense = solver.eigenvectors();
-      Eigen::VectorXf eigenvalues = solver.eigenvalues();
-
-      // Step 3: Sort eigenvalues and eigenvectors
-      std::vector<int> order(num_nodes);
-      std::iota(order.begin(), order.end(), 0);
-      std::sort(order.begin(), order.end(), [&](int i, int j) { return eigenvalues(i) < eigenvalues(j); });
-
-      // Step 4: Select the top k eigenvectors
+//      // Step 2: Compute the eigenvectors of the Laplacian matrix
+//      Eigen::SelfAdjointEigenSolver<Eigen::SparseMatrix<float>> solver(normalized_laplacian);
+//      Eigen::MatrixXf laplacian_eigenvectors_dense = solver.eigenvectors();
+//      Eigen::VectorXf eigenvalues = solver.eigenvalues();
+//
+//      // Step 3: Sort eigenvalues and eigenvectors
+//      std::vector<int> order(num_nodes);
+//      std::iota(order.begin(), order.end(), 0);
+//      std::sort(order.begin(), order.end(), [&](int i, int j) { return eigenvalues(i) < eigenvalues(j); });
+//
+//      // Step 4: Select the top k eigenvectors
       Eigen::SparseMatrix<float> top_k_eigenvectors(num_nodes, k);
-      for (int i = 0; i < k; ++i) {
-        Eigen::VectorXf eigenvector = laplacian_eigenvectors_dense.col(order[i]);
-        Eigen::SparseVector<float> sparse_eigenvector(num_nodes);
-        sparse_eigenvector.resize(num_nodes);
-        for (int j = 0; j < num_nodes; ++j) {
-          sparse_eigenvector.coeffRef(j) = eigenvector(j);
-        }
-        top_k_eigenvectors.col(i) = sparse_eigenvector;
-      }
+//      for (int i = 0; i < k; ++i) {
+//        Eigen::VectorXf eigenvector = laplacian_eigenvectors_dense.col(order[i]);
+//        Eigen::SparseVector<float> sparse_eigenvector(num_nodes);
+//        sparse_eigenvector.resize(num_nodes);
+//        for (int j = 0; j < num_nodes; ++j) {
+//          sparse_eigenvector.coeffRef(j) = eigenvector(j);
+//        }
+//        top_k_eigenvectors.col(i) = sparse_eigenvector;
+//      }
 
       return top_k_eigenvectors;
     }
@@ -999,6 +999,7 @@ public:
 
       // Step 1: Compute the degree vector
       Eigen::VectorXd degree_vector(num_nodes);
+      #pragma  omp parallel for
       for (int i = 0; i < num_nodes; ++i) {
         int degree = row_offsets[i + 1] - row_offsets[i];
         degree_vector(i) = degree;
@@ -1007,6 +1008,7 @@ public:
       // Step 2: Compute the degree matrix
       Eigen::SparseMatrix<float> degree_matrix(num_nodes, num_nodes);
       degree_matrix.reserve(Eigen::VectorXi::Constant(num_nodes, 1));
+      #pragma  omp parallel for
       for (int i = 0; i < num_nodes; ++i) {
         degree_matrix.insert(i, i) = degree_vector(i);
       }
@@ -1015,6 +1017,7 @@ public:
       // Step 3: Compute the unnormalized Laplacian matrix
       Eigen::SparseMatrix<float> adjacency_matrix(num_nodes, num_nodes);
       adjacency_matrix.reserve(Eigen::VectorXi::Constant(num_nodes, 1));
+      #pragma  omp parallel for
       for (int i = 0; i < num_nodes; ++i) {
         for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
           int col_index = col_indices[j];
@@ -1027,6 +1030,7 @@ public:
 
       // Step 4: Compute the normalized Laplacian matrix
       Eigen::SparseMatrix<float> degree_sqrt_inv = degree_matrix;
+      #pragma  omp parallel for
       for (int i = 0; i < num_nodes; ++i) {
         float degree_sqrt_inv_value = 1.0 / std::sqrt(degree_vector(i));
         degree_sqrt_inv.coeffRef(i, i) = degree_sqrt_inv_value;
