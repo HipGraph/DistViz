@@ -962,7 +962,7 @@ public:
         const std::vector<float>& values,
         int k) {
       int num_nodes = row_offsets.size()-1;
-      // Step 1: Compute the normalized Laplacian matrix
+     // Step 1: Compute the normalized Laplacian matrix
       Eigen::SparseMatrix<float> normalized_laplacian = computeNormalizedLaplacianFromCSR(row_offsets, col_indices, values, num_nodes);
 
       // Step 2: Compute the eigenvectors of the Laplacian matrix
@@ -976,9 +976,15 @@ public:
       std::sort(order.begin(), order.end(), [&](int i, int j) { return eigenvalues(i) < eigenvalues(j); });
 
       // Step 4: Select the top k eigenvectors
-      Eigen::SparseMatrix<float> top_k_eigenvectors(laplacian_eigenvectors_dense.rows(), k);
+      Eigen::SparseMatrix<float> top_k_eigenvectors(num_nodes, k);
       for (int i = 0; i < k; ++i) {
-        top_k_eigenvectors.col(i) = laplacian_eigenvectors_dense.col(order[i]);
+        Eigen::VectorXf eigenvector = laplacian_eigenvectors_dense.col(order[i]);
+        Eigen::SparseVector<float> sparse_eigenvector(num_nodes);
+        sparse_eigenvector.resize(num_nodes);
+        for (int j = 0; j < num_nodes; ++j) {
+          sparse_eigenvector.coeffRef(j) = eigenvector(j);
+        }
+        top_k_eigenvectors.col(i) = sparse_eigenvector;
       }
 
       return top_k_eigenvectors;
