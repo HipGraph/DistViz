@@ -162,7 +162,7 @@ public:
       cout<<"apply_set_operations"<<endl;
       make_epochs_per_sample(csr_handle,iterations,ns);
       cout<<"make_epochs_per_sample completed"<<endl;
-      computeTopKEigenvectorsFromLaplacian(csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,,10)
+      computeTopKEigenvectorsFromLaplacian(csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,10);
 
     }
     double min_dist=0.1;
