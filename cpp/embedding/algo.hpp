@@ -167,8 +167,8 @@ public:
     double min_dist=0.1;
     double spread=1.0;
 //    pair<double,double> ab = find_ab_params(spread,min_dist);
-    double a = 0.0474;
-    double b = 0.8;
+    double a = 42.73;
+    double b = 1.33;
     cout<<"a "<<a<<"b "<<b<<endl;
     int seed =0;
     DENT alpha = lr;
