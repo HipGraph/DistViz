@@ -1030,7 +1030,7 @@ public:
 
       // Step 4: Compute the normalized Laplacian matrix
       Eigen::SparseMatrix<float> degree_sqrt_inv = degree_matrix;
-      #pragma  omp parallel for
+//      #pragma  omp parallel for
       for (int i = 0; i < num_nodes; ++i) {
         float degree_sqrt_inv_value = 1.0 / std::sqrt(degree_vector(i));
         degree_sqrt_inv.coeffRef(i, i) = degree_sqrt_inv_value;
