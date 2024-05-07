@@ -27,6 +27,9 @@
 #include <mkl.h>
 #include <mkl_spblas.h>
 #include <Eigen/Sparse>
+#include <Eigen/Dense>
+#include <Eigen/SparseCore>
+#include <Eigen/SparseCholesky>
 
 using namespace std;
 using namespace hipgraph::distviz::common;
@@ -964,8 +967,8 @@ public:
 
       // Step 2: Compute the eigenvectors of the Laplacian matrix
       Eigen::SelfAdjointEigenSolver<Eigen::SparseMatrix<float>> solver(normalized_laplacian);
-      Eigen::SparseMatrix<float> laplacian_eigenvectors = solver.eigenvectors();
-      Eigen::VectorXs eigenvalues = solver.eigenvalues();
+      Eigen::MatrixXf laplacian_eigenvectors_dense = solver.eigenvectors();
+      Eigen::VectorXf eigenvalues = solver.eigenvalues();
 
       // Step 3: Sort eigenvalues and eigenvectors
       std::vector<int> order(num_nodes);
@@ -975,7 +978,7 @@ public:
       // Step 4: Select the top k eigenvectors
       Eigen::SparseMatrix<float> top_k_eigenvectors(laplacian_eigenvectors.rows(), k);
       for (int i = 0; i < k; ++i) {
-        top_k_eigenvectors.col(i) = laplacian_eigenvectors.col(order[i]);
+        top_k_eigenvectors.col(i) = laplacian_eigenvectors_dense.col(order[i]);
       }
 
       return top_k_eigenvectors;
