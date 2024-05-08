@@ -1008,7 +1008,7 @@ public:
       // Step 2: Compute the degree matrix
       Eigen::SparseMatrix<float> degree_matrix(num_nodes, num_nodes);
       degree_matrix.reserve(Eigen::VectorXi::Constant(num_nodes, 1));
-      #pragma  omp parallel for
+//      #pragma  omp parallel for
       for (int i = 0; i < num_nodes; ++i) {
         degree_matrix.insert(i, i) = degree_vector(i);
       }
@@ -1017,7 +1017,7 @@ public:
       // Step 3: Compute the unnormalized Laplacian matrix
       Eigen::SparseMatrix<float> adjacency_matrix(num_nodes, num_nodes);
       adjacency_matrix.reserve(Eigen::VectorXi::Constant(num_nodes, 1));
-      #pragma  omp parallel for
+//      #pragma  omp parallel for
       for (int i = 0; i < num_nodes; ++i) {
         for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
           int col_index = col_indices[j];
