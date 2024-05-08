@@ -999,7 +999,7 @@ public:
 
       // Step 1: Compute the degree vector
       Eigen::VectorXd degree_vector(num_nodes);
-      #pragma  omp parallel for
+//      #pragma  omp parallel for
       for (int i = 0; i < num_nodes; ++i) {
         int degree = row_offsets[i + 1] - row_offsets[i];
         degree_vector(i) = degree;
