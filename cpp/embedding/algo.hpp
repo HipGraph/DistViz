@@ -969,6 +969,7 @@ public:
       Eigen::SelfAdjointEigenSolver<Eigen::SparseMatrix<float>> solver(normalized_laplacian);
       Eigen::MatrixXf laplacian_eigenvectors_dense = solver.eigenvectors();
       Eigen::VectorXf eigenvalues = solver.eigenvalues();
+      cout<<" eigen solver not completed"<<endl;
 //
 //      // Step 3: Sort eigenvalues and eigenvectors
 //      std::vector<int> order(num_nodes);
