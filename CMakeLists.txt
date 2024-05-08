@@ -26,9 +26,9 @@ message("Finding OpenMP")
 find_package(OpenMP REQUIRED)
 
 
-message("Finding PETSC")
-find_package(PETSC REQUIRED)
-include_directories(${PETSC_DIR}/include)
+#message("Finding PETSC")
+#find_package(PETSC REQUIRED)
+#include_directories(${PETSC_DIR}/include)
 message(STATUS "PETSC include dir: ${PETSC_DIR}/include")
 #message("Finding BLAS")
 #find_package(BLAS REQUIRED)
