@@ -966,9 +966,9 @@ public:
       Eigen::SparseMatrix<float> normalized_laplacian = computeNormalizedLaplacianFromCSR(row_offsets, col_indices, values, num_nodes);
 
 //      // Step 2: Compute the eigenvectors of the Laplacian matrix
-//      Eigen::SelfAdjointEigenSolver<Eigen::SparseMatrix<float>> solver(normalized_laplacian);
-//      Eigen::MatrixXf laplacian_eigenvectors_dense = solver.eigenvectors();
-//      Eigen::VectorXf eigenvalues = solver.eigenvalues();
+      Eigen::SelfAdjointEigenSolver<Eigen::SparseMatrix<float>> solver(normalized_laplacian);
+      Eigen::MatrixXf laplacian_eigenvectors_dense = solver.eigenvectors();
+      Eigen::VectorXf eigenvalues = solver.eigenvalues();
 //
 //      // Step 3: Sort eigenvalues and eigenvectors
 //      std::vector<int> order(num_nodes);
