@@ -30,6 +30,8 @@
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 #include <Eigen/SparseCholesky>
+#include <petscsys.h>
+#include <petscmat.h>
 
 using namespace std;
 using namespace hipgraph::distviz::common;
@@ -961,85 +963,87 @@ public:
         const std::vector<int>& col_indices,
         const std::vector<float>& values,
         int k) {
-      int num_nodes = row_offsets.size()-1;
-     // Step 1: Compute the normalized Laplacian matrix
-      Eigen::SparseMatrix<float> normalized_laplacian = computeNormalizedLaplacianFromCSR(row_offsets, col_indices, values, num_nodes);
-      cout<<" laplacian constrution completed"<<endl;
-//      // Step 2: Compute the eigenvectors of the Laplacian matrix
-      Eigen::SelfAdjointEigenSolver<Eigen::SparseMatrix<float>> solver(normalized_laplacian);
-      Eigen::MatrixXf laplacian_eigenvectors_dense = solver.eigenvectors();
-      Eigen::VectorXf eigenvalues = solver.eigenvalues();
-      cout<<" eigen solver  completed"<<endl;
-//
-//      // Step 3: Sort eigenvalues and eigenvectors
-//      std::vector<int> order(num_nodes);
-//      std::iota(order.begin(), order.end(), 0);
-//      std::sort(order.begin(), order.end(), [&](int i, int j) { return eigenvalues(i) < eigenvalues(j); });
-//
-//      // Step 4: Select the top k eigenvectors
-      Eigen::SparseMatrix<float> top_k_eigenvectors(num_nodes, k);
-//      for (int i = 0; i < k; ++i) {
-//        Eigen::VectorXf eigenvector = laplacian_eigenvectors_dense.col(order[i]);
-//        Eigen::SparseVector<float> sparse_eigenvector(num_nodes);
-//        sparse_eigenvector.resize(num_nodes);
-//        for (int j = 0; j < num_nodes; ++j) {
-//          sparse_eigenvector.coeffRef(j) = eigenvector(j);
-//        }
-//        top_k_eigenvectors.col(i) = sparse_eigenvector;
-//      }
+      PetscInitialize(NULL, NULL, NULL, NULL);
 
-      return top_k_eigenvectors;
+      // Construct the graph Laplacian matrix
+      // You need to implement this part to construct the Laplacian from CSR
+
+      // Set up PETSc matrix to represent the Laplacian
+      Mat laplacian;
+      computeLaplacian(row_offsets,col_indices,&laplacian);
+      MatCreate(PETSC_COMM_WORLD, &laplacian);
+      MatSetType(laplacian, MATMPIAIJ);
+      MatSetSizes(laplacian, PETSC_DECIDE, PETSC_DECIDE, n, n);
+      MatSetUp(laplacian);
+
+      // Set values of Laplacian matrix using CSR data
+      // You need to implement this part to set the values of the Laplacian matrix
+
+      // Set up PETSc eigenvalue solver
+      EPS eps;
+      EPSCreate(PETSC_COMM_WORLD, &eps);
+      EPSSetOperators(eps, laplacian, NULL);
+      EPSSetProblemType(eps, EPS_HEP);
+      EPSSetFromOptions(eps);
+      EPSSolve(eps);
+
+      // Get the number of converged eigenpairs
+      PetscInt nev;
+      EPSGetConverged(eps, &nev);
+
+      // Get the eigenvalues and eigenvectors
+      PetscScalar *eigenvalues = new PetscScalar[nev];
+      Mat eigenvectors;
+      MatCreate(PETSC_COMM_WORLD, &eigenvectors);
+      MatSetType(eigenvectors, MATMPIAIJ);
+      MatSetSizes(eigenvectors, PETSC_DECIDE, PETSC_DECIDE, n, nev);
+      MatSetUp(eigenvectors);
+      EPSGetEigenpairs(eps, &nev, eigenvalues, NULL, eigenvectors, NULL);
+
+      // Clean up
+      delete[] eigenvalues;
+      MatDestroy(&laplacian);
+      MatDestroy(&eigenvectors);
+      EPSDestroy(&eps);
+
+      PetscFinalize();
     }
 
+    void computeLaplacian(const std::vector<int>& row_offsets,
+                          const std::vector<int>& col_indices,
+                          Mat *laplacian) {
+//      PetscInitialize(NULL, NULL, NULL, NULL);
 
-    Eigen::SparseMatrix<float> computeNormalizedLaplacianFromCSR(
-        const std::vector<int>& row_offsets,
-        const std::vector<int>& col_indices,
-        const std::vector<float>& values,
-        int num_nodes) {
+      PetscInt n = row_offsets.size() - 1; // Number of vertices
 
-      // Step 1: Compute the degree vector
-      Eigen::VectorXd degree_vector(num_nodes);
-//      #pragma  omp parallel for
-      for (int i = 0; i < num_nodes; ++i) {
-        int degree = row_offsets[i + 1] - row_offsets[i];
-        degree_vector(i) = degree;
-      }
+      // Create a sequential CSR matrix to represent the Laplacian
+      MatCreateSeqAIJ(PETSC_COMM_SELF, n, n, 0, NULL, laplacian);
 
-      // Step 2: Compute the degree matrix
-      Eigen::SparseMatrix<float> degree_matrix(num_nodes, num_nodes);
-      degree_matrix.reserve(Eigen::VectorXi::Constant(num_nodes, 1));
-//      #pragma  omp parallel for
-      for (int i = 0; i < num_nodes; ++i) {
-        degree_matrix.insert(i, i) = degree_vector(i);
-      }
-      degree_matrix.makeCompressed();
-
-      // Step 3: Compute the unnormalized Laplacian matrix
-      Eigen::SparseMatrix<float> adjacency_matrix(num_nodes, num_nodes);
-      adjacency_matrix.reserve(Eigen::VectorXi::Constant(num_nodes, 1));
-//      #pragma  omp parallel for
-      for (int i = 0; i < num_nodes; ++i) {
-        for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
-          int col_index = col_indices[j];
-          adjacency_matrix.insert(i, col_index) = values[j];
+      // Populate the Laplacian matrix
+      for (PetscInt i = 0; i < n; ++i) {
+        PetscInt row_start = row_offsets[i];
+        PetscInt row_end = row_offsets[i + 1];
+        PetscScalar degree = row_end - row_start; // Degree of the vertex i
+        for (PetscInt j = row_start; j < row_end; ++j) {
+          PetscInt col_index = col_indices[j];
+          if (col_index == i) {
+            // Diagonal element: degree - number of neighbors of vertex i
+            MatSetValue(*laplacian, i, i, degree - 1.0, INSERT_VALUES);
+          } else {
+            // Off-diagonal element: -1.0
+            MatSetValue(*laplacian, i, col_index, -1.0, INSERT_VALUES);
+          }
         }
       }
-      adjacency_matrix.makeCompressed();
 
-      Eigen::SparseMatrix<float> unnormalized_laplacian = degree_matrix - adjacency_matrix;
+      // Assemble the matrix
+      MatAssemblyBegin(*laplacian, MAT_FINAL_ASSEMBLY);
+      MatAssemblyEnd(*laplacian, MAT_FINAL_ASSEMBLY);
 
-      // Step 4: Compute the normalized Laplacian matrix
-      Eigen::SparseMatrix<float> degree_sqrt_inv = degree_matrix;
-//      #pragma  omp parallel for
-      for (int i = 0; i < num_nodes; ++i) {
-        float degree_sqrt_inv_value = 1.0 / std::sqrt(degree_vector(i));
-        degree_sqrt_inv.coeffRef(i, i) = degree_sqrt_inv_value;
-      }
-      Eigen::SparseMatrix<float> normalized_laplacian = degree_sqrt_inv * unnormalized_laplacian * degree_sqrt_inv;
-
-      return normalized_laplacian;
+//      PetscFinalize();
     }
+
+
 
 
 };

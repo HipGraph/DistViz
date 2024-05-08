@@ -26,6 +26,9 @@ message("Finding OpenMP")
 find_package(OpenMP REQUIRED)
 
 
+message("Finding PETSc")
+find_package(PETSc REQUIRED)
+include_directories(${PETSC_INCLUDES})
 #message("Finding BLAS")
 #find_package(BLAS REQUIRED)
 #
@@ -89,6 +92,7 @@ target_link_libraries(distviz  disviz_lib)
 target_link_libraries(distviz mkl_intel_lp64 mkl_sequential mkl_core)
 target_link_libraries(distviz MPI::MPI_CXX)
 target_link_libraries(distviz OpenMP::OpenMP_CXX)
+target_link_libraries(distviz ${PETSC_LIBRARIES})
 #target_link_libraries(distembed CombBLAS)
 #target_link_libraries(distblas $ENV{MKLROOT})
 
