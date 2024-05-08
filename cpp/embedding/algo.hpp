@@ -964,7 +964,7 @@ public:
       int num_nodes = row_offsets.size()-1;
      // Step 1: Compute the normalized Laplacian matrix
       Eigen::SparseMatrix<float> normalized_laplacian = computeNormalizedLaplacianFromCSR(row_offsets, col_indices, values, num_nodes);
-
+      cout<<" laplacian constrution completed"<<endl;
 //      // Step 2: Compute the eigenvectors of the Laplacian matrix
       Eigen::SelfAdjointEigenSolver<Eigen::SparseMatrix<float>> solver(normalized_laplacian);
       Eigen::MatrixXf laplacian_eigenvectors_dense = solver.eigenvectors();
