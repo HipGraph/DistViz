@@ -32,6 +32,7 @@
 #include <Eigen/SparseCholesky>
 #include <petscsys.h>
 #include <petscmat.h>
+#include <<petsc/eps/eps.h>
 
 using namespace std;
 using namespace hipgraph::distviz::common;
@@ -969,6 +970,8 @@ public:
       // You need to implement this part to construct the Laplacian from CSR
 
       // Set up PETSc matrix to represent the Laplacian
+      PetscInt n = row_offsets.size() - 1;
+
       Mat laplacian;
       computeLaplacian(row_offsets,col_indices,&laplacian);
       MatCreate(PETSC_COMM_WORLD, &laplacian);
