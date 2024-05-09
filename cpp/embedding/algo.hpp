@@ -998,13 +998,13 @@ public:
       Vec   xr,xi;
       PetscScalar kr,ki;
       // Get the eigenvalues and eigenvectors
-      for(PetscInt i=0;i<nconv;i++){
+      for(int i=0;i<nev;i++){
         EPSGetEigenpair(eps, &i, &kr,&ki,xr,xi);
       }
       // Clean up
-      delete[] eigenvalues;
+//      delete[] eigenvalues;
       MatDestroy(&laplacian);
-      MatDestroy(&eigenvectors);
+//      MatDestroy(&eigenvectors);
       EPSDestroy(&eps);
 
       PetscFinalize();
