@@ -32,7 +32,7 @@
 #include <Eigen/SparseCholesky>
 #include <petscsys.h>
 #include <petscmat.h>
-#include <<petsc/eps/eps.h>
+#include <eps.h>
 
 using namespace std;
 using namespace hipgraph::distviz::common;
