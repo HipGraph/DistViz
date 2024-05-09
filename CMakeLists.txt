@@ -36,7 +36,7 @@ message(STATUS "PETSC include dir: $ENV{PETSC_DIR}/include")
 #
 #include_directories($ENV{COMBLAS_ROOT}/install/include $ENV{MKLROOT}/include $ENV{EIGEN_ROOT}/include)
 #link_directories($ENV{COMBLAS_ROOT}/install/lib $ENV{MKLROOT}/lib/intel64)
-include_directories($ENV{PETSC_DIR}/include $ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/include)
+#include_directories($ENV{PETSC_DIR}/include $ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/include)
 
 message("CMAKE_BINARY_PATH ${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -93,7 +93,7 @@ target_link_libraries(distviz  disviz_lib)
 target_link_libraries(distviz mkl_intel_lp64 mkl_sequential mkl_core)
 target_link_libraries(distviz MPI::MPI_CXX)
 target_link_libraries(distviz OpenMP::OpenMP_CXX)
-target_link_libraries(distviz $ENV{PETSC_DIR}/lib/petsc)
+#target_link_libraries(distviz $ENV{PETSC_DIR}/lib/petsc)
 #target_link_libraries(distembed CombBLAS)
 #target_link_libraries(distblas $ENV{MKLROOT})
 
