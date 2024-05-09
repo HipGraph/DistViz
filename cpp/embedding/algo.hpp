@@ -1002,7 +1002,7 @@ public:
       MatSetType(eigenvectors, MATMPIAIJ);
       MatSetSizes(eigenvectors, PETSC_DECIDE, PETSC_DECIDE, n, nev);
       MatSetUp(eigenvectors);
-      EPSGetEigenpairs(eps, &nev, eigenvalues, NULL, eigenvectors, NULL);
+      EPSGetEigenpair(eps, &nev, eigenvalues, NULL, eigenvectors, NULL);
 
       // Clean up
       delete[] eigenvalues;
