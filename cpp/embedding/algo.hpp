@@ -167,7 +167,7 @@ public:
       cout<<"apply_set_operations"<<endl;
       make_epochs_per_sample(csr_handle,iterations,ns);
       cout<<"make_epochs_per_sample completed"<<endl;
-      computeTopKEigenvectorsFromLaplacian(csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,10);
+//      computeTopKEigenvectorsFromLaplacian(csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,10);
 
     }
     double min_dist=0.1;
@@ -957,91 +957,91 @@ public:
 
       }
     }
-
-    Eigen::SparseMatrix<float> computeTopKEigenvectorsFromLaplacian(
-        const std::vector<int>& row_offsets,
-        const std::vector<int>& col_indices,
-        const std::vector<float>& values,
-        int k) {
-      PetscInitialize(NULL, NULL, NULL, NULL);
-
-      // Construct the graph Laplacian matrix
-      // You need to implement this part to construct the Laplacian from CSR
-
-      // Set up PETSc matrix to represent the Laplacian
-      Mat laplacian;
-      computeLaplacian(row_offsets,col_indices,&laplacian);
-      MatCreate(PETSC_COMM_WORLD, &laplacian);
-      MatSetType(laplacian, MATMPIAIJ);
-      MatSetSizes(laplacian, PETSC_DECIDE, PETSC_DECIDE, n, n);
-      MatSetUp(laplacian);
-
-      // Set values of Laplacian matrix using CSR data
-      // You need to implement this part to set the values of the Laplacian matrix
-
-      // Set up PETSc eigenvalue solver
-      EPS eps;
-      EPSCreate(PETSC_COMM_WORLD, &eps);
-      EPSSetOperators(eps, laplacian, NULL);
-      EPSSetProblemType(eps, EPS_HEP);
-      EPSSetFromOptions(eps);
-      EPSSolve(eps);
-
-      // Get the number of converged eigenpairs
-      PetscInt nev;
-      EPSGetConverged(eps, &nev);
-
-      // Get the eigenvalues and eigenvectors
-      PetscScalar *eigenvalues = new PetscScalar[nev];
-      Mat eigenvectors;
-      MatCreate(PETSC_COMM_WORLD, &eigenvectors);
-      MatSetType(eigenvectors, MATMPIAIJ);
-      MatSetSizes(eigenvectors, PETSC_DECIDE, PETSC_DECIDE, n, nev);
-      MatSetUp(eigenvectors);
-      EPSGetEigenpairs(eps, &nev, eigenvalues, NULL, eigenvectors, NULL);
-
-      // Clean up
-      delete[] eigenvalues;
-      MatDestroy(&laplacian);
-      MatDestroy(&eigenvectors);
-      EPSDestroy(&eps);
-
-      PetscFinalize();
-    }
-
-    void computeLaplacian(const std::vector<int>& row_offsets,
-                          const std::vector<int>& col_indices,
-                          Mat *laplacian) {
+//
+//    Eigen::SparseMatrix<float> computeTopKEigenvectorsFromLaplacian(
+//        const std::vector<int>& row_offsets,
+//        const std::vector<int>& col_indices,
+//        const std::vector<float>& values,
+//        int k) {
 //      PetscInitialize(NULL, NULL, NULL, NULL);
-
-      PetscInt n = row_offsets.size() - 1; // Number of vertices
-
-      // Create a sequential CSR matrix to represent the Laplacian
-      MatCreateSeqAIJ(PETSC_COMM_SELF, n, n, 0, NULL, laplacian);
-
-      // Populate the Laplacian matrix
-      for (PetscInt i = 0; i < n; ++i) {
-        PetscInt row_start = row_offsets[i];
-        PetscInt row_end = row_offsets[i + 1];
-        PetscScalar degree = row_end - row_start; // Degree of the vertex i
-        for (PetscInt j = row_start; j < row_end; ++j) {
-          PetscInt col_index = col_indices[j];
-          if (col_index == i) {
-            // Diagonal element: degree - number of neighbors of vertex i
-            MatSetValue(*laplacian, i, i, degree - 1.0, INSERT_VALUES);
-          } else {
-            // Off-diagonal element: -1.0
-            MatSetValue(*laplacian, i, col_index, -1.0, INSERT_VALUES);
-          }
-        }
-      }
-
-      // Assemble the matrix
-      MatAssemblyBegin(*laplacian, MAT_FINAL_ASSEMBLY);
-      MatAssemblyEnd(*laplacian, MAT_FINAL_ASSEMBLY);
-
+//
+//      // Construct the graph Laplacian matrix
+//      // You need to implement this part to construct the Laplacian from CSR
+//
+//      // Set up PETSc matrix to represent the Laplacian
+//      Mat laplacian;
+//      computeLaplacian(row_offsets,col_indices,&laplacian);
+//      MatCreate(PETSC_COMM_WORLD, &laplacian);
+//      MatSetType(laplacian, MATMPIAIJ);
+//      MatSetSizes(laplacian, PETSC_DECIDE, PETSC_DECIDE, n, n);
+//      MatSetUp(laplacian);
+//
+//      // Set values of Laplacian matrix using CSR data
+//      // You need to implement this part to set the values of the Laplacian matrix
+//
+//      // Set up PETSc eigenvalue solver
+//      EPS eps;
+//      EPSCreate(PETSC_COMM_WORLD, &eps);
+//      EPSSetOperators(eps, laplacian, NULL);
+//      EPSSetProblemType(eps, EPS_HEP);
+//      EPSSetFromOptions(eps);
+//      EPSSolve(eps);
+//
+//      // Get the number of converged eigenpairs
+//      PetscInt nev;
+//      EPSGetConverged(eps, &nev);
+//
+//      // Get the eigenvalues and eigenvectors
+//      PetscScalar *eigenvalues = new PetscScalar[nev];
+//      Mat eigenvectors;
+//      MatCreate(PETSC_COMM_WORLD, &eigenvectors);
+//      MatSetType(eigenvectors, MATMPIAIJ);
+//      MatSetSizes(eigenvectors, PETSC_DECIDE, PETSC_DECIDE, n, nev);
+//      MatSetUp(eigenvectors);
+//      EPSGetEigenpairs(eps, &nev, eigenvalues, NULL, eigenvectors, NULL);
+//
+//      // Clean up
+//      delete[] eigenvalues;
+//      MatDestroy(&laplacian);
+//      MatDestroy(&eigenvectors);
+//      EPSDestroy(&eps);
+//
 //      PetscFinalize();
-    }
+//    }
+//
+//    void computeLaplacian(const std::vector<int>& row_offsets,
+//                          const std::vector<int>& col_indices,
+//                          Mat *laplacian) {
+////      PetscInitialize(NULL, NULL, NULL, NULL);
+//
+//      PetscInt n = row_offsets.size() - 1; // Number of vertices
+//
+//      // Create a sequential CSR matrix to represent the Laplacian
+//      MatCreateSeqAIJ(PETSC_COMM_SELF, n, n, 0, NULL, laplacian);
+//
+//      // Populate the Laplacian matrix
+//      for (PetscInt i = 0; i < n; ++i) {
+//        PetscInt row_start = row_offsets[i];
+//        PetscInt row_end = row_offsets[i + 1];
+//        PetscScalar degree = row_end - row_start; // Degree of the vertex i
+//        for (PetscInt j = row_start; j < row_end; ++j) {
+//          PetscInt col_index = col_indices[j];
+//          if (col_index == i) {
+//            // Diagonal element: degree - number of neighbors of vertex i
+//            MatSetValue(*laplacian, i, i, degree - 1.0, INSERT_VALUES);
+//          } else {
+//            // Off-diagonal element: -1.0
+//            MatSetValue(*laplacian, i, col_index, -1.0, INSERT_VALUES);
+//          }
+//        }
+//      }
+//
+//      // Assemble the matrix
+//      MatAssemblyBegin(*laplacian, MAT_FINAL_ASSEMBLY);
+//      MatAssemblyEnd(*laplacian, MAT_FINAL_ASSEMBLY);
+//
+////      PetscFinalize();
+//    }
 
 
 
