@@ -995,15 +995,12 @@ public:
       PetscInt nev;
       EPSGetConverged(eps, &nev);
 
+      Vec   xr,xi;
+      PetscScalar kr,ki;
       // Get the eigenvalues and eigenvectors
-      PetscScalar *eigenvalues = new PetscScalar[nev];
-      Mat eigenvectors;
-      MatCreate(PETSC_COMM_WORLD, &eigenvectors);
-      MatSetType(eigenvectors, MATMPIAIJ);
-      MatSetSizes(eigenvectors, PETSC_DECIDE, PETSC_DECIDE, n, nev);
-      MatSetUp(eigenvectors);
-      EPSGetEigenpair(eps, &nev, eigenvalues, NULL, eigenvectors, NULL);
-
+      for(i=0;i<nconv;i++){
+        EPSGetEigenpair(eps, &i, &kr,&ki,xr,xi);
+      }
       // Clean up
       delete[] eigenvalues;
       MatDestroy(&laplacian);
