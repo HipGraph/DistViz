@@ -30,8 +30,6 @@
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 #include <Eigen/SparseCholesky>
-#include <petscsys.h>
-#include <petscmat.h>
 #include <slepceps.h>
 
 
