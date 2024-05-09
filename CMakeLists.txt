@@ -36,7 +36,7 @@ message(STATUS "PETSC include dir: $ENV{PETSC_DIR}/include")
 #
 #include_directories($ENV{COMBLAS_ROOT}/install/include $ENV{MKLROOT}/include $ENV{EIGEN_ROOT}/include)
 #link_directories($ENV{COMBLAS_ROOT}/install/lib $ENV{MKLROOT}/lib/intel64)
-#include_directories($ENV{PETSC_DIR}/include $ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/include)
+include_directories($ENV{PETSC_DIR}/include $ENV{PETSC_DIR}/$ENV{PETSC_ARCH}/include)
 
 message("CMAKE_BINARY_PATH ${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
