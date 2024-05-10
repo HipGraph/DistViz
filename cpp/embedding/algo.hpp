@@ -920,45 +920,104 @@ public:
       }
     }
   }
+  void apply_set_operations(bool apply_set_operations, PetscScalar set_op_mix_ratio,
+                            std::vector<int>& row_offsets, std::vector<int>& col_indices,
+                            std::vector<PetscScalar>& values) {
+    if (apply_set_operations) {
+      PetscInitialize(NULL, NULL, NULL, NULL);
+      PetscInt numRows = row_offsets.size() - 1;
 
+      // Create PETSc matrix in AIJ format (compressed row)
+      Mat A;
+      MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
+      MatCreate(PETSC_COMM_WORLD, &A);
+      MatSetSizes(A, PETSC_DECIDE, PETSC_DECIDE, numRows, numRows);
+      MatSetFromOptions(A);
+      MatSetUp(A);
 
-    void apply_set_operations(bool apply_set_operations, float set_op_mix_ratio,
-                              std::vector<int>& row_offsets, std::vector<int>& col_indices,
-                              std::vector<float>& values) {
-      if (apply_set_operations) {
-        int numRows = row_offsets.size() - 1;
-
-        // Create sparse matrix in CSR format
-        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
-        for (int i = 0; i < numRows+1; ++i) {
-          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
-            csrMatrix.coeffRef(i, col_indices[j]) = values[j];
-          }
+      // Populate matrix values
+      for (int i = 0; i < numRows; ++i) {
+        for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
+          MatSetValue(A, i, col_indices[j], values[j], INSERT_VALUES);
         }
-
-        // Transpose the CSR matrix
-        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
-
-        // Multiply csrMatrix with its transpose
-        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTranspose);
-
-        // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
-        Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTranspose - prodMatrix;
-//        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
-
-        int rows = tempMatrix.rows();
-        int cols = tempMatrix.cols();
-        int nnz = tempMatrix.nonZeros();
-
-        col_indices.resize(nnz);
-        values.resize(nnz);
-
-        std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
-        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
-        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
-
       }
+      MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY);
+      MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY);
+
+      // Create transpose matrix
+      Mat B;
+      MatTranspose(A, MAT_INITIAL_MATRIX, &B);
+
+      // Multiply matrices
+      Mat C;
+      MatMatMult(A, B, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &C);
+
+      // Compute result = set_op_mix_ratio * (A + B - C) + (1.0 - set_op_mix_ratio) * C
+      Mat D;
+      MatDuplicate(A, MAT_COPY_VALUES, &D);
+      MatAXPY(D, 1.0, B, DIFFERENT_NONZERO_PATTERN);
+      MatAXPY(D, -1.0, C, DIFFERENT_NONZERO_PATTERN);
+      MatScale(D, set_op_mix_ratio);
+      MatScale(C, 1.0 - set_op_mix_ratio);
+      MatAXPY(D, 1.0, C, DIFFERENT_NONZERO_PATTERN);
+
+      // Extract matrix values
+      PetscInt nnz;
+      const PetscInt* rows;
+      const PetscInt* cols;
+      const PetscScalar* vals;
+      MatGetRowIJ(D, 0, PETSC_TRUE, PETSC_TRUE, &nnz, &rows, &cols, &vals);
+      row_offsets.assign(rows, rows + numRows + 1);
+      col_indices.assign(cols, cols + nnz);
+      values.assign(vals, vals + nnz);
+      MatRestoreRowIJ(D, 0, PETSC_TRUE, PETSC_TRUE, &nnz, &rows, &cols, &vals);
+
+      // Destroy matrices
+      MatDestroy(&A);
+      MatDestroy(&B);
+      MatDestroy(&C);
+      MatDestroy(&D);
+      PetscFinalize();
     }
+  }
+
+//    void apply_set_operations(bool apply_set_operations, float set_op_mix_ratio,
+//                              std::vector<int>& row_offsets, std::vector<int>& col_indices,
+//                              std::vector<float>& values) {
+//      if (apply_set_operations) {
+//        int numRows = row_offsets.size() - 1;
+//
+//        // Create sparse matrix in CSR format
+//        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
+//        for (int i = 0; i < numRows+1; ++i) {
+//          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
+//            csrMatrix.coeffRef(i, col_indices[j]) = values[j];
+//          }
+//        }
+//
+//        // Transpose the CSR matrix
+//        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
+//
+//        // Multiply csrMatrix with its transpose
+//        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTranspose);
+//
+//        // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
+//        Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTranspose - prodMatrix;
+////        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
+//
+//        int rows = tempMatrix.rows();
+//        int cols = tempMatrix.cols();
+//        int nnz = tempMatrix.nonZeros();
+//
+//        col_indices.resize(nnz);
+//        values.resize(nnz);
+//
+//        std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
+//        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
+//        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
+//
+//      }
+//    }
 
     Eigen::SparseMatrix<float> computeTopKEigenvectorsFromLaplacian(
         const std::vector<int>& row_offsets,
