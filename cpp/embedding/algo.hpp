@@ -1098,7 +1098,7 @@ public:
         }
       }
 
-      cout<<" completed "<<degree<<endl;
+      cout<<" degree assign completed "<<endl;
 
       // Assemble the matrix
       MatAssemblyBegin(*laplacian, MAT_FINAL_ASSEMBLY);
