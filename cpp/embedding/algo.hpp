@@ -1045,7 +1045,7 @@ public:
       // You need to implement this part to set the values of the Laplacian matrix
 
       // Set up PETSc eigenvalue solver
-      EPS eps;
+//      EPS eps;
 //      EPSCreate(PETSC_COMM_WORLD, &eps);
 //      EPSSetOperators(eps, laplacian, NULL);
 //      EPSSetProblemType(eps, EPS_HEP);
@@ -1064,7 +1064,7 @@ public:
 //      }
       // Clean up
 //      delete[] eigenvalues;
-      MatDestroy(&laplacian);
+//      MatDestroy(&laplacian);
 //      MatDestroy(&eigenvectors);
 //      EPSDestroy(&eps);
 
