@@ -1036,10 +1036,10 @@ public:
       Mat laplacian;
 //      MatSetOption(laplacian, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
       computeLaplacian(row_offsets,col_indices,&laplacian);
-      MatCreate(PETSC_COMM_WORLD, &laplacian);
-      MatSetType(laplacian, MATMPIAIJ);
-      MatSetSizes(laplacian, PETSC_DECIDE, PETSC_DECIDE, n, n);
-      MatSetUp(laplacian);
+//      MatCreate(PETSC_COMM_WORLD, &laplacian);
+//      MatSetType(laplacian, MATMPIAIJ);
+//      MatSetSizes(laplacian, PETSC_DECIDE, PETSC_DECIDE, n, n);
+//      MatSetUp(laplacian);
 
       // Set values of Laplacian matrix using CSR data
       // You need to implement this part to set the values of the Laplacian matrix
