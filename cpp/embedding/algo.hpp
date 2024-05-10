@@ -1103,7 +1103,7 @@ public:
       // Assemble the matrix
       MatAssemblyBegin(*laplacian, MAT_FINAL_ASSEMBLY);
       MatAssemblyEnd(*laplacian, MAT_FINAL_ASSEMBLY);
-
+      cout<<" Assembly completed "<<endl;
 //      PetscFinalize();
     }
 
