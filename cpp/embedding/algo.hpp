@@ -1017,7 +1017,7 @@ public:
       PetscInt n = row_offsets.size() - 1; // Number of vertices
 
       // Create a sequential CSR matrix to represent the Laplacian
-      MatCreateSeqAIJ(PETSC_COMM_SELF, n, n, 0, NULL, laplacian);
+      MatCreateSeqAIJ(PETSC_COMM_SELF, n, n,10 , NULL, laplacian);
 
       // Populate the Laplacian matrix
       for (PetscInt i = 0; i < n; ++i) {
