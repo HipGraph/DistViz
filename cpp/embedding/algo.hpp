@@ -1098,6 +1098,8 @@ public:
         }
       }
 
+      cout<<" completed "<<degree<<endl;
+
       // Assemble the matrix
       MatAssemblyBegin(*laplacian, MAT_FINAL_ASSEMBLY);
       MatAssemblyEnd(*laplacian, MAT_FINAL_ASSEMBLY);
