@@ -973,6 +973,7 @@ public:
       PetscInt n = row_offsets.size() - 1;
 
       Mat laplacian;
+      MatSetOption(laplacian, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
       computeLaplacian(row_offsets,col_indices,&laplacian);
       MatCreate(PETSC_COMM_WORLD, &laplacian);
       MatSetType(laplacian, MATMPIAIJ);
@@ -1013,11 +1014,10 @@ public:
                           const std::vector<int>& col_indices,
                           Mat *laplacian) {
 //      PetscInitialize(NULL, NULL, NULL, NULL);
-
       PetscInt n = row_offsets.size() - 1; // Number of vertices
 
       // Create a sequential CSR matrix to represent the Laplacian
-      MatCreateSeqAIJ(PETSC_COMM_SELF, n, n,10 , NULL, laplacian);
+      MatCreateSeqAIJ(PETSC_COMM_SELF, n, n,0 , NULL, laplacian);
 
       // Populate the Laplacian matrix
       for (PetscInt i = 0; i < n; ++i) {
