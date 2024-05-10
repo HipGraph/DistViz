@@ -1068,7 +1068,7 @@ public:
 //      MatDestroy(&eigenvectors);
 //      EPSDestroy(&eps);
 
-      PetscFinalize();
+//      PetscFinalize();
     }
 
     void computeLaplacian(const std::vector<int>& row_offsets,
