@@ -1034,7 +1034,7 @@ public:
       PetscInt n = row_offsets.size() - 1;
 
       Mat laplacian;
-      MatSetOption(laplacian, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
+//      MatSetOption(laplacian, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
       computeLaplacian(row_offsets,col_indices,&laplacian);
       MatCreate(PETSC_COMM_WORLD, &laplacian);
       MatSetType(laplacian, MATMPIAIJ);
@@ -1046,22 +1046,22 @@ public:
 
       // Set up PETSc eigenvalue solver
       EPS eps;
-      EPSCreate(PETSC_COMM_WORLD, &eps);
-      EPSSetOperators(eps, laplacian, NULL);
-      EPSSetProblemType(eps, EPS_HEP);
-      EPSSetFromOptions(eps);
-      EPSSolve(eps);
-
-      // Get the number of converged eigenpairs
-      PetscInt nev;
-      EPSGetConverged(eps, &nev);
-
-      Vec   xr,xi;
-      PetscScalar kr,ki;
-      // Get the eigenvalues and eigenvectors
-      for(PetscInt i=0;i<nev;i++){
-        EPSGetEigenpair(eps, i, &kr,&ki,xr,xi);
-      }
+//      EPSCreate(PETSC_COMM_WORLD, &eps);
+//      EPSSetOperators(eps, laplacian, NULL);
+//      EPSSetProblemType(eps, EPS_HEP);
+//      EPSSetFromOptions(eps);
+//      EPSSolve(eps);
+//
+//      // Get the number of converged eigenpairs
+//      PetscInt nev;
+//      EPSGetConverged(eps, &nev);
+//
+//      Vec   xr,xi;
+//      PetscScalar kr,ki;
+//      // Get the eigenvalues and eigenvectors
+//      for(PetscInt i=0;i<nev;i++){
+//        EPSGetEigenpair(eps, i, &kr,&ki,xr,xi);
+//      }
       // Clean up
 //      delete[] eigenvalues;
       MatDestroy(&laplacian);
@@ -1078,7 +1078,7 @@ public:
       PetscInt n = row_offsets.size() - 1; // Number of vertices
 
       // Create a sequential CSR matrix to represent the Laplacian
-      MatCreateSeqAIJ(PETSC_COMM_SELF, n, n,0 , NULL, laplacian);
+      MatCreateSeqAIJ(PETSC_COMM_SELF, n, n,1 , NULL, laplacian);
 
       // Populate the Laplacian matrix
       for (PetscInt i = 0; i < n; ++i) {
@@ -1092,7 +1092,7 @@ public:
             MatSetValue(*laplacian, i, i, degree - 1.0, INSERT_VALUES);
           } else {
             // Off-diagonal element: -1.0
-            MatSetValue(*laplacian, i, col_index, -1.0, INSERT_VALUES);
+//            MatSetValue(*laplacian, i, col_index, -1.0, INSERT_VALUES);
           }
         }
       }
