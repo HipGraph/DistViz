@@ -1088,6 +1088,7 @@ public:
         for (PetscInt j = row_start; j < row_end; ++j) {
           PetscInt col_index = col_indices[j];
           if (col_index == i) {
+            cout<<" i "<<i<<" degeree "<<degree<<endl;
             // Diagonal element: degree - number of neighbors of vertex i
             MatSetValue(*laplacian, i, i, degree - 1.0, INSERT_VALUES);
           } else {
