@@ -1066,7 +1066,7 @@ public:
 //      delete[] eigenvalues;
       MatDestroy(&laplacian);
 //      MatDestroy(&eigenvectors);
-      EPSDestroy(&eps);
+//      EPSDestroy(&eps);
 
       PetscFinalize();
     }
