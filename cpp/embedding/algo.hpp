@@ -31,6 +31,7 @@
 #include <Eigen/SparseCore>
 #include <Eigen/SparseCholesky>
 #include <slepceps.h>
+#include <petscmat.h>
 
 
 using namespace std;
