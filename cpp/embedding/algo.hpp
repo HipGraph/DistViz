@@ -1090,7 +1090,7 @@ public:
           if (col_index == i) {
             cout<<" i "<<i<<" degeree "<<degree<<endl;
             // Diagonal element: degree - number of neighbors of vertex i
-            MatSetValue(*laplacian, i, i, degree - 1.0, INSERT_VALUES);
+//            MatSetValue(*laplacian, i, i, degree - 1.0, INSERT_VALUES);
           } else {
             // Off-diagonal element: -1.0
 //            MatSetValue(*laplacian, i, col_index, -1.0, INSERT_VALUES);
