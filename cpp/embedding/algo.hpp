@@ -649,7 +649,6 @@ public:
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           int dst_index = j - static_cast<uint64_t>(csr_handle->rowStart[i]);
-          //          cout<<" i "<<i<<" j"<<dst_index<<" itr"<<iteration<<" val "<<samples_per_epoch_next[i][dst_index]<<endl;
           if (samples_per_epoch_next[i][dst_index] <= iteration+1) {
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
@@ -678,28 +677,16 @@ public:
                 if (!fetch_from_cache) {
                   forceDiff[d] = (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                                     (this->dense_local)->nCoordinates[local_dst * embedding_dim + d];
-
                 } else {
                   forceDiff[d] = (this->dense_local)->nCoordinates[i * embedding_dim + d] - array_ptr[d];
                 }
-                              //              forceDiff[d] = forceDiff[d] * exp(-1 * distance / smoothe_factor);
                 attrc += forceDiff[d] * forceDiff[d];
               }
 
               DENT d1 = -2.0 / (1.0 + attrc);
-//              DENT w_l=1.0;
-              //              DENT a = 1.0;
-              //              DENT b = 1.0;
-//              if (low_dim_distance > 0.0)
-//              {
-//                w_l = pow((1 + a * pow(low_dim_distance, 2 * b)), -1);
-//              }
-//              DENT grad_coeff = 2 * b * (w_l - 1) / (low_dim_distance + 1e-6);
+
               for (int d = 0; d < embedding_dim; d++) {
                 DENT l = scale(forceDiff[d] * d1);
-//                DENT grad_d = scale(grad_coeff * grd[d]);
-                //              DENT l = (forceDiff[d] * d1 );
-                //              l=l*exp(-1*distance/smoothe_factor);
                 (*prevCoordinates)[index * embedding_dim + d] =
                     (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
               }
@@ -873,12 +860,6 @@ public:
 
           DENT repuls = 0;
 
-//          hipgraph::distviz::knng::MathOp<SPT,DENT> mapOp;
-//          pair<DENT,vector<DENT>> distance_gradient =  mapOp.euclidean_grad((this->dense_local)->nCoordinates+(row_id * embedding_dim),
-//                                                                            (this->dense_local)->nCoordinates+(local_col_id * embedding_dim),embedding_dim);
-//          DENT low_dim_distance = distance_gradient.first;
-//          vector<DENT> grd  = distance_gradient.second;
-
                     if (fetch_from_cache) {
                       unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> &arrayMap =
                           (*this->dense_local->tempCachePtr)[owner_rank];
@@ -902,17 +883,6 @@ public:
                         repuls += forceDiff[d] * forceDiff[d];
                       }
                     }
-//          DENT w_l=1.0;
-//          DENT gamma = 1.0;
-//          if (low_dim_distance > 0.0)
-//          {
-//            w_l = pow((1 + a * pow(low_dim_distance, 2 * b)), -1);
-//          }
-//          DENT grad_coeff = gamma* 2 * b * w_l / (low_dim_distance + 1e-6);
-//          for (int d = 0; d < embedding_dim; d++) {
-//            DENT grad_d = scale(grad_coeff * grd[d]);
-//            (*prevCoordinates)[i * embedding_dim + d] += (lr)*grad_d;
-//          }
                     DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
                     for (int d = 0; d < embedding_dim; d++) {
                       forceDiff[d] = scale(forceDiff[d] * d1);

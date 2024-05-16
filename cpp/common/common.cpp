@@ -9,7 +9,7 @@ MPI_Datatype hipgraph::distviz::common::SPTUPLE;
 MPI_Datatype hipgraph::distviz::common::DENSETUPLE;
 
 vector<string> hipgraph::distviz::common::perf_counter_keys = {
-    "IO Time", "KNNG Communication Time", "KNNG Total Time", "Embedding Communication Time","Embedding Total Time"};
+    "IO Time", "KNNG Communication Time", "KNNG Total Time", "Embedding Communication Time","Embedding Total Time","Iteration Total Time"};
 
 map<string, int> hipgraph::distviz::common::call_count;
 map<string, double> hipgraph::distviz::common::total_time;
