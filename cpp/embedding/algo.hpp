@@ -193,9 +193,9 @@ public:
           considering_batch_size = last_batch_size;
         }
 
-//        unique_ptr<vector<vector<vector<SPT>>>> negative_samples_ptr =
-//            make_unique<vector<vector<vector<SPT>>>>(considering_batch_size, vector<vector<SPT>>(ns, vector<SPT>()));
-//        CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
+        unique_ptr<vector<vector<vector<SPT>>>> negative_samples_ptr =
+            make_unique<vector<vector<vector<SPT>>>>(considering_batch_size, vector<vector<SPT>>(ns, vector<SPT>()));
+        CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
 
 
@@ -216,8 +216,8 @@ public:
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false, a, b);
 
-//          generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
-//                                    considering_batch_size,seed);
+          generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
+                                    considering_batch_size,seed);
 //          this->calc_t_dist_replus_rowptr_new_2(
 //              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
 //              csr_handle,alpha, j, batch_size,
