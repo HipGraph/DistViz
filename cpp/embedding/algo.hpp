@@ -169,7 +169,7 @@ public:
       cout<<"apply_set_operations completed "<<endl;
       make_epochs_per_sample(csr_handle,iterations,ns);
       cout<<"make_epochs_per_sample completed"<<endl;
-      computeTopKEigenvectorsFromLaplacian(csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,10);
+//      computeTopKEigenvectorsFromLaplacian(csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,10);
       cout<<"Eigen completed"<<endl;
 
     }
