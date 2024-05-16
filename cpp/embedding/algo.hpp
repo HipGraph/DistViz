@@ -194,7 +194,7 @@ public:
         }
 
         unique_ptr<vector<vector<vector<SPT>>>> negative_samples_ptr =
-            make_unique<vector<vector<vector<SPT>>>>(considering_batch_size, vector<vector<SPT>>(10, vector<SPT>()));
+            make_unique<vector<vector<vector<SPT>>>>(considering_batch_size, vector<vector<SPT>>(ns, vector<SPT>()));
         CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
 
@@ -1043,7 +1043,7 @@ public:
     for(int i=source_start_index;i<source_end_index;i++){
       int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
       int access_index = i-source_start_index;
-//      (*negative_samples_ptr)[access_index].resize(nn,vector<SPT>());
+      (*negative_samples_ptr)[access_index].resize(nn,vector<SPT>());
       for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
         int index = j - static_cast<int>(csr_handle->rowStart[i]);
@@ -1052,10 +1052,10 @@ public:
           int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
           if (ns > 0) {
             seed += i+index+rand();
-            vector<SPT> random_number_vec = generate_random_numbers<SPT>(
-                0, (this->sp_local_receiver)->gRows, seed, ns);
-            (*negative_samples_ptr)[access_index][index] = random_number_vec;
-            samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
+//            vector<SPT> random_number_vec = generate_random_numbers<SPT>(
+//                0, (this->sp_local_receiver)->gRows, seed, ns);
+//            (*negative_samples_ptr)[access_index][index] = random_number_vec;
+//            samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
           }
           samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
         }
