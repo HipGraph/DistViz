@@ -200,8 +200,8 @@ public:
 
 
 //            // negative samples generation
-//        vector<SPT> random_number_vec = generate_random_numbers<SPT>(
-//            0, (this->sp_local_receiver)->gRows, seed, ns);
+        vector<SPT> random_number_vec = generate_random_numbers<SPT>(
+            0, (this->sp_local_receiver)->gRows, seed, ns);
 
         // One process computations without MPI operations
         if (grid->col_world_size == 1) {
