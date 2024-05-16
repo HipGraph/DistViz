@@ -194,7 +194,7 @@ public:
         }
 
         unique_ptr<vector<vector<vector<SPT>>>> negative_samples_ptr =
-            make_unique<vector<vector<vector<SPT>>>>(considering_batch_size, vector<vector<SPT>>(ns, vector<SPT>()));
+            make_unique<vector<vector<vector<SPT>>>>(considering_batch_size, vector<vector<SPT>>(10, vector<SPT>()));
         CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
 
@@ -216,8 +216,8 @@ public:
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false, a, b);
 
-//          generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
-//                                    considering_batch_size,seed);
+          generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
+                                    considering_batch_size,seed);
 //          this->calc_t_dist_replus_rowptr_new_2(
 //              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
 //              csr_handle,alpha, j, batch_size,
@@ -1043,7 +1043,7 @@ public:
     for(int i=source_start_index;i<source_end_index;i++){
       int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
       int access_index = i-source_start_index;
-      (*negative_samples_ptr)[access_index].resize(nn,vector<SPT>());
+//      (*negative_samples_ptr)[access_index].resize(nn,vector<SPT>());
       for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
         int index = j - static_cast<int>(csr_handle->rowStart[i]);
