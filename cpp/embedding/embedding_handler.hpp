@@ -76,9 +76,8 @@ public:
                     shared_sparseMat.get(), shared_sparseMat_receiver.get(),
                     shared_sparseMat_sender.get(), dense_output, grid,
                     alpha, beta, 5, -5,col_major,sync_comm));
-    auto t = start_clock();
     embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr,drop_out_error_threshold);
-    stop_clock_and_add(t, "Iteration Total Time");
+
   }
 
 

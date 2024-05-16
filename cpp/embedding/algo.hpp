@@ -160,6 +160,7 @@ public:
     int considering_batch_size = batch_size;
     vector<DENT> error_convergence;
 
+    auto t = start_clock();
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
       calculate_membership_strength(csr_handle);
@@ -173,6 +174,8 @@ public:
       cout<<"Eigen completed"<<endl;
 
     }
+    stop_clock_and_add(t, "Iteration Total Time");
+//    auto t = start_clock();
     double min_dist=0.1;
     double spread=1.0;
 //    pair<double,double> ab = find_ab_params(spread,min_dist);
