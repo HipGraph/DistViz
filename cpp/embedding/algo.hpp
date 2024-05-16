@@ -215,10 +215,15 @@ public:
 
           generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
-          this->calc_t_dist_replus_rowptr_new(
+//          this->calc_t_dist_replus_rowptr_new(
+//              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
+//              csr_handle,alpha, j, batch_size,
+//              considering_batch_size, a, b);
+
+          this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr.get(),
               csr_handle,alpha, j, batch_size,
-              considering_batch_size, a, b);
+              considering_batch_size);
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
@@ -344,10 +349,14 @@ public:
                        dst_end_index, csr_block, prevCoordinates, lr, batch_id,
                        batch_size, block_size, fetch_from_temp_cache);
       } else {
-        calc_embedding_row_major_new(iteration,source_start_index, source_end_index,
-                                 dst_start_index, dst_end_index, csr_block,
-                                 prevCoordinates, lr, batch_id, batch_size,
-                                 block_size, fetch_from_temp_cache,a,b);
+//        calc_embedding_row_major_new(iteration,source_start_index, source_end_index,
+//                                 dst_start_index, dst_end_index, csr_block,
+//                                 prevCoordinates, lr, batch_id, batch_size,
+//                                 block_size, fetch_from_temp_cache,a,b);
+         calc_embedding_row_major(iteration,source_start_index, source_end_index,
+                         dst_start_index, dst_end_index, csr_block,
+                         prevCoordinates, lr, batch_id, batch_size,
+                         block_size, fetch_from_temp_cache);
       }
     } else {
       for (int r = start_process; r < end_process; r++) {
