@@ -1043,7 +1043,7 @@ public:
     for(int i=source_start_index;i<source_end_index;i++){
       int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
       int access_index = i-source_start_index;
-      (*negative_samples_ptr)[access_index]= vector(nn,vector<SPT>());
+//      (*negative_samples_ptr)[access_index]= vector(nn,vector<SPT>());
       for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
         int index = j - static_cast<int>(csr_handle->rowStart[i]);
