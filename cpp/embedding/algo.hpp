@@ -218,10 +218,10 @@ public:
 
           generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
-//          this->calc_t_dist_replus_rowptr_new_2(
-//              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
-//              csr_handle,alpha, j, batch_size,
-//              considering_batch_size, a, b);
+          this->calc_t_dist_replus_rowptr_new_2(
+              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
+              csr_handle,alpha, j, batch_size,
+              considering_batch_size, a, b);
 
 //          this->calc_t_dist_replus_rowptr(
 //              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
@@ -1043,7 +1043,7 @@ public:
     for(int i=source_start_index;i<source_end_index;i++){
       int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
       int access_index = i-source_start_index;
-//      (*negative_samples_ptr)[access_index]= vector(nn,vector<SPT>());
+      (*negative_samples_ptr)[access_index]= vector(nn,vector<SPT>());
       for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
         int index = j - static_cast<int>(csr_handle->rowStart[i]);
@@ -1051,9 +1051,9 @@ public:
 //
           int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
           if (ns > 0) {
-//            vector<SPT> random_number_vec = generate_random_numbers<SPT>(
-//                0, (this->sp_local_receiver)->gRows, seed, ns);
-//            (*negative_samples_ptr)[access_index][index] = vector(10,0);
+            vector<SPT> random_number_vec = generate_random_numbers<SPT>(
+                0, (this->sp_local_receiver)->gRows, seed, ns);
+            (*negative_samples_ptr)[access_index][index] = random_number_vec;
             samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
           }
           samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
