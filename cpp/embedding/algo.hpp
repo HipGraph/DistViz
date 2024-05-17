@@ -1053,7 +1053,7 @@ public:
           if (ns > 0) {
 //            vector<SPT> random_number_vec = generate_random_numbers<SPT>(
 //                0, (this->sp_local_receiver)->gRows, seed, ns);
-            (*negative_samples_ptr)[access_index][index] = vector(10,0);
+//            (*negative_samples_ptr)[access_index][index] = vector(10,0);
             samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
           }
           samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
