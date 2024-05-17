@@ -1048,7 +1048,7 @@ public:
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
         int index = j - static_cast<int>(csr_handle->rowStart[i]);
         if (samples_per_epoch_next[i][index] <= iteration+1) {
-//
+          seed +=  rand();
           int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
           if (ns > 0) {
             vector<SPT> random_number_vec = generate_random_numbers<SPT>(
