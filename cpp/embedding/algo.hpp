@@ -223,9 +223,9 @@ public:
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false, a, b);
 
-//          generate_negative_samples(negative_samples_ptr_count.get(),
-//                                    negative_samples_ptr.get(),csr_handle,i,j,batch_size,
-//                                    considering_batch_size,seed);
+          generate_negative_samples(negative_samples_ptr_count.get(),
+                                    negative_samples_ptr.get(),csr_handle,i,j,batch_size,
+                                    considering_batch_size,seed);
 
 //          this->calc_t_dist_replus_rowptr_new_2(
 //              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
@@ -1053,17 +1053,17 @@ public:
            j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
         int index = j - static_cast<int>(csr_handle->rowStart[i]);
         if (samples_per_epoch_next[i][index] <= iteration+1) {
-          seed +=  rand();
-          int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
-
-//          cout<<" i "<<i<<" iteration "<<iteration<<" ns "<<ns<<endl;
-          if (ns > 0) {
-//            vector<SPT> random_number_vec = generate_random_numbers<SPT>(
-//                0, (this->sp_local_receiver)->gRows, seed, ns);
-//            (*negative_samples_ptr)[access_index][index] = random_number_vec;
-            (*negative_samples_ptr_count)[access_index] += ns;
-            samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
-          }
+//          seed +=  rand();
+//          int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
+//
+////          cout<<" i "<<i<<" iteration "<<iteration<<" ns "<<ns<<endl;
+//          if (ns > 0) {
+////            vector<SPT> random_number_vec = generate_random_numbers<SPT>(
+////                0, (this->sp_local_receiver)->gRows, seed, ns);
+////            (*negative_samples_ptr)[access_index][index] = random_number_vec;
+//            (*negative_samples_ptr_count)[access_index] += ns;
+//            samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
+//          }
           samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
         }
       }
