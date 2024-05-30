@@ -230,8 +230,6 @@ public:
 //              csr_handle,alpha, j, batch_size,
 //              considering_batch_size, a, b);
 
-
-
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
           alpha = lr * (1.0 - (float(i) / float(iterations)));
@@ -1038,7 +1036,8 @@ public:
   }
 
 
-  void generate_negative_samples(vector<SPT> *negative_samples_ptr_count, vector<vector<vector<SPT>>> *negative_samples_ptr,CSRHandle<SPT, DENT> *csr_handle, int iteration,
+  void generate_negative_samples(vector<SPT> *negative_samples_ptr_count, vector<vector<vector<SPT>>> *negative_samples_ptr,
+                                 CSRHandle<SPT, DENT> *csr_handle, int iteration,
                                  int batch_id, int batch_size, int block_size, int seed) {
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
@@ -1065,8 +1064,6 @@ public:
           }
           samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
         }
-        if (iteration%100==0)
-            cout<<"iter "<<iteration <<" i: "<<i<<" count: "<< (*negative_samples_ptr_count)[access_index]<<endl;
       }
 
     }
