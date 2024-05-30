@@ -227,10 +227,10 @@ public:
                                     negative_samples_ptr.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
 
-//          this->calc_t_dist_replus_rowptr_new_2(
-//              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
-//              csr_handle,alpha, j, batch_size,
-//              considering_batch_size, a, b);
+          this->calc_t_dist_replus_rowptr_new_2(
+              prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
+              csr_handle,alpha, j, batch_size,
+              considering_batch_size, a, b);
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
@@ -839,19 +839,18 @@ public:
 
 
   inline void calc_t_dist_replus_rowptr_new_2(
-      vector<DENT> *prevCoordinates, vector<vector<vector<SPT>>> *negative_samples_ptr,
+      vector<DENT> *prevCoordinates, vector<SPT> *negative_samples_ptr_count,
       CSRHandle<SPT,DENT> *csr_handle,DENT lr,
       int batch_id, int batch_size, int block_size,double a=1.0, double b=1.0) {
 
     int row_base_index = batch_id * batch_size;
 
-#pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
-      DENT forceDiff[embedding_dim];
-      for(int k=0;k<(*negative_samples_ptr)[i].size();k++) {
-        for (int j = 0; j < (*negative_samples_ptr)[i][k].size(); j++) {
-          SPT global_col_id = (*negative_samples_ptr)[i][k][j];
+      for(int k=0;k<(*negative_samples_ptr_count)[i];k++){
+          DENT forceDiff[embedding_dim];
+          SPT global_col_id = rand();
           SPT local_col_id =
               global_col_id - static_cast<SPT>(
                                   ((grid)->rank_in_col *
@@ -895,7 +894,7 @@ public:
                       forceDiff[d] = scale(forceDiff[d] * d1);
                       (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
                     }
-        }
+
       }
     }
   }
