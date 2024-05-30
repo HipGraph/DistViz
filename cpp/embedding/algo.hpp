@@ -195,13 +195,19 @@ public:
 
         unique_ptr<vector<vector<vector<SPT>>>> negative_samples_ptr =
             make_unique<vector<vector<vector<SPT>>>>(considering_batch_size, vector<vector<SPT>>(ns, vector<SPT>()));
+
+        unique_ptr<vector<SPT>> negative_samples_ptr_count =
+            make_unique<vector<SPT>>(considering_batch_size, 0);
         CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
 
 
 //            // negative samples generation
-        vector<SPT> random_number_vec = generate_random_numbers<SPT>(
-            0, (this->sp_local_receiver)->gRows, seed, ns);
+//        vector<SPT> random_number_vec = generate_random_numbers<SPT>(
+//            0, (this->sp_local_receiver)->gRows, seed, ns);
+
+
+
 
         // One process computations without MPI operations
         if (grid->col_world_size == 1) {
@@ -216,12 +222,15 @@ public:
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false, a, b);
 
-          generate_negative_samples(negative_samples_ptr.get(),csr_handle,i,j,batch_size,
+          generate_negative_samples(negative_samples_ptr_count.get(),
+                                    negative_samples_ptr.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
-          this->calc_t_dist_replus_rowptr_new_2(
-              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
-              csr_handle,alpha, j, batch_size,
-              considering_batch_size, a, b);
+//          this->calc_t_dist_replus_rowptr_new_2(
+//              prevCoordinates_ptr.get(), negative_samples_ptr.get(),
+//              csr_handle,alpha, j, batch_size,
+//              considering_batch_size, a, b);
+
+
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
@@ -1029,7 +1038,7 @@ public:
   }
 
 
-  void generate_negative_samples(vector<vector<vector<SPT>>> *negative_samples_ptr,CSRHandle<SPT, DENT> *csr_handle, int iteration,
+  void generate_negative_samples(vector<SPT> *negative_samples_ptr_count, vector<vector<vector<SPT>>> *negative_samples_ptr,CSRHandle<SPT, DENT> *csr_handle, int iteration,
                                  int batch_id, int batch_size, int block_size, int seed) {
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
@@ -1047,14 +1056,17 @@ public:
           int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
           cout<<" i "<<i<<" iteration "<<iteration<<" ns "<<ns<<endl;
           if (ns > 0) {
-            vector<SPT> random_number_vec = generate_random_numbers<SPT>(
-                0, (this->sp_local_receiver)->gRows, seed, ns);
-            (*negative_samples_ptr)[access_index][index] = random_number_vec;
+//            vector<SPT> random_number_vec = generate_random_numbers<SPT>(
+//                0, (this->sp_local_receiver)->gRows, seed, ns);
+//            (*negative_samples_ptr)[access_index][index] = random_number_vec;
+            (*negative_samples_ptr_count)[access_index] += (*negative_samples_ptr_count)[access_index]+ns;
             samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
           }
           samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
         }
+        cout<<"iter "<<iteration <<" i: "<<i<<" count: "<< (*negative_samples_ptr_count)[access_index]<<endl;
       }
+
     }
   }
 //  void apply_set_operations(bool apply_set_operations, PetscScalar set_op_mix_ratio,
