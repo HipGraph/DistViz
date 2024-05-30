@@ -1054,7 +1054,7 @@ public:
         int index = j - static_cast<int>(csr_handle->rowStart[i]);
         if (samples_per_epoch_next[i][index] <= iteration+1) {
 //          seed +=  rand();
-//          int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
+          int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
 
 //          cout<<" i "<<i<<" iteration "<<iteration<<" ns "<<ns<<endl;
           if (ns > 0) {
