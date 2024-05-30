@@ -1061,10 +1061,10 @@ public:
 //            vector<SPT> random_number_vec = generate_random_numbers<SPT>(
 //                0, (this->sp_local_receiver)->gRows, seed, ns);
 //            (*negative_samples_ptr)[access_index][index] = random_number_vec;
-//            (*negative_samples_ptr_count)[access_index] += ns;
-//            samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
+            (*negative_samples_ptr_count)[access_index] += ns;
+            samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
           }
-//          samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
+          samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
         }
       }
 
