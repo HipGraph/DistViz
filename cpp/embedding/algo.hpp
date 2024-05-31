@@ -73,6 +73,9 @@ protected:
   // hyper parameter controls the col major or row major  data access
   bool col_major = true;
 
+  std::uniform_int_distribution<int> distribution;
+  std::minstd_rand generator;
+
 public:
   EmbeddingAlgo(SpMat<SPT, DENT> *sp_local_native,
                 SpMat<SPT, DENT> *sp_local_receiver,
@@ -83,7 +86,14 @@ public:
       : sp_local_native(sp_local_native), sp_local_receiver(sp_local_receiver),
         sp_local_sender(sp_local_sender), dense_local(dense_local), grid(grid),
         alpha(alpha), beta(beta), MAX_BOUND(MAX_BOUND), MIN_BOUND(MIN_BOUND),
-        col_major(col_major), sync(sync_comm) {}
+        col_major(col_major), sync(sync_comm) {
+    generator = std::minstd_rand(0);
+    // Define the range of the uniform distribution
+    distribution = std::uniform_int_distribution<int>(0, (this->sp_local_receiver)->gRows-1);
+
+
+
+  }
 
   DENT scale(DENT v) {
     if (v > MAX_BOUND)
@@ -105,6 +115,8 @@ public:
     samples_per_epoch_next.resize(sp_local_receiver->proc_row_width, vector<DENT>());
     samples_per_epoch_negative.resize(sp_local_receiver->proc_row_width, vector<DENT>());
     samples_per_epoch_negative_next.resize(sp_local_receiver->proc_row_width, vector<DENT>());
+
+
 
     if (sp_local_receiver->proc_row_width % batch_size == 0) {
       batches = static_cast<int>(sp_local_receiver->proc_row_width / batch_size);
@@ -850,7 +862,7 @@ public:
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
-          SPT global_col_id = 0;
+          SPT global_col_id = distribution(generator);
           SPT local_col_id =
               global_col_id - static_cast<SPT>(
                                   ((grid)->rank_in_col *
