@@ -1150,12 +1150,15 @@ public:
         int numRows = row_offsets.size() - 1;
 
         // Create sparse matrix in CSR format
-        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
-        for (int i = 0; i < numRows; ++i) {
-          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
-            csrMatrix.coeffRef(i, col_indices[j]) = values[j];
-          }
-        }
+        // Number of non-zero elements
+        int nnz = values.size();
+
+        // Create Eigen::Map for the CSR data
+        Eigen::Map<const Eigen::SparseMatrix<float, Eigen::RowMajor, int>> csrMatrix(
+            numRows, numRows, nnz, row_offsets.data(), col_indices.data(), values.data());
+
+        // Optionally, convert the mapped matrix to a regular Eigen::SparseMatrix
+        Eigen::SparseMatrix<float, Eigen::RowMajor> sparseMatrix(csrMatrix);
 
         // Transpose the CSR matrix
         Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
