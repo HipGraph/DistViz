@@ -87,11 +87,8 @@ public:
         sp_local_sender(sp_local_sender), dense_local(dense_local), grid(grid),
         alpha(alpha), beta(beta), MAX_BOUND(MAX_BOUND), MIN_BOUND(MIN_BOUND),
         col_major(col_major), sync(sync_comm) {
-    generator = std::minstd_rand(0);
     // Define the range of the uniform distribution
     distribution = std::uniform_int_distribution<int>(0, (this->sp_local_receiver)->gRows-1);
-
-
 
   }
 
@@ -194,6 +191,7 @@ public:
     DENT alpha = lr;
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
+      generator = std::minstd_rand(i);
       for (int j = 0; j < batches; j++) {
 //        int seed = j + i;
 
