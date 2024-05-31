@@ -850,7 +850,7 @@ public:
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
-          SPT global_col_id = rand();
+          SPT global_col_id = 0;
 //          SPT local_col_id =
 //              global_col_id - static_cast<SPT>(
 //                                  ((grid)->rank_in_col *
