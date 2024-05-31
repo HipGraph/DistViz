@@ -1161,13 +1161,13 @@ public:
         Eigen::SparseMatrix<float, Eigen::RowMajor> sparseMatrix(csrMatrix);
 
         // Transpose the CSR matrix
-        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
+        Eigen::SparseMatrix<float> csrTranspose = sparseMatrix.transpose();
 
         // Multiply csrMatrix with its transpose
-        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTranspose);
+        Eigen::SparseMatrix<float> prodMatrix = sparseMatrix.cwiseProduct(csrTranspose);
 
         // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
-        Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTranspose - prodMatrix;
+        Eigen::SparseMatrix<float> tempMatrix = sparseMatrix + csrTranspose - prodMatrix;
 //        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
 
         int rows = tempMatrix.rows();
