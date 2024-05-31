@@ -1149,7 +1149,6 @@ public:
       if (apply_set_operations) {
         int numRows = row_offsets.size() - 1;
 
-        // Create sparse matrix in CSR format
         // Number of non-zero elements
         int nnz = values.size();
 
@@ -1161,25 +1160,27 @@ public:
         Eigen::SparseMatrix<float, Eigen::RowMajor> sparseMatrix(csrMatrix);
 
         // Transpose the CSR matrix
-        Eigen::SparseMatrix<float> csrTranspose = sparseMatrix.transpose();
+        Eigen::SparseMatrix<float, Eigen::RowMajor> csrTranspose = sparseMatrix.transpose();
 
         // Multiply csrMatrix with its transpose
-        Eigen::SparseMatrix<float> prodMatrix = sparseMatrix.cwiseProduct(csrTranspose).eval();
+        Eigen::SparseMatrix<float, Eigen::RowMajor> prodMatrix = sparseMatrix.cwiseProduct(csrTranspose).eval();
 
-        // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
-        Eigen::SparseMatrix<float> tempMatrix = sparseMatrix + csrTranspose - prodMatrix;
-//        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
+        // Compute result = set_op_mix_ratio * (sparseMatrix + csrTranspose - prodMatrix) + (1.0 - set_op_mix_ratio) * prodMatrix
+        Eigen::SparseMatrix<float, Eigen::RowMajor> tempMatrix = sparseMatrix + csrTranspose - prodMatrix;
+        Eigen::SparseMatrix<float, Eigen::RowMajor> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
 
-        int rows = tempMatrix.rows();
-        int cols = tempMatrix.cols();
-        nnz = tempMatrix.nonZeros();
+        // Update row_offsets, col_indices, and values with the result
+        int rows = result.rows();
+        int cols = result.cols();
+        nnz = result.nonZeros();
 
+        row_offsets.resize(rows + 1);
         col_indices.resize(nnz);
         values.resize(nnz);
 
-        std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
-        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
-        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
+        std::copy(result.outerIndexPtr(), result.outerIndexPtr() + rows + 1, row_offsets.begin());
+        std::copy(result.innerIndexPtr(), result.innerIndexPtr() + nnz, col_indices.begin());
+        std::copy(result.valuePtr(), result.valuePtr() + nnz, values.begin());
 
       }
     }
