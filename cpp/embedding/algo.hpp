@@ -1044,8 +1044,6 @@ public:
                 static_cast<DENT>(samples_per_epoch_negative[i][index]);
           }
         }
-      }else {
-        cout<<" i "<<i<<" zero nn"<<nn<<endl;
       }
     }
   }
