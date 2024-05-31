@@ -1163,7 +1163,7 @@ public:
 //         Construct sparse matrix from triplets
         Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
         csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
-//        csrMatrix.makeCompressed();
+        csrMatrix.makeCompressed();
 
 //        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
 //        for (int i = 0; i < numRows; ++i) {
