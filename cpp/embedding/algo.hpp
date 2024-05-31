@@ -176,6 +176,7 @@ public:
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
       calculate_membership_strength(csr_handle);
+      stop_clock_and_add(t, "Iteration Total Time");
       cout<<"calculate_membership_strength completed "<<endl;
       apply_set_operations(true,1.0,
                            csr_handle->rowStart,csr_handle->col_idx,csr_handle->values);
@@ -186,7 +187,7 @@ public:
       cout<<"Eigen completed"<<endl;
 
     }
-    stop_clock_and_add(t, "Iteration Total Time");
+
 //    auto t = start_clock();
     double min_dist=0.1;
     double spread=1.0;
