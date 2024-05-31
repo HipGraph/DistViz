@@ -1172,7 +1172,7 @@ public:
 
         int rows = tempMatrix.rows();
         int cols = tempMatrix.cols();
-        int nnz = tempMatrix.nonZeros();
+        nnz = tempMatrix.nonZeros();
 
         col_indices.resize(nnz);
         values.resize(nnz);
