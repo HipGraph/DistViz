@@ -1149,44 +1149,35 @@ public:
       if (apply_set_operations) {
         int numRows = row_offsets.size() - 1;
 
-        // Number of non-zero elements
-        int nnz = values.size();
-
-        // Create Eigen::Map for the CSR data
-        Eigen::Map<const Eigen::SparseMatrix<float, Eigen::RowMajor, int>> csrMatrix(
-            numRows, numRows, nnz, row_offsets.data(), col_indices.data(), values.data());
-
-        // Optionally, convert the mapped matrix to a regular Eigen::SparseMatrix
-        Eigen::SparseMatrix<float, Eigen::RowMajor> sparseMatrix(csrMatrix);
+        // Create sparse matrix in CSR format
+        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
+        #pragma omp parallel for
+        for (int i = 0; i < numRows; ++i) {
+          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
+            csrMatrix.coeffRef(i, col_indices[j]) = values[j];
+          }
+        }
 
         // Transpose the CSR matrix
-        Eigen::SparseMatrix<float, Eigen::RowMajor> csrTranspose = sparseMatrix.transpose();
+        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
 
         // Multiply csrMatrix with its transpose
-        Eigen::SparseMatrix<float, Eigen::RowMajor> prodMatrix = sparseMatrix.cwiseProduct(csrTranspose).eval();
+        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTranspose);
 
-        // Compute result = set_op_mix_ratio * (sparseMatrix + csrTranspose - prodMatrix) + (1.0 - set_op_mix_ratio) * prodMatrix
-        Eigen::SparseMatrix<float, Eigen::RowMajor> tempMatrix = sparseMatrix + csrTranspose - prodMatrix;
-        Eigen::SparseMatrix<float, Eigen::RowMajor> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
+        // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
+        Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTranspose - prodMatrix;
+//        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
 
-        // Ensure the result matrix is compressed
-        result.makeCompressed();
+        int rows = tempMatrix.rows();
+        int cols = tempMatrix.cols();
+        int nnz = tempMatrix.nonZeros();
 
-        // Prepare to extract the CSR data
-        row_offsets.resize(numRows + 1);
-        col_indices.resize(result.nonZeros());
-        values.resize(result.nonZeros());
+        col_indices.resize(nnz);
+        values.resize(nnz);
 
-        // Extract the CSR data from the result matrix
-        for (int k = 0; k < result.outerSize(); ++k) {
-          row_offsets[k] = result.outerIndexPtr()[k];
-        }
-        row_offsets[numRows] = result.outerIndexPtr()[numRows];
-
-        for (int k = 0; k < result.nonZeros(); ++k) {
-          col_indices[k] = result.innerIndexPtr()[k];
-          values[k] = result.valuePtr()[k];
-        }
+        std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
+        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
+        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
 
       }
     }
