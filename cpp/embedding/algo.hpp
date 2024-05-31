@@ -1156,7 +1156,7 @@ public:
         Eigen::Map<const Eigen::SparseMatrix<float, Eigen::RowMajor, int>> csrMatrix(
             numRows, numRows, nnz, row_offsets.data(), col_indices.data(), values.data());
 
-        // Convert the mapped matrix to a regular Eigen::SparseMatrix
+        // Optionally, convert the mapped matrix to a regular Eigen::SparseMatrix
         Eigen::SparseMatrix<float, Eigen::RowMajor> sparseMatrix(csrMatrix);
 
         // Transpose the CSR matrix
@@ -1172,18 +1172,21 @@ public:
         // Ensure the result matrix is compressed
         result.makeCompressed();
 
-        // Update row_offsets, col_indices, and values with the result
-        int rows = result.rows();
-        int cols = result.cols();
-        nnz = result.nonZeros();
+        // Prepare to extract the CSR data
+        row_offsets.resize(numRows + 1);
+        col_indices.resize(result.nonZeros());
+        values.resize(result.nonZeros());
 
-        row_offsets.resize(rows + 1);
-        col_indices.resize(nnz);
-        values.resize(nnz);
+        // Extract the CSR data from the result matrix
+        for (int k = 0; k < result.outerSize(); ++k) {
+          row_offsets[k] = result.outerIndexPtr()[k];
+        }
+        row_offsets[numRows] = result.outerIndexPtr()[numRows];
 
-        std::copy(result.outerIndexPtr(), result.outerIndexPtr() + rows + 1, row_offsets.begin());
-        std::copy(result.innerIndexPtr(), result.innerIndexPtr() + nnz, col_indices.begin());
-        std::copy(result.valuePtr(), result.valuePtr() + nnz, values.begin());
+        for (int k = 0; k < result.nonZeros(); ++k) {
+          col_indices[k] = result.innerIndexPtr()[k];
+          values[k] = result.valuePtr()[k];
+        }
 
       }
     }
