@@ -1164,7 +1164,7 @@ public:
         Eigen::SparseMatrix<float> csrTranspose = sparseMatrix.transpose();
 
         // Multiply csrMatrix with its transpose
-        Eigen::SparseMatrix<float> prodMatrix = sparseMatrix.cwiseProduct(csrTranspose);
+        Eigen::SparseMatrix<float> prodMatrix = sparseMatrix.cwiseProduct(csrTranspose).eval();
 
         // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
         Eigen::SparseMatrix<float> tempMatrix = sparseMatrix + csrTranspose - prodMatrix;
