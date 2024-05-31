@@ -228,7 +228,7 @@ int main(int argc, char* argv[]) {
        knng_handler.get()->build_local_KNNG_Sparse(sparse_matrix,knng_graph_ptr.get(),nn,
                                             target_local_recall,
                                             generate_knng_output,
-                                            output_path+"/knng.txt", true, density,100,repulsive_graph_ptr.get());
+                                            output_path+"/knng.txt", true, density);
      } else {
 
        data_matrix = Eigen::MatrixXf((*data_matrix_ptr)[0].size(), (*data_matrix_ptr).size());
