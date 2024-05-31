@@ -22,16 +22,16 @@
 #include <random>
 #include <unordered_map>
 #include "../knng/math_operations.hpp"
-#include <gsl/gsl_fit.h>
-#include <gsl/gsl_errno.h>
+//#include <gsl/gsl_fit.h>
+//#include <gsl/gsl_errno.h>
 #include <mkl.h>
 #include <mkl_spblas.h>
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 #include <Eigen/SparseCholesky>
-#include <slepceps.h>
-#include <petscmat.h>
+//#include <slepceps.h>
+//#include <petscmat.h>
 
 
 using namespace std;
