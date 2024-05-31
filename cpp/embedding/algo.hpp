@@ -1149,14 +1149,23 @@ public:
       if (apply_set_operations) {
         int numRows = row_offsets.size() - 1;
 
-        // Create sparse matrix in CSR format
-        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
+        // Prepare triplet list to avoid locking overhead
+        std::vector<Eigen::Triplet<float>> triplets;
+        triplets.reserve(values.size());
+
         #pragma omp parallel for
         for (int i = 0; i < numRows; ++i) {
-          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
-            csrMatrix.coeffRef(i, col_indices[j]) = values[j];
+          int start = row_offsets[i];
+          int end = row_offsets[i + 1];
+          for (int j = start; j < end; ++j) {
+            triplets.emplace_back(i, col_indices[j], values[j]);
           }
         }
+
+        // Construct sparse matrix from triplets
+        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
+        csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
+        csrMatrix.makeCompressed();
 
         // Transpose the CSR matrix
         Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
