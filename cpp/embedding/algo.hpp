@@ -1156,7 +1156,7 @@ public:
         Eigen::Map<const Eigen::SparseMatrix<float, Eigen::RowMajor, int>> csrMatrix(
             numRows, numRows, nnz, row_offsets.data(), col_indices.data(), values.data());
 
-        // Optionally, convert the mapped matrix to a regular Eigen::SparseMatrix
+        // Convert the mapped matrix to a regular Eigen::SparseMatrix
         Eigen::SparseMatrix<float, Eigen::RowMajor> sparseMatrix(csrMatrix);
 
         // Transpose the CSR matrix
@@ -1168,6 +1168,9 @@ public:
         // Compute result = set_op_mix_ratio * (sparseMatrix + csrTranspose - prodMatrix) + (1.0 - set_op_mix_ratio) * prodMatrix
         Eigen::SparseMatrix<float, Eigen::RowMajor> tempMatrix = sparseMatrix + csrTranspose - prodMatrix;
         Eigen::SparseMatrix<float, Eigen::RowMajor> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
+
+        // Ensure the result matrix is compressed
+        result.makeCompressed();
 
         // Update row_offsets, col_indices, and values with the result
         int rows = result.rows();
