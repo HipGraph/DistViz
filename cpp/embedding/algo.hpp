@@ -189,13 +189,7 @@ public:
 
     }
 
-//    auto t = start_clock();
-    double min_dist=0.1;
-    double spread=1.0;
-//    pair<double,double> ab = find_ab_params(spread,min_dist);
-    double a = 42.73;
-    double b = 1.33;
-    cout<<"a "<<a<<"b "<<b<<endl;
+
     int seed =0;
     DENT alpha = lr;
     for (int i = 0; i < iterations; i++) {
@@ -207,22 +201,9 @@ public:
           considering_batch_size = last_batch_size;
         }
 
-        unique_ptr<vector<vector<vector<SPT>>>> negative_samples_ptr =
-            make_unique<vector<vector<vector<SPT>>>>(considering_batch_size, vector<vector<SPT>>(ns, vector<SPT>()));
-
-        unique_ptr<vector<SPT>> negative_samples_ptr_count =
-            make_unique<vector<SPT>>(considering_batch_size, 0);
+        unique_ptr<vector<SPT>> negative_samples_ptr_count = make_unique<vector<SPT>>(considering_batch_size, 0);
 
         CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
-
-
-
-//            // negative samples generation
-//        vector<SPT> random_number_vec = generate_random_numbers<SPT>(
-//            0, (this->sp_local_receiver)->gRows, seed, ns);
-
-
-
 
         // One process computations without MPI operations
         if (grid->col_world_size == 1) {
@@ -241,7 +222,7 @@ public:
                                     negative_samples_ptr.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
 
-          this->calc_t_dist_replus_rowptr_new_2(
+          this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
               csr_handle,alpha, j, batch_size,
               considering_batch_size, a, b);
@@ -411,75 +392,6 @@ public:
     }
   }
 
-  inline void calc_embedding(uint64_t source_start_index,
-                             uint64_t source_end_index,
-                             uint64_t dst_start_index, uint64_t dst_end_index,
-                             CSRLocal<SPT, DENT> *csr_block,
-                             vector<DENT> *prevCoordinates, DENT lr,
-                             int batch_id, int batch_size, int block_size,
-                             bool temp_cache) {
-    if (csr_block->handler != nullptr) {
-      CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
-
-#pragma omp parallel for schedule(static)
-      for (uint64_t i = dst_start_index; i <= dst_end_index; i++) {
-
-        uint64_t local_dst =
-            i - (grid)->rank_in_col * (this->sp_local_receiver)->proc_row_width;
-        int target_rank = (int)(i / (this->sp_local_receiver)->proc_row_width);
-        bool fetch_from_cache =
-            target_rank == (grid)->rank_in_col ? false : true;
-
-        bool matched = false;
-        std::array<DENT, embedding_dim> array_ptr;
-        bool col_inserted = false;
-        for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
-             j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
-          if (csr_handle->col_idx[j] >= source_start_index and
-              csr_handle->col_idx[j] <= source_end_index) {
-            DENT forceDiff[embedding_dim];
-            auto source_id = csr_handle->col_idx[j];
-            auto index = source_id - batch_id * batch_size;
-
-            if (!matched) {
-              if (fetch_from_cache) {
-                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
-                    &arrayMap =
-                        (temp_cache)
-                            ? (*this->dense_local->tempCachePtr)[target_rank]
-                            : (*this->dense_local->cachePtr)[target_rank];
-                array_ptr = arrayMap[i].value;
-              }
-              matched = true;
-            }
-            DENT attrc = 0;
-            for (int d = 0; d < embedding_dim; d++) {
-              if (!fetch_from_cache) {
-                forceDiff[d] =
-                    (this->dense_local)
-                        ->nCoordinates[source_id * embedding_dim + d] -
-                    (this->dense_local)
-                        ->nCoordinates[local_dst * embedding_dim + d];
-              } else {
-                forceDiff[d] =
-                    (this->dense_local)
-                        ->nCoordinates[source_id * embedding_dim + d] -
-                    (array_ptr[d]);
-              }
-              attrc += forceDiff[d] * forceDiff[d];
-            }
-            DENT d1 = -2.0 / (1.0 + attrc);
-
-            for (int d = 0; d < embedding_dim; d++) {
-              DENT l = scale(forceDiff[d] * d1);
-              (*prevCoordinates)[index * embedding_dim + d] =
-                  (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
-            }
-          }
-        }
-      }
-    }
-  }
 
   inline void calc_embedding_row_major(int iteration,
       uint64_t source_start_index, uint64_t source_end_index,
@@ -558,301 +470,7 @@ public:
     }
   }
 
-
-  inline void calc_embedding_row_major_new(int iteration,
-                                       uint64_t source_start_index, uint64_t source_end_index,
-                                       uint64_t dst_start_index, uint64_t dst_end_index,
-                                       CSRLocal<SPT, DENT> *csr_block, vector<DENT> *prevCoordinates, DENT lr,
-                                       int batch_id, int batch_size, int block_size, bool temp_cache,double a=1.0, double b=1.0) {
-    if (csr_block->handler != nullptr) {
-      CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
-
-#pragma omp parallel for schedule(static) // enable for full batch training or
-                                          // // batch size larger than 1000000
-      for (uint64_t i = source_start_index; i <= source_end_index; i++) {
-
-        uint64_t index = i - batch_id * batch_size;
-
-        int nn_size = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
-        unordered_map<int64_t, float> distance_map;
-        for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
-             j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
-          int dst_index = j - static_cast<uint64_t>(csr_handle->rowStart[i]);
-          //          cout<<" i "<<i<<" j"<<dst_index<<" itr"<<iteration<<" val "<<samples_per_epoch_next[i][dst_index]<<endl;
-          if (samples_per_epoch_next[i][dst_index] <= iteration+1) {
-            auto dst_id = csr_handle->col_idx[j];
-            auto distance = csr_handle->values[j];
-            if (dst_id >= dst_start_index and dst_id < dst_end_index) {
-              uint64_t local_dst =
-                  dst_id - (grid)->rank_in_col *
-                               (this->sp_local_receiver)->proc_col_width;
-              int target_rank =
-                  (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
-              bool fetch_from_cache =
-                  target_rank == (grid)->rank_in_col ? false : true;
-
-              DENT forceDiff[embedding_dim];
-              std::array<DENT, embedding_dim> array_ptr;
-              if (fetch_from_cache) {
-                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
-                    &arrayMap =
-                        (temp_cache)
-                            ? (*this->dense_local->tempCachePtr)[target_rank]
-                            : (*this->dense_local->cachePtr)[target_rank];
-                array_ptr = arrayMap[dst_id].value;
-              }
-
-              DENT attrc = 0;
-             hipgraph::distviz::knng::MathOp<SPT,DENT> mapOp;
-             pair<DENT,vector<DENT>> distance_gradient =  mapOp.euclidean_grad((this->dense_local)->nCoordinates+(i * embedding_dim),
-                             (this->dense_local)->nCoordinates+(local_dst * embedding_dim),embedding_dim);
-             DENT low_dim_distance = distance_gradient.first;
-             vector<DENT> grd  = distance_gradient.second;
-
-//              for (int d = 0; d < embedding_dim; d++) {
-//                if (!fetch_from_cache) {
-//                  forceDiff[d] =
-//                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-//                      (this->dense_local)
-//                          ->nCoordinates[local_dst * embedding_dim + d];
-//
-//                } else {
-//                  forceDiff[d] =
-//                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-//                      array_ptr[d];
-//                }
-//                //              forceDiff[d] = forceDiff[d] * exp(-1 * distance / smoothe_factor);
-//                attrc += forceDiff[d] * forceDiff[d];
-//              }
-
-//              DENT d1 = -2.0 / (1.0 + attrc);
-              DENT w_l=1.0;
-//              DENT a = 1.0;
-//              DENT b = 1.0;
-              if (low_dim_distance > 0.0)
-              {
-                      w_l = pow((1 + a * pow(low_dim_distance, 2 * b)), -1);
-              }
-              DENT grad_coeff = 2 * b * (w_l - 1) / (low_dim_distance + 1e-6);
-              for (int d = 0; d < embedding_dim; d++) {
-//                DENT l = scale(forceDiff[d] * d1);
-                DENT grad_d = scale(grad_coeff * grd[d]);
-                //              DENT l = (forceDiff[d] * d1 );
-                //              l=l*exp(-1*distance/smoothe_factor);
-                (*prevCoordinates)[index * embedding_dim + d] =
-                    (*prevCoordinates)[index * embedding_dim + d] + (lr)*grad_d;
-              }
-            }
-          }
-
-        }
-      }
-    }
-  }
-
-
-  inline void calc_embedding_row_major_new_2(int iteration,
-                                           uint64_t source_start_index, uint64_t source_end_index,
-                                           uint64_t dst_start_index, uint64_t dst_end_index,
-                                           CSRLocal<SPT, DENT> *csr_block, vector<DENT> *prevCoordinates, DENT lr,
-                                           int batch_id, int batch_size, int block_size, bool temp_cache,double a=1.0, double b=1.0) {
-    if (csr_block->handler != nullptr) {
-      CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
-
-#pragma omp parallel for schedule(static) // enable for full batch training or
-                                          // // batch size larger than 1000000
-      for (uint64_t i = source_start_index; i <= source_end_index; i++) {
-
-        uint64_t index = i - batch_id * batch_size;
-
-        int nn_size = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
-        unordered_map<int64_t, float> distance_map;
-        for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
-             j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
-          int dst_index = j - static_cast<uint64_t>(csr_handle->rowStart[i]);
-          if (samples_per_epoch_next[i][dst_index] <= iteration+1) {
-            auto dst_id = csr_handle->col_idx[j];
-            auto distance = csr_handle->values[j];
-            if (dst_id >= dst_start_index and dst_id < dst_end_index) {
-              uint64_t local_dst =
-                  dst_id - (grid)->rank_in_col *
-                               (this->sp_local_receiver)->proc_col_width;
-              int target_rank =
-                  (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
-              bool fetch_from_cache =
-                  target_rank == (grid)->rank_in_col ? false : true;
-
-              DENT forceDiff[embedding_dim];
-              std::array<DENT, embedding_dim> array_ptr;
-              if (fetch_from_cache) {
-                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
-                    &arrayMap =
-                        (temp_cache)
-                            ? (*this->dense_local->tempCachePtr)[target_rank]
-                            : (*this->dense_local->cachePtr)[target_rank];
-                array_ptr = arrayMap[dst_id].value;
-              }
-
-              DENT attrc = 0;
-              for (int d = 0; d < embedding_dim; d++) {
-                if (!fetch_from_cache) {
-                  forceDiff[d] = (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-                                    (this->dense_local)->nCoordinates[local_dst * embedding_dim + d];
-                } else {
-                  forceDiff[d] = (this->dense_local)->nCoordinates[i * embedding_dim + d] - array_ptr[d];
-                }
-                attrc += forceDiff[d] * forceDiff[d];
-              }
-
-              DENT d1 = -2.0 / (1.0 + attrc);
-
-              for (int d = 0; d < embedding_dim; d++) {
-                DENT l = scale(forceDiff[d] * d1);
-                (*prevCoordinates)[index * embedding_dim + d] =
-                    (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
-              }
-            }
-          }
-
-        }
-      }
-    }
-  }
-
   inline void calc_t_dist_replus_rowptr(
-      vector<DENT> *prevCoordinates, vector<SPT> &col_ids, DENT lr,
-      int batch_id, int batch_size, int block_size) {
-
-    int row_base_index = batch_id * batch_size;
-
-#pragma omp parallel for schedule(static)
-    for (int i = 0; i < block_size; i++) {
-      uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
-      DENT forceDiff[embedding_dim];
-      for (int j = 0; j < col_ids.size(); j++) {
-        uint64_t global_col_id = col_ids[j];
-        uint64_t local_col_id =
-            global_col_id -
-            static_cast<uint64_t>(((grid)->rank_in_col *
-                                   (this->sp_local_receiver)->proc_row_width));
-        bool fetch_from_cache = false;
-
-        int owner_rank = static_cast<int>(
-            global_col_id / (this->sp_local_receiver)->proc_row_width);
-
-        if (owner_rank != (grid)->rank_in_col) {
-          fetch_from_cache = true;
-        }
-
-        DENT repuls = 0;
-        if (fetch_from_cache) {
-          unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>> &arrayMap =
-              (*this->dense_local->tempCachePtr)[owner_rank];
-          std::array<DENT, embedding_dim> &colvec =
-              arrayMap[global_col_id].value;
-
-          for (int d = 0; d < embedding_dim; d++) {
-            forceDiff[d] =
-                (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
-                colvec[d];
-            repuls += forceDiff[d] * forceDiff[d];
-          }
-        } else {
-          for (int d = 0; d < embedding_dim; d++) {
-            forceDiff[d] =
-                (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
-                (this->dense_local)
-                    ->nCoordinates[local_col_id * embedding_dim + d];
-
-            repuls += forceDiff[d] * forceDiff[d];
-          }
-        }
-        DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
-        for (int d = 0; d < embedding_dim; d++) {
-          forceDiff[d] = scale(forceDiff[d] * d1);
-          (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
-        }
-      }
-    }
-  }
-
-
-  inline void calc_t_dist_replus_rowptr_new(
-      vector<DENT> *prevCoordinates, vector<vector<vector<SPT>>> *negative_samples_ptr,
-      CSRHandle<SPT,DENT> *csr_handle,DENT lr,
-      int batch_id, int batch_size, int block_size,double a=1.0, double b=1.0) {
-
-    int row_base_index = batch_id * batch_size;
-
-#pragma omp parallel for schedule(static)
-    for (int i = 0; i < block_size; i++) {
-      uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
-      DENT forceDiff[embedding_dim];
-      for(int k=0;k<(*negative_samples_ptr)[i].size();k++) {
-        for (int j = 0; j < (*negative_samples_ptr)[i][k].size(); j++) {
-          SPT global_col_id = (*negative_samples_ptr)[i][k][j];
-          SPT local_col_id =
-              global_col_id - static_cast<SPT>(
-                                  ((grid)->rank_in_col *
-                                   (this->sp_local_receiver)->proc_row_width));
-          bool fetch_from_cache = false;
-
-          int owner_rank = static_cast<int>(
-              global_col_id / (this->sp_local_receiver)->proc_row_width);
-
-          if (owner_rank != (grid)->rank_in_col) {
-            fetch_from_cache = true;
-          }
-
-          DENT repuls = 0;
-
-          hipgraph::distviz::knng::MathOp<SPT,DENT> mapOp;
-          pair<DENT,vector<DENT>> distance_gradient =  mapOp.euclidean_grad((this->dense_local)->nCoordinates+(row_id * embedding_dim),
-                                                                            (this->dense_local)->nCoordinates+(local_col_id * embedding_dim),embedding_dim);
-          DENT low_dim_distance = distance_gradient.first;
-          vector<DENT> grd  = distance_gradient.second;
-
-//          if (fetch_from_cache) {
-//            unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> &arrayMap =
-//                (*this->dense_local->tempCachePtr)[owner_rank];
-//            std::array<DENT, embedding_dim> &colvec =
-//                arrayMap[global_col_id].value;
-//
-//            for (int d = 0; d < embedding_dim; d++) {
-//              forceDiff[d] = (this->dense_local)
-//                                 ->nCoordinates[row_id * embedding_dim + d] -
-//                             colvec[d];
-//              repuls += forceDiff[d] * forceDiff[d];
-//            }
-//          } else {
-//            for (int d = 0; d < embedding_dim; d++) {
-//              forceDiff[d] =
-//                  (this->dense_local)
-//                      ->nCoordinates[row_id * embedding_dim + d] -
-//                  (this->dense_local)
-//                      ->nCoordinates[local_col_id * embedding_dim + d];
-//
-//              repuls += forceDiff[d] * forceDiff[d];
-//            }
-//          }
-          DENT w_l=1.0;
-          DENT gamma = 1.0;
-          if (low_dim_distance > 0.0)
-          {
-            w_l = pow((1 + a * pow(low_dim_distance, 2 * b)), -1);
-          }
-          DENT grad_coeff = gamma* 2 * b * w_l / (low_dim_distance + 1e-6);
-          for (int d = 0; d < embedding_dim; d++) {
-            DENT grad_d = scale(grad_coeff * grd[d]);
-            (*prevCoordinates)[i * embedding_dim + d] += (lr)*grad_d;
-          }
-        }
-      }
-    }
-  }
-
-
-  inline void calc_t_dist_replus_rowptr_new_2(
       vector<DENT> *prevCoordinates, vector<SPT> *negative_samples_ptr_count,
       CSRHandle<SPT,DENT> *csr_handle,DENT lr,
       int batch_id, int batch_size, int block_size,double a=1.0, double b=1.0) {
@@ -1080,66 +698,6 @@ public:
       }
     }
   }
-//  void apply_set_operations(bool apply_set_operations, PetscScalar set_op_mix_ratio,
-//                            std::vector<int>& row_offsets, std::vector<int>& col_indices,
-//                            std::vector<PetscScalar>& values) {
-//    if (apply_set_operations) {
-//      PetscInitialize(NULL, NULL, NULL, NULL);
-//      PetscInt numRows = row_offsets.size() - 1;
-//
-//      // Create PETSc matrix in AIJ format (compressed row)
-//      Mat A;
-//      MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
-//      MatCreate(PETSC_COMM_WORLD, &A);
-//      MatSetSizes(A, PETSC_DECIDE, PETSC_DECIDE, numRows, numRows);
-//      MatSetFromOptions(A);
-//      MatSetUp(A);
-//
-//      // Populate matrix values
-//      for (int i = 0; i < numRows; ++i) {
-//        for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
-//          MatSetValue(A, i, col_indices[j], values[j], INSERT_VALUES);
-//        }
-//      }
-//      MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY);
-//      MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY);
-//
-//      // Create transpose matrix
-//      Mat B;
-//      MatTranspose(A, MAT_INITIAL_MATRIX, &B);
-//
-//      // Multiply matrices
-//      Mat C;
-//      MatMatMult(A, B, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &C);
-//
-//      // Compute result = set_op_mix_ratio * (A + B - C) + (1.0 - set_op_mix_ratio) * C
-//      Mat D;
-//      MatDuplicate(A, MAT_COPY_VALUES, &D);
-//      MatAXPY(D, 1.0, B, DIFFERENT_NONZERO_PATTERN);
-//      MatAXPY(D, -1.0, C, DIFFERENT_NONZERO_PATTERN);
-//      MatScale(D, set_op_mix_ratio);
-//      MatScale(C, 1.0 - set_op_mix_ratio);
-//      MatAXPY(D, 1.0, C, DIFFERENT_NONZERO_PATTERN);
-//
-//      // Extract matrix values
-//      PetscInt nnz;
-//      const PetscInt* rows;
-//      const PetscInt* cols;
-//      const PetscScalar* vals;
-//      MatGetRowIJ(D, 0, PETSC_TRUE, PETSC_TRUE, &nnz, &rows, &cols, &vals);
-//      row_offsets.assign(rows, rows + numRows + 1);
-//      col_indices.assign(cols, cols + nnz);
-//      values.assign(vals, vals + nnz);
-//      MatRestoreRowIJ(D, 0, PETSC_TRUE, PETSC_TRUE, &nnz, &rows, &cols, &vals);
-//
-//      // Destroy matrices
-//      MatDestroy(&A);
-//      MatDestroy(&B);
-//      MatDestroy(&C);
-//      MatDestroy(&D);
-//      PetscFinalize();
-//    }
-//  }
 
     void apply_set_operations(bool apply_set_operations, float set_op_mix_ratio,
                               std::vector<int>& row_offsets, std::vector<int>& col_indices,
@@ -1150,8 +708,6 @@ public:
         // Prepare triplet list to avoid locking overhead
         std::vector<Eigen::Triplet<float>> triplets;
         triplets.reserve(values.size());
-
-//        #pragma omp parallel for
         for (int i = 0; i < numRows; ++i) {
           int start = row_offsets[i];
           int end = row_offsets[i + 1];
@@ -1195,96 +751,5 @@ public:
 
       }
     }
-
-    Eigen::SparseMatrix<float> computeTopKEigenvectorsFromLaplacian(
-        const std::vector<int>& row_offsets,
-        const std::vector<int>& col_indices,
-        const std::vector<float>& values,
-        int k) {
-      PetscInitialize(NULL, NULL, NULL, NULL);
-
-      // Construct the graph Laplacian matrix
-      // You need to implement this part to construct the Laplacian from CSR
-
-      // Set up PETSc matrix to represent the Laplacian
-      PetscInt n = row_offsets.size() - 1;
-
-      Mat laplacian;
-//      MatSetOption(laplacian, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
-      computeLaplacian(row_offsets,col_indices,&laplacian);
-//      MatCreate(PETSC_COMM_WORLD, &laplacian);
-//      MatSetType(laplacian, MATMPIAIJ);
-//      MatSetSizes(laplacian, PETSC_DECIDE, PETSC_DECIDE, n, n);
-//      MatSetUp(laplacian);
-
-      // Set values of Laplacian matrix using CSR data
-      // You need to implement this part to set the values of the Laplacian matrix
-
-      // Set up PETSc eigenvalue solver
-//      EPS eps;
-//      EPSCreate(PETSC_COMM_WORLD, &eps);
-//      EPSSetOperators(eps, laplacian, NULL);
-//      EPSSetProblemType(eps, EPS_HEP);
-//      EPSSetFromOptions(eps);
-//      EPSSolve(eps);
-//
-//      // Get the number of converged eigenpairs
-//      PetscInt nev;
-//      EPSGetConverged(eps, &nev);
-//
-//      Vec   xr,xi;
-//      PetscScalar kr,ki;
-//      // Get the eigenvalues and eigenvectors
-//      for(PetscInt i=0;i<nev;i++){
-//        EPSGetEigenpair(eps, i, &kr,&ki,xr,xi);
-//      }
-      // Clean up
-//      delete[] eigenvalues;
-//      MatDestroy(&laplacian);
-//      MatDestroy(&eigenvectors);
-//      EPSDestroy(&eps);
-
-//      PetscFinalize();
-    }
-
-    void computeLaplacian(const std::vector<int>& row_offsets,
-                          const std::vector<int>& col_indices,
-                          Mat *laplacian) {
-//      PetscInitialize(NULL, NULL, NULL, NULL);
-      PetscInt n = row_offsets.size() - 1; // Number of vertices
-
-      // Create a sequential CSR matrix to represent the Laplacian
-      MatCreateSeqAIJ(PETSC_COMM_SELF, n, n,1 , NULL, laplacian);
-
-      // Populate the Laplacian matrix
-      for (PetscInt i = 0; i < n; ++i) {
-        PetscInt row_start = row_offsets[i];
-        PetscInt row_end = row_offsets[i + 1];
-        PetscScalar degree = row_end - row_start; // Degree of the vertex i
-        for (PetscInt j = row_start; j < row_end; ++j) {
-          PetscInt col_index = col_indices[j];
-          if (col_index == i) {
-            cout<<" i "<<i<<" degeree "<<degree<<endl;
-            // Diagonal element: degree - number of neighbors of vertex i
-//            MatSetValue(*laplacian, i, i, degree - 1.0, INSERT_VALUES);
-          } else {
-            // Off-diagonal element: -1.0
-//            MatSetValue(*laplacian, i, col_index, -1.0, INSERT_VALUES);
-          }
-        }
-      }
-
-      cout<<" degree assign completed "<<endl;
-
-      // Assemble the matrix
-      MatAssemblyBegin(*laplacian, MAT_FINAL_ASSEMBLY);
-      MatAssemblyEnd(*laplacian, MAT_FINAL_ASSEMBLY);
-      cout<<" Assembly completed "<<endl;
-//      PetscFinalize();
-    }
-
-
-
-
 };
 } // namespace hipgraph::distviz::embedding
