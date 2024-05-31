@@ -216,16 +216,15 @@ public:
           // local computations for 1 process
           this->calc_t_dist_grad_rowptr(
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
-              considering_batch_size, true, false, 0, 0, false, a, b);
+              considering_batch_size, true, false, 0, 0, false);
 
-          generate_negative_samples(negative_samples_ptr_count.get(),
-                                    negative_samples_ptr.get(),csr_handle,i,j,batch_size,
+          generate_negative_samples(negative_samples_ptr_count.get(),,csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
 
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
               csr_handle,alpha, j, batch_size,
-              considering_batch_size, a, b);
+              considering_batch_size);
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
@@ -330,7 +329,7 @@ public:
   inline void calc_t_dist_grad_rowptr(
       CSRLocal<SPT, DENT> *csr_block, vector<DENT> *prevCoordinates, DENT lr,
       int iteration,int batch_id, int batch_size, int block_size, bool local, bool col_major,
-      int start_process, int end_process, bool fetch_from_temp_cache, double a=1.0, double b=1.0) {
+      int start_process, int end_process, bool fetch_from_temp_cache) {
 
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
@@ -346,16 +345,10 @@ public:
         1;
 
     if (local) {
-      if (col_major) {
-        calc_embedding(source_start_index, source_end_index, dst_start_index,
-                       dst_end_index, csr_block, prevCoordinates, lr, batch_id,
-                       batch_size, block_size, fetch_from_temp_cache);
-      } else {
-        calc_embedding_row_major_new_2(iteration,source_start_index, source_end_index,
+        calc_embedding_row_major(iteration,source_start_index, source_end_index,
                                  dst_start_index, dst_end_index, csr_block,
                                  prevCoordinates, lr, batch_id, batch_size,
-                                 block_size, fetch_from_temp_cache,a,b);
-
+                                 block_size, fetch_from_temp_cache);
       }
     } else {
       for (int r = start_process; r < end_process; r++) {
@@ -473,7 +466,7 @@ public:
   inline void calc_t_dist_replus_rowptr(
       vector<DENT> *prevCoordinates, vector<SPT> *negative_samples_ptr_count,
       CSRHandle<SPT,DENT> *csr_handle,DENT lr,
-      int batch_id, int batch_size, int block_size,double a=1.0, double b=1.0) {
+      int batch_id, int batch_size, int block_size) {
 
     int row_base_index = batch_id * batch_size;
 
