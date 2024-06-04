@@ -221,7 +221,7 @@ int main(int argc, char* argv[]) {
   shared_ptr<vector<Tuple<float>>> repulsive_graph_ptr = make_shared<vector<Tuple<float>>>();
   shared_ptr<vector<unordered_map<int64_t,float>>> repulsive_graph_map = make_shared<vector<unordered_map<int64_t,float>>>();
   Eigen::MatrixXf data_matrix =Eigen::MatrixXf();
-   t = start_clock();
+//   t = start_clock();
    if (grid.get()->col_world_size==1){
 
      if (sparse_input) {
@@ -254,7 +254,7 @@ int main(int argc, char* argv[]) {
    }
 
    std::cout << "calling grow trees completed"<< rank<< " "<<std::endl;
-  stop_clock_and_add(t, "KNNG Total Time");
+//  stop_clock_and_add(t, "KNNG Total Time");
 
   t = start_clock();
   cout<<" rank "<<rank<<" output size: "<<knng_graph_ptr.get()->size()<<endl;

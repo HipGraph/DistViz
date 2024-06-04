@@ -1407,8 +1407,7 @@ private:
                                 2.0;
     }
 
-    grow_subtree(begin, mid, tree_level + 1, idx_left, n_tree,
-                 tree_projections);
+    grow_subtree(begin, mid, tree_level + 1, idx_left, n_tree, tree_projections);
     grow_subtree(mid, end, tree_level + 1, idx_right, n_tree, tree_projections);
   }
 

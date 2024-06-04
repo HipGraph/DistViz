@@ -258,13 +258,16 @@ public:
                         bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0) {
 
     //    int effective_nn = 2 * nn;
+    auto t = start_clock();
     int effective_nn = nn;
     cout<<" sparse_matrix size"<<sparse_matrix.rows()<<" * "<<sparse_matrix.cols()<<endl;
     MrptSparse mrpt(sparse_matrix);
 
+
     cout<<" mrpt completed"<<endl;
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
     cout<<" grow_autotune completed"<<endl;
+    stop_clock_and_add(t, "KNNG Total Time");
     Eigen::MatrixXi neighbours(sparse_matrix.cols(),effective_nn);
     Eigen::MatrixXf distances(sparse_matrix.cols(),effective_nn);
 
