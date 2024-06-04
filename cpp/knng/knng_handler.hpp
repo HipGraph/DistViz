@@ -267,7 +267,7 @@ public:
     cout<<" mrpt completed"<<endl;
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
     cout<<" grow_autotune completed"<<endl;
-    stop_clock_and_add(t, "KNNG Total Time");
+
     Eigen::MatrixXi neighbours(sparse_matrix.cols(),effective_nn);
     Eigen::MatrixXf distances(sparse_matrix.cols(),effective_nn);
 
@@ -284,7 +284,7 @@ public:
       neighbours.row(i)=tempRow;
       distances.row(i)=tempDis;
     }
-
+    stop_clock_and_add(t, "KNNG Total Time");
 #pragma omp parallel for schedule(static)
     for(int i=0;i<sparse_matrix.cols()*effective_nn;i++){
       int node_index = i/effective_nn;
