@@ -134,6 +134,7 @@ public:
 
     count_first_leaf_indices_all(leaf_first_indices_all, n_samples, depth);
     leaf_first_indices = leaf_first_indices_all[depth];
+    index_to_tree_leaf_match = std::vector<std::vector<int>>(n_samples,std::vector<int>(n_trees));
 
     #pragma omp parallel for
     for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
@@ -1384,8 +1385,17 @@ private:
     int idx_left = 2 * i + 1;
     int idx_right = idx_left + 1;
 
-    if (tree_level == depth)
-      return;
+    if (tree_level == depth){
+      for(int leaf_i=0;leaf_i<leaf_first_indices.size()-1;leaf_i++){
+        int leaf_begin = leaf_first_indices[leaf_i];
+        int leaf_end = leaf_first_indices[leaf_i+1];
+        const std::vector<int> &indices = tree_leaves[n_tree];
+        for (int i = leaf_begin; i < leaf_end; ++i) {
+          int idx = indices[i];
+          index_to_tree_leaf_match[idx][n_tree] = leaf_i;
+        }
+      }
+    }
 
     std::nth_element(begin, begin + n / 2, end,
                      [&tree_projections, tree_level](int i1, int i2) {
@@ -2479,6 +2489,7 @@ private:
       leaf_first_indices_all; // first indices for each level
   std::vector<int>
       leaf_first_indices; // first indices of each leaf of tree in tree_leaves
+  std::vector<std::vector<int>> index_to_tree_leaf_match;
 
   const int n_samples; // sample size of data
   const int dim;       // dimension of data

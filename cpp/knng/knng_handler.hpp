@@ -272,7 +272,7 @@ public:
     Eigen::MatrixXf distances(sparse_matrix.cols(),effective_nn);
 
     output_knng->resize(sparse_matrix.cols()*effective_nn);
-
+    stop_clock_and_add(t, "KNNG Total Time");
 
 #pragma omp parallel for schedule (static)
     for(int i=0;i<sparse_matrix.cols();i++){
@@ -284,7 +284,7 @@ public:
       neighbours.row(i)=tempRow;
       distances.row(i)=tempDis;
     }
-    stop_clock_and_add(t, "KNNG Total Time");
+
 #pragma omp parallel for schedule(static)
     for(int i=0;i<sparse_matrix.cols()*effective_nn;i++){
       int node_index = i/effective_nn;
