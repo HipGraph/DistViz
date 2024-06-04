@@ -1395,6 +1395,7 @@ private:
 //          index_to_tree_leaf_match[idx][n_tree] = leaf_i;
         }
       }
+      return;
     }
 
     std::nth_element(begin, begin + n / 2, end,
