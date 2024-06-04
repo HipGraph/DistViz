@@ -282,7 +282,7 @@ static void  read_fbin_sparse(string filename, Eigen::SparseMatrix<float, Eigen:
 
   file.seekg(start_idx * 4 * dim+offset, std::ios::beg);
   file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
-  const double scaleParameter = 100;
+  const double scaleParameter = 1;
   cout<<" rank  "<<rank<<"  data reading  completed"<<endl;
 
   for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
