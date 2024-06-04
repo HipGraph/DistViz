@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "../common/common.h"
 
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
@@ -1134,7 +1135,7 @@ public:
             elected(n_elected++) = idx;
         }
       }
-      exact_knn_sparse( X_Sparse.col(i), k, elected, n_elected, out, out_distances);
+      exact_knn_sparse( X_Sparse.col(i), k, elected, n_elected, neighbours, distances);
     }
   }
 
