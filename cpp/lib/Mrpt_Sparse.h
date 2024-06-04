@@ -1141,9 +1141,9 @@ public:
       for(int j=0;j<k;j++){
         hipgraph::distviz::common::Tuple<float> edge;
         edge.row = i;
-        edge.col =   neighbours(j);
-        edge.value = distances(j);
-        (*output_knng)[i]  = edge;
+//        edge.col =   neighbours(j);
+//        edge.value = distances(j);
+        (*output_knng)[i*k+j]  = edge;
       }
     }
   }
