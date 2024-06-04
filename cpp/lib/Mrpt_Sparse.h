@@ -1392,7 +1392,7 @@ private:
         int leaf_end = leaf_first_indices[leaf_i+1];
         for (int j = leaf_begin; j < leaf_end; ++j) {
           int idx = indices[j];
-//          index_to_tree_leaf_match[idx][n_tree] = leaf_i;
+          index_to_tree_leaf_match[idx][n_tree] = leaf_i;
         }
       }
       return;
