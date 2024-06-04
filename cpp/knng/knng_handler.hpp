@@ -262,12 +262,10 @@ public:
     int effective_nn = nn;
     cout<<" sparse_matrix size"<<sparse_matrix.rows()<<" * "<<sparse_matrix.cols()<<endl;
     MrptSparse mrpt(sparse_matrix);
-
-
-    cout<<" mrpt completed"<<endl;
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
-    cout<<" grow_autotune completed"<<endl;
     mrpt.build_knng_graph(output_knng);
+    cout<<" grow_autotune completed"<<endl;
+
     Eigen::MatrixXi neighbours(sparse_matrix.cols(),effective_nn);
     Eigen::MatrixXf distances(sparse_matrix.cols(),effective_nn);
 

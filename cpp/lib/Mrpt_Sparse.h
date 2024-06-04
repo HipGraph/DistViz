@@ -1526,7 +1526,7 @@ private:
 
     Eigen::VectorXf distances(n_elected);
 
-#pragma omp parallel for
+//#pragma omp parallel for
     for (int i = 0; i < n_elected; ++i) {
       Eigen::SparseVector<float> diff = X_Sparse.col(indices(i)) - q;
       distances(i) = diff.squaredNorm();
