@@ -1114,6 +1114,7 @@ public:
 
 
   void build_knng_graph(std::vector<hipgraph::distviz::common::Tuple<float>> *output_knng){
+     #pragma omp parallel for
     for(int i=0;i<index_to_tree_leaf_match.size();i++){
       int vote_threshold = votes;
       int n_elected = 0, max_leaf_size = n_samples / (1 << depth) + 1;
