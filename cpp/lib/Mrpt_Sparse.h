@@ -1113,7 +1113,7 @@ public:
   }
 
 
-  void build_knng_graph(vector<Tuple<float>> *output_knng){
+  void build_knng_graph(std::vector<hipgraph::distviz::common::Tuple<float>> *output_knng){
     for(int i=0;i<index_to_tree_leaf_match.size();i++){
       int vote_threshold = votes;
       int n_elected = 0, max_leaf_size = n_samples / (1 << depth) + 1;
@@ -1135,7 +1135,8 @@ public:
             elected(n_elected++) = idx;
         }
       }
-      exact_knn_sparse( X_Sparse.col(i), k, elected, n_elected, neighbours, distances);
+      Eigen::SparseVector<float> q = X_Sparse.col(i);
+      exact_knn_sparse(q,k, elected, n_elected, neighbours, distances);
     }
   }
 
