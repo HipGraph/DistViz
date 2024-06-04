@@ -1138,7 +1138,7 @@ public:
       }
       Eigen::SparseVector<float> q = X_Sparse.col(i);
       exact_knn_sparse(q,k, elected, n_elected, neighbours.data(), distances.data());
-      for(int j=0;j<k;++j){
+      for(int j=0;j<neighbours.size();++j){
         hipgraph::distviz::common::Tuple<float> edge;
         edge.row = i;
         edge.col =   neighbours(j);
