@@ -1130,14 +1130,21 @@ public:
         int leaf_begin = leaf_first_indices[index_to_tree_leaf_match[i][n_tree]];
         int leaf_end = leaf_first_indices[index_to_tree_leaf_match[i][n_tree] + 1];
         const std::vector<int> &indices = tree_leaves[n_tree];
-        for (int i = leaf_begin; i < leaf_end; ++i) {
-          int idx = indices[i];
+        for (int j = leaf_begin; j < leaf_end; ++j) {
+          int idx = indices[j];
           if (++votes(idx) == vote_threshold)
             elected(n_elected++) = idx;
         }
       }
       Eigen::SparseVector<float> q = X_Sparse.col(i);
       exact_knn_sparse(q,k, elected, n_elected, neighbours.data(), distances.data());
+      for(int j=0;j<k;j++){
+        Tuple<VALUE_TYPE> edge;
+        edge.row = i;
+        edge.col =   neighbours(i,j);
+        edge.value = distances(i,j);
+        (*output_knng)[i]  = edge;
+      }
     }
   }
 

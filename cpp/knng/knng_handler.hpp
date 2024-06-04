@@ -263,37 +263,38 @@ public:
     cout<<" sparse_matrix size"<<sparse_matrix.rows()<<" * "<<sparse_matrix.cols()<<endl;
     MrptSparse mrpt(sparse_matrix);
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
+    output_knng->resize(sparse_matrix.cols()*effective_nn);
     mrpt.build_knng_graph(output_knng);
     cout<<" grow_autotune completed"<<endl;
 
-    Eigen::MatrixXi neighbours(sparse_matrix.cols(),effective_nn);
-    Eigen::MatrixXf distances(sparse_matrix.cols(),effective_nn);
-
-    output_knng->resize(sparse_matrix.cols()*effective_nn);
+//    Eigen::MatrixXi neighbours(sparse_matrix.cols(),effective_nn);
+//    Eigen::MatrixXf distances(sparse_matrix.cols(),effective_nn);
+//
+//    output_knng->resize(sparse_matrix.cols()*effective_nn);
+//    stop_clock_and_add(t, "KNNG Total Time");
+//
+//#pragma omp parallel for schedule (static)
+//    for(int i=0;i<sparse_matrix.cols();i++){
+//      Eigen::VectorXi tempRow(effective_nn);
+//      Eigen::VectorXf tempDis(effective_nn);
+//      Eigen::SparseVector<float> q = sparse_matrix.col(i);
+////      Eigen::VectorXf q_dens = Eigen::VectorXf(q);
+//      mrpt.query_sparse(q, tempRow.data(),tempDis.data());
+//      neighbours.row(i)=tempRow;
+//      distances.row(i)=tempDis;
+//    }
+//
+//#pragma omp parallel for schedule(static)
+//    for(int i=0;i<sparse_matrix.cols()*effective_nn;i++){
+//      int node_index = i/effective_nn;
+//      int nn_index = i%effective_nn;
+//      Tuple<VALUE_TYPE> edge;
+//      edge.row = node_index;
+//      edge.col =   neighbours(node_index,nn_index);
+//      edge.value = distances(node_index,nn_index);
+//      (*output_knng)[i]  = edge;
+//    }
     stop_clock_and_add(t, "KNNG Total Time");
-
-#pragma omp parallel for schedule (static)
-    for(int i=0;i<sparse_matrix.cols();i++){
-      Eigen::VectorXi tempRow(effective_nn);
-      Eigen::VectorXf tempDis(effective_nn);
-      Eigen::SparseVector<float> q = sparse_matrix.col(i);
-//      Eigen::VectorXf q_dens = Eigen::VectorXf(q);
-      mrpt.query_sparse(q, tempRow.data(),tempDis.data());
-      neighbours.row(i)=tempRow;
-      distances.row(i)=tempDis;
-    }
-
-#pragma omp parallel for schedule(static)
-    for(int i=0;i<sparse_matrix.cols()*effective_nn;i++){
-      int node_index = i/effective_nn;
-      int nn_index = i%effective_nn;
-      Tuple<VALUE_TYPE> edge;
-      edge.row = node_index;
-      edge.col =   neighbours(node_index,nn_index);
-      edge.value = distances(node_index,nn_index);
-      (*output_knng)[i]  = edge;
-    }
-
     if (print_output) {
       FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
       fileWriter.write_list(output_knng,output_path);
