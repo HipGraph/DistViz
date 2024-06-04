@@ -1136,7 +1136,7 @@ public:
         }
       }
       Eigen::SparseVector<float> q = X_Sparse.col(i);
-      exact_knn_sparse(q,k, elected, n_elected, neighbours, distances);
+      exact_knn_sparse(q,k, elected, n_elected, neighbours.data(), distances.data());
     }
   }
 
