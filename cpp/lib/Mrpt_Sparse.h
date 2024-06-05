@@ -1146,8 +1146,8 @@ public:
 
     #pragma omp parallel for schedule(static)
     for(int i=0;i<X_Sparse.cols()*k;i++){
-          int node_index = i/effective_nn;
-          int nn_index = i%effective_nn;
+          int node_index = i/k;
+          int nn_index = i%k;
           Tuple<VALUE_TYPE> edge;
           edge.row = node_index;
           edge.col =   neighbours(node_index,nn_index);
