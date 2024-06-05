@@ -1138,7 +1138,7 @@ public:
         for (int j = leaf_begin; j < leaf_end; ++j) {
 
           if (j<0 or j>= indices.size()){
-            cout<<" wrong j "<<j<<" nsamples "<<n_samples<<endl;
+            cout<<" wrong j "<<j<<" indices "<<indices.size()<<endl;
           }
 //          int idx = indices[j];
 //          if (idx<0 or idx>= n_samples){
