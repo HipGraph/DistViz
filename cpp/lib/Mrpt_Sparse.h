@@ -1148,7 +1148,7 @@ public:
     for(int i=0;i<X_Sparse.cols()*k;i++){
           int node_index = i/k;
           int nn_index = i%k;
-          Tuple<VALUE_TYPE> edge;
+          Tuple<float> edge;
           edge.row = node_index;
           edge.col =   neighbours(node_index,nn_index);
           edge.value = distances(node_index,nn_index);
