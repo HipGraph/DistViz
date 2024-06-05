@@ -1140,14 +1140,14 @@ public:
           if (idx<0 or idx>= n_samples){
             cout<<" wrong idx "<<idx<<endl;
           }
-          if (++votes_vec(idx) == vote_threshold) {
-            if (n_elected < elected_size){
-//              elected(n_elected++) = idx;
-            }else {
-              break;
-            }
-
-          }
+//          if (++votes_vec(idx) == vote_threshold) {
+//            if (n_elected < elected_size){
+////              elected(n_elected++) = idx;
+//            }else {
+//              break;
+//            }
+//
+//          }
         }
       }
 //      Eigen::SparseVector<float> q = X_Sparse.col(i);
