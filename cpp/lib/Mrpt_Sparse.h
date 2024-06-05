@@ -1117,12 +1117,13 @@ public:
     Eigen::MatrixXi neighbours(X_Sparse.cols(),k);
     Eigen::MatrixXf distances(X_Sparse.cols(),k);
     int vote_threshold = votes;
-    cout<<" vote threshold "<<vote_threshold<<endl;
+    int max_leaf_size = n_samples / (1 << depth) + 1;
+    cout<<" vote threshold "<<vote_threshold<<" max leaf size " <<max_leaf_size<<endl;
+    int elected_size = n_trees * max_leaf_size;
      #pragma omp parallel for
     for(int i=0;i<index_to_tree_leaf_match.size();i++){
-
-      int n_elected = 0, max_leaf_size = n_samples / (1 << depth) + 1;
-      Eigen::VectorXi elected(n_trees * max_leaf_size);
+      int n_elected = 0,
+      Eigen::VectorXi elected(elected_size);
       Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
       Eigen::VectorXi neighbour(k);
       Eigen::VectorXf distance(k);
@@ -1136,8 +1137,14 @@ public:
         const std::vector<int> &indices = tree_leaves[n_tree];
         for (int j = leaf_begin; j < leaf_end; ++j) {
           int idx = indices[j];
-          if (++votes_vec(idx) == vote_threshold)
-            elected(n_elected++) = idx;
+          if (++votes_vec(idx) == vote_threshold) {
+            if (n_elected < elected_size){
+              elected(n_elected++) = idx;
+            }else {
+              break;
+            }
+
+          }
         }
       }
 //      Eigen::SparseVector<float> q = X_Sparse.col(i);
