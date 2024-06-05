@@ -1120,7 +1120,7 @@ public:
     int max_leaf_size = n_samples / (1 << depth) + 1;
     cout<<" vote threshold "<<vote_threshold<<" max leaf size " <<max_leaf_size<<endl;
     int elected_size = n_trees * max_leaf_size;
-     #pragma omp parallel for
+//     #pragma omp parallel for
     for(int i=0;i<index_to_tree_leaf_match.size();i++){
       int n_elected = 0;
       Eigen::VectorXi elected(elected_size);
@@ -1138,7 +1138,7 @@ public:
         for (int j = leaf_begin; j < leaf_end; ++j) {
 
           if (j<0 or j>= indices.size()){
-            cout<<" wrong j "<<j<<endl;
+            cout<<" wrong j "<<j<<" nsamples "<<n_samples<<endl;
           }
 //          int idx = indices[j];
 //          if (idx<0 or idx>= n_samples){
