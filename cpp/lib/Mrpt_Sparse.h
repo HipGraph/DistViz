@@ -1122,7 +1122,7 @@ public:
     int elected_size = n_trees * max_leaf_size;
      #pragma omp parallel for
     for(int i=0;i<index_to_tree_leaf_match.size();i++){
-      int n_elected = 0,
+      int n_elected = 0;
       Eigen::VectorXi elected(elected_size);
       Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
       Eigen::VectorXi neighbour(k);
