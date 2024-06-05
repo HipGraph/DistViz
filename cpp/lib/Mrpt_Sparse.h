@@ -1135,18 +1135,15 @@ public:
         int leaf_begin = leaf_first_indices[index_to_tree_leaf_match[i][n_tree]];
         int leaf_end = leaf_first_indices[index_to_tree_leaf_match[i][n_tree] + 1];
         const std::vector<int> &indices = tree_leaves[n_tree];
-        if (indices == nullptr){
-          cout<<" indixes null "<<endl;
-        }
         for (int j = leaf_begin; j < leaf_end; ++j) {
 
           if (j<0 or j>= indices.size()){
             cout<<" wrong j "<<j<<endl;
           }
-          int idx = indices[j];
-          if (idx<0 or idx>= n_samples){
-            cout<<" wrong idx "<<idx<<endl;
-          }
+//          int idx = indices[j];
+//          if (idx<0 or idx>= n_samples){
+//            cout<<" wrong idx "<<idx<<endl;
+//          }
 //          if (++votes_vec(idx) == vote_threshold) {
 //            if (n_elected < elected_size){
 ////              elected(n_elected++) = idx;
