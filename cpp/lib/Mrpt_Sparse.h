@@ -1114,14 +1114,16 @@ public:
 
 
   void build_knng_graph(std::vector<hipgraph::distviz::common::Tuple<float>> *output_knng){
+    Eigen::MatrixXi neighbours(X_Sparse.cols(),k);
+    Eigen::MatrixXf distances(X_Sparse.cols(),k);
      #pragma omp parallel for
     for(int i=0;i<index_to_tree_leaf_match.size();i++){
       int vote_threshold = votes;
       int n_elected = 0, max_leaf_size = n_samples / (1 << depth) + 1;
       Eigen::VectorXi elected(n_trees * max_leaf_size);
       Eigen::VectorXi votes = Eigen::VectorXi::Zero(n_samples);
-      Eigen::VectorXi neighbours(k);
-      Eigen::VectorXf distances(k);
+      Eigen::VectorXi neighbour(k);
+      Eigen::VectorXf distance(k);
       if (vote_threshold <= 0 || vote_threshold > n_trees) {
         throw std::out_of_range(
             "vote_threshold must belong to the set {1, ... , n_trees}.");
@@ -1137,14 +1139,20 @@ public:
         }
       }
       Eigen::SparseVector<float> q = X_Sparse.col(i);
-      exact_knn_sparse(q,k, elected, n_elected, neighbours.data(), distances.data());
-      for(int j=0;j<neighbours.size();++j){
-        hipgraph::distviz::common::Tuple<float> edge;
-        edge.row = i;
-//        edge.col =   neighbours(j);
-//        edge.value = distances(j);
-//        (*output_knng)[i*k+j]  = edge;
-      }
+      exact_knn_sparse(q,k, elected, n_elected, neighbour.data(), distance.data());
+      neighbours.row(i)=neighbour;
+      distances.row(i)=distance;
+    }
+
+    #pragma omp parallel for schedule(static)
+    for(int i=0;i<X_Sparse.cols()*k;i++){
+          int node_index = i/effective_nn;
+          int nn_index = i%effective_nn;
+          Tuple<VALUE_TYPE> edge;
+          edge.row = node_index;
+          edge.col =   neighbours(node_index,nn_index);
+          edge.value = distances(node_index,nn_index);
+          (*output_knng)[i]  = edge;
     }
   }
 
