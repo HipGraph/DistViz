@@ -1135,6 +1135,7 @@ public:
         int leaf_begin = leaf_first_indices[index_to_tree_leaf_match[i][n_tree]];
         int leaf_end = leaf_first_indices[index_to_tree_leaf_match[i][n_tree] + 1];
         const std::vector<int> &indices = tree_leaves[n_tree];
+        cout<<" indices size "<<indices.size()<<" tree "<<n_tree<<endl;
         for (int j = leaf_begin; j < leaf_end; ++j) {
 
           if (j<0 or j>= indices.size()){
