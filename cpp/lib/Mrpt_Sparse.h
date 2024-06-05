@@ -1137,14 +1137,14 @@ public:
         const std::vector<int> &indices = tree_leaves[n_tree];
         for (int j = leaf_begin; j < leaf_end; ++j) {
           int idx = indices[j];
-//          if (++votes_vec(idx) == vote_threshold) {
-//            if (n_elected < elected_size){
+          if (++votes_vec(idx) == vote_threshold) {
+            if (n_elected < elected_size){
 //              elected(n_elected++) = idx;
-//            }else {
-//              break;
-//            }
-//
-//          }
+            }else {
+              break;
+            }
+
+          }
         }
       }
 //      Eigen::SparseVector<float> q = X_Sparse.col(i);
