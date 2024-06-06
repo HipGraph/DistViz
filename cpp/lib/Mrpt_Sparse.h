@@ -618,9 +618,9 @@ public:
     std::cout<<"calling fit times sparse"<<std::endl;
 //    fit_times_sparse(Q);
     std::cout<<"calling fit times sparse completed"<<std::endl;
-    std::set<MrptSparse_Parameters, decltype(is_faster) *> pars =
-        list_parameters(recalls);
-    opt_pars = pareto_frontier(pars);
+//    std::set<MrptSparse_Parameters, decltype(is_faster) *> pars =
+//        list_parameters(recalls);
+//    opt_pars = pareto_frontier(pars);
 
     index_type = autotuned_unpruned;
     par.k = k_;
