@@ -1116,7 +1116,7 @@ public:
   void build_knng_graph(std::vector<hipgraph::distviz::common::Tuple<float>> *output_knng){
     Eigen::MatrixXi neighbours(X_Sparse.cols(),k);
     Eigen::MatrixXf distances(X_Sparse.cols(),k);
-    int vote_threshold = votes;
+    int vote_threshold = 1;
     int max_leaf_size = n_samples / (1 << depth) + 1;
     int elected_size = n_trees * max_leaf_size;
      #pragma omp parallel for
