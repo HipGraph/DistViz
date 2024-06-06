@@ -255,14 +255,14 @@ public:
   }
 
   MrptSparse build_local_KNNG_Sparse(Eigen::SparseMatrix<float,Eigen::RowMajor> &sparse_matrix, vector<Tuple<VALUE_TYPE>> *output_knng,int nn, float target_recall,
-                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0) {
+                        bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0, bool skip_auto_tune=false) {
 
     //    int effective_nn = 2 * nn;
     auto t = start_clock();
     int effective_nn = nn;
     cout<<" sparse_matrix size"<<sparse_matrix.rows()<<" * "<<sparse_matrix.cols()<<endl;
     MrptSparse mrpt(sparse_matrix);
-    mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
+    mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100,skip_auto_tune);
     cout<<" grow_autotune completed"<<endl;
     output_knng->resize(sparse_matrix.cols()*effective_nn);
     mrpt.build_knng_graph(output_knng);

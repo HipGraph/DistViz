@@ -67,6 +67,8 @@ int main(int argc, char* argv[]) {
 
   int file_offset=8;
 
+  bool skip_auto_tune=false;
+
   for (int p = 0; p < argc; p++) {
     if (strcmp(argv[p], "-input") == 0) {
       input_path = argv[p + 1];
@@ -126,6 +128,8 @@ int main(int argc, char* argv[]) {
       file_offset = atof(argv[p + 1]);
     }else if (strcmp(argv[p], "-sparse-input") == 0) {
       sparse_input = atoi(argv[p + 1]) == 1 ? true : false;
+    }else if (strcmp(argv[p], "-skip-auto-tune") == 0) {
+      skip_auto_tune = atoi(argv[p + 1]) == 1 ? true : false;
     }
   }
 
@@ -228,7 +232,7 @@ int main(int argc, char* argv[]) {
        knng_handler.get()->build_local_KNNG_Sparse(sparse_matrix,knng_graph_ptr.get(),nn,
                                             target_local_recall,
                                             generate_knng_output,
-                                            output_path+"/knng.txt", true, density);
+                                            output_path+"/knng.txt", true, density,skip_auto_tune);
      } else {
 
        data_matrix = Eigen::MatrixXf((*data_matrix_ptr)[0].size(), (*data_matrix_ptr).size());

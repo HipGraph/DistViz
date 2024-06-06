@@ -265,13 +265,13 @@ public:
   void grow_sparse(double target_recall, Eigen::SparseMatrix<float> &Q, int n_test, int k_,
             int trees_max = -1, int depth_max = -1, int depth_min_ = -1,
             int votes_max_ = -1, float density = -1.0, int seed = 0,
-            const std::vector<int> &indices_test = {}) {
+            const std::vector<int> &indices_test = {}, bool skip_auto_tune=false) {
     if (target_recall < 0.0 - epsilon || target_recall > 1.0 + epsilon) {
       throw std::out_of_range("Target recall must be on the interval [0,1].");
     }
     std::cout << " major grow_sparse starting" << std::endl;
     grow_sparse(Q, n_test, k_, trees_max, depth_max, depth_min_, votes_max_, density,
-         seed, indices_test);
+         seed, indices_test, skip_auto_tune);
     std::cout << " major tree growing completed" << std::endl;
     prune(target_recall);
   }
@@ -307,7 +307,7 @@ public:
   void grow_autotune(double target_recall, int k_, int trees_max = -1,
                      int depth_max = -1, int depth_min_ = -1,
                      int votes_max_ = -1, float density_ = -1.0, int seed = 0,
-                     int n_test = 100) {
+                     int n_test = 100,bool skip_auto_tune=false) {
     if (n_test < 1) {
       throw std::out_of_range("Test set size must be > 0.");
     }
@@ -320,7 +320,7 @@ public:
        Eigen::SparseMatrix<float> Q = subset_sparse(indices_test);
        std::cout << " calling grow_sparse indices_test" << std::endl;
       grow_sparse(target_recall, Q,Q.cols(), k_, trees_max, depth_max,
-           depth_min_, votes_max_, density_, seed, indices_test);
+           depth_min_, votes_max_, density_, seed, indices_test,skip_auto_tune);
       std::cout << " calling grow_sparse completed" << std::endl;
 
     }else {
@@ -519,7 +519,7 @@ public:
   void grow_sparse(Eigen::SparseMatrix<float>& Q, int n_test, int k_, int trees_max = -1,
             int depth_max = -1, int depth_min_ = -1, int votes_max_ = -1,
             float density_ = -1.0, int seed = 0,
-            const std::vector<int> &indices_test = {}) {
+            const std::vector<int> &indices_test = {},bool skip_auto_tune=false) {
 
     if (trees_max == -1) {
       trees_max = std::min(std::sqrt(n_samples), 1000.0);
@@ -615,12 +615,12 @@ public:
       recalls[d - depth_min] /= (k * n_test);
       cs_sizes[d - depth_min] /= n_test;
     }
-    std::cout<<"calling fit times sparse"<<std::endl;
-//    fit_times_sparse(Q);
-    std::cout<<"calling fit times sparse completed"<<std::endl;
-//    std::set<MrptSparse_Parameters, decltype(is_faster) *> pars =
-//        list_parameters(recalls);
-//    opt_pars = pareto_frontier(pars);
+    if (!skip_auto_tune) {
+      fit_times_sparse(Q);
+      std::set<MrptSparse_Parameters, decltype(is_faster) *> pars =
+          list_parameters(recalls);
+      opt_pars = pareto_frontier(pars);
+    }
 
     index_type = autotuned_unpruned;
     par.k = k_;
