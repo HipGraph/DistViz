@@ -285,29 +285,29 @@ public:
     Mrpt mrpt(data_matrix);
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,
                        -1,-1, density,0,  100);
-
-    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
-    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
-
-    #pragma omp parallel for schedule (static)
-    for(int i=0;i<data_matrix.cols();i++){
-      Eigen::VectorXi tempRow(effective_nn);
-      Eigen::VectorXf tempDis(effective_nn);
-      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
-      neighbours.row(i)=tempRow;
-      distances.row(i)=tempDis;
-      }
-
-      #pragma omp parallel for schedule(static)
-      for(int i=0;i<data_matrix.cols()*effective_nn;i++){
-        int node_index = i/effective_nn;
-        int nn_index = i%effective_nn;
-        Tuple<VALUE_TYPE> edge;
-        edge.row = node_index;
-        edge.col =   neighbours(node_index,nn_index);
-        edge.value = distances(node_index,nn_index);
-        (*output_knng)[i]  = edge;
-      }
+    mrpt.build_knng_graph(output_knng);
+//    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
+//    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
+//
+//    #pragma omp parallel for schedule (static)
+//    for(int i=0;i<data_matrix.cols();i++){
+//      Eigen::VectorXi tempRow(effective_nn);
+//      Eigen::VectorXf tempDis(effective_nn);
+//      mrpt.query(data_matrix.col(i), tempRow.data(),tempDis.data());
+//      neighbours.row(i)=tempRow;
+//      distances.row(i)=tempDis;
+//      }
+//
+//      #pragma omp parallel for schedule(static)
+//      for(int i=0;i<data_matrix.cols()*effective_nn;i++){
+//        int node_index = i/effective_nn;
+//        int nn_index = i%effective_nn;
+//        Tuple<VALUE_TYPE> edge;
+//        edge.row = node_index;
+//        edge.col =   neighbours(node_index,nn_index);
+//        edge.value = distances(node_index,nn_index);
+//        (*output_knng)[i]  = edge;
+//      }
 
       if (print_output) {
         FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;

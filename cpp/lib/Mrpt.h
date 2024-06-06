@@ -16,6 +16,8 @@
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 
+#include "../common/common.h"
+
 struct Mrpt_Parameters {
   int n_trees = 0; /**< Number of trees in the index. */
   int depth = 0; /**< Depth of the trees in the index. */
@@ -115,7 +117,7 @@ class Mrpt {
 
       split_points = Eigen::MatrixXf(n_array, n_trees);
       tree_leaves = std::vector<std::vector<int>>(n_trees);
-
+      index_to_tree_leaf_match = std::vector<std::vector<int>>(n_samples,std::vector<int>(n_trees));
       count_first_leaf_indices_all(leaf_first_indices_all, n_samples, depth);
       leaf_first_indices = leaf_first_indices_all[depth];
 
@@ -1054,8 +1056,18 @@ class Mrpt {
       int idx_left = 2 * i + 1;
       int idx_right = idx_left + 1;
 
-      if (tree_level == depth) return;
-
+      if (tree_level == depth) {
+        const std::vector<int> &indices = tree_leaves[n_tree];
+        for(int leaf_i=0;leaf_i<leaf_first_indices.size()-1;leaf_i++){
+          int leaf_begin = leaf_first_indices[leaf_i];
+          int leaf_end = leaf_first_indices[leaf_i+1];
+          for (int j = leaf_begin; j < leaf_end; ++j) {
+            int idx = indices[j];
+            index_to_tree_leaf_match[idx][n_tree] = leaf_i;
+          }
+        }
+        return;
+      }
       std::nth_element(begin, begin + n / 2, end,
           [&tree_projections, tree_level] (int i1, int i2) {
             return tree_projections(tree_level, i1) < tree_projections(tree_level, i2);
@@ -1271,6 +1283,54 @@ class Mrpt {
 
       sparse_random_matrix.setFromTriplets(triplets.begin(), triplets.end());
       sparse_random_matrix.makeCompressed();
+    }
+
+    void build_knng_graph(std::vector<hipgraph::distviz::common::Tuple<float>> *output_knng){
+      Eigen::MatrixXi neighbours(X.cols(),k);
+      Eigen::MatrixXf distances(X.cols(),k);
+      int vote_threshold = 1;
+      int max_leaf_size = n_samples / (1 << depth) + 1;
+      int elected_size = n_trees * max_leaf_size;
+#pragma omp parallel for schedule(static)
+      for(int i=0;i<index_to_tree_leaf_match.size();i++){
+        int n_elected = 0;
+        Eigen::VectorXi elected(elected_size);
+        Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
+        Eigen::VectorXi neighbour(k);
+        Eigen::VectorXf distance(k);
+        if (vote_threshold <= 0 || vote_threshold > n_trees) {
+          throw std::out_of_range(
+              "vote_threshold must belong to the set {1, ... , n_trees}.");
+        }
+        for(int n_tree=0;n_tree<index_to_tree_leaf_match[i].size();++n_tree){
+          int leaf_begin = leaf_first_indices[index_to_tree_leaf_match[i][n_tree]];
+          int leaf_end = leaf_first_indices[index_to_tree_leaf_match[i][n_tree] + 1];
+          const std::vector<int> &indices = tree_leaves[n_tree];
+          if (tree_leaves[n_tree].size()==n_samples) {
+            for (int j = leaf_begin; j < leaf_end; ++j) {
+              int idx = indices[j];
+              if (++votes_vec(idx) == vote_threshold) {
+                elected(n_elected++) = idx;
+              }
+            }
+          }
+        }
+        Eigen::VectorXf<float> q = X.col(i);
+        exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
+        neighbours.row(i)=neighbour;
+        distances.row(i)=distance;
+      }
+
+#pragma omp parallel for schedule(static)
+      for(int i=0;i<X.cols()*k;i++){
+        int node_index = i/k;
+        int nn_index = i%k;
+        hipgraph::distviz::common::Tuple<float> edge;
+        edge.row = node_index;
+        edge.col =   neighbours(node_index,nn_index);
+        edge.value = distances(node_index,nn_index);
+        (*output_knng)[i]  = edge;
+      }
     }
 
     /*
@@ -1751,6 +1811,7 @@ class Mrpt {
     Eigen::SparseMatrix<float, Eigen::RowMajor> sparse_random_matrix; // random vectors needed for all the RP-trees
     std::vector<std::vector<int>> leaf_first_indices_all; // first indices for each level
     std::vector<int> leaf_first_indices; // first indices of each leaf of tree in tree_leaves
+    std::vector<std::vector<int>> index_to_tree_leaf_match;
 
     const int n_samples; // sample size of data
     const int dim; // dimension of data
