@@ -1317,7 +1317,7 @@ class Mrpt {
         }
 
         const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
-        exact_knn(q_map,k, elected, n_elected, neighbour.data(), distance.data());
+        exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
         neighbours.row(i)=neighbour;
         distances.row(i)=distance;
       }
