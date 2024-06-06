@@ -172,6 +172,7 @@ public:
     auto t = start_clock();
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
+      cout<<"calculate_membership_strength started "<<endl;
       calculate_membership_strength(csr_handle);
 
       cout<<"calculate_membership_strength completed "<<endl;
