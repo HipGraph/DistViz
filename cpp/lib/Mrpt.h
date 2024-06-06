@@ -1315,7 +1315,7 @@ class Mrpt {
             }
           }
         }
-        Eigen::VectorXf<float> q = X.col(i);
+        Eigen::VectorXf q = X.col(i);
         exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
         neighbours.row(i)=neighbour;
         distances.row(i)=distance;
