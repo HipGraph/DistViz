@@ -265,7 +265,7 @@ public:
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,   -1,-1, density,0,  100);
     cout<<" grow_autotune completed"<<endl;
     output_knng->resize(sparse_matrix.cols()*effective_nn);
-    mrpt.build_knng_graph(output_knng);
+//    mrpt.build_knng_graph(output_knng);
     cout<<" build_knng_graph completed"<<endl;
 
 //    Eigen::MatrixXi neighbours(sparse_matrix.cols(),effective_nn);
