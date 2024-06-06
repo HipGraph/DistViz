@@ -1118,9 +1118,8 @@ public:
     Eigen::MatrixXf distances(X_Sparse.cols(),k);
     int vote_threshold = votes;
     int max_leaf_size = n_samples / (1 << depth) + 1;
-    cout<<" vote threshold "<<vote_threshold<<" max leaf size " <<max_leaf_size<<endl;
     int elected_size = n_trees * max_leaf_size;
-//     #pragma omp parallel for
+     #pragma omp parallel for
     for(int i=0;i<index_to_tree_leaf_match.size();i++){
       int n_elected = 0;
       Eigen::VectorXi elected(elected_size);
@@ -1135,42 +1134,32 @@ public:
         int leaf_begin = leaf_first_indices[index_to_tree_leaf_match[i][n_tree]];
         int leaf_end = leaf_first_indices[index_to_tree_leaf_match[i][n_tree] + 1];
         const std::vector<int> &indices = tree_leaves[n_tree];
-        cout<<" indices size "<<tree_leaves[n_tree].size()<<" tree "<<n_tree<<endl;
-        for (int j = leaf_begin; j < leaf_end; ++j) {
+        if (tree_leaves[n_tree].size()==n_samples) {
+          for (int j = leaf_begin; j < leaf_end; ++j) {
+            int idx = indices[j];
+            if (++votes_vec(idx) == vote_threshold) {
+              elected(n_elected++) = idx;
 
-//          if (j<0 or j>= tree_leaves[n_tree].size()){
-//            cout<<" wrong j "<<j<<" indices "<<indices.size()<<endl;
-//          }
-//          int idx = indices[j];
-//          if (idx<0 or idx>= n_samples){
-//            cout<<" wrong idx "<<idx<<endl;
-//          }
-//          if (++votes_vec(idx) == vote_threshold) {
-//            if (n_elected < elected_size){
-////              elected(n_elected++) = idx;
-//            }else {
-//              break;
-//            }
-//
-//          }
+            }
+          }
         }
       }
-//      Eigen::SparseVector<float> q = X_Sparse.col(i);
-//      exact_knn_sparse(q,k, elected, n_elected, neighbour.data(), distance.data());
-//      neighbours.row(i)=neighbour;
-//      distances.row(i)=distance;
+      Eigen::SparseVector<float> q = X_Sparse.col(i);
+      exact_knn_sparse(q,k, elected, n_elected, neighbour.data(), distance.data());
+      neighbours.row(i)=neighbour;
+      distances.row(i)=distance;
     }
 
-//    #pragma omp parallel for schedule(static)
-//    for(int i=0;i<X_Sparse.cols()*k;i++){
-//          int node_index = i/k;
-//          int nn_index = i%k;
-//          hipgraph::distviz::common::Tuple<float> edge;
-//          edge.row = node_index;
-//          edge.col =   neighbours(node_index,nn_index);
-//          edge.value = distances(node_index,nn_index);
-//          (*output_knng)[i]  = edge;
-//    }
+    #pragma omp parallel for schedule(static)
+    for(int i=0;i<X_Sparse.cols()*k;i++){
+          int node_index = i/k;
+          int nn_index = i%k;
+          hipgraph::distviz::common::Tuple<float> edge;
+          edge.row = node_index;
+          edge.col =   neighbours(node_index,nn_index);
+          edge.value = distances(node_index,nn_index);
+          (*output_knng)[i]  = edge;
+    }
   }
 
   /**@}*/
