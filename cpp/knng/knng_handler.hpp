@@ -258,7 +258,7 @@ public:
                         bool print_output =false, string output_path="knng.txt", bool skip_self_loops=true,float density = -1.0, bool skip_auto_tune=false) {
 
     //    int effective_nn = 2 * nn;
-    auto t = start_clock();
+//    auto t = start_clock();
     int effective_nn = nn;
     cout<<" sparse_matrix size"<<sparse_matrix.rows()<<" * "<<sparse_matrix.cols()<<endl;
     MrptSparse mrpt(sparse_matrix);
@@ -268,7 +268,7 @@ public:
     mrpt.build_knng_graph(output_knng);
     cout<<" build_knng_graph completed"<<endl;
 
-    stop_clock_and_add(t, "KNNG Total Time");
+//    stop_clock_and_add(t, "KNNG Total Time");
     if (print_output) {
       FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
       fileWriter.write_list(output_knng,output_path);
