@@ -608,8 +608,9 @@ public:
     auto source_start_index = 0;
     auto source_end_index =this->sp_local_receiver->proc_row_width;
 
-    #pragma omp parallel for schedule(static)
+//    #pragma omp parallel for schedule(static)
     for(SPT i=source_start_index;i<source_end_index;i++){
+      cout<<" processing index "<<i<<" "<<endl;
         int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
         double sigma = smooth_knn_distance(i,nn,csr_handle);
         double value=1.0;
