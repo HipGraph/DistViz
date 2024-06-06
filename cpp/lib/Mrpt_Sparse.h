@@ -616,7 +616,7 @@ public:
       cs_sizes[d - depth_min] /= n_test;
     }
     std::cout<<"calling fit times sparse"<<std::endl;
-    fit_times_sparse(Q);
+//    fit_times_sparse(Q);
     std::cout<<"calling fit times sparse completed"<<std::endl;
     std::set<MrptSparse_Parameters, decltype(is_faster) *> pars =
         list_parameters(recalls);
