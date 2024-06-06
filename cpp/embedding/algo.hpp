@@ -613,6 +613,7 @@ public:
       cout<<" processing index "<<i<<" "<<endl;
         int nn = csr_handle->rowStart[i+1]- csr_handle->rowStart[i];
         double sigma = smooth_knn_distance(i,nn,csr_handle);
+        cout<<" sigma completed for index "<<i<<" "<<sigma<<" "<<endl;
         double value=1.0;
         for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
