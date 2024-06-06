@@ -285,6 +285,7 @@ public:
     Mrpt mrpt(data_matrix);
     mrpt.grow_autotune(target_recall, effective_nn,  -1, -1,
                        -1,-1, density,0,  100);
+    cout<<" auto tune completed "<<endl;
     mrpt.build_knng_graph(output_knng);
 //    Eigen::MatrixXi neighbours(data_matrix.cols(),effective_nn);
 //    Eigen::MatrixXf distances(data_matrix.cols(),effective_nn);
