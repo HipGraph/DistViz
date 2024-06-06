@@ -1315,10 +1315,8 @@ class Mrpt {
             }
           }
         }
-        Eigen::VectorXf q;  // or const Eigen::VectorXf q if it's const
 
-        // Create an Eigen::Map from the Eigen::VectorXf
-        Eigen::Map<const Eigen::VectorXf> q_map(q.data(), q.size());
+        const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
         exact_knn(q_map,k, elected, n_elected, neighbour.data(), distance.data());
         neighbours.row(i)=neighbour;
         distances.row(i)=distance;
