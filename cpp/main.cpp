@@ -206,6 +206,7 @@ int main(int argc, char* argv[]) {
 
   MPI_Barrier(MPI_COMM_WORLD);
   stop_clock_and_add(t, "IO Time");
+  t = start_clock();
   std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
 
 
