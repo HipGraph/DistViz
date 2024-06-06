@@ -1150,16 +1150,16 @@ public:
       distances.row(i)=distance;
     }
 
-    #pragma omp parallel for schedule(static)
-    for(int i=0;i<X_Sparse.cols()*k;i++){
-          int node_index = i/k;
-          int nn_index = i%k;
-          hipgraph::distviz::common::Tuple<float> edge;
-          edge.row = node_index;
-          edge.col =   neighbours(node_index,nn_index);
-          edge.value = distances(node_index,nn_index);
-          (*output_knng)[i]  = edge;
-    }
+//    #pragma omp parallel for schedule(static)
+//    for(int i=0;i<X_Sparse.cols()*k;i++){
+//          int node_index = i/k;
+//          int nn_index = i%k;
+//          hipgraph::distviz::common::Tuple<float> edge;
+//          edge.row = node_index;
+//          edge.col =   neighbours(node_index,nn_index);
+//          edge.value = distances(node_index,nn_index);
+//          (*output_knng)[i]  = edge;
+//    }
   }
 
   /**@}*/
