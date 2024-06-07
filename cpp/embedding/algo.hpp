@@ -567,6 +567,7 @@ public:
              j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]);j++) {
           if (max_value< csr_handle->values[j]){
             distance_sum += csr_handle->values[j];
+            max_value = csr_handle->values[j];
           }
         }
         mean_distance = distance_sum/( static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]) - static_cast<uint64_t>(csr_handle->rowStart[node_index]));
@@ -617,12 +618,12 @@ public:
         double value=1.0;
         for(uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++){
-//          if ((csr_handle->values[j]-minimum_dis_cache[j])<=0 or sigma==0){
-//            value = 1.0;
-//          }else {
-//            value = exp(-1*(csr_handle->values[j]-minimum_dis_cache[j])/sigma);
-//
-//          }
+          if ((csr_handle->values[j]-minimum_dis_cache[j])<=0 or sigma==0){
+            value = 1.0;
+          }else {
+            value = exp(-1*(csr_handle->values[j]-minimum_dis_cache[j])/sigma);
+
+          }
           csr_handle->values[j]=value;
         }
     }
