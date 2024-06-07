@@ -553,6 +553,7 @@ public:
     double mid = 1.0;
     double value = 0;
     DENT max_value=std::numeric_limits<DENT>::min();
+    DENT max_distance=max_value;
     DENT distance_sum=0;
     DENT mean_distance =0;
     DENT MIN_K_DIST_SCALE=1e-3;
@@ -567,11 +568,13 @@ public:
              j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]);j++) {
           if (max_value< csr_handle->values[j]){
             distance_sum += csr_handle->values[j];
-            max_value = csr_handle->values[j];
+             if (max_distance<csr_handle->values[j]) {
+               max_distance = csr_handle->values[j];
+             }
           }
         }
         mean_distance = distance_sum/( static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]) - static_cast<uint64_t>(csr_handle->rowStart[node_index]));
-        minimum_dis_cache[node_index]=max_value;
+        minimum_dis_cache[node_index]=max_distance;
         for (uint64_t j =static_cast<uint64_t>(csr_handle->rowStart[node_index]);
              j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]);j++) {
 //         auto distance = max(static_cast<double>(0.0), (static_cast<double>(csr_handle->values[j])-static_cast<double>(max_value)));
