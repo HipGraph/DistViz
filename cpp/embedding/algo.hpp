@@ -526,8 +526,6 @@ public:
                       #pragma omp atomic
                       (*prevCoordinates)[i * embedding_dim + 1] += (lr)*scale(forceDiff[1] * d1);
                     }
-
-      }
     }
   }
 
