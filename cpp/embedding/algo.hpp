@@ -469,7 +469,7 @@ public:
 
     int row_base_index = batch_id * batch_size;
 
-    #pragma omp parallel for schedule(static) collapse(2)
+    #pragma omp parallel for  collapse(2)
     for (int i = 0; i < block_size; i++) {
       for(int k=0;k<(*negative_samples_ptr_count)[static_cast<uint64_t>(i + row_base_index)];k++){
           uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
