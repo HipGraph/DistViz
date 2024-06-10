@@ -471,8 +471,8 @@ public:
 
     #pragma omp parallel for schedule(static) collapse(2)
     for (int i = 0; i < block_size; i++) {
-      uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
+          uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
           DENT forceDiff[embedding_dim];
           SPT global_col_id = distribution(generator);
           SPT local_col_id =
