@@ -680,7 +680,7 @@ public:
           int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
           if (ns > 0) {
             (*negative_samples_ptr_count)[access_index] += ns;
-            (*negative_samples_ptr_count)[access_index] = min((*negative_samples_ptr_count)[access_index],nn*10);
+//            (*negative_samples_ptr_count)[access_index] = min((*negative_samples_ptr_count)[access_index],nn*10);
             samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
           }
           samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
