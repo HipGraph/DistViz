@@ -475,7 +475,7 @@ public:
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
           SPT global_col_id =10001;
-          SPT global_col_id = distribution(generator);
+//          SPT global_col_id = distribution(generator);
           SPT local_col_id =
               global_col_id - static_cast<SPT>(
                                   ((grid)->rank_in_col *
