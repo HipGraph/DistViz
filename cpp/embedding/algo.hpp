@@ -472,7 +472,7 @@ public:
 //    #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
-      if (row_id==10000)
+      if (row_id==20000)
           cout<<" iteration  "<<iteration<<" nn "<<(*negative_samples_ptr_count)[row_id]<<endl;
 //      for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
 //          DENT forceDiff[embedding_dim];
