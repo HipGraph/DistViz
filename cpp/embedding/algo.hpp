@@ -469,58 +469,65 @@ public:
 
     int row_base_index = batch_id * batch_size;
 
-//    #pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static) collapse(2)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
-      if (row_id==59999)
-          cout<<" iteration  "<<iteration<<" nn "<<(*negative_samples_ptr_count)[row_id]<<endl;
-//      for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
-//          DENT forceDiff[embedding_dim];
-//          SPT global_col_id = distribution(generator);
-//          SPT local_col_id =
-//              global_col_id - static_cast<SPT>(
-//                                  ((grid)->rank_in_col *
-//                                   (this->sp_local_receiver)->proc_row_width));
-//          bool fetch_from_cache = false;
-//
-//          int owner_rank = static_cast<int>(
-//              global_col_id / (this->sp_local_receiver)->proc_row_width);
-//
-//          if (owner_rank != (grid)->rank_in_col) {
-//            fetch_from_cache = true;
-//          }
-//
-//          DENT repuls = 0;
-//
-//                    if (fetch_from_cache) {
-//                      unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> &arrayMap =
-//                          (*this->dense_local->tempCachePtr)[owner_rank];
-//                      std::array<DENT, embedding_dim> &colvec =
-//                          arrayMap[global_col_id].value;
-//
-//                      for (int d = 0; d < embedding_dim; d++) {
-//                        forceDiff[d] = (this->dense_local)
-//                                           ->nCoordinates[row_id * embedding_dim + d] -
-//                                       colvec[d];
-//                        repuls += forceDiff[d] * forceDiff[d];
-//                      }
-//                    } else {
-//                      for (int d = 0; d < embedding_dim; d++) {
-//                        forceDiff[d] =
-//                            (this->dense_local)
-//                                ->nCoordinates[row_id * embedding_dim + d] -
-//                            (this->dense_local)
-//                                ->nCoordinates[local_col_id * embedding_dim + d];
-//
-//                        repuls += forceDiff[d] * forceDiff[d];
-//                      }
-//                    }
-//                    DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
+      for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
+          DENT forceDiff[embedding_dim];
+          SPT global_col_id = distribution(generator);
+          SPT local_col_id =
+              global_col_id - static_cast<SPT>(
+                                  ((grid)->rank_in_col *
+                                   (this->sp_local_receiver)->proc_row_width));
+          bool fetch_from_cache = false;
+
+          int owner_rank = static_cast<int>(
+              global_col_id / (this->sp_local_receiver)->proc_row_width);
+
+          if (owner_rank != (grid)->rank_in_col) {
+            fetch_from_cache = true;
+          }
+
+          DENT repuls = 0;
+
+                    if (fetch_from_cache) {
+                      unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> &arrayMap =
+                          (*this->dense_local->tempCachePtr)[owner_rank];
+                      std::array<DENT, embedding_dim> &colvec =
+                          arrayMap[global_col_id].value;
+
+                      for (int d = 0; d < embedding_dim; d++) {
+                        forceDiff[d] = (this->dense_local)
+                                           ->nCoordinates[row_id * embedding_dim + d] -
+                                       colvec[d];
+                        repuls += forceDiff[d] * forceDiff[d];
+                      }
+                    } else {
+                      for (int d = 0; d < embedding_dim; d++) {
+                        forceDiff[d] =
+                            (this->dense_local)
+                                ->nCoordinates[row_id * embedding_dim + d] -
+                            (this->dense_local)
+                                ->nCoordinates[local_col_id * embedding_dim + d];
+
+                        repuls += forceDiff[d] * forceDiff[d];
+                      }
+                    }
+                    DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
 //                    for (int d = 0; d < embedding_dim; d++) {
-//                      forceDiff[d] = scale(forceDiff[d] * d1);
-//                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
+////                      forceDiff[d] = scale(forceDiff[d] * d1);
+//                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*scale(forceDiff[d]*d1);
 //                    }
-//      }
+
+
+                      #pragma omp atomic
+                      (*prevCoordinates)[i * embedding_dim + 0] += (lr)*scale(forceDiff[0] * d1);
+
+                      #pragma omp atomic
+                      (*prevCoordinates)[i * embedding_dim + 1] += (lr)*scale(forceDiff[1] * d1);
+                    }
+
+      }
     }
   }
 
