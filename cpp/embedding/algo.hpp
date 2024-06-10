@@ -474,15 +474,12 @@ public:
       for(int k=0;k<(*negative_samples_ptr_count)[static_cast<uint64_t>(i + row_base_index)];k++){
           uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
           DENT forceDiff[embedding_dim];
-          SPT global_col_id = distribution(generator);
-          SPT local_col_id =
-              global_col_id - static_cast<SPT>(
-                                  ((grid)->rank_in_col *
-                                   (this->sp_local_receiver)->proc_row_width));
+          SPT global_col_id = 10001;
+//          SPT global_col_id = distribution(generator);
+          SPT local_col_id = global_col_id - static_cast<SPT>(((grid)->rank_in_col * (this->sp_local_receiver)->proc_row_width));
           bool fetch_from_cache = false;
 
-          int owner_rank = static_cast<int>(
-              global_col_id / (this->sp_local_receiver)->proc_row_width);
+          int owner_rank = static_cast<int>(global_col_id / (this->sp_local_receiver)->proc_row_width);
 
           if (owner_rank != (grid)->rank_in_col) {
             fetch_from_cache = true;
