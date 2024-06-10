@@ -520,11 +520,11 @@ public:
 //                    }
 
 
-                      #pragma omp atomic
-                      (*prevCoordinates)[i * embedding_dim + 0] += (lr)*scale(forceDiff[0] * d1);
-
-                      #pragma omp atomic
-                      (*prevCoordinates)[i * embedding_dim + 1] += (lr)*scale(forceDiff[1] * d1);
+//                      #pragma omp atomic
+//                      (*prevCoordinates)[i * embedding_dim + 0] += (lr)*scale(forceDiff[0] * d1);
+//
+//                      #pragma omp atomic
+//                      (*prevCoordinates)[i * embedding_dim + 1] += (lr)*scale(forceDiff[1] * d1);
                     }
     }
   }
