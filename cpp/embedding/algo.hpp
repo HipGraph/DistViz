@@ -519,7 +519,7 @@ public:
 //                      forceDiff[d] = scale(forceDiff[d] * d1);
 //                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
 //                    }
-      }
+//      }
     }
   }
 
