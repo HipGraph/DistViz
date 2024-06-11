@@ -192,17 +192,14 @@ public:
     DENT alpha = lr;
     std::uniform_int_distribution<int32_t> dist(INT32_MIN, INT32_MAX);
 
-
-
+    generator = std::minstd_rand(i);
+    std::array<int64_t, 3> rng_state;
+    for (int i = 0; i < 3; ++i) {
+      rng_state[i] = static_cast<int64_t>(dist(generator));
+    }
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
       // Generate three random numbers
-      generator = std::minstd_rand(i);
-      std::array<int64_t, 3> rng_state;
-      for (int i = 0; i < 3; ++i) {
-        rng_state[i] = static_cast<int64_t>(dist(generator));
-      }
-
       for (int j = 0; j < batches; j++) {
 //        int seed = j + i;
 
@@ -479,22 +476,18 @@ public:
 
     int row_base_index = batch_id * batch_size;
 
-    #pragma omp parallel for schedule(static)
+//    #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
           int32_t global_col_id_int = tau_rand_int(rng_state) %(this->sp_local_receiver)->gCols;
-
+          cout<<"i "<<row_id<<" nn id "<<global_col_id_int<<endl;
           SPT global_col_id = static_cast<SPT>(global_col_id_int);
-          SPT local_col_id =
-              global_col_id - static_cast<SPT>(
-                                  ((grid)->rank_in_col *
-                                   (this->sp_local_receiver)->proc_row_width));
+          SPT local_col_id = global_col_id - static_cast<SPT>(((grid)->rank_in_col *(this->sp_local_receiver)->proc_row_width));
           bool fetch_from_cache = false;
 
-          int owner_rank = static_cast<int>(
-              global_col_id / (this->sp_local_receiver)->proc_row_width);
+          int owner_rank = static_cast<int>(global_col_id / (this->sp_local_receiver)->proc_row_width);
 
           if (owner_rank != (grid)->rank_in_col) {
             fetch_from_cache = true;
@@ -509,18 +502,13 @@ public:
                           arrayMap[global_col_id].value;
 
                       for (int d = 0; d < embedding_dim; d++) {
-                        forceDiff[d] = (this->dense_local)
-                                           ->nCoordinates[row_id * embedding_dim + d] -
-                                       colvec[d];
+                        forceDiff[d] = (this->dense_local)->nCoordinates[row_id * embedding_dim + d] - colvec[d];
                         repuls += forceDiff[d] * forceDiff[d];
                       }
                     } else {
                       for (int d = 0; d < embedding_dim; d++) {
-                        forceDiff[d] =
-                            (this->dense_local)
-                                ->nCoordinates[row_id * embedding_dim + d] -
-                            (this->dense_local)
-                                ->nCoordinates[local_col_id * embedding_dim + d];
+                        forceDiff[d] =(this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
+                            (this->dense_local)->nCoordinates[local_col_id * embedding_dim + d];
 
                         repuls += forceDiff[d] * forceDiff[d];
                       }
