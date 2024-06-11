@@ -144,7 +144,13 @@ void prefix_sum(vector<int> &values, vector<int> &offsets);
 
 size_t get_memory_usage();
 
-uint64_t tau_rand_int();
+uint64_t  tau_rand_int(std::array<uint64_t,4> shuffle_table);
+
+
+
+void initialize_shuffle_table(std::array<uint64_t,4>& shuffle_table);
+
+uint64_t xorshift64(uint64_t* state);
 
 void reset_performance_timers();
 
