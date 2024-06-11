@@ -190,6 +190,19 @@ public:
 
     int seed =0;
     DENT alpha = lr;
+    std::std::uniform_int_distribution<int32_t> dist(INT32_MIN, INT32_MAX);
+
+    // Generate three random numbers
+    std::array<int64_t, 3> rng_state;
+    for (int i = 0; i < 3; ++i) {
+      rng_state[i] = static_cast<int64_t>(dist(gen));
+    }
+
+    // Generate three random numbers
+    std::array<int64_t, 3> rng_state;
+    for (int i = 0; i < 3; ++i) {
+      rng_state[i] = static_cast<int64_t>(dist(gen));
+    }
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
       generator = std::minstd_rand(i);
@@ -223,7 +236,7 @@ public:
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
               csr_handle,alpha, j, batch_size,
-              considering_batch_size,i);
+              considering_batch_size,i,rng_state);
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
@@ -465,7 +478,7 @@ public:
   inline void calc_t_dist_replus_rowptr(
       vector<DENT> *prevCoordinates, vector<SPT> *negative_samples_ptr_count,
       CSRHandle<SPT,DENT> *csr_handle,DENT lr,
-      int batch_id, int batch_size, int block_size, int iteration) {
+      int batch_id, int batch_size, int block_size, int iteration,std::array<int64_t,3> rng_state) {
 
     int row_base_index = batch_id * batch_size;
 
@@ -474,8 +487,8 @@ public:
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
-          SPT global_col_id =10001;
-//          SPT global_col_id = distribution(generator);
+//          SPT global_col_id =;
+          SPT global_col_id = tau_rand_int(rng_state) %(this->sp_local_receiver)->gCols);
           SPT local_col_id =
               global_col_id - static_cast<SPT>(
                                   ((grid)->rank_in_col *
