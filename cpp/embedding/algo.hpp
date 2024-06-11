@@ -230,7 +230,7 @@ public:
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
               csr_handle,alpha, j, batch_size,
-              considering_batch_size,i,rng_state);
+              considering_batch_size,i);
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
@@ -472,7 +472,7 @@ public:
   inline void calc_t_dist_replus_rowptr(
       vector<DENT> *prevCoordinates, vector<SPT> *negative_samples_ptr_count,
       CSRHandle<SPT,DENT> *csr_handle,DENT lr,
-      int batch_id, int batch_size, int block_size, int iteration,std::array<int64_t,3> rng_state) {
+      int batch_id, int batch_size, int block_size, int iteration) {
 
     int row_base_index = batch_id * batch_size;
 
