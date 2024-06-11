@@ -198,7 +198,7 @@ public:
 //    std::array<uint64_t , 4> rng_state;
 //    initialize_shuffle_table(rng_state);
 
-    unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector(last_batch_size, vector<SPT>(1000));
+    unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>(last_batch_size, vector<SPT>(1000));
 
     auto t = start_clock();
      #pragma omp parallel for schedule(static)
@@ -493,7 +493,7 @@ public:
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
-           initialize_shuffle_table(rng_state);
+//           initialize_shuffle_table(rng_state);
           DENT forceDiff[embedding_dim];
           uint64_t global_col_id_int = (negative_samples_id[row_id][k] +iteration)%(this->sp_local_receiver)->gCols;
           SPT global_col_id = static_cast<SPT>(global_col_id_int);
