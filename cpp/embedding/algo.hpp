@@ -190,19 +190,14 @@ public:
 
     int seed =0;
     DENT alpha = lr;
-    std::std::uniform_int_distribution<int32_t> dist(INT32_MIN, INT32_MAX);
+    std::uniform_int_distribution<int32_t> dist(INT32_MIN, INT32_MAX);
 
     // Generate three random numbers
     std::array<int64_t, 3> rng_state;
     for (int i = 0; i < 3; ++i) {
-      rng_state[i] = static_cast<int64_t>(dist(gen));
+      rng_state[i] = static_cast<int64_t>(dist(generator));
     }
 
-    // Generate three random numbers
-    std::array<int64_t, 3> rng_state;
-    for (int i = 0; i < 3; ++i) {
-      rng_state[i] = static_cast<int64_t>(dist(gen));
-    }
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
       generator = std::minstd_rand(i);
@@ -487,8 +482,8 @@ public:
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
-//          SPT global_col_id =;
-          SPT global_col_id = tau_rand_int(rng_state) %(this->sp_local_receiver)->gCols);
+          int_32_t global_col_id_int = tau_rand_int(rng_state) %(this->sp_local_receiver)->gCols);
+          SPT global_col_id = static_cast<SPT>(global_col_id_int);
           SPT local_col_id =
               global_col_id - static_cast<SPT>(
                                   ((grid)->rank_in_col *
