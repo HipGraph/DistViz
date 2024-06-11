@@ -477,7 +477,7 @@ public:
 
     int row_base_index = batch_id * batch_size;
 
-    #pragma omp parallel for schedule(static) collapse(2)
+    #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
@@ -523,15 +523,15 @@ public:
                       }
                     }
                     DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
-//                    for (int d = 0; d < embedding_dim; d++) {
-////                      forceDiff[d] = scale(forceDiff[d] * d1);
-//                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*scale(forceDiff[d]*d1);
-//                    }
+                    for (int d = 0; d < embedding_dim; d++) {
+                      forceDiff[d] = scale(forceDiff[d] * d1);
+                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
+                    }
 
-                      #pragma omp atomic
-                      (*prevCoordinates)[i * embedding_dim + 0] += (lr)*scale(forceDiff[0] * d1);
-                      #pragma omp atomic
-                      (*prevCoordinates)[i * embedding_dim + 1] += (lr)*scale(forceDiff[1] * d1);
+//                      #pragma omp atomic
+//                      (*prevCoordinates)[i * embedding_dim + 0] += (lr)*scale(forceDiff[0] * d1);
+//                      #pragma omp atomic
+//                      (*prevCoordinates)[i * embedding_dim + 1] += (lr)*scale(forceDiff[1] * d1);
                     }
     }
   }
