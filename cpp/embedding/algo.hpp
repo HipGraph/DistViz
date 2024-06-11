@@ -479,6 +479,7 @@ public:
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
+           initialize_shuffle_table(rng_state);
           DENT forceDiff[embedding_dim];
           uint64_t global_col_id_int = tau_rand_int(rng_state) %(this->sp_local_receiver)->gCols;
           cout<<" i "<<row_id<<" global_col_id_int "<<global_col_id_int<<endl;
