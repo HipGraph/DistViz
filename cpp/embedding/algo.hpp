@@ -169,7 +169,7 @@ public:
     int considering_batch_size = batch_size;
     vector<DENT> error_convergence;
 
-    auto t = start_clock();
+
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
       cout<<"calculate_membership_strength started "<<endl;
@@ -179,7 +179,7 @@ public:
       apply_set_operations(true,1.0,
                            csr_handle->rowStart,csr_handle->col_idx,csr_handle->values);
       cout<<"apply_set_operations completed "<<endl;
-      stop_clock_and_add(t, "Iteration Total Time");
+
       make_epochs_per_sample(csr_handle,iterations,ns);
       cout<<"make_epochs_per_sample completed"<<endl;
 //      computeTopKEigenvectorsFromLaplacian(csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,10);
@@ -193,8 +193,21 @@ public:
     std::uniform_int_distribution<int32_t> dist(INT32_MIN, INT32_MAX);
 
 //    generator = std::minstd_rand(0);
-    std::array<uint64_t , 4> rng_state;
-    initialize_shuffle_table(rng_state);
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+//    std::array<uint64_t , 4> rng_state;
+//    initialize_shuffle_table(rng_state);
+
+    unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector(last_batch_size, vector<SPT>(1000));
+
+    auto t = start_clock();
+     #pragma omp parallel for schedule(static)
+    for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
+      for(uint64_t j =0;j < 1000; j++) {
+        (*negative_samples_ids)[i][j]=distribution(gen)
+      }
+    }
+    stop_clock_and_add(t, "Iteration Total Time");
 
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
@@ -223,13 +236,14 @@ public:
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false);
 
+
           generate_negative_samples(negative_samples_ptr_count.get(),csr_handle,i,j,batch_size,
                                     considering_batch_size,seed);
 
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
               csr_handle,alpha, j, batch_size,
-              considering_batch_size,i,rng_state);
+              considering_batch_size,i,negative_samples_ids.get());
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
@@ -471,7 +485,7 @@ public:
   inline void calc_t_dist_replus_rowptr(
       vector<DENT> *prevCoordinates, vector<SPT> *negative_samples_ptr_count,
       CSRHandle<SPT,DENT> *csr_handle,DENT lr,
-      int batch_id, int batch_size, int block_size, int iteration,std::array<uint64_t , 4>& rng_state) {
+      int batch_id, int batch_size, int block_size, int iteration, vector<SPT> *negative_samples_id) {
 
     int row_base_index = batch_id * batch_size;
 
@@ -481,7 +495,7 @@ public:
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
            initialize_shuffle_table(rng_state);
           DENT forceDiff[embedding_dim];
-          uint64_t global_col_id_int = tau_rand_int(rng_state) %(this->sp_local_receiver)->gCols;
+          uint64_t global_col_id_int = (negative_samples_id[row_id][k] +iteration)%(this->sp_local_receiver)->gCols;
           SPT global_col_id = static_cast<SPT>(global_col_id_int);
           SPT local_col_id = global_col_id - static_cast<SPT>(((grid)->rank_in_col *(this->sp_local_receiver)->proc_row_width));
           bool fetch_from_cache = false;
