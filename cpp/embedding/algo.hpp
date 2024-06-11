@@ -485,7 +485,7 @@ public:
   inline void calc_t_dist_replus_rowptr(
       vector<DENT> *prevCoordinates, vector<SPT> *negative_samples_ptr_count,
       CSRHandle<SPT,DENT> *csr_handle,DENT lr,
-      int batch_id, int batch_size, int block_size, int iteration, vector<SPT> *negative_samples_id) {
+      int batch_id, int batch_size, int block_size, int iteration, vector<vector<SPT>> *negative_samples_id) {
 
     int row_base_index = batch_id * batch_size;
 
