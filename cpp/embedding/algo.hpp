@@ -192,11 +192,11 @@ public:
     DENT alpha = lr;
     std::uniform_int_distribution<int32_t> dist(INT32_MIN, INT32_MAX);
 
-    generator = std::minstd_rand(0);
-    std::array<int64_t, 3> rng_state;
-    for (int i = 0; i < 3; ++i) {
-      rng_state[i] = static_cast<int64_t>(dist(generator));
-    }
+//    generator = std::minstd_rand(0);
+//    std::array<int64_t, 3> rng_state;
+//    for (int i = 0; i < 3; ++i) {
+//      rng_state[i] = static_cast<int64_t>(dist(generator));
+//    }
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
       // Generate three random numbers
@@ -481,7 +481,7 @@ public:
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
-          int32_t global_col_id_int = tau_rand_int(rng_state) %(this->sp_local_receiver)->gCols;
+          uint64_t global_col_id_int = tau_rand_int() %(this->sp_local_receiver)->gCols;
           cout<<"i "<<row_id<<" nn id "<<global_col_id_int<<endl;
           SPT global_col_id = static_cast<SPT>(global_col_id_int);
           SPT local_col_id = global_col_id - static_cast<SPT>(((grid)->rank_in_col *(this->sp_local_receiver)->proc_row_width));

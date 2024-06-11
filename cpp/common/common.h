@@ -144,7 +144,7 @@ void prefix_sum(vector<int> &values, vector<int> &offsets);
 
 size_t get_memory_usage();
 
-int32_t tau_rand_int(std::array<int64_t,3> state);
+uint64_t tau_rand_int();
 
 void reset_performance_timers();
 

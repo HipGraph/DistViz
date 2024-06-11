@@ -48,18 +48,15 @@ size_t hipgraph::distviz::common::get_memory_usage() {
   return 0;
 }
 
-int32_t  hipgraph::distviz::common::tau_rand_int(std::array<int64_t,3> state) {
-  state[0] = (((state[0] & 4294967294LL) << 12) & 0xFFFFFFFFLL) ^ (
-                                                                      (((state[0] << 13) & 0xFFFFFFFFLL) ^ state[0]) >> 19
-                                                                  );
-  state[1] = (((state[1] & 4294967288LL) << 4) & 0xFFFFFFFFLL) ^ (
-                                                                     (((state[1] << 2) & 0xFFFFFFFFLL) ^ state[1]) >> 25
-                                                                 );
-  state[2] = (((state[2] & 4294967280LL) << 17) & 0xFFFFFFFFLL) ^ (
-                                                                      (((state[2] << 3) & 0xFFFFFFFFLL) ^ state[2]) >> 11
-                                                                  );
-
-  return static_cast<int32_t>(state[0] ^ state[1] ^ state[2]);
+uint64_t  hipgraph::distviz::common::tau_rand_int() {
+    uint64_t shuffle_table[4]
+    uint64_t s1 = shuffle_table[0];
+    uint64_t s0 = shuffle_table[1];
+    uint64_t result = s0 + s1;
+    shuffle_table[0] = s0;
+    s1 ^= s1 << 23;
+    shuffle_table[1] = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5);
+    return result;
 }
 
 void hipgraph::distviz::common::reset_performance_timers() {
