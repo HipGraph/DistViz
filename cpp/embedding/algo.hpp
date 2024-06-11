@@ -192,15 +192,17 @@ public:
     DENT alpha = lr;
     std::uniform_int_distribution<int32_t> dist(INT32_MIN, INT32_MAX);
 
-    // Generate three random numbers
-    std::array<int64_t, 3> rng_state;
-    for (int i = 0; i < 3; ++i) {
-      rng_state[i] = static_cast<int64_t>(dist(generator));
-    }
+
 
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
+      // Generate three random numbers
       generator = std::minstd_rand(i);
+      std::array<int64_t, 3> rng_state;
+      for (int i = 0; i < 3; ++i) {
+        rng_state[i] = static_cast<int64_t>(dist(generator));
+      }
+
       for (int j = 0; j < batches; j++) {
 //        int seed = j + i;
 
@@ -483,6 +485,7 @@ public:
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
           int32_t global_col_id_int = tau_rand_int(rng_state) %(this->sp_local_receiver)->gCols;
+
           SPT global_col_id = static_cast<SPT>(global_col_id_int);
           SPT local_col_id =
               global_col_id - static_cast<SPT>(
