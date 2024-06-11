@@ -192,7 +192,7 @@ public:
     DENT alpha = lr;
     std::uniform_int_distribution<int32_t> dist(INT32_MIN, INT32_MAX);
 
-    generator = std::minstd_rand(i);
+    generator = std::minstd_rand(0);
     std::array<int64_t, 3> rng_state;
     for (int i = 0; i < 3; ++i) {
       rng_state[i] = static_cast<int64_t>(dist(generator));
