@@ -496,7 +496,7 @@ public:
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
 //           initialize_shuffle_table(rng_state);
           DENT forceDiff[embedding_dim];
-          uint64_t global_col_id_int = (negative_samples_id[row_id][k] +iteration)%(this->sp_local_receiver)->gCols;
+          uint64_t global_col_id_int = ((*negative_samples_id)[row_id][k] +iteration)%(this->sp_local_receiver)->gCols;
           SPT global_col_id = static_cast<SPT>(global_col_id_int);
           SPT local_col_id = global_col_id - static_cast<SPT>(((grid)->rank_in_col *(this->sp_local_receiver)->proc_row_width));
           bool fetch_from_cache = false;
