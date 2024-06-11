@@ -49,7 +49,7 @@ size_t hipgraph::distviz::common::get_memory_usage() {
 }
 
 uint64_t  hipgraph::distviz::common::tau_rand_int() {
-    uint64_t shuffle_table[4]
+    uint64_t shuffle_table[4];
     uint64_t s1 = shuffle_table[0];
     uint64_t s0 = shuffle_table[1];
     uint64_t result = s0 + s1;
