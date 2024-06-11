@@ -48,7 +48,7 @@ size_t hipgraph::distviz::common::get_memory_usage() {
   return 0;
 }
 
-int32_t tau_rand_int(array<int64_t,3> state) {
+int32_t tau_rand_int(std::array<int64_t,3> state) {
   state[0] = (((state[0] & 4294967294LL) << 12) & 0xFFFFFFFFLL) ^ (
                                                                       (((state[0] << 13) & 0xFFFFFFFFLL) ^ state[0]) >> 19
                                                                   );
