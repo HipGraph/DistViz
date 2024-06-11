@@ -482,7 +482,7 @@ public:
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
           uint64_t global_col_id_int = tau_rand_int() %(this->sp_local_receiver)->gCols;
-          cout<<"i "<<row_id<<" nn id "<<global_col_id_int<<endl;
+          cout<<"i "<<row_id<<" nn id "<<tau_rand_int()<<endl;
           SPT global_col_id = static_cast<SPT>(global_col_id_int);
           SPT local_col_id = global_col_id - static_cast<SPT>(((grid)->rank_in_col *(this->sp_local_receiver)->proc_row_width));
           bool fetch_from_cache = false;
