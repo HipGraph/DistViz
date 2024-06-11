@@ -198,13 +198,14 @@ public:
 //    std::array<uint64_t , 4> rng_state;
 //    initialize_shuffle_table(rng_state);
 
-    unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>(last_batch_size, vector<SPT>(1000));
+    unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>(last_batch_size);
 
     auto t = start_clock();
      #pragma omp parallel for schedule(static)
     for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
+      (*negative_samples_ids)[i]=vector<SPT>(1000);
       for(uint64_t j =0;j < 1000; j++) {
-        (*negative_samples_ids)[i][j]=distribution(gen)
+        (*negative_samples_ids)[i][j]=distribution(gen);
       }
     }
     stop_clock_and_add(t, "Iteration Total Time");
