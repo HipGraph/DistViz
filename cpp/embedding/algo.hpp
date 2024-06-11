@@ -198,7 +198,7 @@ public:
 //    std::array<uint64_t , 4> rng_state;
 //    initialize_shuffle_table(rng_state);
 
-    unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>(last_batch_size);
+    unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>>(last_batch_size);
 
     auto t = start_clock();
      #pragma omp parallel for schedule(static)
