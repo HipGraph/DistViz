@@ -203,8 +203,8 @@ public:
     auto t = start_clock();
      #pragma omp parallel for schedule(static)
     for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
-      (*negative_samples_ids)[i]=vector<SPT>(5000);
-      for(uint64_t j =0;j < 5000; j++) {
+      (*negative_samples_ids)[i]=vector<SPT>(1000);
+      for(uint64_t j =0;j < 1000; j++) {
         (*negative_samples_ids)[i][j]=distribution(gen);
       }
     }
