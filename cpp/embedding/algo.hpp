@@ -73,6 +73,8 @@ protected:
   // hyper parameter controls the col major or row major  data access
   bool col_major = true;
 
+
+
   std::uniform_int_distribution<int> distribution;
   std::minstd_rand generator;
 
@@ -113,7 +115,7 @@ public:
     samples_per_epoch_negative.resize(sp_local_receiver->proc_row_width, vector<DENT>());
     samples_per_epoch_negative_next.resize(sp_local_receiver->proc_row_width, vector<DENT>());
 
-
+    int average_degree =  sp_local_receiver->gNNZ/sp_local_receiver->gRows;
 
     if (sp_local_receiver->proc_row_width % batch_size == 0) {
       batches = static_cast<int>(sp_local_receiver->proc_row_width / batch_size);
@@ -201,10 +203,11 @@ public:
     unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>>(last_batch_size);
 
     auto t = start_clock();
+    int max_nnz= average_degree*10;
      #pragma omp parallel for schedule(static)
     for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
-      (*negative_samples_ids)[i]=vector<SPT>(1000);
-      for(uint64_t j =0;j < 1000; j++) {
+      (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
+      for(uint64_t j =0;j < max_nnz ; j++) {
         (*negative_samples_ids)[i][j]=distribution(gen);
       }
     }
@@ -237,10 +240,11 @@ public:
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false);
 
-
-          generate_negative_samples(negative_samples_ptr_count.get(),csr_handle,i,j,batch_size,
-                                    considering_batch_size,seed);
-
+          if (i<10) {
+            generate_negative_samples(negative_samples_ptr_count.get(),
+                                      csr_handle, i, j, batch_size,
+                                      considering_batch_size, seed, max_nnz);
+          }
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
               csr_handle,alpha, j, batch_size,
@@ -684,7 +688,7 @@ public:
 
 
   void generate_negative_samples(vector<SPT> *negative_samples_ptr_count,CSRHandle<SPT, DENT> *csr_handle, int iteration,
-                                 int batch_id, int batch_size, int block_size, int seed) {
+                                 int batch_id, int batch_size, int block_size, int seed, int max_nnz) {
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
                                      this->sp_local_receiver->proc_row_width);
@@ -699,7 +703,7 @@ public:
           int ns = (iteration - samples_per_epoch_negative_next[i][index]) /samples_per_epoch_negative[i][index];
           if (ns > 0) {
             (*negative_samples_ptr_count)[access_index] += ns;
-//            (*negative_samples_ptr_count)[access_index] = min((*negative_samples_ptr_count)[access_index],nn*10);
+            (*negative_samples_ptr_count)[access_index] = min((*negative_samples_ptr_count)[access_index],max_nnz);
             samples_per_epoch_negative_next[i][index] += ns * samples_per_epoch_negative[i][index];
           }
           samples_per_epoch_next[i][index] += samples_per_epoch[i][index];
