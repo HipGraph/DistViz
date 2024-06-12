@@ -229,7 +229,7 @@ public:
             generate_negative_samples(negative_samples_ptr_count.get(),
                                       csr_handle, i, j, batch_size,
                                       considering_batch_size, seed, max_nnz);
-            if (i%100==0 and i>0){
+            if (i%50==0 and i>0){
               std::mt19937_64 gen1(rd());
                #pragma omp parallel for schedule(static)
               for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
@@ -518,7 +518,7 @@ public:
                     DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
                     for (int d = 0; d < embedding_dim; d++) {
                       forceDiff[d] = scale(forceDiff[d] * d1);
-                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d]*2;
+                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d]*5;
                     }
       }
     }
