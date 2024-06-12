@@ -240,11 +240,11 @@ public:
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false);
 
-          if (i<10) {
+
             generate_negative_samples(negative_samples_ptr_count.get(),
                                       csr_handle, i, j, batch_size,
                                       considering_batch_size, seed, max_nnz);
-          }
+
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
               csr_handle,alpha, j, batch_size,
