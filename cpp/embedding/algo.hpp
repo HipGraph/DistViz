@@ -115,7 +115,7 @@ public:
     samples_per_epoch_negative.resize(sp_local_receiver->proc_row_width, vector<DENT>());
     samples_per_epoch_negative_next.resize(sp_local_receiver->proc_row_width, vector<DENT>());
 
-    int average_degree =  sp_local_receiver->gNNZ/sp_local_receiver->gRows;
+    int average_degree =  sp_local_receiver->gNNz/sp_local_receiver->gRows;
 
     if (sp_local_receiver->proc_row_width % batch_size == 0) {
       batches = static_cast<int>(sp_local_receiver->proc_row_width / batch_size);
