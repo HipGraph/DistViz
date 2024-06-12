@@ -174,31 +174,18 @@ public:
 
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
-      cout<<"calculate_membership_strength started "<<endl;
       calculate_membership_strength(csr_handle);
-
-      cout<<"calculate_membership_strength completed "<<endl;
       apply_set_operations(true,1.0,
                            csr_handle->rowStart,csr_handle->col_idx,csr_handle->values);
-      cout<<"apply_set_operations completed "<<endl;
-
       make_epochs_per_sample(csr_handle,iterations,ns);
-      cout<<"make_epochs_per_sample completed"<<endl;
-//      computeTopKEigenvectorsFromLaplacian(csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,10);
-      cout<<"Eigen completed"<<endl;
-
     }
-
+   cout<<" preprocessing completed "<<endl;
 
     int seed =0;
     DENT alpha = lr;
-    std::uniform_int_distribution<int32_t> dist(INT32_MIN, INT32_MAX);
 
-//    generator = std::minstd_rand(0);
     std::random_device rd;
     std::mt19937_64 gen(rd());
-//    std::array<uint64_t , 4> rng_state;
-//    initialize_shuffle_table(rng_state);
 
     unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>>(last_batch_size);
 
@@ -217,8 +204,6 @@ public:
       DENT batch_error = 0;
       // Generate three random numbers
       for (int j = 0; j < batches; j++) {
-//        int seed = j + i;
-
         if (j == batches - 1) {
           considering_batch_size = last_batch_size;
         }
@@ -249,6 +234,8 @@ public:
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
               csr_handle,alpha, j, batch_size,
               considering_batch_size,i,negative_samples_ids.get());
+
+
 
           batch_error += this->update_data_matrix_rowptr(
               prevCoordinates_ptr.get(), j, batch_size);
@@ -393,17 +380,10 @@ public:
                                    this->sp_local_receiver->gCols) -
                           1;
 
-//          if (col_major) {
-//            calc_embedding(source_start_index, source_end_index,
-//                           dst_start_index, dst_end_index, csr_block,
-//                           prevCoordinates, lr, batch_id, batch_size,
-//                           block_size, fetch_from_temp_cache);
-//          } else {
             calc_embedding_row_major(iteration,source_start_index, source_end_index,
                                      dst_start_index, dst_end_index, csr_block,
                                      prevCoordinates, lr, batch_id, batch_size,
                                      block_size, fetch_from_temp_cache);
-//          }
         }
       }
     }
@@ -429,7 +409,6 @@ public:
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           int dst_index = j - static_cast<uint64_t>(csr_handle->rowStart[i]);
-//          cout<<" i "<<i<<" j"<<dst_index<<" itr"<<iteration<<" val "<<samples_per_epoch_next[i][dst_index]<<endl;
           if (samples_per_epoch_next[i][dst_index] <= iteration+1) {
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
@@ -467,21 +446,17 @@ public:
                       (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                       array_ptr[d];
                 }
-                //              forceDiff[d] = forceDiff[d] * exp(-1 * distance / smoothe_factor);
                 attrc += forceDiff[d] * forceDiff[d];
               }
 
               DENT d1 = -2.0 / (1.0 + attrc);
               for (int d = 0; d < embedding_dim; d++) {
                 DENT l = scale(forceDiff[d] * d1);
-                //              DENT l = (forceDiff[d] * d1 );
-                //              l=l*exp(-1*distance/smoothe_factor);
                 (*prevCoordinates)[index * embedding_dim + d] =
                     (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
               }
             }
           }
-
         }
       }
     }
@@ -498,7 +473,6 @@ public:
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
-//           initialize_shuffle_table(rng_state);
           DENT forceDiff[embedding_dim];
           uint64_t global_col_id_int = ((*negative_samples_id)[row_id][k] +iteration)%(this->sp_local_receiver)->gCols;
           SPT global_col_id = static_cast<SPT>(global_col_id_int);
@@ -534,14 +508,9 @@ public:
                     DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
                     for (int d = 0; d < embedding_dim; d++) {
                       forceDiff[d] = scale(forceDiff[d] * d1);
-                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d];
+                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d]*2;
                     }
-
-//                      #pragma omp atomic
-//                      (*prevCoordinates)[i * embedding_dim + 0] += (lr)*scale(forceDiff[0] * d1);
-//                      #pragma omp atomic
-//                      (*prevCoordinates)[i * embedding_dim + 1] += (lr)*scale(forceDiff[1] * d1);
-                    }
+      }
     }
   }
 
