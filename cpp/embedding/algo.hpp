@@ -229,13 +229,13 @@ public:
             generate_negative_samples(negative_samples_ptr_count.get(),
                                       csr_handle, i, j, batch_size,
                                       considering_batch_size, seed, max_nnz);
-            if (i%100==0){
-               gen(rd());
+            if (i%100==0 and i>0){
+              std::mt19937_64 gen1(rd());
                #pragma omp parallel for schedule(static)
               for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
                 (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
                 for(uint64_t j =0;j < max_nnz ; j++) {
-                  (*negative_samples_ids)[i][j]=distribution(gen);
+                  (*negative_samples_ids)[i][j]=distribution(gen1);
                 }
               }
             }
