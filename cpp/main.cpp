@@ -293,7 +293,7 @@ int main(int argc, char* argv[]) {
   embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
                                         data_set_size,data_set_size,gNNZ,
                                          batch_size,iterations,lr,nsamples,alpha,beta,
-                                        col_major,sync_comm,drop_out_error_threshold,ns_generation_skip_factor,repulsive_force_scaling_factor,);
+                                        col_major,sync_comm,drop_out_error_threshold,ns_generation_skip_factor,repulsive_force_scaling_factor);
 
   std::cout << "stop generating embedding "<< rank<< " "<<std::endl;
   stop_clock_and_add(t, "Embedding Total Time");
