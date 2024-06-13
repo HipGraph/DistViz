@@ -232,14 +232,23 @@ public:
 
         //negative sample generation
         if (i>0 and i%ns_generation_skip_factor==0){
+          negative_tuples = make_unique<vector<Tuple<DENT>>>(total_tuples);
           std::mt19937_64 gen1(rd());
           #pragma omp parallel for schedule(static)
           for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
             (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
             for(uint64_t j =0;j < max_nnz ; j++) {
               (*negative_samples_ids)[i][j]=distribution(gen1);
+              Tuple<DENT> tuple;
+              tuple.row = (*negative_samples_ids)[i][j] ;
+              tuple.col= i;
+              tuple.value=1;
+              (*negative_tuples)[i*max_nnz+j]=tuple;
             }
           }
+          auto negative_csr = make_shared<SpMat<SPT,DENT>>(grid,negative_tuples.get(),gRows ,gCOls, total_tup,
+                                                            last_batch_size,this->sp_local_receiver->proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
+          negative_csr.get()->initialize_CSR_blocks();
         }
 
         // One process computations without MPI operations
