@@ -204,7 +204,7 @@ public:
         tuple.row = (*negative_samples_ids)[i][j] ;
         tuple.col= i;
         tuple.value=1;
-        negative_tuples[i*max_nnz+j]=tuple;
+        (*negative_tuples)[i*max_nnz+j]=tuple;
       }
     }
 
