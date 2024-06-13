@@ -187,7 +187,7 @@ public:
     std::random_device rd;
     std::mt19937_64 gen(rd());
 
-    unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>>(last_batch_size);
+    unique_ptr<vector<vector<DENT>>> negative_samples_ids = make_unique<vector<vector<DENT>>>(last_batch_size);
     int max_nnz= average_degree*10;
     int total_tuples = max_nnz*sp_local_receiver->proc_row_width;
     unique_ptr<vector<Tuple<SPT>>> negative_tuples = make_unique<vector<Tuple<SPT>>>(total_tuples);
@@ -199,7 +199,7 @@ public:
       (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
       for(uint64_t j =0;j < max_nnz ; j++) {
         (*negative_samples_ids)[i][j]=distribution(gen);
-        Tuple<SPT> tuple;
+        Tuple<DENT> tuple;
         tuple.row = (*negative_samples_ids)[i][j] ;
         tuple.col= i;
         tuple.value=1;
@@ -208,7 +208,7 @@ public:
     }
 
     auto negative_csr = make_shared<SpMat<SPT,DENT>>(grid,negative_tuples.get(), this->sp_local_receiver->gRows,this->sp_local_receiver->proc_row_width, total_tuples,
-                                                      this->sp_local_receiver->proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
+                                                      this->sp_local_receiver->proc_row_width,this->sp_local_receiver->proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
 
     negative_csr.get()->initialize_CSR_blocks();
 
