@@ -188,12 +188,11 @@ public:
     std::mt19937_64 gen(rd());
 
     unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>>(last_batch_size);
-
-
+    int max_nnz= average_degree*10;
     int total_tuples = max_nnz*sp_local_receiver->proc_row_width;
     unique_ptr<vector<Tuple<SPT>>> negative_tuples = make_unique<vector<Tuple<SPT>>>(total_tuples);
 
-    int max_nnz= average_degree*10;
+
     auto t = start_clock();
      #pragma omp parallel for schedule(static)
     for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
@@ -208,7 +207,7 @@ public:
       }
     }
 
-    auto negative_csr = make_unique<SpMat<SPT,DENT>>(grid,negative_tuples.get(), gRows,this->sp_local_receiver->proc_row_width, total_tuples, this->sp_local_receiver->proc_row_width,
+    auto negative_csr = make_unique<SpMat<SPT,DENT>>(grid,negative_tuples.get(), this->sp_local_receiver->gRows,this->sp_local_receiver->proc_row_width, total_tuples, this->sp_local_receiver->proc_row_width,
                                                       this->sp_local_receiver->proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
 
     negative_csr.get()->initialize_CSR_blocks();
