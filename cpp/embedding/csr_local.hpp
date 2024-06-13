@@ -45,8 +45,6 @@ public:
 //      this->num_coords = num_coords;
 //      this->rows = rows;
 //      this->cols = cols;
-//      cout << "rows " << this->rows << " cols " << this->cols << " transpose "
-//           << transpose << " nnz " << max_nnz << endl;
 //      this->handler = unique_ptr<CSRHandle>(new CSRHandle());
 //
 //      int rank;
@@ -62,10 +60,6 @@ public:
 //        rArray[i] = coords[i].row;
 //        cArray[i] = coords[i].col;
 //        vArray[i] = static_cast<double>(coords[i].value);
-//        if (transpose and (rArray[i] > 30000 or cArray[i] > 60000)) {
-//          cout << " i " << i << "rArray" << rArray[i] << "cArray" << cArray[i]
-//               << "vArray" << vArray[i] << endl;
-//        }
 //      }
 //
 //      sparse_operation_t op;
@@ -82,21 +76,21 @@ public:
 //          &tempCOO, SPARSE_INDEX_BASE_ZERO, rows, cols, max(num_coords, 1),
 //          rArray.data(), cArray.data(), vArray.data());
 //
-//      if (status_coo != SPARSE_STATUS_SUCCESS) {
-//        // Handle the error
-//        cout << "Error in coo conversion:" << endl;
-//        // Additional error-handling code here
-//      }
+////      if (status_coo != SPARSE_STATUS_SUCCESS) {
+////        // Handle the error
+////        cout << "Error in coo conversion:" << endl;
+////        // Additional error-handling code here
+////      }
 //
 //      cout << " processing transpose before conversion " << transpose << endl;
 //      sparse_status_t status_csr =
 //          mkl_sparse_convert_csr(tempCOO, op, &tempCSR);
 //
-//      if (status_csr != SPARSE_STATUS_SUCCESS) {
-//        // Handle the error
-//        cout << "Error in matrix conversion:" << endl;
-//        // Additional error-handling code here
-//      }
+////      if (status_csr != SPARSE_STATUS_SUCCESS) {
+////        // Handle the error
+////        cout << "Error in matrix conversion:" << endl;
+////        // Additional error-handling code here
+////      }
 //
 //      cout << " processing transpose after conversion " << transpose << endl;
 //      mkl_sparse_destroy(tempCOO);
@@ -221,28 +215,22 @@ public:
         int current_row_value=0;
         set<INDEX_TYPE> dups;
         int index = 0;
-        #pragma omp parallel for
         for (INDEX_TYPE i = 0; i < num_coords; i++) {
           if (dups.insert(coords[i].col).second) {
             if (expected_col==coords[i].col){
               (handler.get())->rowStart[index] = current_row_value;
-              #pragma omp atomic
               index++;
-              #pragma omp atomic
               expected_col++;
             }else if (expected_col<coords[i].col){
               while(expected_col<=coords[i].col){
                 (handler.get())->rowStart[index] = current_row_value;
-                #pragma omp atomic
                 index++;
-                #pragma omp atomic
                 expected_col++;
               }
             }
           }
           (handler.get())->col_idx[i] = coords[i].row;
           (handler.get())->values[i] = coords[i].value;
-          #pragma omp atomic
           current_row_value++;
         }
         if (expected_col<=this->cols){
