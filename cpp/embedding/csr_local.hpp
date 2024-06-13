@@ -221,22 +221,28 @@ public:
         int current_row_value=0;
         set<INDEX_TYPE> dups;
         int index = 0;
+        #pragma omp parallel for
         for (INDEX_TYPE i = 0; i < num_coords; i++) {
           if (dups.insert(coords[i].col).second) {
             if (expected_col==coords[i].col){
               (handler.get())->rowStart[index] = current_row_value;
+              #pragma omp atomic
               index++;
+              #pragma omp atomic
               expected_col++;
             }else if (expected_col<coords[i].col){
               while(expected_col<=coords[i].col){
                 (handler.get())->rowStart[index] = current_row_value;
+                #pragma omp atomic
                 index++;
+                #pragma omp atomic
                 expected_col++;
               }
             }
           }
           (handler.get())->col_idx[i] = coords[i].row;
           (handler.get())->values[i] = coords[i].value;
+          #pragma omp atomic
           current_row_value++;
         }
         if (expected_col<=this->cols){
