@@ -187,10 +187,10 @@ public:
     std::random_device rd;
     std::mt19937_64 gen(rd());
 
-    unique_ptr<vector<vector<DENT>>> negative_samples_ids = make_unique<vector<vector<DENT>>>(last_batch_size);
+    unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>>(last_batch_size);
     int max_nnz= average_degree*10;
     int total_tuples = max_nnz*sp_local_receiver->proc_row_width;
-    unique_ptr<vector<Tuple<SPT>>> negative_tuples = make_unique<vector<Tuple<SPT>>>(total_tuples);
+    unique_ptr<vector<Tuple<DENT>>> negative_tuples = make_unique<vector<Tuple<DENT>>>(total_tuples);
 
 
     auto t = start_clock();
