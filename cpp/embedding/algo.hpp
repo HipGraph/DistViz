@@ -104,7 +104,7 @@ public:
   }
 
   void algo_force2_vec_ns(int iterations, int batch_size, int ns, DENT lr,
-      double drop_out_error_threshold = 0) {
+      double drop_out_error_threshold = 0, int ns_generation_skip_factor=100, int repulsive_force_scaling_factor=2) {
     int batches = 0;
     int last_batch_size = batch_size;
     sigma_cache.resize(sp_local_receiver->proc_row_width, -1);
@@ -229,7 +229,7 @@ public:
             generate_negative_samples(negative_samples_ptr_count.get(),
                                       csr_handle, i, j, batch_size,
                                       considering_batch_size, seed, max_nnz);
-            if (i>0){
+            if (i>0 and i%ns_generation_skip_factor==0){
               std::mt19937_64 gen1(rd());
                #pragma omp parallel for schedule(static)
               for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
@@ -243,7 +243,7 @@ public:
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
               csr_handle,alpha, j, batch_size,
-              considering_batch_size,i,negative_samples_ids.get());
+              considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
 
 
@@ -475,7 +475,7 @@ public:
   inline void calc_t_dist_replus_rowptr(
       vector<DENT> *prevCoordinates, vector<SPT> *negative_samples_ptr_count,
       CSRHandle<SPT,DENT> *csr_handle,DENT lr,
-      int batch_id, int batch_size, int block_size, int iteration, vector<vector<SPT>> *negative_samples_id) {
+      int batch_id, int batch_size, int block_size, int iteration, vector<vector<SPT>> *negative_samples_id, int repulsive_force_scaling_factor=2) {
 
     int row_base_index = batch_id * batch_size;
 
@@ -518,7 +518,7 @@ public:
                     DENT d1 = 2.0 / ((repuls + 0.000001) * (1.0 + repuls));
                     for (int d = 0; d < embedding_dim; d++) {
                       forceDiff[d] = scale(forceDiff[d] * d1);
-                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d]*2;
+                      (*prevCoordinates)[i * embedding_dim + d] += (lr)*forceDiff[d]*repulsive_force_scaling_factor;
                     }
       }
     }

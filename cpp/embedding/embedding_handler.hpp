@@ -26,7 +26,7 @@ public:
   void generate_embedding(vector<Tuple<VALUE_TYPE>>* input_graph,DenseMat<INDEX_TYPE, VALUE_TYPE, dimension>* dense_output,
                           uint64_t gRows, uint64_t gCols, uint64_t gNNZ, int batch_size,
                           int iterations, float lr, int nsamples, float alpha,float beta,
-                          bool col_major=false, bool sync_comm=false, double drop_out_error_threshold=0){
+                          bool col_major=false, bool sync_comm=false, double drop_out_error_threshold=0, int ns_generation_skip_factor=100, int repulsive_force_scaling_factor=2){
 
     auto localBRows = divide_and_round_up(gCols,
                                           grid->col_world_size);
@@ -76,7 +76,7 @@ public:
                     shared_sparseMat.get(), shared_sparseMat_receiver.get(),
                     shared_sparseMat_sender.get(), dense_output, grid,
                     alpha, beta, 5, -5,col_major,sync_comm));
-    embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr,drop_out_error_threshold);
+    embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr,drop_out_error_threshold,ns_generation_skip_factor,repulsive_force_scaling_factor);
 
   }
 

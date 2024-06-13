@@ -69,6 +69,9 @@ int main(int argc, char* argv[]) {
 
   bool skip_auto_tune=false;
 
+  int repulsive_force_scaling_factor=2;
+  int ns_generation_skip_factor=100;
+
   for (int p = 0; p < argc; p++) {
     if (strcmp(argv[p], "-input") == 0) {
       input_path = argv[p + 1];
@@ -130,6 +133,10 @@ int main(int argc, char* argv[]) {
       sparse_input = atoi(argv[p + 1]) == 1 ? true : false;
     }else if (strcmp(argv[p], "-skip-auto-tune") == 0) {
       skip_auto_tune = atoi(argv[p + 1]) == 1 ? true : false;
+    }else if (strcmp(argv[p], "-ns_generation_skip_factor") == 0) {
+      ns_generation_skip_factor =  atof(argv[p + 1]);
+    }else if (strcmp(argv[p], "-repulsive_force_scaling_factor") == 0) {
+      repulsive_force_scaling_factor =  atof(argv[p + 1]);
     }
   }
 
@@ -286,7 +293,7 @@ int main(int argc, char* argv[]) {
   embedding_handler->generate_embedding(knng_graph_ptr.get(),dense_mat.get(),
                                         data_set_size,data_set_size,gNNZ,
                                          batch_size,iterations,lr,nsamples,alpha,beta,
-                                        col_major,sync_comm,drop_out_error_threshold);
+                                        col_major,sync_comm,drop_out_error_threshold,ns_generation_skip_factor,repulsive_force_scaling_factor,);
 
   std::cout << "stop generating embedding "<< rank<< " "<<std::endl;
   stop_clock_and_add(t, "Embedding Total Time");
