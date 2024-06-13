@@ -58,14 +58,14 @@ public:
 
     cout<<" rank "<<grid->rank_in_col<<" size "<<shared_sparseMat.get()->coords->size()<<endl;
 
-    auto t = start_clock();
+
     shared_sparseMat.get()->initialize_CSR_blocks();
     cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
     shared_sparseMat_sender.get()->initialize_CSR_blocks();
     cout<<" rank "<<grid->rank_in_col<<" CSR  shared_sparseMat_sender initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
 
     shared_sparseMat_receiver.get()->initialize_CSR_blocks();
-    stop_clock_and_add(t, "Iteration Total Time");
+
     cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat_receiver initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
 
 
