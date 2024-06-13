@@ -207,7 +207,7 @@ public:
       }
     }
 
-    auto negative_csr = make_shared<SpMat<SPT,DENT>>(grid,negative_tuples.get(), this->sp_local_receiver->gRows,this->sp_local_receiver->proc_row_width, total_tuples,
+    auto negative_csr = make_shared<SpMat<SPT,DENT>>(grid,negative_tuples.get(), this->sp_local_receiver->gRows,static_cast<uint64_t>(this->sp_local_receiver->proc_row_width), static_cast<uint64_t>(total_tuples),
                                                       this->sp_local_receiver->proc_row_width,this->sp_local_receiver->proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
 
     negative_csr.get()->initialize_CSR_blocks();
