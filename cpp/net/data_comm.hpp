@@ -214,7 +214,7 @@ public:
     }
   }
 
-  void transfer_data(vector<uint64_t> &col_ids, int iteration, int batch_id) {
+  void transfer_data(vector<uint64_t> col_ids, int iteration, int batch_id) {
 
     vector<vector<uint64_t>> receive_col_ids_list(grid->col_world_size);
     vector<uint64_t> send_col_ids_list;

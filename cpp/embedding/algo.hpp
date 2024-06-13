@@ -189,7 +189,7 @@ public:
 
     unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>>(last_batch_size);
 
-    auto t = start_clock();
+
     int max_nnz= average_degree*10;
      #pragma omp parallel for schedule(static)
     for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
@@ -198,7 +198,7 @@ public:
         (*negative_samples_ids)[i][j]=distribution(gen);
       }
     }
-    stop_clock_and_add(t, "Iteration Total Time");
+
 
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
@@ -211,6 +211,18 @@ public:
         unique_ptr<vector<SPT>> negative_samples_ptr_count = make_unique<vector<SPT>>(considering_batch_size, 0);
 
         CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
+
+        //negative sample generation
+        if (i>0 and i%ns_generation_skip_factor==0){
+          std::mt19937_64 gen1(rd());
+          #pragma omp parallel for schedule(static)
+          for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
+            (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
+            for(uint64_t j =0;j < max_nnz ; j++) {
+              (*negative_samples_ids)[i][j]=distribution(gen1);
+            }
+          }
+        }
 
         // One process computations without MPI operations
         if (grid->col_world_size == 1) {
@@ -229,16 +241,7 @@ public:
             generate_negative_samples(negative_samples_ptr_count.get(),
                                       csr_handle, i, j, batch_size,
                                       considering_batch_size, seed, max_nnz);
-            if (i>0 and i%ns_generation_skip_factor==0){
-              std::mt19937_64 gen1(rd());
-               #pragma omp parallel for schedule(static)
-              for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
-                (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
-                for(uint64_t j =0;j < max_nnz ; j++) {
-                  (*negative_samples_ids)[i][j]=distribution(gen1);
-                }
-              }
-            }
+
 
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
