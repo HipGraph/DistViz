@@ -102,10 +102,11 @@ public:
           std::accumulate(recvcounts.begin(), recvcounts.end(), 0);
 
       (*(sp_mat->coords)).resize(total_received_coords);
-      cout<<" rank "<<process_3D_grid->rank_in_col<<" second MPI processes completed "<<endl;
+      cout<<" rank "<<process_3D_grid->rank_in_col<<" second MPI processes started "<<endl;
       MPI_Alltoallv(sendbuf, sendcounts.data(), offsets.data(), SPTUPLE,
                     (*(sp_mat->coords)).data(), recvcounts.data(),
                     recvoffsets.data(), SPTUPLE, process_3D_grid->col_world);
+      cout<<" rank "<<process_3D_grid->rank_in_col<<" second MPI processes completed "<<endl;
 
       // TODO: Parallelize the sort routine?
       if (sp_mat->transpose){
@@ -113,6 +114,7 @@ public:
       } else {
         std::sort((*(sp_mat->coords)).begin(), (*(sp_mat->coords)).end(),row_major<VALUE_TYPE>);
       }
+      cout<<" rank "<<process_3D_grid->rank_in_col<<" sorting completed "<<endl;
     // This helps to speed up CSR creation
     }
 //    __gnu_parallel::sort((sp_mat->coords).begin(), (sp_mat->coords).end(),
