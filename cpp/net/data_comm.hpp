@@ -303,7 +303,7 @@ public:
           end_index = min(end_index, gRows);
         }
         for (int i = start_index; i < end_index; i++) {
-          if ((data_handler->rowStart[i + 1] - data_handler->[i]) > 0) {
+          if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
             int id = (i+iteration)%this->sp_local_receiver->gRows;
             int target_proc = id/this->sp_local_receiver->proc_row_width;
             if (target_proc != grid->rank_in_col) {
@@ -314,6 +314,7 @@ public:
     }
 
     int total_send_count=0;
+    int total_receive_count=0;
     for(int proc=0;proc<grid->col_world_size;proc++){
       total_send_count += (*sendcounts)[proc];
     }
@@ -326,7 +327,7 @@ public:
         unique_ptr<std::vector<SPT>>(
             new vector<SPT>());
 
-    MPI_Alltoall(sendcounts.data(), 1, MPI_INT,receive_counts_cyclic.data(),
+    MPI_Alltoall((*sendcounts).data(), 1, MPI_INT,(*receive_counts_cyclic).data(),
                   1, MPI_INT,grid->col_world);
 
     (*sdispls)[0] = 0;
@@ -355,7 +356,7 @@ public:
         }
 
         for (int i = start_index; i < end_index; i++) {
-          if ((data_handler->rowStart[i + 1] - data_handler->[i]) > 0) {
+          if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
             int id = (i+iteration)%this->sp_local_receiver->gRows;
             int target_proc = id/this->sp_local_receiver->proc_row_width;
             if (target_proc != grid->rank_in_col) {

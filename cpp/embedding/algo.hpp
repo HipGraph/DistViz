@@ -290,7 +290,8 @@ public:
           CSRLocal<SPT, DENT> *csr_block = negative_csr->csr_local_data;
           full_comm.get()->transfer_negative_sampled_data(csr_block, i, j);
           this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
-                                          random_number_vec, lr, j, batch_size,
+                                          negative_samples_ptr_count.get(),
+                                          lr, j, batch_size,
                                           considering_batch_size);
 
             this->execute_pull_model_computations(
