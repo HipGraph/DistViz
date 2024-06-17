@@ -110,7 +110,7 @@ public:
 
 
       for(int i=0;i<(*(sp_mat->coords)).size();i++){
-        cout<<" i "<<i<<" coords value "<<(*(sp_mat->coords))[i]<<endl;
+        cout<<" i "<<i<<" "<<(*(sp_mat->coords))[i].row<<" "<<(*(sp_mat->coords))[i].col<<endl;
       }
       // TODO: Parallelize the sort routine?
       if (sp_mat->transpose){
