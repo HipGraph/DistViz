@@ -54,7 +54,9 @@ public:
     cout<<" rank  start partitioning data"<<grid->rank_in_col<<endl;
 
     partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat_sender.get());
+    cout<<" rank  start shared_sparseMat_sender data"<<grid->rank_in_col<<endl;
     partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat_receiver.get());
+    cout<<" rank  start shared_sparseMat_receiver data"<<grid->rank_in_col<<endl;
     partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat.get());
 
     cout<<" rank  after partitioning data"<<grid->rank_in_col<<" size "<<shared_sparseMat.get()->coords->size()<<endl;
