@@ -106,7 +106,7 @@ public:
       MPI_Alltoallv(sendbuf, sendcounts.data(), offsets.data(), SPTUPLE,
                     (*(sp_mat->coords)).data(), recvcounts.data(),
                     recvoffsets.data(), SPTUPLE, process_3D_grid->col_world);
-      cout<<" rank "<<process_3D_grid->rank_in_col<<" second MPI processes completed "<<endl;
+      cout<<" rank "<<process_3D_grid->rank_in_col<<" second MPI processes completed "<<total_received_coords<<endl;
 
       // TODO: Parallelize the sort routine?
       if (sp_mat->transpose){
