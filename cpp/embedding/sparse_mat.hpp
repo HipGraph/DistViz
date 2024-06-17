@@ -76,6 +76,8 @@ public:
       }
     }
 
+    cout<<" data filling completed "<<endl;
+
     Tuple<VALUE_TYPE> *coords_ptr = (*coords).data();
     if (col_partitioned) {
       // This is used to find sending indices
