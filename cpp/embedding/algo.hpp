@@ -287,11 +287,11 @@ public:
           alpha = lr * (1.0 - (float(i) / float(iterations)));
         } else {
           // These operations are for more than one processes.
-          CSRLocal<SPT, DENT> *csr_block = negative_csr->csr_local_data;
+          CSRLocal<SPT, DENT> *csr_block = negative_csr->csr_local_data.get();
           full_comm.get()->transfer_negative_sampled_data(csr_block, i, j);
           this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
                                           negative_samples_ptr_count.get(),
-                                          lr, j, batch_size,
+                                          csr_block,lr, j, batch_size,
                                           considering_batch_size);
 
             this->execute_pull_model_computations(
