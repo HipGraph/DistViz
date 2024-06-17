@@ -360,7 +360,7 @@ public:
             int target_proc = id/this->sp_local_receiver->proc_row_width;
             if (target_proc != grid->rank_in_col) {
               int index = (*sdispls)[target_proc] + (i - start_index);
-              (*sendbuf_ids)[index].col = id;
+              (*sendbuf_ids)[index] = id;
             }
           }
         }
