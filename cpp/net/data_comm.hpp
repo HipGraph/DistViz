@@ -388,8 +388,8 @@ public:
           (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
       std::array<DENT, embedding_dim> val_arr =
           (this->dense_local)->fetch_local_data(local_key);
-      (*sendbuf)[j].col = (*receivebuf_ids)[j];
-      (*sendbuf)[j].value = val_arr;
+      (*sendbuf_data)[j].col = (*receivebuf_ids)[j];
+      (*sendbuf_data)[j].value = val_arr;
     }
 
     auto t = start_clock();
