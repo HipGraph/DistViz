@@ -9,6 +9,7 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include "../embedding/csr_local.hpp"
 
 using namespace hipgraph::distviz::common;
 using namespace hipgraph::distviz::embedding;
@@ -283,6 +284,121 @@ public:
     stop_clock_and_add(t, "Embedding Communication Time");
     MPI_Request dumy;
     this->populate_cache(sendbuf.get(),receivebuf_ptr.get(), &dumy, true, iteration, batch_id,true); // we should not do this
+
+    //    delete[] sendbuf;
+  }
+
+
+  void transfer_negative_sampled_data(CSRLocal<SPT, DENT> *csr_block, int iteration, int batch_id) {
+
+    CSRHandle<SPT,DENT>* data_handler = csr_block->handler;
+
+
+    #pragma  omp parallel for
+    for(int proc=0;proc<grid->col_world_size;proc++){
+        int start_index = proc * this->sp_local_receiver->proc_row_width;
+        int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
+        int gRows = static_cast<int>(this->sp_local_receiver->gRows);
+        if (proc == grid->col_world_size - 1) {
+          end_index = min(end_index, gRows);
+        }
+        for (int i = start_index; i < end_index; i++) {
+          if ((data_handler->rowStart[i + 1] - data_handler->[i]) > 0) {
+            int id = (i+iteration)%this->sp_local_receiver->gRows;
+            int target_proc = id/this->sp_local_receiver->proc_row_width;
+            if (target_proc != grid->rank_in_col) {
+              (*sendcounts)[target_proc]++;
+            }
+          }
+        }
+    }
+
+    int total_send_count=0;
+    for(int proc=0;proc<grid->col_world_size;proc++){
+      total_send_count += (*sendcounts)[proc];
+    }
+
+    unique_ptr<std::vector<SPT>> sendbuf_ids = unique_ptr<std::vector<SPT>>(new vector<SPT>());
+
+    sendbuf_ids->resize(total_send_count);
+
+    unique_ptr<std::vector<SPT>> receivebuf_ids =
+        unique_ptr<std::vector<SPT>>(
+            new vector<SPT>());
+
+    MPI_Alltoall(sendcounts.data(), 1, MPI_INT,receive_counts_cyclic.data(),
+                  1, MPI_INT,grid->col_world);
+
+    (*sdispls)[0] = 0;
+    (*rdispls_cyclic)[0] = 0;
+    for (int i = 0; i < grid->col_world_size; i++) {
+
+      (*sdispls)[i] = (i > 0) ? (*sdispls)[i - 1] + (*sendcounts)[i - 1]
+                              : (*sdispls)[i];
+      (*rdispls_cyclic)[i] =
+          (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1]
+                  : (*rdispls_cyclic)[i];
+      total_receive_count = total_receive_count + (*receive_counts_cyclic)[i];
+    }
+
+    receivebuf_ids.get()->resize(total_receive_count);
+
+
+    #pragma  omp parallel for
+    for(int proc=0;proc<grid->col_world_size;proc++){
+      if (proc != grid->rank_in_col) {
+        int start_index = proc * this->sp_local_receiver->proc_row_width;
+        int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
+        int gRows = static_cast<int>(this->sp_local_receiver->gRows);
+        if (proc == grid->col_world_size - 1) {
+          end_index = min(end_index, gRows);
+        }
+
+        for (int i = start_index; i < end_index; i++) {
+          if ((data_handler->rowStart[i + 1] - data_handler->[i]) > 0) {
+            int id = (i+iteration)%this->sp_local_receiver->gRows;
+            int target_proc = id/this->sp_local_receiver->proc_row_width;
+            if (target_proc != grid->rank_in_col) {
+              int index = (*sdispls)[target_proc] + (i - start_index);
+              (*sendbuf_ids)[index].col = id;
+            }
+          }
+        }
+      }
+    }
+
+    MPI_Alltoallv((*sendbuf_ids).data(), (*sendcounts).data(), (*sdispls).data(),
+                  MPI_INT, (*receivebuf_ids.get()).data(),
+                  (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
+                  MPI_INT, grid->col_world);
+
+
+    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
+        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
+    sendbuf_data->resize(total_receive_count);
+    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> receivebuf_data =
+        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
+    receivebuf_data->resize(total_send_count);
+
+
+    for (int j = 0; j < (*receivebuf_ids).size(); j++) {
+      int local_key =
+          (*receivebuf_ids)[j] -
+          (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
+      std::array<DENT, embedding_dim> val_arr =
+          (this->dense_local)->fetch_local_data(local_key);
+      (*sendbuf)[j].col = (*receivebuf_ids)[j];
+      (*sendbuf)[j].value = val_arr;
+    }
+
+    auto t = start_clock();
+    MPI_Alltoallv((*sendbuf_data).data(), (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
+                  DENSETUPLE, (*receivebuf_data.get()).data(),
+                  (*sendcounts).data(), (*sdispls).data(),
+                  DENSETUPLE, grid->col_world);
+    stop_clock_and_add(t, "Embedding Communication Time");
+    MPI_Request dumy;
+    this->populate_cache(sendbuf_data.get(),receivebuf_data.get(), &dumy, true, iteration, batch_id,true); // we should not do this
 
     //    delete[] sendbuf;
   }

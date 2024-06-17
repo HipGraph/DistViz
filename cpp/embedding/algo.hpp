@@ -239,16 +239,21 @@ public:
             (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
             for(uint64_t j =0;j < max_nnz ; j++) {
               (*negative_samples_ids)[i][j]=distribution(gen1);
-              Tuple<DENT> tuple;
-              tuple.row = (*negative_samples_ids)[i][j] ;
-              tuple.col= i;
-              tuple.value=1;
-              (*negative_tuples)[i*max_nnz+j]=tuple;
+              if(grid->col_world_size > 1){
+                Tuple<DENT> tuple;
+                tuple.row = (*negative_samples_ids)[i][j] ;
+                tuple.col= i;
+                tuple.value=1;
+                (*negative_tuples)[i*max_nnz+j]=tuple;
+              }
             }
           }
-          auto negative_csr = make_shared<SpMat<SPT,DENT>>(grid,negative_tuples.get(),gRows ,gCOls, total_tup,
-                                                            last_batch_size,this->sp_local_receiver->proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
-          negative_csr.get()->initialize_CSR_blocks();
+          if(grid->col_world_size > 1) {
+            negative_csr = make_shared<SpMat<SPT, DENT>>(grid, negative_tuples.get(), gRows, gCOls,
+                                                         total_tup,last_batch_size, this->sp_local_receiver->proc_row_width,
+                this->sp_local_receiver->proc_row_width, false, false);
+            negative_csr.get()->initialize_CSR_blocks();
+          }
         }
 
         // One process computations without MPI operations
@@ -282,10 +287,11 @@ public:
           alpha = lr * (1.0 - (float(i) / float(iterations)));
         } else {
           // These operations are for more than one processes.
-//          full_comm.get()->transfer_data(random_number_vec, i, j);
-//          this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
-//                                          random_number_vec, lr, j, batch_size,
-//                                          considering_batch_size);
+          CSRLocal<SPT, DENT> *csr_block = negative_csr->csr_local_data;
+          full_comm.get()->transfer_negative_sampled_data(csr_block, i, j);
+          this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
+                                          random_number_vec, lr, j, batch_size,
+                                          considering_batch_size);
 
             this->execute_pull_model_computations(
                 sendbuf_ptr.get(), update_ptr.get(), i, j,
