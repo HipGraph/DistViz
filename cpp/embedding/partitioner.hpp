@@ -44,6 +44,8 @@ public:
     int world_size = process_3D_grid->col_world_size;
     int my_rank = process_3D_grid->rank_in_col;
 
+    cout<<" rank "<<process_3D_grid->rank_in_col<<" size "<<sp_mat->coords->size()<<endl;
+
     Tuple<VALUE_TYPE> *sendbuf = new Tuple<VALUE_TYPE>[sp_mat->coords->size()];
 
     if (world_size > 1) {
