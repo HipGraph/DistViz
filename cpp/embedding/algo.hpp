@@ -291,7 +291,7 @@ public:
           full_comm.get()->transfer_negative_sampled_data(csr_block, i, j);
           this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
                                           negative_samples_ptr_count.get(),
-                                          csr_block,lr, j, batch_size,
+                                          csr_block->handler.get(),lr, j, batch_size,
                                           considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
             this->execute_pull_model_computations(
