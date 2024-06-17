@@ -56,7 +56,7 @@ public:
     partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat_receiver.get());
     partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat.get());
 
-    cout<<" rank "<<grid->rank_in_col<<" size "<<shared_sparseMat.get()->coords->size()<<endl;
+    cout<<" rank  after partitioning data"<<grid->rank_in_col<<" size "<<shared_sparseMat.get()->coords->size()<<endl;
 
 
     shared_sparseMat.get()->initialize_CSR_blocks();
