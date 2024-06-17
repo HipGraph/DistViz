@@ -217,7 +217,7 @@ bool CompareTuple(const Tuple<T>& obj1, const Tuple<T>& obj2) {
 }
 
 // TODO: removed reference type due to binding issue
-template <typename T> bool column_major(Tuple<T> a, Tuple<T> b) {
+template <typename T> bool column_major(Tuple<T>& a, Tuple<T>& b) {
   if (a.col == b.col) {
     return a.row < b.row;
   } else {
@@ -225,7 +225,7 @@ template <typename T> bool column_major(Tuple<T> a, Tuple<T> b) {
   }
 }
 
-template <typename T> bool row_major(Tuple<T> a, Tuple<T> b) {
+template <typename T> bool row_major(Tuple<T>& a, Tuple<T>& b) {
   if (a.row == b.row) {
     return a.col < b.col;
   } else {
