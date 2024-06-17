@@ -291,7 +291,7 @@ public:
 
   void transfer_negative_sampled_data(CSRLocal<SPT, DENT> *csr_block, int iteration, int batch_id) {
 
-    CSRHandle<SPT,DENT>* data_handler = csr_block->handler;
+    CSRHandle<SPT,DENT>* data_handler = csr_block->handler.get();
 
 
     #pragma  omp parallel for
