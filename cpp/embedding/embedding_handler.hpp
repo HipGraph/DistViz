@@ -51,6 +51,7 @@ public:
 
 
     auto partitioner = unique_ptr<GlobalAdjacency1DPartitioner>(new GlobalAdjacency1DPartitioner(grid));
+    cout<<" rank  start partitioning data"<<grid->rank_in_col<<endl;
 
     partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat_sender.get());
     partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat_receiver.get());
