@@ -88,6 +88,7 @@ public:
         sendbuf[idx].value = (*coords)[i].value;
       }
 
+      cout<<" rank "<<process_3D_grid->rank_in_col<<" pre process completed "<<endl;
       // Broadcast the number of nonzeros that each processor is going to
       // receive
       MPI_Alltoall(sendcounts.data(), 1, MPI_INT, recvcounts.data(), 1, MPI_INT,
@@ -101,7 +102,7 @@ public:
           std::accumulate(recvcounts.begin(), recvcounts.end(), 0);
 
       (*(sp_mat->coords)).resize(total_received_coords);
-
+      cout<<" rank "<<process_3D_grid->rank_in_col<<" second MPI processes completed "<<endl;
       MPI_Alltoallv(sendbuf, sendcounts.data(), offsets.data(), SPTUPLE,
                     (*(sp_mat->coords)).data(), recvcounts.data(),
                     recvoffsets.data(), SPTUPLE, process_3D_grid->col_world);
