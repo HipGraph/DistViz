@@ -110,11 +110,11 @@ public:
 
 
       // TODO: Parallelize the sort routine?
-//      if (sp_mat->transpose){
-//        std::sort((*(sp_mat->coords)).begin(), (*(sp_mat->coords)).end(),column_major<VALUE_TYPE>);
-//      } else {
-//        std::sort((*(sp_mat->coords)).begin(), (*(sp_mat->coords)).end(),row_major<VALUE_TYPE>);
-//      }
+      if (sp_mat->transpose){
+        std::sort((*(sp_mat->coords)).begin(), (*(sp_mat->coords)).end(),column_major<VALUE_TYPE>);
+      } else {
+        std::sort((*(sp_mat->coords)).begin(), (*(sp_mat->coords)).end(),row_major<VALUE_TYPE>);
+      }
       cout<<" rank "<<process_3D_grid->rank_in_col<<" sorting completed "<<endl;
     // This helps to speed up CSR creation
     }
