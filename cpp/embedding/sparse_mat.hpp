@@ -65,17 +65,14 @@ public:
   /**
    * Initialize the CSR from (*coords) data structure
    */
-  void initialize_CSR_blocks(bool show=false) {
+  void initialize_CSR_blocks() {
     cout<<" rank "<<this->grid->rank_in_col<<" trying to initialize "<<endl;
-//#pragma omp parallel for
+     #pragma omp parallel for
     for (uint64_t i = 0; i < (*coords).size(); i++) {
       if (col_partitioned) {
         (*coords)[i].col %= proc_col_width;
       } else {
         (*coords)[i].row %= proc_row_width;
-        if (show){
-          cout<< " rank "<<grid->rank_in_col<<" row id "<<(*coords)[i].row<<endl;
-        }
       }
     }
 
