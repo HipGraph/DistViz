@@ -294,7 +294,8 @@ public:
     CSRHandle<SPT,DENT>* data_handler = csr_block->handler.get();
     cout<<" rank "<<grid->rank_in_col<<" start counting sendcounts"<<endl;
 
-    #pragma  omp parallel for
+//    #pragma  omp parallel for
+    vector<int> proc_count(grid->col_world_size,0);
     for(int proc=0;proc<grid->col_world_size;proc++){
         int start_index = proc * this->sp_local_receiver->proc_row_width;
         int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
@@ -306,11 +307,16 @@ public:
           if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
             int id = (i+iteration)%this->sp_local_receiver->gRows;
             int target_proc = id/this->sp_local_receiver->proc_row_width;
+            proc_count[target_proc] += (data_handler->rowStart[i + 1] - data_handler->rowStart[i]);
             if (target_proc != grid->rank_in_col) {
               (*sendcounts)[target_proc]++;
             }
           }
         }
+    }
+
+    for(int i=0;i<proc_count.size();i++){
+      cout<<" verified rank "<<grid->rank_in_col<<" to rank "<< i<<" count "<<proc_count[i]<<endl;
     }
 
 
