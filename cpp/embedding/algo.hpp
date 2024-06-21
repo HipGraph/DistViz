@@ -199,8 +199,6 @@ public:
       (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
       for(uint64_t j =0;j < max_nnz ; j++) {
         (*negative_samples_ids)[i][j]=distribution(gen);
-        int t_rank = (*negative_samples_ids)[i][j]/sp_local_receiver->proc_row_width;
-        proc_count[t_rank]++;
         Tuple<DENT> tuple;
         tuple.row = (*negative_samples_ids)[i][j] ;
         tuple.col= i;
@@ -209,9 +207,7 @@ public:
       }
     }
 
-    for(int i=0;i<proc_count.size();i++){
-      cout<<" rank "<<grid->rank_in_col<<" to rank "<< i<<" count "<<proc_count[i]<<endl;
-    }
+
 
     uint64_t  gRows = static_cast<uint64_t>(this->sp_local_receiver->gRows);
     uint64_t gCOls = static_cast<uint64_t>(this->sp_local_receiver->proc_row_width);
