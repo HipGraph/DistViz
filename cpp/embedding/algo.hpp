@@ -131,7 +131,7 @@ public:
     auto full_comm = unique_ptr<DataComm<SPT, DENT, embedding_dim>>(
         new DataComm<SPT, DENT, embedding_dim>(
             sp_local_receiver, sp_local_sender, dense_local, grid, -1, alpha));
-    full_comm.get()->onboard_data();
+//    full_comm.get()->onboard_data();
 
     cout << " rank " << grid->rank_in_col<<
         " onboard data sucessfully for initial iteration" << batches<< endl;
