@@ -292,7 +292,8 @@ public:
   void transfer_negative_sampled_data(CSRLocal<SPT, DENT> *csr_block, int iteration, int batch_id) {
 
     CSRHandle<SPT,DENT>* data_handler = csr_block->handler.get();
-    cout<<" rank "<<grid->rank_in_col<<" start counting sendcounts"<<endl;
+    cout<<" rank "<<grid->rank_in_col<<" start counting sendcounts datahandler stats "
+         <<data_handler->rowStart.size()<<" ok "<<data_handler->rowStart[data_handler->rowStart.size()-1]<<endl;
 
 //    #pragma  omp parallel for
     vector<int> proc_count(grid->col_world_size,0);
