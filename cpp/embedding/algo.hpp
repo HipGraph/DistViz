@@ -184,7 +184,7 @@ public:
     DENT alpha = lr;
 
     std::random_device rd;
-    std::mt19937_64 gen(rd());
+    std::mt19937_64 gen(    rd());
 
     unique_ptr<vector<vector<SPT>>> negative_samples_ids = make_unique<vector<vector<SPT>>>(last_batch_size);
     int max_nnz= average_degree*10;
@@ -193,17 +193,24 @@ public:
     cout<<" rank "<<grid->rank_in_col<<" total tuples "<<total_tuples<<endl;
 
     auto t = start_clock();
-     #pragma omp parallel for schedule(static)
+//     #pragma omp parallel for schedule(static)
+    vector<int> proc_count(grid->col_wordl_size,0);
     for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
       (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
       for(uint64_t j =0;j < max_nnz ; j++) {
         (*negative_samples_ids)[i][j]=distribution(gen);
+        int t_rank = (*negative_samples_ids)[i][j]/sp_local_receiver->proc_row_width;
+        proc_count[t_rank]++;
         Tuple<DENT> tuple;
         tuple.row = (*negative_samples_ids)[i][j] ;
         tuple.col= i;
         tuple.value=1;
         (*negative_tuples)[i*max_nnz+j]=tuple;
       }
+    }
+
+    for(int i=0;i<proc_count.size();i++){
+      cout<<" rank "<<grid->rank_in_col<<" to rank "<< i<<" count "<<proc_count[i]<<endl;
     }
 
     uint64_t  gRows = static_cast<uint64_t>(this->sp_local_receiver->gRows);
