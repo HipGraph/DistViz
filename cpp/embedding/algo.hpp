@@ -194,7 +194,7 @@ public:
 
     auto t = start_clock();
 //     #pragma omp parallel for schedule(static)
-    vector<int> proc_count(grid->col_wordl_size,0);
+    vector<int> proc_count(grid->col_word_size,0);
     for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
       (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
       for(uint64_t j =0;j < max_nnz ; j++) {
