@@ -308,6 +308,7 @@ public:
           if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
             int id = (i+iteration)%this->sp_local_receiver->gRows;
             int target_proc = id/this->sp_local_receiver->proc_row_width;
+            cout<<" rank "<<grid->rank_in_col<<" i "<<i<<" id "<<id<<" target rank "<<target_proc<<endl;
             proc_count[target_proc] += (data_handler->rowStart[i + 1] - data_handler->rowStart[i]);
             if (target_proc != grid->rank_in_col) {
               (*sendcounts)[target_proc]++;
