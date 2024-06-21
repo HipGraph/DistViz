@@ -218,7 +218,7 @@ public:
     uint64_t  total_tup = static_cast<uint64_t>(total_tuples);
 
     auto negative_csr = make_shared<SpMat<SPT,DENT>>(grid,negative_tuples.get(),gRows ,gCOls, total_tup,
-                                                      last_batch_size,gRows, this->sp_local_receiver->proc_row_width, false, false);
+                                                      last_batch_size,static_cast<int>(this->sp_local_receiver->gRows), this->sp_local_receiver->proc_row_width, false, false);
 
     negative_csr.get()->initialize_CSR_blocks();
 
