@@ -313,13 +313,13 @@ public:
         }
     }
 
-    cout<<" rank "<<grid->rank_in_col<<" send count completed"<<endl;
+
     int total_send_count=0;
     int total_receive_count=0;
     for(int proc=0;proc<grid->col_world_size;proc++){
       total_send_count += (*sendcounts)[proc];
     }
-
+    cout<<" rank "<<grid->rank_in_col<<" send count "<<total_send_count<<endl;
     unique_ptr<std::vector<SPT>> sendbuf_ids = unique_ptr<std::vector<SPT>>(new vector<SPT>());
 
     sendbuf_ids->resize(total_send_count);
