@@ -733,7 +733,7 @@ public:
 
         CSRLocal<SPT, DENT>* csr_local = (sp_local_native)->csr_local_data.get();
         CSRLocal<SPT, DENT>* csr_transpose = (sp_local_sender)->csr_local_data.get();
-        CSRHandle<SPT,DENT> * csr_handle_local = csr_local->handler.get()
+        CSRHandle<SPT,DENT> * csr_handle_local = csr_local->handler.get();
         CSRHandle<SPT,DENT> * csr_handle_transpose = csr_transpose->handler.get();
 
         std::vector<int>& row_offsets = csr_handle_local->rowStart;
