@@ -292,7 +292,7 @@ public:
   void transfer_negative_sampled_data(CSRLocal<SPT, DENT> *csr_block, int iteration, int batch_id) {
 
     CSRHandle<SPT,DENT>* data_handler = csr_block->handler.get();
-    cout<<" start counting sendcounts"<<endl;
+    cout<<" rank "<<grid->rank_in_col<<" start counting sendcounts"<<endl;
 
     #pragma  omp parallel for
     for(int proc=0;proc<grid->col_world_size;proc++){
@@ -313,7 +313,7 @@ public:
         }
     }
 
-    cout<<" send count completed"<<endl;
+    cout<<" rank "<<grid->rank_in_col<<" send count completed"<<endl;
     int total_send_count=0;
     int total_receive_count=0;
     for(int proc=0;proc<grid->col_world_size;proc++){
@@ -327,11 +327,11 @@ public:
     unique_ptr<std::vector<SPT>> receivebuf_ids =
         unique_ptr<std::vector<SPT>>(
             new vector<SPT>());
-    cout<<" MPI_Alltoall started "<<endl;
+    cout<<" rank "<<grid->rank_in_col<<" MPI_Alltoall started "<<endl;
     MPI_Alltoall((*sendcounts).data(), 1, MPI_INT,(*receive_counts_cyclic).data(),
                   1, MPI_INT,grid->col_world);
 
-    cout<<" MPI_Alltoall completed "<<endl;
+    cout<<" rank "<<grid->rank_in_col<<" MPI_Alltoall completed "<<endl;
 
     (*sdispls)[0] = 0;
     (*rdispls_cyclic)[0] = 0;
@@ -346,7 +346,7 @@ public:
     }
 
     receivebuf_ids.get()->resize(total_receive_count);
-    cout<<"  total receive count "<<total_receive_count<<endl;
+    cout<<" rank "<<grid->rank_in_col<<"  total receive count "<<total_receive_count<<endl;
 
     #pragma  omp parallel for
     for(int proc=0;proc<grid->col_world_size;proc++){
@@ -371,14 +371,14 @@ public:
       }
     }
 
-    cout<<"  ID exchange filling completed "<<total_receive_count<<endl;
+    cout<<" rank "<<grid->rank_in_col<<"  ID exchange filling completed "<<total_receive_count<<endl;
 
     MPI_Alltoallv((*sendbuf_ids).data(), (*sendcounts).data(), (*sdispls).data(),
                   MPI_INT, (*receivebuf_ids.get()).data(),
                   (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
                   MPI_INT, grid->col_world);
 
-    cout<<"  ID exchange transfer completed "<<total_receive_count<<endl;
+    cout<<" rank "<<grid->rank_in_col<<"  ID exchange transfer completed "<<total_receive_count<<endl;
     unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
         unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
     sendbuf_data->resize(total_receive_count);
@@ -396,7 +396,7 @@ public:
       (*sendbuf_data)[j].col = (*receivebuf_ids)[j];
       (*sendbuf_data)[j].value = val_arr;
     }
-    cout<<"  ID send data completed "<<endl;
+    cout<<" rank "<<grid->rank_in_col<<"  ID send data completed "<<endl;
     auto t = start_clock();
     MPI_Alltoallv((*sendbuf_data).data(), (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
                   DENSETUPLE, (*receivebuf_data.get()).data(),
@@ -405,7 +405,7 @@ public:
     stop_clock_and_add(t, "Embedding Communication Time");
     MPI_Request dumy;
 
-    cout<<"  ID all to all data exchange completed  "<<endl;
+    cout<<" rank "<<grid->rank_in_col<<"  ID all to all data exchange completed  "<<endl;
     this->populate_cache(sendbuf_data.get(),receivebuf_data.get(), &dumy, true, iteration, batch_id,true); // we should not do this
 
     //    delete[] sendbuf;
