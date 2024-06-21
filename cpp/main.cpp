@@ -48,9 +48,9 @@ int main(int argc, char* argv[]) {
   float target_local_recall = 0.99;
 
   float alpha = 0;
-  float beta = 0.5;
+  float beta = 1;
   bool col_major = false;
-  bool sync_comm = false;
+  bool sync_comm = true;
   int iterations = 1200;
   int batch_size = 256;
   bool full_batch_training = true;
