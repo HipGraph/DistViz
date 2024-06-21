@@ -199,6 +199,8 @@ public:
       (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
       for(uint64_t j =0;j < max_nnz ; j++) {
         (*negative_samples_ids)[i][j]=distribution(gen);
+        int t_rank = (*negative_samples_ids)[i][j]/sp_local_receiver->proc_row_width;
+        proc_count[t_rank]++;
         Tuple<DENT> tuple;
         tuple.row = (*negative_samples_ids)[i][j] ;
         tuple.col= i;
@@ -207,7 +209,9 @@ public:
       }
     }
 
-
+    for(int i=0;i<proc_count.size();i++){
+      cout<<" rank "<<grid->rank_in_col<<" to rank "<< i<<" count "<<proc_count[i]<<endl;
+    }
 
     uint64_t  gRows = static_cast<uint64_t>(this->sp_local_receiver->gRows);
     uint64_t gCOls = static_cast<uint64_t>(this->sp_local_receiver->proc_row_width);
@@ -215,7 +219,7 @@ public:
     int proc_row_width =  static_cast<int>(this->sp_local_receiver->gRows);
 
     auto negative_csr = make_shared<SpMat<SPT,DENT>>(grid,negative_tuples.get(),gRows ,gCOls, total_tup,
-                                                      last_batch_size,proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
+                                                      last_batch_size,static_cast<int>(this->sp_local_receiver->gRows), this->sp_local_receiver->proc_row_width, false, false);
 
     negative_csr.get()->initialize_CSR_blocks(true);
 
