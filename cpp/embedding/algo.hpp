@@ -733,8 +733,8 @@ public:
 
         CSRLocal<SPT, DENT>* csr_local = (sp_local_native)->csr_local_data.get();
         CSRLocal<SPT, DENT>* csr_transpose = (sp_local_sender)->csr_local_data.get();
-        CSRHandle<SPT,DENT> * csr_handle_local = csr_local.get();
-        CSRHandle<SPT,DENT> * csr_handle_transpose = csr_transpose.get();
+        CSRHandle<SPT,DENT> * csr_handle_local = csr_local->handler.get()
+        CSRHandle<SPT,DENT> * csr_handle_transpose = csr_transpose->handler.get();
 
         std::vector<int>& row_offsets = csr_handle_local->rowStart;
         std::vector<int>& col_indices =  csr_handle_local->col_idx;
@@ -742,9 +742,9 @@ public:
 
         int numRows = row_offsets.size() - 1;
 
-        std::vector<int>& transpose_row_offsets = csr_handle_transpose->handler.get()->rowStart;
-        std::vector<int>& transpose_col_indices =  csr_handle_transpose->handler.get()->col_idx;
-        std::vector<float>& transpose_values = csr_handle_transpose->handler.get()->values;
+        std::vector<int>& transpose_row_offsets = csr_handle_transpose->rowStart;
+        std::vector<int>& transpose_col_indices =  csr_handle_transpose->col_idx;
+        std::vector<float>& transpose_values = csr_handle_transpose->values;
 
         int transNumRows = transpose_row_offsets.size() - 1;
 
