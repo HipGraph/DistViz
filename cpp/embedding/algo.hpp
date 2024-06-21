@@ -193,7 +193,7 @@ public:
 
 
     auto t = start_clock();
-     #pragma omp parallel for schedule(static)
+//     #pragma omp parallel for schedule(static)
     for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
       (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
       for(uint64_t j =0;j < max_nnz ; j++) {
