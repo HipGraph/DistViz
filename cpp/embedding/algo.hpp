@@ -164,9 +164,7 @@ public:
 
     size_t total_memory = 0;
 
-    CSRLocal<SPT, DENT> *csr_block =
-        (col_major) ? sp_local_receiver->csr_local_data.get()
-                    : sp_local_native->csr_local_data.get();
+    CSRLocal<SPT, DENT> *csr_block = sp_local_native->csr_local_data.get();
 
     int considering_batch_size = batch_size;
     vector<DENT> error_convergence;
@@ -176,8 +174,7 @@ public:
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
       calculate_membership_strength(csr_handle);
       cout<<" calculate_membership_strength completed "<<endl;
-      apply_set_operations(true,1.0,
-                           csr_handle->rowStart,csr_handle->col_idx,csr_handle->values);
+      apply_set_operations(true,1.0);
       cout<<" apply_set_operations completed "<<endl;
       make_epochs_per_sample(csr_handle,iterations,ns);
     }
@@ -730,11 +727,26 @@ public:
     }
   }
 
-    void apply_set_operations(bool apply_set_operations, float set_op_mix_ratio,
-                              std::vector<int>& row_offsets, std::vector<int>& col_indices,
-                              std::vector<float>& values) {
+    void apply_set_operations(bool apply_set_operations, float set_op_mix_ratio) {
       if (apply_set_operations) {
+
+
+        CSRLocal<SPT, DENT>* csr_local = (sp_local_native)->csr_local_data.get();
+        CSRLocal<SPT, DENT>* csr_transpose = (sp_local_sender)->csr_local_data.get();
+        CSRHandle<SPT,DENT> * csr_handle_local = csr_local.get();
+        CSRHandle<SPT,DENT> * csr_handle_transpose = csr_transpose.get();
+
+        std::vector<int>& row_offsets = csr_handle_local->rowStart;
+        std::vector<int>& col_indices =  csr_handle_local->col_idx;
+        std::vector<float>& values = csr_handle_local->values;
+
         int numRows = row_offsets.size() - 1;
+
+        std::vector<int>& transpose_row_offsets = csr_handle_transpose->handler.get()->rowStart;
+        std::vector<int>& transpose_col_indices =  csr_handle_transpose->handler.get()->col_idx;
+        std::vector<float>& transpose_values = csr_handle_transpose->handler.get()->values;
+
+        int transNumRows = transpose_row_offsets.size() - 1;
 
         // Prepare triplet list to avoid locking overhead
         std::vector<Eigen::Triplet<float>> triplets;
@@ -747,10 +759,26 @@ public:
           }
         }
 
-//         Construct sparse matrix from triplets
-        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
+        Eigen::SparseMatrix<float> csrMatrix(numRows,sp_local_receiver->gRows);
         csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
         csrMatrix.makeCompressed();
+
+        std::vector<Eigen::Triplet<float>> triplets_transpose;
+        triplets.reserve(transpose_values.size());
+        for (int i = 0; i < transNumRows; ++i) {
+          int start = transpose_row_offsets[i];
+          int end = transpose_row_offsets[i + 1];
+          for (int j = start; j < end; ++j) {
+            triplets.emplace_back(transpose_col_indices[j],i, transpose_values[j]);
+          }
+        }
+
+        Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
+        csrTranspose.setFromTriplets(triplets.begin(), triplets.end());
+        csrTranspose.makeCompressed();
+
+//         Construct sparse matrix from triplets
+
 
 //        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
 //        for (int i = 0; i < numRows; ++i) {
@@ -760,7 +788,7 @@ public:
 //        }
 
         // Transpose the CSR matrix
-        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
+//        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
 
         // Multiply csrMatrix with its transpose
         Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTranspose);
@@ -782,5 +810,43 @@ public:
 
       }
     }
+
+//    void apply_set_operations(CSRLocal<SPT, DENT>* csr_local, CSRLocal<SPT, DENT>* csr_transpose,cbool apply_set_operations, float set_op_mix_ratio,
+//                              std::vector<SPT>& row_offsets, std::vector<SPT>& col_indices,
+//                              std::vector<DENT>& values) {
+//      if (apply_set_operations) {
+//        int numRows = row_offsets.size() - 1;
+//
+//        unique_ptr<vector<DENT>> temp_values = make_unique<vector<DENT>>(values.size());
+//        CSRLocal<SPT, DENT>* csr_local = (sp_local_native)->csr_local_data.get();
+//        CSRLocal<SPT, DENT>* csr_transpose = (sp_local_sender)->csr_local_data.get();
+//        CSRHandle<SPT,DENT> * csr_handle_local = csr_local.get();
+//        CSRHandle<SPT,DENT> * csr_handle_transpose = csr_transpose.get();
+//
+//        auto source_start_index = 0;
+//        auto source_end_index =this->sp_local_receiver->proc_row_width;
+//        for(int i=source_start_index;i<source_end_index;i++){
+//          int nn = csr_handle_local->rowStart[i+1]- csr_handle_local->rowStart[i];
+//           SPT row_index = grid->rank_in_col * sp_local_native->proc_row_width + i;
+//          for(uint64_t j = static_cast<uint64_t>(csr_handle_local->rowStart[i]);
+//               j < static_cast<uint64_t>(csr_handle_local->rowStart[i + 1]); j++) {
+//            SPT column_index = csr_handle_local->col_index[j];
+//            SPT local_column_index = column_index - (grid->rank_in_col * sp_local_native->proc_row_width);
+//            for(uint64_t j = static_cast<uint64_t>(csr_transpose->rowStart[row_index]);
+//                 j < static_cast<uint64_t>(csr_transpose->rowStart[row_index + 1]); j++) {
+//              int col_idx = csr_transpose->col_idx[j];
+//              if (col_idx==local_column_index){
+//                values[]
+//              }
+//            }
+//          }
+//        }
+//
+//
+//
+//      }
+//    }
+
+
 };
 } // namespace hipgraph::distviz::embedding
