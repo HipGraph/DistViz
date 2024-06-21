@@ -295,7 +295,7 @@ public:
     cout<<" rank "<<grid->rank_in_col<<" start counting sendcounts datahandler stats "
          <<data_handler->rowStart.size()<<" ok "<<data_handler->rowStart[data_handler->rowStart.size()-1]<<endl;
 
-//    #pragma  omp parallel for
+    #pragma  omp parallel for
     for(int proc=0;proc<grid->col_world_size;proc++){
         int start_index = proc * this->sp_local_receiver->proc_row_width;
         int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
@@ -308,9 +308,6 @@ public:
             int id = (i+iteration)%this->sp_local_receiver->gRows;
 
             int target_proc = id/this->sp_local_receiver->proc_row_width;
-            if (grid->rank_in_col ==0){
-              cout <<" id "<<id<<" target rank "<<target_proc<<endl;
-            }
             if (target_proc != grid->rank_in_col) {
               (*sendcounts)[target_proc]++;
             }
