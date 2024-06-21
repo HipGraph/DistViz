@@ -301,21 +301,21 @@ public:
                                           csr_block->handler.get(),lr, j, batch_size,
                                           considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 //
-//            this->execute_pull_model_computations(
-//                sendbuf_ptr.get(), update_ptr.get(), i, j,
-//                this->data_comm_cache[j].get(), csr_block, batch_size,
-//                considering_batch_size, lr, prevCoordinates_ptr.get(), 1, true,
-//                0, true);
-//
-//            batch_error += this->update_data_matrix_rowptr(
-//                prevCoordinates_ptr.get(), j, batch_size);
-//
-//            for (int k = 0; k < batch_size; k++) {
-//              int IDIM = k * embedding_dim;
-//              for (int d = 0; d < embedding_dim; d++) {
-//                (*prevCoordinates_ptr)[IDIM + d] = 0;
-//              }
-//            }
+            this->execute_pull_model_computations(
+                sendbuf_ptr.get(), update_ptr.get(), i, j,
+                this->data_comm_cache[j].get(), csr_block, batch_size,
+                considering_batch_size, lr, prevCoordinates_ptr.get(), 1, true,
+                0, true);
+
+           this->update_data_matrix_rowptr(
+                prevCoordinates_ptr.get(), j, batch_size);
+
+            for (int k = 0; k < batch_size; k++) {
+              int IDIM = k * embedding_dim;
+              for (int d = 0; d < embedding_dim; d++) {
+                (*prevCoordinates_ptr)[IDIM + d] = 0;
+              }
+            }
         }
       }
     }
