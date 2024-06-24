@@ -480,38 +480,38 @@ public:
 
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
-              if (fetch_from_cache) {
-                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
-                    &arrayMap =
-                        (temp_cache)
-                            ? (*this->dense_local->tempCachePtr)[target_rank]
-                            : (*this->dense_local->cachePtr)[target_rank];
-                array_ptr = arrayMap[dst_id].value;
-              }
-
-              DENT attrc = 0;
-
-              for (int d = 0; d < embedding_dim; d++) {
-                if (!fetch_from_cache) {
-                  forceDiff[d] =
-                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-                      (this->dense_local)
-                          ->nCoordinates[local_dst * embedding_dim + d];
-
-                } else {
-                  forceDiff[d] =
-                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-                      array_ptr[d];
-                }
-                attrc += forceDiff[d] * forceDiff[d];
-              }
-
-              DENT d1 = -2.0 / (1.0 + attrc);
-              for (int d = 0; d < embedding_dim; d++) {
-                DENT l = scale(forceDiff[d] * d1);
-                (*prevCoordinates)[index * embedding_dim + d] =
-                    (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
-              }
+//              if (fetch_from_cache) {
+//                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
+//                    &arrayMap =
+//                        (temp_cache)
+//                            ? (*this->dense_local->tempCachePtr)[target_rank]
+//                            : (*this->dense_local->cachePtr)[target_rank];
+//                array_ptr = arrayMap[dst_id].value;
+//              }
+//
+//              DENT attrc = 0;
+//
+//              for (int d = 0; d < embedding_dim; d++) {
+//                if (!fetch_from_cache) {
+//                  forceDiff[d] =
+//                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
+//                      (this->dense_local)
+//                          ->nCoordinates[local_dst * embedding_dim + d];
+//
+//                } else {
+//                  forceDiff[d] =
+//                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
+//                      array_ptr[d];
+//                }
+//                attrc += forceDiff[d] * forceDiff[d];
+//              }
+//
+//              DENT d1 = -2.0 / (1.0 + attrc);
+//              for (int d = 0; d < embedding_dim; d++) {
+//                DENT l = scale(forceDiff[d] * d1);
+//                (*prevCoordinates)[index * embedding_dim + d] =
+//                    (*prevCoordinates)[index * embedding_dim + d] + (lr)*l;
+//              }
             }
           }
         }
