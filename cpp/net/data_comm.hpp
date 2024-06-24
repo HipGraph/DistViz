@@ -394,8 +394,6 @@ public:
       (*sendbuf_data)[j].col = (*receivebuf_ids)[j];
       (*sendbuf_data)[j].value = val_arr;
     }
-    (*sendcounts).clear();
-    (*receive_counts_cyclic).clear();
 
     cout<<" rank "<<grid->rank_in_col<<"  ID send data completed "<<endl;
     auto t = start_clock();
@@ -408,6 +406,7 @@ public:
 
     cout<<" rank "<<grid->rank_in_col<<"  ID all to all data exchange completed  "<<endl;
     this->populate_cache(sendbuf_data.get(),receivebuf_data.get(), &dumy, true, iteration, batch_id,true); // we should not do this
+    cout<<" rank "<<grid->rank_in_col<<"  populate cache completed  "<<endl;
 
     //    delete[] sendbuf;
   }
@@ -437,6 +436,11 @@ public:
     receivebuf->shrink_to_fit();
     sendbuf->clear();
     sendbuf->shrink_to_fit();
+
+    (*sendcounts).clear();
+    (*receive_counts_cyclic).clear();
+
+
 
   }
 
