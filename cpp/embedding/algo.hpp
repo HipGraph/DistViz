@@ -493,7 +493,7 @@ public:
               DENT attrc = 0;
 
               for (int d = 0; d < embedding_dim; d++) {
-//                if (!fetch_from_cache) {
+                if (!fetch_from_cache) {
 //                  forceDiff[d] =
 //                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
 //                      (this->dense_local)
