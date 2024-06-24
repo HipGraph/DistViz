@@ -301,11 +301,11 @@ public:
                                           csr_block->handler.get(),lr, j, batch_size,
                                           considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
-//            this->execute_pull_model_computations(
-//                sendbuf_ptr.get(), update_ptr.get(), i, j,
-//                this->data_comm_cache[j].get(), csr_block, batch_size,
-//                considering_batch_size, lr, prevCoordinates_ptr.get(), 1, true,
-//                0, true);
+            this->execute_pull_model_computations(
+                sendbuf_ptr.get(), update_ptr.get(), i, j,
+                this->data_comm_cache[j].get(), csr_block, batch_size,
+                considering_batch_size, lr, prevCoordinates_ptr.get(), 1, true,
+                0, true);
 
            this->update_data_matrix_rowptr(
                 prevCoordinates_ptr.get(), j, batch_size);
@@ -353,22 +353,22 @@ public:
             &req);
       }
 
-      if (k == comm_initial_start) {
-        // local computation
-        this->calc_t_dist_grad_rowptr(
-            csr_block, prevCoordinates, lr, iteration,batch, batch_size,
-            considering_batch_size, local_execution, col_major,
-            first_execution_proc, prev_start, local_execution);
-
-      } else if (k > comm_initial_start) {
-        int prev_end_process =
-            get_end_proc(prev_start, beta, grid->col_world_size);
-
-        this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, iteration,batch,
-                                      batch_size, considering_batch_size, false,
-                                      col_major, prev_start, prev_end_process,
-                                      true);
-      }
+//      if (k == comm_initial_start) {
+//        // local computation
+//        this->calc_t_dist_grad_rowptr(
+//            csr_block, prevCoordinates, lr, iteration,batch, batch_size,
+//            considering_batch_size, local_execution, col_major,
+//            first_execution_proc, prev_start, local_execution);
+//
+//      } else if (k > comm_initial_start) {
+//        int prev_end_process =
+//            get_end_proc(prev_start, beta, grid->col_world_size);
+//
+//        this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, iteration,batch,
+//                                      batch_size, considering_batch_size, false,
+//                                      col_major, prev_start, prev_end_process,
+//                                      true);
+//      }
 
       if (!sync and communication) {
         data_comm->populate_cache(sendbuf, receivebuf, &req, sync, iteration,
@@ -381,10 +381,10 @@ public:
     int prev_end_process = get_end_proc(prev_start, beta, grid->col_world_size);
 
     // updating last remote fetched data vectors
-    this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, batch,
-                                  iteration,batch_size, considering_batch_size, false,
-                                  col_major, prev_start, prev_end_process,
-                                  true);
+//    this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, batch,
+//                                  iteration,batch_size, considering_batch_size, false,
+//                                  col_major, prev_start, prev_end_process,
+//                                  true);
 
     // dense_local->invalidate_cache(i, j, true);
   }
