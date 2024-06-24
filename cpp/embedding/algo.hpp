@@ -469,7 +469,7 @@ public:
           if (samples_per_epoch_next[i][dst_index] <= iteration+1) {
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
-            if (dst_id >= dst_start_index and dst_id < dst_end_index) {
+            if (dst_id >= dst_start_index and dst_id <= dst_end_index) {
               uint64_t local_dst =
                   dst_id - (grid)->rank_in_col *
                                (this->sp_local_receiver)->proc_col_width;
@@ -481,6 +481,7 @@ public:
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
               if (fetch_from_cache) {
+                cout<<" my rank"<<grid->rank_in_col<<" target rank "<<target_rank<<" id "<<dst_id<<endl;
                 unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
                     &arrayMap =
                         (temp_cache)
