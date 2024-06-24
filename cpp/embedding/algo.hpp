@@ -466,6 +466,8 @@ public:
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           int dst_index = j - static_cast<uint64_t>(csr_handle->rowStart[i]);
+          if (grid->rank_in_col==1)
+            cout<<" i "<<i<<" dst id "<<dst_index<<endl;
           if (samples_per_epoch_next[i][dst_index] <= iteration+1) {
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
@@ -480,8 +482,7 @@ public:
 
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
-              if (grid->rank_in_col==1)
-                   cout<<" i "<<i<<" dst id "<<dst_id<<endl;
+
               if (fetch_from_cache) {
                 unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
                     &arrayMap =
@@ -495,10 +496,10 @@ public:
 
               for (int d = 0; d < embedding_dim; d++) {
                 if (!fetch_from_cache) {
-//                  forceDiff[d] =
-//                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-//                      (this->dense_local)
-//                          ->nCoordinates[local_dst * embedding_dim + d];
+                  forceDiff[d] =
+                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
+                      (this->dense_local)
+                          ->nCoordinates[local_dst * embedding_dim + d];
                 } else {
                   forceDiff[d] =
                       (this->dense_local)->nCoordinates[i * embedding_dim + d] -
