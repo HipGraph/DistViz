@@ -281,10 +281,8 @@ public:
                                       csr_handle, i, j, batch_size,
                                       considering_batch_size, seed, max_nnz);
 
-
           this->calc_t_dist_replus_rowptr(
-              prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
-              csr_handle,alpha, j, batch_size,
+              prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),alpha, j, batch_size,
               considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
 
@@ -294,11 +292,10 @@ public:
           alpha = lr * (1.0 - (float(i) / float(iterations)));
         } else {
           // These operations are for more than one processes.
-          CSRLocal<SPT, DENT> *csr_block = negative_csr->csr_local_data.get();
-          full_comm.get()->transfer_negative_sampled_data(csr_block, i, j);
+          CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
+          full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i, j);
           this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
-                                          negative_samples_ptr_count.get(),
-                                          csr_block->handler.get(),lr, j, batch_size,
+                                          negative_samples_ptr_count.get(),lr, j, batch_size,
                                           considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
             this->execute_pull_model_computations(
@@ -364,10 +361,10 @@ public:
         int prev_end_process =
             get_end_proc(prev_start, beta, grid->col_world_size);
 
-//        this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, iteration,batch,
-//                                      batch_size, considering_batch_size, false,
-//                                      col_major, prev_start, prev_end_process,
-//                                      true);
+        this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, iteration,batch,
+                                      batch_size, considering_batch_size, false,
+                                      col_major, prev_start, prev_end_process,
+                                      true);
       }
 
       if (!sync and communication) {
@@ -381,10 +378,10 @@ public:
     int prev_end_process = get_end_proc(prev_start, beta, grid->col_world_size);
 
     // updating last remote fetched data vectors
-//    this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, batch,
-//                                  iteration,batch_size, considering_batch_size, false,
-//                                  col_major, prev_start, prev_end_process,
-//                                  true);
+    this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, batch,
+                                  iteration,batch_size, considering_batch_size, false,
+                                  col_major, prev_start, prev_end_process,
+                                  true);
 
     // dense_local->invalidate_cache(i, j, true);
   }
@@ -410,13 +407,12 @@ public:
         1;
 
     if (local) {
-         cout<<" starting local by "<< grid->rank_in_col<<endl;
-         cout<<" rank "<<grid->rank_in_col<<" start index "<<source_start_index<<" "<<source_end_index<<" dst start index "<<dst_start_index<<" dst end index "<<dst_end_index <<endl;
+
         calc_embedding_row_major(iteration,source_start_index, source_end_index,
                                  dst_start_index, dst_end_index, csr_block,
                                  prevCoordinates, lr, batch_id, batch_size,
                                  block_size, fetch_from_temp_cache);
-        cout<<" completed "<< grid->rank_in_col<<endl;
+
 
     } else {
       for (int r = start_process; r < end_process; r++) {
@@ -455,7 +451,7 @@ public:
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
-//#pragma omp parallel for schedule(static) // enable for full batch training or
+#pragma omp parallel for schedule(static) // enable for full batch training or
                                           // // batch size larger than 1000000
       for (uint64_t i = source_start_index; i <= source_end_index; i++) {
 
@@ -466,7 +462,6 @@ public:
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           int dst_index = j - static_cast<uint64_t>(csr_handle->rowStart[i]);
-          cout<<" i "<<i<<" dst_index "<<dst_index<<endl;
           if (samples_per_epoch_next[i][dst_index] <= iteration+1) {
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
@@ -521,8 +516,7 @@ public:
   }
 
   inline void calc_t_dist_replus_rowptr(
-      vector<DENT> *prevCoordinates, vector<SPT> *negative_samples_ptr_count,
-      CSRHandle<SPT,DENT> *csr_handle,DENT lr,
+      vector<DENT> *prevCoordinates, vector<SPT> *negative_samples_ptr_count,DENT lr,
       int batch_id, int batch_size, int block_size, int iteration, vector<vector<SPT>> *negative_samples_id, int repulsive_force_scaling_factor=2) {
 
     int row_base_index = batch_id * batch_size;
