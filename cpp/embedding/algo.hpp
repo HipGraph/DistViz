@@ -455,7 +455,7 @@ public:
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
-#pragma omp parallel for schedule(static) // enable for full batch training or
+//#pragma omp parallel for schedule(static) // enable for full batch training or
                                           // // batch size larger than 1000000
       for (uint64_t i = source_start_index; i <= source_end_index; i++) {
 
@@ -480,23 +480,25 @@ public:
 
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
+              if (grid->rank_in_col==1)
+                   cout<<" i "<<i<<" dst id "<<dst_id<<endl;
               if (fetch_from_cache) {
-//                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
-//                    &arrayMap =
-//                        (temp_cache)
-//                            ? (*this->dense_local->tempCachePtr)[target_rank]
-//                            : (*this->dense_local->cachePtr)[target_rank];
-//                array_ptr = arrayMap[dst_id].value;
+                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
+                    &arrayMap =
+                        (temp_cache)
+                            ? (*this->dense_local->tempCachePtr)[target_rank]
+                            : (*this->dense_local->cachePtr)[target_rank];
+                array_ptr = arrayMap[dst_id].value;
               }
 
               DENT attrc = 0;
 
               for (int d = 0; d < embedding_dim; d++) {
                 if (!fetch_from_cache) {
-                  forceDiff[d] =
-                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-                      (this->dense_local)
-                          ->nCoordinates[local_dst * embedding_dim + d];
+//                  forceDiff[d] =
+//                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
+//                      (this->dense_local)
+//                          ->nCoordinates[local_dst * embedding_dim + d];
                 } else {
                   forceDiff[d] =
                       (this->dense_local)->nCoordinates[i * embedding_dim + d] -
