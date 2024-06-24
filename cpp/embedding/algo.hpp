@@ -482,12 +482,12 @@ public:
               std::array<DENT, embedding_dim> array_ptr;
               if (fetch_from_cache) {
                 cout<<" my rank"<<grid->rank_in_col<<" target rank "<<target_rank<<" id "<<dst_id<<endl;
-                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
-                    &arrayMap =
-                        (temp_cache)
-                            ? (*this->dense_local->tempCachePtr)[target_rank]
-                            : (*this->dense_local->cachePtr)[target_rank];
-                array_ptr = arrayMap[dst_id].value;
+//                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
+//                    &arrayMap =
+//                        (temp_cache)
+//                            ? (*this->dense_local->tempCachePtr)[target_rank]
+//                            : (*this->dense_local->cachePtr)[target_rank];
+//                array_ptr = arrayMap[dst_id].value;
               }
 
               DENT attrc = 0;
