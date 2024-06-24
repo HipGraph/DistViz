@@ -301,11 +301,11 @@ public:
                                           csr_block->handler.get(),lr, j, batch_size,
                                           considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
-            this->execute_pull_model_computations(
-                sendbuf_ptr.get(), update_ptr.get(), i, j,
-                this->data_comm_cache[j].get(), csr_block, batch_size,
-                considering_batch_size, lr, prevCoordinates_ptr.get(), 1, true,
-                0, true);
+//            this->execute_pull_model_computations(
+//                sendbuf_ptr.get(), update_ptr.get(), i, j,
+//                this->data_comm_cache[j].get(), csr_block, batch_size,
+//                considering_batch_size, lr, prevCoordinates_ptr.get(), 1, true,
+//                0, true);
 
            this->update_data_matrix_rowptr(
                 prevCoordinates_ptr.get(), j, batch_size);

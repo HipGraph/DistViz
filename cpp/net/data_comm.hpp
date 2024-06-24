@@ -161,8 +161,8 @@ public:
           (*receivecounts)[receiving_procs[i]];
       total_send_count += (*send_counts_cyclic)[sending_procs[i]];
       total_receive_count += (*receive_counts_cyclic)[receiving_procs[i]];
-//      cout<<" rank "<<grid->rank_in_col<< " sending to "<<sending_procs[i]<<"  count "<<send_counts_cyclic[sending_procs[i]]
-//           <<" receiving from  "<<receiving_procs[i]<<" count "<<receive_counts_cyclic[receiving_procs[i]]<<endl;
+      cout<<" rank "<<grid->rank_in_col<< " sending to "<<sending_procs[i]<<"  count "<<send_counts_cyclic[sending_procs[i]]
+           <<" receiving from  "<<receiving_procs[i]<<" count "<<receive_counts_cyclic[receiving_procs[i]]<<endl;
     }
 
     for (int i = 0; i < grid->col_world_size; i++) {
