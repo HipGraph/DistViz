@@ -290,9 +290,6 @@ public:
   void transfer_negative_sampled_data(CSRLocal<SPT, DENT> *csr_block, int iteration, int batch_id) {
 
     CSRHandle<SPT,DENT>* data_handler = csr_block->handler.get();
-    cout<<" rank "<<grid->rank_in_col<<" start counting sendcounts datahandler stats "
-         <<data_handler->rowStart.size()<<" ok "<<data_handler->rowStart[data_handler->rowStart.size()-1]<<endl;
-
     #pragma  omp parallel for
     for(int proc=0;proc<grid->col_world_size;proc++){
         int start_index = proc * this->sp_local_receiver->proc_row_width;
@@ -397,6 +394,9 @@ public:
       (*sendbuf_data)[j].col = (*receivebuf_ids)[j];
       (*sendbuf_data)[j].value = val_arr;
     }
+    (*sendcounts).clear();
+    (*receive_counts_cyclic).clear();
+
     cout<<" rank "<<grid->rank_in_col<<"  ID send data completed "<<endl;
     auto t = start_clock();
     MPI_Alltoallv((*sendbuf_data).data(), (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
