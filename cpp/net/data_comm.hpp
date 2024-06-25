@@ -422,14 +422,14 @@ public:
       MPI_Wait(req, &status);
       stop_clock_and_add(t, "Embedding Communication Time");
     }
-
+    (this->dense_local)->invalidate_cache(iteration,batch_id,temp);
     for (int i = 0; i < this->grid->col_world_size; i++) {
       auto base_index = (*rdispls_cyclic)[i];
       auto count = (*receive_counts_cyclic)[i];
 
       for (auto j = base_index; j < base_index + count; j++) {
         DataTuple<DENT, embedding_dim> t = (*receivebuf)[j];
-//        (this->dense_local)->insert_cache(i, t.col, batch_id, iteration, t.value, temp);
+        (this->dense_local)->insert_cache(i, t.col, batch_id, iteration, t.value, temp);
       }
     }
     receivebuf->clear();
