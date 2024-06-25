@@ -410,7 +410,7 @@ public:
     MPI_Request dumy;
 
     cout<<" rank "<<grid->rank_in_col<<"  ID all to all data exchange completed  "<<endl;
-//    this->populate_cache(sendbuf_data.get(),receivebuf_data.get(), &dumy, true, iteration, batch_id,true,false); // we should not do this
+    this->populate_cache(sendbuf_data.get(),receivebuf_data.get(), &dumy, true, iteration, batch_id,true,false); // we should not do this
     cout<<" rank "<<grid->rank_in_col<<"  populate cache completed  "<<endl;
 
     //    delete[] sendbuf;

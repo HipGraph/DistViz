@@ -75,7 +75,7 @@ public:
     entry.inserted_itr = iteration;
     entry.value = arr;
     if (temp) {
-//      (*this->tempCachePtr)[rank][key]= entry;
+      (*this->tempCachePtr)[rank][key]= entry;
     } else {
       (*this->cachePtr)[rank][key]= entry;
     }
