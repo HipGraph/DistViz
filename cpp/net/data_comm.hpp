@@ -327,9 +327,7 @@ public:
 
     sendbuf_ids->resize(total_send_count);
 
-    unique_ptr<std::vector<SPT>> receivebuf_ids =
-        unique_ptr<std::vector<SPT>>(
-            new vector<SPT>());
+    unique_ptr<std::vector<SPT>> receivebuf_ids = unique_ptr<std::vector<SPT>>(new vector<SPT>());
     cout<<" rank "<<grid->rank_in_col<<" MPI_Alltoall started "<<endl;
     MPI_Alltoall((sendcounts).data(), 1, MPI_INT,(receive_counts_cyclic).data(),
                   1, MPI_INT,grid->col_world);
@@ -366,7 +364,7 @@ public:
             int target_proc = id/this->sp_local_receiver->proc_row_width;
             if (target_proc != grid->rank_in_col) {
               int index = (sdispls)[target_proc] + (i - start_index);
-              (sendbuf_ids)[index] = id;
+              (*sendbuf_ids)[index] = id;
             }
           }
         }
@@ -375,8 +373,8 @@ public:
 
     cout<<" rank "<<grid->rank_in_col<<"  ID exchange filling completed "<<total_receive_count<<endl;
 
-    MPI_Alltoallv((sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
-                  MPI_INT, (receivebuf_ids.get()).data(),
+    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
+                  MPI_INT, (*receivebuf_ids.get()).data(),
                   (receive_counts_cyclic).data(), (rdispls_cyclic).data(),
                   MPI_INT, grid->col_world);
 //
