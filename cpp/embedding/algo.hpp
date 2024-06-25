@@ -778,12 +778,12 @@ public:
 //         Construct sparse matrix from triplets
 
 
-        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
-        for (int i = 0; i < numRows; ++i) {
-          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
-            csrMatrix.coeffRef(i, col_indices[j]) = values[j];
-          }
-        }
+//        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
+//        for (int i = 0; i < numRows; ++i) {
+//          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
+//            csrMatrix.coeffRef(i, col_indices[j]) = values[j];
+//          }
+//        }
 
         // Transpose the CSR matrix
         Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
