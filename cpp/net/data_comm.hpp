@@ -294,6 +294,7 @@ public:
     vector<int> sendcounts(grid->col_world_size,0);
     vector<int> sdispls(grid->col_world_size,0);
     vector<int> rdispls_cyclic(grid->col_world_size,0);
+    vector<int> receive_counts_cyclic(grid->col_world_size,0);
     #pragma  omp parallel for
     for(int proc=0;proc<grid->col_world_size;proc++){
         int start_index = proc * this->sp_local_receiver->proc_row_width;
@@ -330,21 +331,20 @@ public:
         unique_ptr<std::vector<SPT>>(
             new vector<SPT>());
     cout<<" rank "<<grid->rank_in_col<<" MPI_Alltoall started "<<endl;
-    MPI_Alltoall((sendcounts).data(), 1, MPI_INT,(*receive_counts_cyclic).data(),
+    MPI_Alltoall((sendcounts).data(), 1, MPI_INT,(receive_counts_cyclic).data(),
                   1, MPI_INT,grid->col_world);
 
     cout<<" rank "<<grid->rank_in_col<<" MPI_Alltoall completed "<<endl;
 
-    (*sdispls)[0] = 0;
-    (*rdispls_cyclic)[0] = 0;
+
     for (int i = 0; i < grid->col_world_size; i++) {
 
-      (*sdispls)[i] = (i > 0) ? (*sdispls)[i - 1] + (sendcounts)[i - 1]
-                              : (*sdispls)[i];
-      (*rdispls_cyclic)[i] =
-          (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1]
-                  : (*rdispls_cyclic)[i];
-      total_receive_count = total_receive_count + (*receive_counts_cyclic)[i];
+      (sdispls)[i] = (i > 0) ? (sdispls)[i - 1] + (sendcounts)[i - 1]
+                              : (sdispls)[i];
+      (rdispls_cyclic)[i] =
+          (i > 0) ? (rdispls_cyclic)[i - 1] + (receive_counts_cyclic)[i - 1]
+                  : (rdispls_cyclic)[i];
+      total_receive_count = total_receive_count + (receive_counts_cyclic)[i];
     }
 
     receivebuf_ids.get()->resize(total_receive_count);
@@ -366,7 +366,7 @@ public:
             int target_proc = id/this->sp_local_receiver->proc_row_width;
             if (target_proc != grid->rank_in_col) {
               int index = (sdispls)[target_proc] + (i - start_index);
-              (*sendbuf_ids)[index] = id;
+              (sendbuf_ids)[index] = id;
             }
           }
         }
@@ -375,9 +375,9 @@ public:
 
     cout<<" rank "<<grid->rank_in_col<<"  ID exchange filling completed "<<total_receive_count<<endl;
 
-    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (*sdispls).data(),
-                  MPI_INT, (*receivebuf_ids.get()).data(),
-                  (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
+    MPI_Alltoallv((sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
+                  MPI_INT, (receivebuf_ids.get()).data(),
+                  (receive_counts_cyclic).data(), (rdispls_cyclic).data(),
                   MPI_INT, grid->col_world);
 //
 //    cout<<" rank "<<grid->rank_in_col<<"  ID exchange transfer completed "<<total_receive_count<<endl;
