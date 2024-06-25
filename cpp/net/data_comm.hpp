@@ -442,6 +442,9 @@ public:
     for (int i = 0; i < grid->col_world_size; i++) {
       (*sendcounts)[i]=0;
       (*receive_counts_cyclic)[i]=0;
+      (*rdispls_cyclic)[i]=0;
+      (*receivecounts)[i]=0;
+      (*sdispls)[i]=0
     }
 
   }
