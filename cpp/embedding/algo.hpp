@@ -740,11 +740,11 @@ public:
 
         int numRows = row_offsets.size() - 1;
 
-        std::vector<int>& transpose_row_offsets = csr_handle_transpose->rowStart;
-        std::vector<int>& transpose_col_indices =  csr_handle_transpose->col_idx;
-        std::vector<float>& transpose_values = csr_handle_transpose->values;
-
-        int transNumRows = transpose_row_offsets.size() - 1;
+//        std::vector<int>& transpose_row_offsets = csr_handle_transpose->rowStart;
+//        std::vector<int>& transpose_col_indices =  csr_handle_transpose->col_idx;
+//        std::vector<float>& transpose_values = csr_handle_transpose->values;
+//
+//        int transNumRows = transpose_row_offsets.size() - 1;
 
         // Prepare triplet list to avoid locking overhead
         std::vector<Eigen::Triplet<float>> triplets;
@@ -761,32 +761,32 @@ public:
         csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
         csrMatrix.makeCompressed();
 
-        std::vector<Eigen::Triplet<float>> triplets_transpose;
-        triplets.reserve(transpose_values.size());
-        for (int i = 0; i < transNumRows; ++i) {
-          int start = transpose_row_offsets[i];
-          int end = transpose_row_offsets[i + 1];
-          for (int j = start; j < end; ++j) {
-            triplets.emplace_back(transpose_col_indices[j],i, transpose_values[j]);
-          }
-        }
-
-        Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
-        csrTranspose.setFromTriplets(triplets.begin(), triplets.end());
-        csrTranspose.makeCompressed();
+//        std::vector<Eigen::Triplet<float>> triplets_transpose;
+//        triplets.reserve(transpose_values.size());
+//        for (int i = 0; i < transNumRows; ++i) {
+//          int start = transpose_row_offsets[i];
+//          int end = transpose_row_offsets[i + 1];
+//          for (int j = start; j < end; ++j) {
+//            triplets.emplace_back(transpose_col_indices[j],i, transpose_values[j]);
+//          }
+//        }
+//
+//        Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
+//        csrTranspose.setFromTriplets(triplets.begin(), triplets.end());
+//        csrTranspose.makeCompressed();
 
 //         Construct sparse matrix from triplets
 
 
-//        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
-//        for (int i = 0; i < numRows; ++i) {
-//          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
-//            csrMatrix.coeffRef(i, col_indices[j]) = values[j];
-//          }
-//        }
+        Eigen::SparseMatrix<float> csrMatrix(numRows, numRows);
+        for (int i = 0; i < numRows; ++i) {
+          for (int j = row_offsets[i]; j < row_offsets[i + 1]; ++j) {
+            csrMatrix.coeffRef(i, col_indices[j]) = values[j];
+          }
+        }
 
         // Transpose the CSR matrix
-//        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
+        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
 
         // Multiply csrMatrix with its transpose
         Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTranspose);
