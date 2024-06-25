@@ -323,17 +323,15 @@ public:
     for(int proc=0;proc<grid->col_world_size;proc++){
       total_send_count += (sendcounts)[proc];
     }
-    cout<<" rank "<<grid->rank_in_col<<" send count "<<total_send_count<<endl;
+
     unique_ptr<std::vector<SPT>> sendbuf_ids = unique_ptr<std::vector<SPT>>(new vector<SPT>());
 
     sendbuf_ids->resize(total_send_count);
 
     unique_ptr<std::vector<SPT>> receivebuf_ids = unique_ptr<std::vector<SPT>>(new vector<SPT>());
-    cout<<" rank "<<grid->rank_in_col<<" MPI_Alltoall started "<<endl;
+
     MPI_Alltoall((sendcounts).data(), 1, MPI_INT,(*receive_counts_cyclic.get()).data(),
                   1, MPI_INT,grid->col_world);
-
-    cout<<" rank "<<grid->rank_in_col<<" MPI_Alltoall completed "<<endl;
 
 
     for (int i = 0; i < grid->col_world_size; i++) {
@@ -347,7 +345,7 @@ public:
     }
 
     receivebuf_ids.get()->resize(total_receive_count);
-    cout<<" rank "<<grid->rank_in_col<<"  total receive count "<<total_receive_count<<endl;
+
     vector<int> current_offset(grid->col_world_size,0);
 
     #pragma  omp parallel for
@@ -375,7 +373,6 @@ public:
       }
     }
 
-    cout<<" rank "<<grid->rank_in_col<<"  ID exchange filling completed "<<total_receive_count<<endl;
 
     MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
                   MPI_INT, (*receivebuf_ids.get()).data(),
@@ -400,7 +397,6 @@ public:
       (*sendbuf_data)[j].value = val_arr;
     }
 
-    cout<<" rank "<<grid->rank_in_col<<"  ID send data completed "<<endl;
     auto t = start_clock();
     MPI_Alltoallv((*sendbuf_data).data(), (*receive_counts_cyclic.get()).data(), (*rdispls_cyclic.get()).data(),
                   DENSETUPLE, (*receivebuf_data.get()).data(),
@@ -409,11 +405,8 @@ public:
     stop_clock_and_add(t, "Embedding Communication Time");
     MPI_Request dumy;
 
-    cout<<" rank "<<grid->rank_in_col<<"  ID all to all data exchange completed  "<<endl;
     this->populate_cache(sendbuf_data.get(),receivebuf_data.get(), &dumy, true, iteration, batch_id,true,false); // we should not do this
-    cout<<" rank "<<grid->rank_in_col<<"  populate cache completed  "<<endl;
 
-    //    delete[] sendbuf;
   }
 
 
