@@ -304,8 +304,8 @@ public:
 //                considering_batch_size, lr, prevCoordinates_ptr.get(), 1, true,
 //                0, true);
 
-           this->update_data_matrix_rowptr(
-                prevCoordinates_ptr.get(), j, batch_size);
+//           this->update_data_matrix_rowptr(
+//                prevCoordinates_ptr.get(), j, batch_size);
 
             for (int k = 0; k < batch_size; k++) {
               int IDIM = k * embedding_dim;
