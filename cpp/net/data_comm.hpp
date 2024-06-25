@@ -290,6 +290,8 @@ public:
   void transfer_negative_sampled_data(CSRLocal<SPT, DENT> *csr_block, int iteration, int batch_id) {
 
     CSRHandle<SPT,DENT>* data_handler = csr_block->handler.get();
+
+    vector<int> sendcounts(grid->col_word_size,0);
     #pragma  omp parallel for
     for(int proc=0;proc<grid->col_world_size;proc++){
         int start_index = proc * this->sp_local_receiver->proc_row_width;
@@ -304,7 +306,7 @@ public:
 
             int target_proc = id/this->sp_local_receiver->proc_row_width;
             if (target_proc != grid->rank_in_col) {
-              (*sendcounts)[target_proc]++;
+              sendcounts[target_proc]++;
             }
           }
         }
@@ -315,7 +317,7 @@ public:
     int total_send_count=0;
     int total_receive_count=0;
     for(int proc=0;proc<grid->col_world_size;proc++){
-      total_send_count += (*sendcounts)[proc];
+      total_send_count += (sendcounts)[proc];
     }
     cout<<" rank "<<grid->rank_in_col<<" send count "<<total_send_count<<endl;
     unique_ptr<std::vector<SPT>> sendbuf_ids = unique_ptr<std::vector<SPT>>(new vector<SPT>());
@@ -326,7 +328,7 @@ public:
         unique_ptr<std::vector<SPT>>(
             new vector<SPT>());
     cout<<" rank "<<grid->rank_in_col<<" MPI_Alltoall started "<<endl;
-    MPI_Alltoall((*sendcounts).data(), 1, MPI_INT,(*receive_counts_cyclic).data(),
+    MPI_Alltoall((sendcounts).data(), 1, MPI_INT,(*receive_counts_cyclic).data(),
                   1, MPI_INT,grid->col_world);
 
     cout<<" rank "<<grid->rank_in_col<<" MPI_Alltoall completed "<<endl;
@@ -335,7 +337,7 @@ public:
     (*rdispls_cyclic)[0] = 0;
     for (int i = 0; i < grid->col_world_size; i++) {
 
-      (*sdispls)[i] = (i > 0) ? (*sdispls)[i - 1] + (*sendcounts)[i - 1]
+      (*sdispls)[i] = (i > 0) ? (*sdispls)[i - 1] + (sendcounts)[i - 1]
                               : (*sdispls)[i];
       (*rdispls_cyclic)[i] =
           (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1]
@@ -371,7 +373,7 @@ public:
 
     cout<<" rank "<<grid->rank_in_col<<"  ID exchange filling completed "<<total_receive_count<<endl;
 
-    MPI_Alltoallv((*sendbuf_ids).data(), (*sendcounts).data(), (*sdispls).data(),
+    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (*sdispls).data(),
                   MPI_INT, (*receivebuf_ids.get()).data(),
                   (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
                   MPI_INT, grid->col_world);
@@ -399,7 +401,7 @@ public:
     auto t = start_clock();
     MPI_Alltoallv((*sendbuf_data).data(), (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
                   DENSETUPLE, (*receivebuf_data.get()).data(),
-                  (*sendcounts).data(), (*sdispls).data(),
+                  (sendcounts).data(), (*sdispls).data(),
                   DENSETUPLE, grid->col_world);
     stop_clock_and_add(t, "Embedding Communication Time");
     MPI_Request dumy;
