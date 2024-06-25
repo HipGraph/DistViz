@@ -366,6 +366,7 @@ public:
             if (target_proc != grid->rank_in_col) {
               int index = (sdispls)[target_proc] + current_offset[target_proc];
               (*sendbuf_ids)[index] = id;
+              #pragma omp atomic
               current_offset[target_proc]++;
             }
           }
