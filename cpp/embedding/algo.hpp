@@ -193,14 +193,11 @@ public:
     cout<<" rank "<<grid->rank_in_col<<" total tuples "<<total_tuples<<endl;
 
     auto t = start_clock();
-//     #pragma omp parallel for schedule(static)
-    vector<int> proc_count(grid->col_world_size,0);
+    #pragma omp parallel for schedule(static)
     for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
       (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
       for(uint64_t j =0;j < max_nnz ; j++) {
         (*negative_samples_ids)[i][j]=distribution(gen);
-        int t_rank = (*negative_samples_ids)[i][j]/sp_local_receiver->proc_row_width;
-        proc_count[t_rank]++;
         Tuple<DENT> tuple;
         tuple.row = (*negative_samples_ids)[i][j] ;
         tuple.col= i;
@@ -209,9 +206,6 @@ public:
       }
     }
 
-    for(int i=0;i<proc_count.size();i++){
-      cout<<" rank "<<grid->rank_in_col<<" to rank "<< i<<" count "<<proc_count[i]<<endl;
-    }
 
     uint64_t  gRows = static_cast<uint64_t>(this->sp_local_receiver->gRows);
     uint64_t gCOls = static_cast<uint64_t>(this->sp_local_receiver->proc_row_width);
@@ -264,6 +258,9 @@ public:
 //        }
 
         // One process computations without MPI operations
+        generate_negative_samples(negative_samples_ptr_count.get(),
+                                  csr_handle, i, j, batch_size,
+                                  considering_batch_size, seed, max_nnz);
         if (grid->col_world_size == 1) {
           for (int k = 0; k < batch_size; k++) {
             int IDIM = k * embedding_dim;
@@ -275,11 +272,6 @@ public:
           this->calc_t_dist_grad_rowptr(
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false);
-
-
-            generate_negative_samples(negative_samples_ptr_count.get(),
-                                      csr_handle, i, j, batch_size,
-                                      considering_batch_size, seed, max_nnz);
 
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),alpha, j, batch_size,
@@ -816,41 +808,7 @@ public:
       }
     }
 
-//    void apply_set_operations(CSRLocal<SPT, DENT>* csr_local, CSRLocal<SPT, DENT>* csr_transpose,cbool apply_set_operations, float set_op_mix_ratio,
-//                              std::vector<SPT>& row_offsets, std::vector<SPT>& col_indices,
-//                              std::vector<DENT>& values) {
-//      if (apply_set_operations) {
-//        int numRows = row_offsets.size() - 1;
-//
-//        unique_ptr<vector<DENT>> temp_values = make_unique<vector<DENT>>(values.size());
-//        CSRLocal<SPT, DENT>* csr_local = (sp_local_native)->csr_local_data.get();
-//        CSRLocal<SPT, DENT>* csr_transpose = (sp_local_sender)->csr_local_data.get();
-//        CSRHandle<SPT,DENT> * csr_handle_local = csr_local.get();
-//        CSRHandle<SPT,DENT> * csr_handle_transpose = csr_transpose.get();
-//
-//        auto source_start_index = 0;
-//        auto source_end_index =this->sp_local_receiver->proc_row_width;
-//        for(int i=source_start_index;i<source_end_index;i++){
-//          int nn = csr_handle_local->rowStart[i+1]- csr_handle_local->rowStart[i];
-//           SPT row_index = grid->rank_in_col * sp_local_native->proc_row_width + i;
-//          for(uint64_t j = static_cast<uint64_t>(csr_handle_local->rowStart[i]);
-//               j < static_cast<uint64_t>(csr_handle_local->rowStart[i + 1]); j++) {
-//            SPT column_index = csr_handle_local->col_index[j];
-//            SPT local_column_index = column_index - (grid->rank_in_col * sp_local_native->proc_row_width);
-//            for(uint64_t j = static_cast<uint64_t>(csr_transpose->rowStart[row_index]);
-//                 j < static_cast<uint64_t>(csr_transpose->rowStart[row_index + 1]); j++) {
-//              int col_idx = csr_transpose->col_idx[j];
-//              if (col_idx==local_column_index){
-//                values[]
-//              }
-//            }
-//          }
-//        }
-//
-//
-//
-//      }
-//    }
+
 
 
 };
