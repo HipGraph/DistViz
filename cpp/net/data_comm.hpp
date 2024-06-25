@@ -291,7 +291,7 @@ public:
 
     CSRHandle<SPT,DENT>* data_handler = csr_block->handler.get();
 
-    vector<int> sendcounts(grid->col_word_size,0);
+    vector<int> sendcounts(grid->col_world_size,0);
     #pragma  omp parallel for
     for(int proc=0;proc<grid->col_world_size;proc++){
         int start_index = proc * this->sp_local_receiver->proc_row_width;
