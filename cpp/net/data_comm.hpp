@@ -444,7 +444,7 @@ public:
       (*receive_counts_cyclic)[i]=0;
       (*rdispls_cyclic)[i]=0;
       (*receivecounts)[i]=0;
-      (*sdispls)[i]=0
+      (*sdispls)[i]=0;
     }
 
   }
