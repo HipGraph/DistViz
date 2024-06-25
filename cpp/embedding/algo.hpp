@@ -513,10 +513,9 @@ public:
 
     int row_base_index = batch_id * batch_size;
 
-//    #pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
-      cout<<" iteration "<<iteration<<" count "<<(*negative_samples_ptr_count)[row_id]<<endl;
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
           uint64_t global_col_id_int = ((*negative_samples_id)[row_id][k] +iteration)%(this->sp_local_receiver)->gCols;
