@@ -405,7 +405,7 @@ public:
     MPI_Request dumy;
 
     cout<<" rank "<<grid->rank_in_col<<"  ID all to all data exchange completed  "<<endl;
-    this->populate_cache(sendbuf_data.get(),receivebuf_data.get(), &dumy, true, iteration, batch_id,true); // we should not do this
+    this->populate_cache(sendbuf_data.get(),receivebuf_data.get(), &dumy, true, iteration, batch_id,true,false); // we should not do this
     cout<<" rank "<<grid->rank_in_col<<"  populate cache completed  "<<endl;
 
     //    delete[] sendbuf;
@@ -415,7 +415,7 @@ public:
   inline void populate_cache(std::vector<DataTuple<DENT, embedding_dim>> *sendbuf,
                              std::vector<DataTuple<DENT, embedding_dim>> *receivebuf,
                       MPI_Request *req, bool synchronous, int iteration,
-                      int batch_id, bool temp) {
+                      int batch_id, bool temp, bool clear_buff=true) {
     if (!synchronous) {
       MPI_Status status;
       auto t = start_clock();
@@ -432,10 +432,12 @@ public:
         (this->dense_local)->insert_cache(i, t.col, batch_id, iteration, t.value, temp);
       }
     }
-    receivebuf->clear();
-    receivebuf->shrink_to_fit();
-    sendbuf->clear();
-    sendbuf->shrink_to_fit();
+    if(clear_buff) {
+      receivebuf->clear();
+      receivebuf->shrink_to_fit();
+      sendbuf->clear();
+      sendbuf->shrink_to_fit();
+    }
 
 //    (*sendcounts).clear();
 //    (*receive_counts_cyclic).clear();
