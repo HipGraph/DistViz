@@ -373,10 +373,10 @@ public:
 
     cout<<" rank "<<grid->rank_in_col<<"  ID exchange filling completed "<<total_receive_count<<endl;
 
-    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
-                  MPI_INT, (*receivebuf_ids.get()).data(),
-                  (receive_counts_cyclic).data(), (rdispls_cyclic).data(),
-                  MPI_INT, grid->col_world);
+//    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
+//                  MPI_INT, (*receivebuf_ids.get()).data(),
+//                  (receive_counts_cyclic).data(), (rdispls_cyclic).data(),
+//                  MPI_INT, grid->col_world);
 //
 //    cout<<" rank "<<grid->rank_in_col<<"  ID exchange transfer completed "<<total_receive_count<<endl;
 //    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
