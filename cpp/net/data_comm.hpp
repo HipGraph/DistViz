@@ -439,7 +439,7 @@ public:
 
     (*sendcounts).clear();
     (*receive_counts_cyclic).clear();
-    for (int i = o; i < grid->col_world_size; i++) {
+    for (int i = 0; i < grid->col_world_size; i++) {
       (*sendcounts)[i]=0;
       (*receive_counts_cyclic)[i]=0;
     }
