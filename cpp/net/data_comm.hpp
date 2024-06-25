@@ -343,7 +343,7 @@ public:
       (*rdispls_cyclic)[i] =
           (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1]
                   : (*rdispls_cyclic)[i];
-      total_receive_count = total_receive_count + (receive_counts_cyclic)[i];
+      total_receive_count = total_receive_count + (*receive_counts_cyclic)[i];
     }
 
     receivebuf_ids.get()->resize(total_receive_count);
