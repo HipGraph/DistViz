@@ -348,35 +348,35 @@ public:
     receivebuf_ids.get()->resize(total_receive_count);
     cout<<" rank "<<grid->rank_in_col<<"  total receive count "<<total_receive_count<<endl;
 
-//    #pragma  omp parallel for
-//    for(int proc=0;proc<grid->col_world_size;proc++){
-//      if (proc != grid->rank_in_col) {
-//        int start_index = proc * this->sp_local_receiver->proc_row_width;
-//        int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
-//        int gRows = static_cast<int>(this->sp_local_receiver->gRows);
-//        if (proc == grid->col_world_size - 1) {
-//          end_index = min(end_index, gRows);
-//        }
-//
-//        for (int i = start_index; i < end_index; i++) {
-//          if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
-//            int id = (i+iteration)%this->sp_local_receiver->gRows;
-//            int target_proc = id/this->sp_local_receiver->proc_row_width;
-//            if (target_proc != grid->rank_in_col) {
-//              int index = (*sdispls)[target_proc] + (i - start_index);
-//              (*sendbuf_ids)[index] = id;
-//            }
-//          }
-//        }
-//      }
-//    }
-//
-//    cout<<" rank "<<grid->rank_in_col<<"  ID exchange filling completed "<<total_receive_count<<endl;
-//
-//    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (*sdispls).data(),
-//                  MPI_INT, (*receivebuf_ids.get()).data(),
-//                  (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
-//                  MPI_INT, grid->col_world);
+    #pragma  omp parallel for
+    for(int proc=0;proc<grid->col_world_size;proc++){
+      if (proc != grid->rank_in_col) {
+        int start_index = proc * this->sp_local_receiver->proc_row_width;
+        int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
+        int gRows = static_cast<int>(this->sp_local_receiver->gRows);
+        if (proc == grid->col_world_size - 1) {
+          end_index = min(end_index, gRows);
+        }
+
+        for (int i = start_index; i < end_index; i++) {
+          if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
+            int id = (i+iteration)%this->sp_local_receiver->gRows;
+            int target_proc = id/this->sp_local_receiver->proc_row_width;
+            if (target_proc != grid->rank_in_col) {
+              int index = (*sdispls)[target_proc] + (i - start_index);
+              (*sendbuf_ids)[index] = id;
+            }
+          }
+        }
+      }
+    }
+
+    cout<<" rank "<<grid->rank_in_col<<"  ID exchange filling completed "<<total_receive_count<<endl;
+
+    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (*sdispls).data(),
+                  MPI_INT, (*receivebuf_ids.get()).data(),
+                  (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
+                  MPI_INT, grid->col_world);
 //
 //    cout<<" rank "<<grid->rank_in_col<<"  ID exchange transfer completed "<<total_receive_count<<endl;
 //    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
