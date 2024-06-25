@@ -375,17 +375,17 @@ public:
 
     cout<<" rank "<<grid->rank_in_col<<"  ID exchange filling completed "<<total_receive_count<<endl;
 
-    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
-                  MPI_INT, (*receivebuf_ids.get()).data(),
-                  (receive_counts_cyclic).data(), (rdispls_cyclic).data(),
-                  MPI_INT, grid->col_world);
-
-    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
-        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
-    sendbuf_data->resize(total_receive_count);
-    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> receivebuf_data =
-        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
-    receivebuf_data->resize(total_send_count);
+//    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
+//                  MPI_INT, (*receivebuf_ids.get()).data(),
+//                  (receive_counts_cyclic).data(), (rdispls_cyclic).data(),
+//                  MPI_INT, grid->col_world);
+//
+//    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
+//        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
+//    sendbuf_data->resize(total_receive_count);
+//    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> receivebuf_data =
+//        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
+//    receivebuf_data->resize(total_send_count);
 
 
 //    for (int j = 0; j < (*receivebuf_ids).size(); j++) {
