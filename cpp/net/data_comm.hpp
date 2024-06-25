@@ -403,7 +403,7 @@ public:
 //                  DENSETUPLE, (*receivebuf_data.get()).data(),
 //                  (sendcounts).data(), (*sdispls).data(),
 //                  DENSETUPLE, grid->col_world);
-    stop_clock_and_add(t, "Embedding Communication Time");
+//    stop_clock_and_add(t, "Embedding Communication Time");
     MPI_Request dumy;
 
     cout<<" rank "<<grid->rank_in_col<<"  ID all to all data exchange completed  "<<endl;
