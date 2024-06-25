@@ -309,6 +309,7 @@ public:
 
             int target_proc = id/this->sp_local_receiver->proc_row_width;
             if (target_proc != grid->rank_in_col) {
+              #pragma omp atomic
               sendcounts[target_proc]++;
             }
           }
