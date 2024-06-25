@@ -375,37 +375,36 @@ public:
 
     cout<<" rank "<<grid->rank_in_col<<"  ID exchange filling completed "<<total_receive_count<<endl;
 
-//    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
-//                  MPI_INT, (*receivebuf_ids.get()).data(),
-//                  (receive_counts_cyclic).data(), (rdispls_cyclic).data(),
-//                  MPI_INT, grid->col_world);
-//
-//    cout<<" rank "<<grid->rank_in_col<<"  ID exchange transfer completed "<<total_receive_count<<endl;
-//    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
-//        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
-//    sendbuf_data->resize(total_receive_count);
-//    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> receivebuf_data =
-//        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
-//    receivebuf_data->resize(total_send_count);
-//
-//
-//    for (int j = 0; j < (*receivebuf_ids).size(); j++) {
-//      int local_key =
-//          (*receivebuf_ids)[j] -
-//          (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
-//      std::array<DENT, embedding_dim> val_arr =
-//          (this->dense_local)->fetch_local_data(local_key);
-//      (*sendbuf_data)[j].col = (*receivebuf_ids)[j];
-//      (*sendbuf_data)[j].value = val_arr;
-//    }
-//
-//    cout<<" rank "<<grid->rank_in_col<<"  ID send data completed "<<endl;
-//    auto t = start_clock();
-//    MPI_Alltoallv((*sendbuf_data).data(), (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
-//                  DENSETUPLE, (*receivebuf_data.get()).data(),
-//                  (sendcounts).data(), (*sdispls).data(),
-//                  DENSETUPLE, grid->col_world);
-//    stop_clock_and_add(t, "Embedding Communication Time");
+    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
+                  MPI_INT, (*receivebuf_ids.get()).data(),
+                  (receive_counts_cyclic).data(), (rdispls_cyclic).data(),
+                  MPI_INT, grid->col_world);
+
+    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
+        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
+    sendbuf_data->resize(total_receive_count);
+    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> receivebuf_data =
+        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
+    receivebuf_data->resize(total_send_count);
+
+
+    for (int j = 0; j < (*receivebuf_ids).size(); j++) {
+      int local_key =
+          (*receivebuf_ids)[j] -
+          (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
+      std::array<DENT, embedding_dim> val_arr =
+          (this->dense_local)->fetch_local_data(local_key);
+      (*sendbuf_data)[j].col = (*receivebuf_ids)[j];
+      (*sendbuf_data)[j].value = val_arr;
+    }
+
+    cout<<" rank "<<grid->rank_in_col<<"  ID send data completed "<<endl;
+    auto t = start_clock();
+    MPI_Alltoallv((*sendbuf_data).data(), (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
+                  DENSETUPLE, (*receivebuf_data.get()).data(),
+                  (sendcounts).data(), (*sdispls).data(),
+                  DENSETUPLE, grid->col_world);
+    stop_clock_and_add(t, "Embedding Communication Time");
     MPI_Request dumy;
 
     cout<<" rank "<<grid->rank_in_col<<"  ID all to all data exchange completed  "<<endl;
