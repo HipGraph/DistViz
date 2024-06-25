@@ -347,6 +347,7 @@ public:
 
     receivebuf_ids.get()->resize(total_receive_count);
     cout<<" rank "<<grid->rank_in_col<<"  total receive count "<<total_receive_count<<endl;
+    vector<int> current_offset(grid->col_world_size,0);
 
     #pragma  omp parallel for
     for(int proc=0;proc<grid->col_world_size;proc++){
@@ -357,15 +358,15 @@ public:
         if (proc == grid->col_world_size - 1) {
           end_index = min(end_index, gRows);
         }
-        int count=0;
+
         for (int i = start_index; i < end_index; i++) {
           if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
             int id = (i+iteration)%this->sp_local_receiver->gRows;
             int target_proc = id/this->sp_local_receiver->proc_row_width;
             if (target_proc != grid->rank_in_col) {
-              int index = (sdispls)[target_proc] + count;
+              int index = (sdispls)[target_proc] + current_offset[target_proc];
               (*sendbuf_ids)[index] = id;
-              count++;
+              current_offset[target_proc]++;
             }
           }
         }
