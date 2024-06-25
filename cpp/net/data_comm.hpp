@@ -357,14 +357,15 @@ public:
         if (proc == grid->col_world_size - 1) {
           end_index = min(end_index, gRows);
         }
-
+        int count=0;
         for (int i = start_index; i < end_index; i++) {
           if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
             int id = (i+iteration)%this->sp_local_receiver->gRows;
             int target_proc = id/this->sp_local_receiver->proc_row_width;
             if (target_proc != grid->rank_in_col) {
-              int index = (sdispls)[target_proc] + (i - start_index);
-//              (*sendbuf_ids)[index] = id;
+              int index = (sdispls)[target_proc] + count;
+              (*sendbuf_ids)[index] = id;
+              count++;
             }
           }
         }
