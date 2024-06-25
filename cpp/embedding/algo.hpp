@@ -193,7 +193,7 @@ public:
     cout<<" rank "<<grid->rank_in_col<<" total tuples "<<total_tuples<<endl;
 
     auto t = start_clock();
-    #pragma omp parallel for schedule(static)
+//    #pragma omp parallel for schedule(static)
     for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
       (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
       for(uint64_t j =0;j < max_nnz ; j++) {
@@ -235,7 +235,7 @@ public:
         if (i>0 and i%ns_generation_skip_factor==0){
           negative_tuples = make_unique<vector<Tuple<DENT>>>(total_tuples);
           std::mt19937_64 gen1(rd());
-          #pragma omp parallel for schedule(static)
+//          #pragma omp parallel for schedule(static)
           for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
             (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
             for(uint64_t j =0;j < max_nnz ; j++) {
@@ -287,13 +287,13 @@ public:
           CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
           full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i, j);
           this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
-                                          negative_samples_ptr_count.get(),lr, j, batch_size,
+                                          negative_samples_ptr_count.get(),alpha, j, batch_size,
                                           considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
             this->execute_pull_model_computations(
                 sendbuf_ptr.get(), update_ptr.get(), i, j,
                 this->data_comm_cache[j].get(), csr_block, batch_size,
-                considering_batch_size, lr, prevCoordinates_ptr.get(), 1, true,
+                considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
                 0, true);
 
            this->update_data_matrix_rowptr(
@@ -305,6 +305,7 @@ public:
                 (*prevCoordinates_ptr)[IDIM + d] = 0;
               }
             }
+            alpha = lr * (1.0 - (float(i) / float(iterations)));
         }
       }
     }
@@ -512,9 +513,10 @@ public:
 
     int row_base_index = batch_id * batch_size;
 
-    #pragma omp parallel for schedule(static)
+//    #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
+      cout<<" iteration "<<iteration<<" count "<<(*negative_samples_ptr_count)[row_id]<<endl;
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
           DENT forceDiff[embedding_dim];
           uint64_t global_col_id_int = ((*negative_samples_id)[row_id][k] +iteration)%(this->sp_local_receiver)->gCols;
