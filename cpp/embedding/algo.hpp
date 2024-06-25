@@ -294,18 +294,18 @@ public:
           // These operations are for more than one processes.
           CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
           full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i, j);
-//          this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
-//                                          negative_samples_ptr_count.get(),lr, j, batch_size,
-//                                          considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
-//
-//            this->execute_pull_model_computations(
-//                sendbuf_ptr.get(), update_ptr.get(), i, j,
-//                this->data_comm_cache[j].get(), csr_block, batch_size,
-//                considering_batch_size, lr, prevCoordinates_ptr.get(), 1, true,
-//                0, true);
+          this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
+                                          negative_samples_ptr_count.get(),lr, j, batch_size,
+                                          considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
-//           this->update_data_matrix_rowptr(
-//                prevCoordinates_ptr.get(), j, batch_size);
+            this->execute_pull_model_computations(
+                sendbuf_ptr.get(), update_ptr.get(), i, j,
+                this->data_comm_cache[j].get(), csr_block, batch_size,
+                considering_batch_size, lr, prevCoordinates_ptr.get(), 1, true,
+                0, true);
+
+           this->update_data_matrix_rowptr(
+                prevCoordinates_ptr.get(), j, batch_size);
 
             for (int k = 0; k < batch_size; k++) {
               int IDIM = k * embedding_dim;
