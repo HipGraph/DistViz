@@ -773,9 +773,9 @@ public:
           }
         }
 //
-//        Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
-//        csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
-//        csrTranspose.makeCompressed();
+        Eigen::SparseMatrix<float> csrTranspose_og(numRows,sp_local_receiver->gRows);
+        csrTranspose_og.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
+        csrTranspose_og.makeCompressed();
 
 //         Construct sparse matrix from triplets
 
@@ -783,8 +783,14 @@ public:
         // Transpose the CSR matrix
         Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
 
+         bool res = csrTranspose_og.isApprox(csrTranspose);
+         cout<<" matrices are identical"<<res<<endl;
+
+
         // Multiply csrMatrix with its transpose
         Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTranspose);
+
+
 
         // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
         Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTranspose - prodMatrix;
