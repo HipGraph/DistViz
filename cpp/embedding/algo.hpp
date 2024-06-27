@@ -764,17 +764,17 @@ public:
         csrMatrix.makeCompressed();
 
         std::vector<Eigen::Triplet<float>> triplets_transpose;
-        triplets.reserve(transpose_values.size());
+        triplets_transpose.reserve(transpose_values.size());
         for (int i = 0; i < transNumRows; ++i) {
           int start = transpose_row_offsets[i];
           int end = transpose_row_offsets[i + 1];
           for (int j = start; j < end; ++j) {
-            triplets.emplace_back(transpose_col_indices[j],i, transpose_values[j]);
+            triplets_transpose.emplace_back(transpose_col_indices[j],i, transpose_values[j]);
           }
         }
 //
         Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
-        csrTranspose.setFromTriplets(triplets.begin(), triplets.end());
+        csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
         csrTranspose.makeCompressed();
 
 //         Construct sparse matrix from triplets
