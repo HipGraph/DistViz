@@ -257,10 +257,7 @@ public:
           }
         }
 
-        // One process computations without MPI operations
-        generate_negative_samples(negative_samples_ptr_count.get(),
-                                  csr_handle, i, j, batch_size,
-                                  considering_batch_size, seed, max_nnz);
+
         if (grid->col_world_size == 1) {
           for (int k = 0; k < batch_size; k++) {
             int IDIM = k * embedding_dim;
@@ -272,6 +269,11 @@ public:
           this->calc_t_dist_grad_rowptr(
               csr_block, prevCoordinates_ptr.get(), alpha, i,j, batch_size,
               considering_batch_size, true, false, 0, 0, false);
+
+          // One process computations without MPI operations
+          generate_negative_samples(negative_samples_ptr_count.get(),
+                                    csr_handle, i, j, batch_size,
+                                    considering_batch_size, seed, max_nnz);
 
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),alpha, j, batch_size,
