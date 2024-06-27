@@ -410,6 +410,98 @@ public:
   }
 
 
+  inline void transfer_and_update_transpose(CSRLocal<SPT, DENT>* csr_local,CSRLocal<SPT, DENT>* csr_transpose, Eigen::SparseMatrix<float>& csrTranspose_ref){
+    vector<int> send_counts(grid->col_world_size,0);
+    vector<int> receive_counts(grid->col_world_size,0);
+
+    vector<int> s_displs(grid->col_world_size,0);
+    vector<int> r_displs(grid->col_world_size,0);
+
+    CSRHandle<SPT,DENT> * csr_handle_local = csr_local->handler.get();
+    CSRHandle<SPT,DENT> * csr_handle_transpose = csr_transpose->handler.get();
+
+    std::vector<SPT>& row_offsets = csr_handle_local->rowStart;
+    std::vector<SPT>& col_indices =  csr_handle_local->col_idx;
+    std::vector<DENT>& values = csr_handle_local->values;
+
+    std::vector<SPT>& transpose_row_offsets = csr_handle_transpose->rowStart;
+    std::vector<SPT>& transpose_col_indices =  csr_handle_transpose->col_idx;
+    std::vector<DENT>& transpose_values = csr_handle_transpose->values;
+
+
+    int numRows = row_offsets.size()-1;
+    int total_send_count=0;
+    for(int i=0;i<numRows;i++){
+      for(int j=row_offsets[i];j<row_offsets[i+1];j++){
+          SPT column_id = col_indices[j];
+          int target_rank = column_id/(this->sp_local_receiver)->proc_row_width;
+          send_counts[target_rank]++;
+          total_send_count++;
+      }
+    }
+
+    int total_receive_count=0;
+    for(int proc=0;proc<grid->col_world_size;proc++){
+      int start_row_index = grid->rank_in_col*(this->sp_local_receiver)->proc_row_width;
+      int end_row_index = (grid->rank_in_col+1)*(this->sp_local_receiver)->proc_row_width;
+       if (grid->rank_in_col == (grid->col_world_size-1)){
+        end_row_index = (this->sp_local_receiver)->gRows;
+      }
+      receive_counts[proc]=transpose_row_offsets[end_row_index]-transpose_row_offsets[start_row_index];
+      total_receive_count+=receive_counts[proc];
+    }
+
+    unique_ptr<vector<DataTuple<DENT, embedding_dim>>> send_value_ptr = make_unique<vector<DataTuple<DENT, embedding_dim>>>(total_send_count);
+    unique_ptr<vector<DataTuple<DENT, embedding_dim>>> receive_value_ptr = make_unique<vector<DataTuple<DENT, embedding_dim>>>(total_receive_count);
+
+    vector<int> s_displs(grid->col_world_size,0);
+    vector<int> r_displs(grid->col_world_size,0);
+    for(int proc=0;proc<grid->col_world_size;proc++){
+      s_displs[proc]= proc>0?(s_displs[proc-1]+sendcounts[proc-1])+s_displs[proc];
+      r_displs[proc]= proc>0?(r_displs[proc-1]+receive_counts[proc-1])+r_displs[proc];
+    }
+
+    vector<int> offsets(grid->col_world_size,0);
+    for(int i=0;i<numRows;i++){
+      for(int j=row_offsets[i];j<row_offsets[i+1];j++){
+        SPT column_id = col_indices[j];
+        int target_rank = column_id/(this->sp_local_receiver)->proc_row_width;
+        int index =  offsets[target_rank] + s_displs[target_rank];
+        (*send_value_ptr)[index].value = values[j];
+        (*send_value_ptr)[index].col = i;
+        (*send_value_ptr)[index].row = column_id;
+        offsets[target_rank]++;
+      }
+    }
+
+    MPI_Alltoallv((*send_value_ptr).data(), (send_counts).data(), (s_displs).data(),
+                  DENSETUPLE, (*receive_value_ptr.get()).data(),
+                  (receive_counts).data(), (r_displs).data(),
+                  DENSETUPLE, grid->col_world);
+
+    std::vector<Eigen::Triplet<float>> triplets_transpose;
+    triplets_transpose.reserve(transpose_values.size());
+
+    for(int i=0;i<total_receive_count;i++) {
+      triplets_transpose.emplace_back(transpose_col_indices[j],i, transpose_values[j]);
+    }
+    for (int i = 0; i < transNumRows; ++i) {
+      int start = transpose_row_offsets[i];
+      int end = transpose_row_offsets[i + 1];
+      for (int j = start; j < end; ++j) {
+        triplets_transpose.emplace_back((*receive_value_ptr)[j].row,(*receive_value_ptr)[j].col, (*receive_value_ptr)[j].value);
+      }
+    }
+    //
+    Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
+    csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
+    csrTranspose.makeCompressed();
+
+    csrTranspose_ref = csrTranspose;
+
+  }
+
+
   inline void populate_cache(std::vector<DataTuple<DENT, embedding_dim>> *sendbuf,
                              std::vector<DataTuple<DENT, embedding_dim>> *receivebuf,
                       MPI_Request *req, bool synchronous, int iteration,

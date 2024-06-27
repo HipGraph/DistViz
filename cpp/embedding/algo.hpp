@@ -727,7 +727,7 @@ public:
     }
   }
 
-    void apply_set_operations(bool apply_set_operations, float set_op_mix_ratio) {
+    void apply_set_operations(bool apply_set_operations, float set_op_mix_ratio, DataComm<SPT, DENT, embedding_dim>* data_comm) {
       if (apply_set_operations) {
 
 
@@ -772,28 +772,33 @@ public:
             triplets_transpose.emplace_back(transpose_col_indices[j],i, transpose_values[j]);
           }
         }
+
+        Eigen::SparseMatrix<float> csrTransposeMatrix;
 //
-        Eigen::SparseMatrix<float> csrTranspose_og(numRows,sp_local_receiver->gRows);
-        csrTranspose_og.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
-        csrTranspose_og.makeCompressed();
+        if (grid->col_world_size > 1){
+
+          data_comm->transfer_and_update_transpose(csr_local, csr_transpose,csrTransposeMatrix);
+        }else {
+          csrTransposeMatrix = csrMatrix.transpose();
+        }
+
 
 //         Construct sparse matrix from triplets
 
 
         // Transpose the CSR matrix
-        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
 
-         bool res = csrTranspose_og.isApprox(csrTranspose);
-         cout<<" matrices are identical"<<res<<endl;
+
+
 
 
         // Multiply csrMatrix with its transpose
-        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTranspose);
+        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
 
 
 
         // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
-        Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTranspose - prodMatrix;
+        Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
 //        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
 
         int rows = tempMatrix.rows();
