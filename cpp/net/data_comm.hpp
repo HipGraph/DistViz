@@ -454,11 +454,10 @@ public:
     unique_ptr<vector<DataTuple<DENT, embedding_dim>>> send_value_ptr = make_unique<vector<DataTuple<DENT, embedding_dim>>>(total_send_count);
     unique_ptr<vector<DataTuple<DENT, embedding_dim>>> receive_value_ptr = make_unique<vector<DataTuple<DENT, embedding_dim>>>(total_receive_count);
 
-    vector<int> s_displs(grid->col_world_size,0);
-    vector<int> r_displs(grid->col_world_size,0);
+
     for(int proc=0;proc<grid->col_world_size;proc++){
-      s_displs[proc]= proc>0?(s_displs[proc-1]+sendcounts[proc-1])+s_displs[proc];
-      r_displs[proc]= proc>0?(r_displs[proc-1]+receive_counts[proc-1])+r_displs[proc];
+      s_displs[proc]= proc>0?(s_displs[proc-1]+sendcounts[proc-1]):s_displs[proc];
+      r_displs[proc]= proc>0?(r_displs[proc-1]+receive_counts[proc-1]):r_displs[proc];
     }
 
     vector<int> offsets(grid->col_world_size,0);
@@ -483,15 +482,9 @@ public:
     triplets_transpose.reserve(transpose_values.size());
 
     for(int i=0;i<total_receive_count;i++) {
-      triplets_transpose.emplace_back(transpose_col_indices[j],i, transpose_values[j]);
+      triplets_transpose.emplace_back((*receive_value_ptr)[i].row,(*receive_value_ptr)[i].col, (*receive_value_ptr)[i].value);
     }
-    for (int i = 0; i < transNumRows; ++i) {
-      int start = transpose_row_offsets[i];
-      int end = transpose_row_offsets[i + 1];
-      for (int j = start; j < end; ++j) {
-        triplets_transpose.emplace_back((*receive_value_ptr)[j].row,(*receive_value_ptr)[j].col, (*receive_value_ptr)[j].value);
-      }
-    }
+
     //
     Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
     csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());

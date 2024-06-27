@@ -174,7 +174,7 @@ public:
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
       calculate_membership_strength(csr_handle);
       cout<<" calculate_membership_strength completed "<<endl;
-      apply_set_operations(true,1.0);
+      apply_set_operations(true,1.0, full_comm.get());
       cout<<" apply_set_operations completed "<<endl;
       make_epochs_per_sample(csr_handle,iterations,ns);
     }
