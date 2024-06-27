@@ -773,15 +773,15 @@ public:
           }
         }
 //
-        Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
-        csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
-        csrTranspose.makeCompressed();
+//        Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
+//        csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
+//        csrTranspose.makeCompressed();
 
 //         Construct sparse matrix from triplets
 
 
         // Transpose the CSR matrix
-//        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
+        Eigen::SparseMatrix<float> csrTranspose = csrMatrix.transpose();
 
         // Multiply csrMatrix with its transpose
         Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTranspose);
