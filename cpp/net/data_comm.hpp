@@ -451,8 +451,8 @@ public:
       total_receive_count+=receive_counts[proc];
     }
 
-    unique_ptr<vector<DataTuple<DENT, embedding_dim>>> send_value_ptr = make_unique<vector<DataTuple<DENT, embedding_dim>>>(total_send_count);
-    unique_ptr<vector<DataTuple<DENT, embedding_dim>>> receive_value_ptr = make_unique<vector<DataTuple<DENT, embedding_dim>>>(total_receive_count);
+    unique_ptr<vector<Tuple<SPT,DENT>>> send_value_ptr = make_unique<vector<Tuple<SPT,DENT>>>(total_send_count);
+    unique_ptr<vector<Tuple<SPT,DENT>>> receive_value_ptr = make_unique<vector<Tuple<SPT,DENT>>>(total_receive_count);
 
 
     for(int proc=0;proc<grid->col_world_size;proc++){
@@ -474,9 +474,9 @@ public:
     }
 
     MPI_Alltoallv((*send_value_ptr).data(), (send_counts).data(), (s_displs).data(),
-                  DENSETUPLE, (*receive_value_ptr.get()).data(),
+                  SPTUPLE, (*receive_value_ptr.get()).data(),
                   (receive_counts).data(), (r_displs).data(),
-                  DENSETUPLE, grid->col_world);
+                  SPTUPLE, grid->col_world);
 
     std::vector<Eigen::Triplet<float>> triplets_transpose;
     triplets_transpose.reserve(transpose_values.size());
