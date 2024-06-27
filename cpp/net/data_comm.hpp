@@ -451,8 +451,8 @@ public:
       total_receive_count+=receive_counts[proc];
     }
 
-    unique_ptr<vector<Tuple<SPT,DENT>>> send_value_ptr = make_unique<vector<Tuple<SPT,DENT>>>(total_send_count);
-    unique_ptr<vector<Tuple<SPT,DENT>>> receive_value_ptr = make_unique<vector<Tuple<SPT,DENT>>>(total_receive_count);
+    unique_ptr<vector<Tuple<SPT>>> send_value_ptr = make_unique<vector<Tuple<SPT>>>(total_send_count);
+    unique_ptr<vector<Tuple<SPT>>> receive_value_ptr = make_unique<vector<Tuple<SPT>>>(total_receive_count);
 
 
     for(int proc=0;proc<grid->col_world_size;proc++){
