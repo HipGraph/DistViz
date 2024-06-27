@@ -456,7 +456,7 @@ public:
 
 
     for(int proc=0;proc<grid->col_world_size;proc++){
-      s_displs[proc]= proc>0?(s_displs[proc-1]+sendcounts[proc-1]):s_displs[proc];
+      s_displs[proc]= proc>0?(s_displs[proc-1]+send_counts[proc-1]):s_displs[proc];
       r_displs[proc]= proc>0?(r_displs[proc-1]+receive_counts[proc-1]):r_displs[proc];
     }
 
