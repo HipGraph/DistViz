@@ -462,7 +462,7 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
 
   coords->resize(tups.getnnz());
 
-#pragma omp parallel for
+//#pragma omp parallel for
   for (int i = 0; i < tups.getnnz(); i++) {
     (*coords)[i].row = get<0>(values[i]);
     (*coords)[i].col = get<1>(values[i]);
@@ -470,6 +470,7 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
       (*coords)[i].value = get<1>(values[i]);
     } else {
       (*coords)[i].value = get<2>(values[i]);
+      cout<<(*coords)[i].row<<" "<<(*coords)[i].col<<" "<<(*coords)[i].value<<endl;
     }
   }
 

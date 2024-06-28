@@ -224,17 +224,11 @@ int main(int argc, char* argv[]) {
   stop_clock_and_add(t, "IO Time");
   t = start_clock();
   std::cout << "calling data loading completed " << rank << " " << std::endl;
-
-
-
   std::cout << "calling grow trees" << rank << " " << std::endl;
 
-  shared_ptr<vector<Tuple<float>>> knng_graph_ptr =
-      make_shared<vector<Tuple<float>>>();
-  shared_ptr<vector<Tuple<float>>> repulsive_graph_ptr =
-      make_shared<vector<Tuple<float>>>();
-  shared_ptr<vector<unordered_map<int64_t, float>>> repulsive_graph_map =
-      make_shared<vector<unordered_map<int64_t, float>>>();
+  shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
+  shared_ptr<vector<Tuple<float>>> repulsive_graph_ptr = make_shared<vector<Tuple<float>>>();
+  shared_ptr<vector<unordered_map<int64_t, float>>> repulsive_graph_map = make_shared<vector<unordered_map<int64_t, float>>>();
   Eigen::MatrixXf data_matrix = Eigen::MatrixXf();
   //   t = start_clock();
   if (skip_knng) {
