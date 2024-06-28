@@ -72,6 +72,8 @@ int main(int argc, char* argv[]) {
   int repulsive_force_scaling_factor=2;
   int ns_generation_skip_factor=100;
 
+  bool skip_knng=false;
+
   for (int p = 0; p < argc; p++) {
     if (strcmp(argv[p], "-input") == 0) {
       input_path = argv[p + 1];
@@ -191,6 +193,7 @@ int main(int argc, char* argv[]) {
   unique_ptr<ValueType2DVector<float>> data_matrix_ptr = make_unique<ValueType2DVector<float>>();
   ;
   Eigen::SparseMatrix<float,Eigen::RowMajor> sparse_matrix;
+
   auto t = start_clock();
   if (file_format == 0){
      FileReader<int,float>::ubyte_read(
@@ -208,6 +211,8 @@ int main(int argc, char* argv[]) {
         FileReader<uint64_t ,float>::read_fbin(input_path, data_matrix_ptr.get(), data_set_size, dimension,
                                                grid.get()->rank_in_col, grid.get()->col_world_size,file_offset);
       }
+    }else if (file_format==3){
+      skip_knng=true;
     }
 
 
@@ -234,7 +239,9 @@ int main(int argc, char* argv[]) {
   shared_ptr<vector<unordered_map<int64_t,float>>> repulsive_graph_map = make_shared<vector<unordered_map<int64_t,float>>>();
   Eigen::MatrixXf data_matrix =Eigen::MatrixXf();
 //   t = start_clock();
-   if (grid.get()->col_world_size==1){
+   if (skip_knng) {
+     FileReader<int,float>::parallel_read_MM(input_path, knng_graph_ptr.get(),false);
+   }else if (grid.get()->col_world_size==1){
 
      if (sparse_input) {
        knng_handler.get()->build_local_KNNG_Sparse(sparse_matrix,knng_graph_ptr.get(),nn,
