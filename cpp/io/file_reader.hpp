@@ -431,8 +431,6 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   MPI_File_close(&file);
 }
 
-
-template <typename VALUE_TYPE>
 void parallel_read_MM(string file_path, hipgraph::distviz::core::SpMat<VALUE_TYPE> *sp_mat,
                       bool copy_col_to_value) {
   MPI_Comm WORLD;
