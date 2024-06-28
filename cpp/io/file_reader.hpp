@@ -476,7 +476,7 @@ void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords,
   int rowIncrement = G->getnrow() / num_procs;
 
 #pragma omp parallel for
-  for (int i = 0; i < coords.size(); i++) {
+  for (int i = 0; i < (*coords).size(); i++) {
     (*coords)[i].row += rowIncrement * proc_rank;
   }
 }
