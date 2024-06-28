@@ -433,7 +433,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   MPI_File_close(&file);
 }
 
-void parallel_read_MM(string file_path, hipgraph::distviz::embedding::SpMat<INDEX_TYPE,VALUE_TYPE> *sp_mat,
+void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords,
                       bool copy_col_to_value) {
   MPI_Comm WORLD;
   MPI_Comm_dup(MPI_COMM_WORLD, &WORLD);
@@ -459,17 +459,17 @@ void parallel_read_MM(string file_path, hipgraph::distviz::embedding::SpMat<INDE
   SpTuples<int64_t, VALUE_TYPE> tups(G.get()->seq());
   tuple<int64_t, int64_t, VALUE_TYPE> *values = tups.tuples;
 
-  vector<Tuple<VALUE_TYPE>> coords;
-  coords.resize(tups.getnnz());
+
+  coords->resize(tups.getnnz());
 
 #pragma omp parallel for
   for (int i = 0; i < tups.getnnz(); i++) {
-    coords[i].row = get<0>(values[i]);
-    coords[i].col = get<1>(values[i]);
+    (*coords)[i].row = get<0>(values[i]);
+    (*coords)[i].col = get<1>(values[i]);
     if (copy_col_to_value) {
-      coords[i].value = get<1>(values[i]);
+      (*coords)[i].value = get<1>(values[i]);
     } else {
-      coords[i].value = get<2>(values[i]);
+      (*coords)[i].value = get<2>(values[i]);
     }
   }
 
@@ -477,13 +477,8 @@ void parallel_read_MM(string file_path, hipgraph::distviz::embedding::SpMat<INDE
 
 #pragma omp parallel for
   for (int i = 0; i < coords.size(); i++) {
-    coords[i].row += rowIncrement * proc_rank;
+    (*coords)[i].row += rowIncrement * proc_rank;
   }
-
-  sp_mat->coords = coords;
-  sp_mat->gRows = G.get()->getnrow();
-  sp_mat->gCols = G.get()->getncol();
-  sp_mat->gNNz = G.get()->getnnz();
 }
 
 
