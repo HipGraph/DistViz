@@ -766,16 +766,6 @@ public:
         csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
         csrMatrix.makeCompressed();
 
-        std::vector<Eigen::Triplet<float>> triplets_transpose;
-        triplets_transpose.reserve(transpose_values.size());
-        for (int i = 0; i < transNumRows; ++i) {
-          int start = transpose_row_offsets[i];
-          int end = transpose_row_offsets[i + 1];
-          for (int j = start; j < end; ++j) {
-            triplets_transpose.emplace_back(transpose_col_indices[j],i, transpose_values[j]);
-          }
-        }
-
         Eigen::SparseMatrix<float> csrTransposeMatrix;
 //
         if (grid->col_world_size > 1){
