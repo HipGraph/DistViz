@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
   int batch_size = 256;
   bool full_batch_training = true;
 
-  bool sparse_input =false;
+  bool sparse_input = false;
   float lr = 0.2;
   int nsamples = 5;
 
@@ -65,14 +65,14 @@ int main(int argc, char* argv[]) {
 
   int bytes_for_data_type = 4;
 
-  int file_offset=8;
+  int file_offset = 8;
 
-  bool skip_auto_tune=false;
+  bool skip_auto_tune = false;
 
-  int repulsive_force_scaling_factor=2;
-  int ns_generation_skip_factor=100;
+  int repulsive_force_scaling_factor = 2;
+  int ns_generation_skip_factor = 100;
 
-  bool skip_knng=false;
+  bool skip_knng = false;
 
   for (int p = 0; p < argc; p++) {
     if (strcmp(argv[p], "-input") == 0) {
@@ -129,16 +129,16 @@ int main(int argc, char* argv[]) {
       batch_size = atoi(argv[p + 1]);
     } else if (strcmp(argv[p], "-dropout-error-th") == 0) {
       drop_out_error_threshold = atof(argv[p + 1]);
-    }else if (strcmp(argv[p], "-file-offset") == 0) {
+    } else if (strcmp(argv[p], "-file-offset") == 0) {
       file_offset = atof(argv[p + 1]);
-    }else if (strcmp(argv[p], "-sparse-input") == 0) {
+    } else if (strcmp(argv[p], "-sparse-input") == 0) {
       sparse_input = atoi(argv[p + 1]) == 1 ? true : false;
-    }else if (strcmp(argv[p], "-skip-auto-tune") == 0) {
+    } else if (strcmp(argv[p], "-skip-auto-tune") == 0) {
       skip_auto_tune = atoi(argv[p + 1]) == 1 ? true : false;
-    }else if (strcmp(argv[p], "-ns_generation_skip_factor") == 0) {
-      ns_generation_skip_factor =  atof(argv[p + 1]);
-    }else if (strcmp(argv[p], "-repulsive_force_scaling_factor") == 0) {
-      repulsive_force_scaling_factor =  atof(argv[p + 1]);
+    } else if (strcmp(argv[p], "-ns_generation_skip_factor") == 0) {
+      ns_generation_skip_factor = atof(argv[p + 1]);
+    } else if (strcmp(argv[p], "-repulsive_force_scaling_factor") == 0) {
+      repulsive_force_scaling_factor = atof(argv[p + 1]);
     }
   }
 
@@ -178,8 +178,8 @@ int main(int argc, char* argv[]) {
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
   if (tree_depth == 0) {
-//    tree_depth = static_cast<int>(log2((data_set_size / size)) - 2);
-    tree_depth = log2(size)+2;
+    //    tree_depth = static_cast<int>(log2((data_set_size / size)) - 2);
+    tree_depth = log2(size) + 2;
     cout << " tree depth " << tree_depth << endl;
   }
 
@@ -190,87 +190,100 @@ int main(int argc, char* argv[]) {
   Eigen::VectorXi indices(nn), indices_exact(nn);
 
   std::cout << "calling data loading" << rank << " " << std::endl;
-  unique_ptr<ValueType2DVector<float>> data_matrix_ptr = make_unique<ValueType2DVector<float>>();
+  unique_ptr<ValueType2DVector<float>> data_matrix_ptr =
+      make_unique<ValueType2DVector<float>>();
   ;
-  Eigen::SparseMatrix<float,Eigen::RowMajor> sparse_matrix;
+  Eigen::SparseMatrix<float, Eigen::RowMajor> sparse_matrix;
 
   auto t = start_clock();
-  if (file_format == 0){
-     FileReader<int,float>::ubyte_read(
+  if (file_format == 0) {
+    FileReader<int, float>::ubyte_read(
         input_path, data_matrix_ptr.get(), data_set_size, dimension,
         grid.get()->rank_in_col, grid.get()->col_world_size);
-    }else if (file_format == 1) {
-      FileReader<int,float>::fvecs_read(input_path, data_matrix_ptr.get(), data_set_size, dimension,
-                                    grid.get()->rank_in_col, grid.get()->col_world_size);
-    }else if (file_format == 2) {
-      if (sparse_input){
-        sparse_matrix =  Eigen::SparseMatrix<float,Eigen::RowMajor>(dimension, data_set_size);
-        FileReader<uint64_t ,float>::read_fbin_sparse(input_path,sparse_matrix, data_set_size, dimension,
-                                               grid.get()->rank_in_col, grid.get()->col_world_size,file_offset);
-      }else {
-        FileReader<uint64_t ,float>::read_fbin(input_path, data_matrix_ptr.get(), data_set_size, dimension,
-                                               grid.get()->rank_in_col, grid.get()->col_world_size,file_offset);
-      }
-    }else if (file_format==3){
-      skip_knng=true;
+  } else if (file_format == 1) {
+    FileReader<int, float>::fvecs_read(
+        input_path, data_matrix_ptr.get(), data_set_size, dimension,
+        grid.get()->rank_in_col, grid.get()->col_world_size);
+  } else if (file_format == 2) {
+    if (sparse_input) {
+      sparse_matrix =
+          Eigen::SparseMatrix<float, Eigen::RowMajor>(dimension, data_set_size);
+      FileReader<uint64_t, float>::read_fbin_sparse(
+          input_path, sparse_matrix, data_set_size, dimension,
+          grid.get()->rank_in_col, grid.get()->col_world_size, file_offset);
+    } else {
+      FileReader<uint64_t, float>::read_fbin(
+          input_path, data_matrix_ptr.get(), data_set_size, dimension,
+          grid.get()->rank_in_col, grid.get()->col_world_size, file_offset);
     }
-
+  } else if (file_format == 3) {
+    skip_knng = true;
+  }
 
   MPI_Barrier(MPI_COMM_WORLD);
   stop_clock_and_add(t, "IO Time");
   t = start_clock();
-  std::cout << "calling data loading completed "<<rank<<" "<<std::endl;
+  std::cout << "calling data loading completed " << rank << " " << std::endl;
 
 
 
-  std::cout << "calling KNNGHandler rank "<<rank<<" with input matrix:  "
-            <<(sparse_input?sparse_matrix.rows():data_matrix_ptr->size())<<"*"<<(sparse_input?sparse_matrix.cols():(*data_matrix_ptr)[0].size())<<std::endl;
+  std::cout << "calling grow trees" << rank << " " << std::endl;
 
-  auto data_set_size_local =  sparse_input?sparse_matrix.rows():data_matrix_ptr->size();
-  auto knng_handler = unique_ptr<KNNGHandler<int ,float>>(new KNNGHandler<int,float>(ntrees,  tree_depth,  tree_depth_ratio,
-                                                                                       local_tree_offset,  data_set_size,
-                                                                                      data_set_size_local,
-                                                                                      dimension,  grid.get()));
+  shared_ptr<vector<Tuple<float>>> knng_graph_ptr =
+      make_shared<vector<Tuple<float>>>();
+  shared_ptr<vector<Tuple<float>>> repulsive_graph_ptr =
+      make_shared<vector<Tuple<float>>>();
+  shared_ptr<vector<unordered_map<int64_t, float>>> repulsive_graph_map =
+      make_shared<vector<unordered_map<int64_t, float>>>();
+  Eigen::MatrixXf data_matrix = Eigen::MatrixXf();
+  //   t = start_clock();
+  if (skip_knng) {
+    FileReader<int, float>::parallel_read_MM(input_path, knng_graph_ptr.get(),
+                                             false);
+  } else {
+    std::cout << "calling KNNGHandler rank " << rank << " with input matrix:  "
+              << (sparse_input ? sparse_matrix.rows() : data_matrix_ptr->size())
+              << "*"
+              << (sparse_input ? sparse_matrix.cols()
+                               : (*data_matrix_ptr)[0].size())
+              << std::endl;
 
-  std::cout << "calling grow trees"<< rank<< " "<<std::endl;
+    auto data_set_size_local =
+        sparse_input ? sparse_matrix.rows() : data_matrix_ptr->size();
+    auto knng_handler =
+        unique_ptr<KNNGHandler<int, float>>(new KNNGHandler<int, float>(
+            ntrees, tree_depth, tree_depth_ratio, local_tree_offset,
+            data_set_size, data_set_size_local, dimension, grid.get()));
 
-  shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
-  shared_ptr<vector<Tuple<float>>> repulsive_graph_ptr = make_shared<vector<Tuple<float>>>();
-  shared_ptr<vector<unordered_map<int64_t,float>>> repulsive_graph_map = make_shared<vector<unordered_map<int64_t,float>>>();
-  Eigen::MatrixXf data_matrix =Eigen::MatrixXf();
-//   t = start_clock();
-   if (skip_knng) {
-     FileReader<int,float>::parallel_read_MM(input_path, knng_graph_ptr.get(),false);
-   }else if (grid.get()->col_world_size==1){
+    if (grid.get()->col_world_size == 1) {
 
-     if (sparse_input) {
-       knng_handler.get()->build_local_KNNG_Sparse(sparse_matrix,knng_graph_ptr.get(),nn,
-                                            target_local_recall,
-                                            generate_knng_output,
-                                            output_path+"/knng.txt", true, density,skip_auto_tune);
-     } else {
+      if (sparse_input) {
+        knng_handler.get()->build_local_KNNG_Sparse(
+            sparse_matrix, knng_graph_ptr.get(), nn, target_local_recall,
+            generate_knng_output, output_path + "/knng.txt", true, density,
+            skip_auto_tune);
+      } else {
 
-       data_matrix = Eigen::MatrixXf((*data_matrix_ptr)[0].size(), (*data_matrix_ptr).size());
-       #pragma omp parallel for schedule (static)
-       for (int i = 0; i < (*data_matrix_ptr).size(); ++i) {
-         for (int j = 0; j < (*data_matrix_ptr)[0].size(); ++j) {
-           data_matrix(j, i) = (*data_matrix_ptr)[i][j];
-         }
-       }
-       knng_handler.get()->build_local_KNNG(data_matrix,knng_graph_ptr.get(),nn,
-                                            target_local_recall,
-                                            generate_knng_output,
-                                            output_path+"/knng.txt", true, density);
-     }
-
-
-   } else{
-     knng_handler.get()->build_distributed_KNNG(data_matrix_ptr.get(),knng_graph_ptr.get(),
-                                                density,use_locality_optimization,nn,
-                                                target_local_recall,
-                                                generate_knng_output,
-                                                output_path+"/knng.txt");
-   }
+        data_matrix = Eigen::MatrixXf((*data_matrix_ptr)[0].size(),
+                                      (*data_matrix_ptr).size());
+#pragma omp parallel for schedule(static)
+        for (int i = 0; i < (*data_matrix_ptr).size(); ++i) {
+          for (int j = 0; j < (*data_matrix_ptr)[0].size(); ++j) {
+            data_matrix(j, i) = (*data_matrix_ptr)[i][j];
+          }
+        }
+        knng_handler.get()->build_local_KNNG(
+            data_matrix, knng_graph_ptr.get(), nn, target_local_recall,
+            generate_knng_output, output_path + "/knng.txt", true, density);
+      }
+    }
+  else {
+    knng_handler.get()->build_distributed_KNNG(
+        data_matrix_ptr.get(), knng_graph_ptr.get(), density,
+        use_locality_optimization, nn, target_local_recall,
+        generate_knng_output, output_path + "/knng.txt");
+  }
+}
 
    std::cout << "calling grow trees completed"<< rank<< " "<<std::endl;
   stop_clock_and_add(t, "KNNG Total Time");
