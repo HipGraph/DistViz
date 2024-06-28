@@ -19,7 +19,7 @@ using namespace  hipgraph::distviz::embedding;
 using namespace combblas;
 namespace hipgraph::distviz::io {
 
-typedef SpParMat<int64_t, int, SpDCCols<int32_t, int>> PSpMat_s32p64_Int;
+typedef SpParMat<int64_t, float, SpDCCols<int64_t, float>> PSpMat_s32p64_Int;
 
 
 template <typename INDEX_TYPE,typename VALUE_TYPE>
