@@ -456,7 +456,9 @@ public:
 
 
     for(int proc=0;proc<grid->col_world_size;proc++){
+      cout<<" rank "<<grid->rank_in_col<<" sending "<<send_counts[proc]<<" to "<<proc<<endl;
       s_displs[proc]= proc>0?(s_displs[proc-1]+send_counts[proc-1]):s_displs[proc];
+      cout<<" rank "<<grid->rank_in_col<<" receiving "<<receive_counts[proc]<<" from "<<proc<<endl;
       r_displs[proc]= proc>0?(r_displs[proc-1]+receive_counts[proc-1]):r_displs[proc];
     }
 
