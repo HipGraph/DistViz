@@ -467,8 +467,8 @@ public:
         int target_rank = column_id/(this->sp_local_receiver)->proc_row_width;
         int index =  offsets[target_rank] + s_displs[target_rank];
         (*send_value_ptr)[index].value = values[j];
-        (*send_value_ptr)[index].col = i;
-        (*send_value_ptr)[index].row = column_id;
+        (*send_value_ptr)[index].col = i + grid->rank_in_col*(this->sp_local_receiver)->proc_row_width;
+        (*send_value_ptr)[index].row = column_id - grid->rank_in_col*(this->sp_local_receiver)->proc_row_width;
         offsets[target_rank]++;
       }
     }
