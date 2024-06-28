@@ -7,6 +7,7 @@
 #include <iostream>
 #include "../common/common.h"
 #include "../net/process_3D_grid.hpp"
+#include "CombBLAS/CombBLAS.h"
 
 
 
@@ -14,6 +15,10 @@ using namespace std;
 using namespace hipgraph::distviz::common;
 using namespace hipgraph::distviz::net;
 namespace hipgraph::distviz::io {
+
+typedef SpParMat<int64_t, int, SpDCCols<int32_t, int>> PSpMat_s32p64_Int;
+
+
 template <typename INDEX_TYPE,typename VALUE_TYPE>
 class FileReader {
 
@@ -423,6 +428,61 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
 
 //  fout.close();
   MPI_File_close(&file);
+}
+
+
+template <typename VALUE_TYPE>
+void parallel_read_MM(string file_path, hipgraph::distviz::core::SpMat<VALUE_TYPE> *sp_mat,
+                      bool copy_col_to_value) {
+  MPI_Comm WORLD;
+  MPI_Comm_dup(MPI_COMM_WORLD, &WORLD);
+
+  int proc_rank, num_procs;
+  MPI_Comm_rank(WORLD, &proc_rank);
+  MPI_Comm_size(WORLD, &num_procs);
+
+  shared_ptr<CommGrid> simpleGrid;
+  simpleGrid.reset(new CommGrid(WORLD, num_procs, 1));
+
+  unique_ptr<PSpMat_s32p64_Int> G =
+      unique_ptr<PSpMat_s32p64_Int>(new PSpMat_s32p64_Int(simpleGrid));
+
+  INDEX_TYPE nnz;
+
+  G.get()->ParallelReadMM(file_path, true, maximum<VALUE_TYPE>());
+
+  nnz = G.get()->getnnz();
+  if (proc_rank == 0) {
+    cout << "File reader read " << nnz << " nonzeros." << endl;
+  }
+  SpTuples<int64_t, VALUE_TYPE> tups(G.get()->seq());
+  tuple<int64_t, int64_t, VALUE_TYPE> *values = tups.tuples;
+
+  vector<Tuple<VALUE_TYPE>> coords;
+  coords.resize(tups.getnnz());
+
+#pragma omp parallel for
+  for (int i = 0; i < tups.getnnz(); i++) {
+    coords[i].row = get<0>(values[i]);
+    coords[i].col = get<1>(values[i]);
+    if (copy_col_to_value) {
+      coords[i].value = get<1>(values[i]);
+    } else {
+      coords[i].value = get<2>(values[i]);
+    }
+  }
+
+  int rowIncrement = G->getnrow() / num_procs;
+
+#pragma omp parallel for
+  for (int i = 0; i < coords.size(); i++) {
+    coords[i].row += rowIncrement * proc_rank;
+  }
+
+  sp_mat->coords = coords;
+  sp_mat->gRows = G.get()->getnrow();
+  sp_mat->gCols = G.get()->getncol();
+  sp_mat->gNNz = G.get()->getnnz();
 }
 
 

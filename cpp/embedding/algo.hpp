@@ -793,6 +793,9 @@ public:
         std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
         std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
 
+
+
+
       }
     }
 

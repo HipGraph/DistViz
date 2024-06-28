@@ -39,6 +39,9 @@ find_package(OpenMP REQUIRED)
 #include_directories($ENV{PETSC_DIR}/include $ENV{PETSC_ARCH}/include)
 #include_directories($ENV{SLEPC_DIR}/include $ENV{SLEPC_ARCH}/include)
 
+include_directories($ENV{COMBLAS_ROOT}/install/include)
+link_directories($ENV{COMBLAS_ROOT}/install/lib)
+
 message("CMAKE_BINARY_PATH ${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -93,6 +96,7 @@ target_link_libraries(distviz  disviz_lib)
 target_link_libraries(distviz mkl_intel_lp64 mkl_sequential mkl_core)
 target_link_libraries(distviz MPI::MPI_CXX)
 target_link_libraries(distviz OpenMP::OpenMP_CXX)
+target_link_libraries(distviz CombBLAS)
 #target_link_libraries(distviz petsc.so.3.21)
 #target_link_libraries(distviz slepc.so.3.21)
 #target_link_libraries(distviz  )
