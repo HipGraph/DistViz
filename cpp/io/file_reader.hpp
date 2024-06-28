@@ -431,7 +431,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   MPI_File_close(&file);
 }
 
-void parallel_read_MM(string file_path, hipgraph::distviz::embedding::SpMat<VALUE_TYPE> *sp_mat,
+void parallel_read_MM(string file_path, hipgraph::distviz::embedding::SpMat<INDEX_TYPE,VALUE_TYPE> *sp_mat,
                       bool copy_col_to_value) {
   MPI_Comm WORLD;
   MPI_Comm_dup(MPI_COMM_WORLD, &WORLD);
