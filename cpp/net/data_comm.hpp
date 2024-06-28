@@ -25,8 +25,8 @@ namespace hipgraph::distviz::net {
 template <typename SPT, typename DENT, size_t embedding_dim> class DataComm {
 
 private:
-  SpMat<SPT,DENT> *sp_local_receiver;
-  SpMat<SPT,DENT> *sp_local_sender;
+  hipgraph::distviz::common::SpMat<SPT,DENT> *sp_local_receiver;
+  hipgraph::distviz::common::SpMat<SPT,DENT> *sp_local_sender;
   DenseMat<SPT, DENT, embedding_dim> *dense_local;
   Process3DGrid *grid;
   shared_ptr<vector<int>> sdispls;
@@ -52,8 +52,8 @@ public:
   MPI_Request request = MPI_REQUEST_NULL;
 
 
-  DataComm(SpMat<SPT,DENT> *sp_local_receiver,
-           SpMat<SPT,DENT> *sp_local_sender,
+  DataComm(hipgraph::distviz::common::SpMat<SPT,DENT> *sp_local_receiver,
+           hipgraph::distviz::common::SpMat<SPT,DENT> *sp_local_sender,
            DenseMat<SPT, DENT, embedding_dim> *dense_local, Process3DGrid *grid,
            int batch_id, double alpha) {
     this->sp_local_receiver = sp_local_receiver;
