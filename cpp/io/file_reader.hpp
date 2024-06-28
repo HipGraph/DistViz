@@ -15,7 +15,7 @@
 using namespace std;
 using namespace hipgraph::distviz::common;
 using namespace hipgraph::distviz::net;
-using namespace  hipgraph::distviz::embedding
+using namespace  hipgraph::distviz::embedding;
 using namespace combblas;
 namespace hipgraph::distviz::io {
 
