@@ -442,9 +442,9 @@ public:
 
     int total_receive_count=0;
     for(int proc=0;proc<grid->col_world_size;proc++){
-      int start_row_index = grid->rank_in_col*(this->sp_local_receiver)->proc_row_width;
-      int end_row_index = (grid->rank_in_col+1)*(this->sp_local_receiver)->proc_row_width;
-       if (grid->rank_in_col == (grid->col_world_size-1)){
+      int start_row_index = proc*(this->sp_local_receiver)->proc_row_width;
+      int end_row_index = (proc+1)*(this->sp_local_receiver)->proc_row_width;
+       if (proc == (grid->col_world_size-1)){
         end_row_index = (this->sp_local_receiver)->gRows;
       }
       receive_counts[proc]=transpose_row_offsets[end_row_index]-transpose_row_offsets[start_row_index];
