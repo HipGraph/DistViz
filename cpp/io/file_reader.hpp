@@ -8,12 +8,14 @@
 #include "../common/common.h"
 #include "../net/process_3D_grid.hpp"
 #include "CombBLAS/CombBLAS.h"
+#include "../embedding/sparse_mat.hpp"
 
 
 
 using namespace std;
 using namespace hipgraph::distviz::common;
 using namespace hipgraph::distviz::net;
+using namespace  hipgraph::distviz::embedding
 using namespace combblas;
 namespace hipgraph::distviz::io {
 
