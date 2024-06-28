@@ -433,7 +433,7 @@ static void read_fbin_with_MPI(string filename, ValueType2DVector<VALUE_TYPE>* d
   MPI_File_close(&file);
 }
 
-void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords,
+static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords,
                       bool copy_col_to_value) {
   MPI_Comm WORLD;
   MPI_Comm_dup(MPI_COMM_WORLD, &WORLD);
