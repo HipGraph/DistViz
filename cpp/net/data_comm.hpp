@@ -456,9 +456,7 @@ public:
 
 
     for(int proc=0;proc<grid->col_world_size;proc++){
-      cout<<" rank "<<grid->rank_in_col<<" sending "<<send_counts[proc]<<" to "<<proc<<endl;
       s_displs[proc]= proc>0?(s_displs[proc-1]+send_counts[proc-1]):s_displs[proc];
-      cout<<" rank "<<grid->rank_in_col<<" receiving "<<receive_counts[proc]<<" from "<<proc<<endl;
       r_displs[proc]= proc>0?(r_displs[proc-1]+receive_counts[proc-1]):r_displs[proc];
     }
 
@@ -470,7 +468,7 @@ public:
         int index =  offsets[target_rank] + s_displs[target_rank];
         (*send_value_ptr)[index].value = values[j];
         (*send_value_ptr)[index].col = i + grid->rank_in_col*(this->sp_local_receiver)->proc_row_width;
-        (*send_value_ptr)[index].row = column_id - grid->rank_in_col*(this->sp_local_receiver)->proc_row_width;
+        (*send_value_ptr)[index].row = column_id - target_rank*(this->sp_local_receiver)->proc_row_width;
         offsets[target_rank]++;
       }
     }
