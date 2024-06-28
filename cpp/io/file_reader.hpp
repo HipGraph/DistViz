@@ -14,6 +14,7 @@
 using namespace std;
 using namespace hipgraph::distviz::common;
 using namespace hipgraph::distviz::net;
+using namespace combblas;
 namespace hipgraph::distviz::io {
 
 typedef SpParMat<int64_t, int, SpDCCols<int32_t, int>> PSpMat_s32p64_Int;
