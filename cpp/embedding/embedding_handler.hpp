@@ -73,7 +73,7 @@ public:
     std::vector<int>& row_offsets = csr_handle->rowStart;
     std::vector<int>& col_indices =  csr_handle->col_idx;
     std::vector<float>& values = csr_handle->values;
-    FileWriter<SPT,DENT> fileWriter;
+    FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
     fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr.txt",row_offsets,col_indices,values,shared_sparseMat_receiver.get()->proc_row_width);
 
 
