@@ -3,7 +3,7 @@
 * from COO.
 */
 #pragma once
-#include "common.h"
+#include "../common/common.h"
 #include <algorithm>
 #include <cassert>
 #include <fstream>
