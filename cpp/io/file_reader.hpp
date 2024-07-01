@@ -460,7 +460,8 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
 
 
   coords->resize(tups.getnnz());
-
+  ofstream fout;
+  fout.open("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/graph.txt", std::ios_base::app);
 //#pragma omp parallel for
   for (int i = 0; i < tups.getnnz(); i++) {
     (*coords)[i].row = get<0>(values[i]);
@@ -469,7 +470,7 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
       (*coords)[i].value = get<1>(values[i]);
     } else {
       (*coords)[i].value = get<2>(values[i]);
-      cout<<(*coords)[i].row<<" "<<(*coords)[i].col<<" "<<(*coords)[i].value<<endl;
+      fout<<(*coords)[i].row<<" "<<(*coords)[i].col<<" "<<(*coords)[i].value<<endl;
     }
   }
 
