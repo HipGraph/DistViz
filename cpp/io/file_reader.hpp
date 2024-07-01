@@ -19,7 +19,7 @@ using namespace  hipgraph::distviz::embedding;
 using namespace combblas;
 namespace hipgraph::distviz::io {
 
-typedef SpParMat<int64_t, float, SpDCCols<int64_t, float>> PSpMat_s32p64_Int;
+
 
 
 template <typename INDEX_TYPE,typename VALUE_TYPE>
@@ -445,12 +445,11 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
   shared_ptr<CommGrid> simpleGrid;
   simpleGrid.reset(new CommGrid(WORLD, num_procs, 1));
 
-  unique_ptr<PSpMat_s32p64_Int> G =
-      unique_ptr<PSpMat_s32p64_Int>(new PSpMat_s32p64_Int(simpleGrid));
+  SpParMat<int64_t, double, SpDCCols<int64_t, double>> G(simpleGrid);
 
   INDEX_TYPE nnz;
 
-  G.get()->ParallelReadMM(file_path, true, maximum<VALUE_TYPE>());
+  G.get()->ParallelReadMM(file_path, true, maximum<double>());
 
   nnz = G.get()->getnnz();
   if (proc_rank == 0) {
