@@ -652,6 +652,14 @@ public:
     auto source_start_index = 0;
     auto source_end_index =this->sp_local_receiver->proc_row_width;
 
+    std::vector<int>& row_offsets = csr_handle->rowStart;
+    std::vector<int>& col_indices =  csr_handle->col_idx;
+    std::vector<float>& values = csr_handle->values;
+
+    FileWriter<SPT,DENT> fileWriter;
+    fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
+
+
     #pragma omp parallel for schedule(static)
     for(SPT i=source_start_index;i<source_end_index;i++){
 //      cout<<" processing index "<<i<<" "<<endl;
@@ -775,8 +783,8 @@ public:
           csrTransposeMatrix = csrMatrix.transpose();
         }
 
-        FileWriter<SPT,DENT> fileWriter;
-        fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
+//        FileWriter<SPT,DENT> fileWriter;
+//        fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
 
         // Multiply csrMatrix with its transpose
         Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
