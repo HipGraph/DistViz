@@ -67,8 +67,8 @@ public:
     shared_sparseMat.get()->initialize_CSR_blocks();
     cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
 
-    CSRLocal<SPT, DENT> *csr_block = shared_sparseMat.get()->csr_local_data.get();
-    CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
+    CSRLocal<INDEX_TYPE, VALUE_TYPE> *csr_block = shared_sparseMat.get()->csr_local_data.get();
+    CSRHandle<INDEX_TYPE, VALUE_TYPE> *csr_handle = csr_block->handler.get();
 
     std::vector<int>& row_offsets = csr_handle->rowStart;
     std::vector<int>& col_indices =  csr_handle->col_idx;
