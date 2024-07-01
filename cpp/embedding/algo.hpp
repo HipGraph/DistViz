@@ -166,12 +166,22 @@ public:
 
     CSRLocal<SPT, DENT> *csr_block = sp_local_native->csr_local_data.get();
 
+
     int considering_batch_size = batch_size;
     vector<DENT> error_convergence;
 
 
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
+
+      std::vector<int>& row_offsets = csr_handle->rowStart;
+      std::vector<int>& col_indices =  csr_handle->col_idx;
+      std::vector<float>& values = csr_handle->values;
+
+      FileWriter<SPT,DENT> fileWriter;
+      fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
+
+
       calculate_membership_strength(csr_handle);
       cout<<" calculate_membership_strength completed "<<endl;
       apply_set_operations(true,1.0, full_comm.get());
@@ -656,8 +666,7 @@ public:
     std::vector<int>& col_indices =  csr_handle->col_idx;
     std::vector<float>& values = csr_handle->values;
 
-    FileWriter<SPT,DENT> fileWriter;
-    fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
+
 
 
     #pragma omp parallel for schedule(static)
