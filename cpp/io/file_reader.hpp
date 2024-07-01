@@ -445,18 +445,18 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
   shared_ptr<CommGrid> simpleGrid;
   simpleGrid.reset(new CommGrid(WORLD, num_procs, 1));
 
-  SpParMat<int64_t, double, SpDCCols<int64_t, double>> G(simpleGrid);
+  SpParMat<int64_t, float, SpDCCols<int64_t, float>> G(simpleGrid);
 
   INDEX_TYPE nnz;
 
-  G.get()->ParallelReadMM(file_path, true, maximum<double>());
+  G.ParallelReadMM(file_path, true, maximum<float>());
 
   nnz = G.get()->getnnz();
   if (proc_rank == 0) {
     cout << "File reader read " << nnz << " nonzeros." << endl;
   }
-  SpTuples<int64_t, VALUE_TYPE> tups(G.get()->seq());
-  tuple<int64_t, int64_t, VALUE_TYPE> *values = tups.tuples;
+  SpTuples<int64_t, float> tups(G.seq());
+  tuple<int64_t, int64_t, float> *values = tups.tuples;
 
 
   coords->resize(tups.getnnz());
