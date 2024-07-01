@@ -66,6 +66,17 @@ public:
 
     shared_sparseMat.get()->initialize_CSR_blocks();
     cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
+
+    CSRLocal<SPT, DENT> *csr_block = shared_sparseMat.get()->csr_local_data.get();
+    CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
+
+    std::vector<int>& row_offsets = csr_handle->rowStart;
+    std::vector<int>& col_indices =  csr_handle->col_idx;
+    std::vector<float>& values = csr_handle->values;
+    FileWriter<SPT,DENT> fileWriter;
+    fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr.txt",row_offsets,col_indices,values,shared_sparseMat_receiver.get()->proc_row_width);
+
+
     shared_sparseMat_sender.get()->initialize_CSR_blocks();
     cout<<" rank "<<grid->rank_in_col<<" CSR  shared_sparseMat_sender initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
 
