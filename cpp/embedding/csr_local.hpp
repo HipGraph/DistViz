@@ -200,6 +200,7 @@ public:
           }
           (handler.get())->col_idx[i] = coords[i].col;
           (handler.get())->values[i] = coords[i].value;
+          cout<<" CSR Local row "<<coords[i].row<<"  col "<<coords[i].col<<" "<<coords[i].value<<endl;
           current_row_value++;
         }
 
@@ -232,7 +233,6 @@ public:
           (handler.get())->col_idx[i] = coords[i].row;
           (handler.get())->values[i] = coords[i].value;
           current_row_value++;
-          cout<<" CSR Local row "<<coords[i].row<<"  col "<<coords[i].col<<" "<<coords[i].value<<endl;
         }
         if (expected_col<=this->cols){
           while(expected_col<=this->cols){
