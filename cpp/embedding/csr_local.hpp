@@ -21,7 +21,7 @@ using namespace std;
 
 namespace distblas::core {
 
-template <typename VALUE_TYPE> class CSRLocal {
+template <typename INDEX_TYPE, typename VALUE_TYPE> class CSRLocal {
 
 public:
  MKL_INT rows, cols;
@@ -30,7 +30,7 @@ public:
 
  bool transpose;
 
- unique_ptr<CSRHandle> handler = unique_ptr<CSRHandle>(new CSRHandle());
+ unique_ptr<CSRHandle<INDEX_TYPE,VALUE_TYPE>> handler = unique_ptr<CSRHandle<INDEX_TYPE,VALUE_TYPE>>(new CSRHandle<INDEX_TYPE,VALUE_TYPE>());
 
  CSRLocal() {}
 
