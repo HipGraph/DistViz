@@ -775,6 +775,8 @@ public:
           csrTransposeMatrix = csrMatrix.transpose();
         }
 
+
+
         // Multiply csrMatrix with its transpose
         Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
 
@@ -793,7 +795,8 @@ public:
         std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
         std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
 
-
+        FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+        fileWriter.parallel_write_csr("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
 
 
       }
