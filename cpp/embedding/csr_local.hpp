@@ -107,7 +107,7 @@ public:
       mkl_sparse_d_export_csr(tempCSR, &indexing, &(this->rows), &(this->cols),
                               &rows_start, &rows_end, &col_idx, &values);
 
-      cout << " processing transpose after export " << transpose <<" size of rows_start"<<(*rows_start).size()<< endl;
+//      cout << " processing transpose after export " << transpose <<" size of rows_start"<<(*rows_start).size()<< endl;
 
       int rv = 0;
       for (int i = 0; i < num_coords; i++) {
