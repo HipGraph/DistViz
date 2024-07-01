@@ -451,7 +451,7 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
 
   G.ParallelReadMM(file_path, true, maximum<float>());
 
-  nnz = G.get()->getnnz();
+  nnz = G.getnnz();
   if (proc_rank == 0) {
     cout << "File reader read " << nnz << " nonzeros." << endl;
   }
@@ -473,7 +473,7 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
     }
   }
 
-  int rowIncrement = G->getnrow() / num_procs;
+  int rowIncrement = G.getnrow() / num_procs;
 
 #pragma omp parallel for
   for (int i = 0; i < (*coords).size(); i++) {
