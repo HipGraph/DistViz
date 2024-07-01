@@ -61,7 +61,7 @@ public:
 
     cout<<" rank  after partitioning data"<<grid->rank_in_col<<" size "<<shared_sparseMat.get()->coords->size()<<endl;
 
-    FileWriter<SPT,DENT> fileWriter;
+    FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
     fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/partitoned_graph.txt",shared_sparseMat.get()->coords,false);
 
     shared_sparseMat.get()->initialize_CSR_blocks();
