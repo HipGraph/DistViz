@@ -45,7 +45,8 @@ public:
       this->num_coords = num_coords;
       this->rows = rows;
       this->cols = cols;
-      this->handler = unique_ptr<CSRHandle>(new CSRHandle());
+      this->handler = unique_ptr<CSRHandle<INDEX_TYPE, VALUE_TYPE>>(
+          new CSRHandle<INDEX_TYPE, VALUE_TYPE>());
 
       int rank;
       MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -116,7 +117,7 @@ public:
         }
         coords[i].row = rv;
         coords[i].col = col_idx[i];
-        coords[i].value = static_cast<T>(values[i]);
+        coords[i].value = static_cast<VALUE_TYPE>(values[i]);
       }
 
       cout << " processing coords " << transpose << " max nns" << max_nnz
