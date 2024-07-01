@@ -606,7 +606,6 @@ public:
 
         for (uint64_t j =static_cast<uint64_t>(csr_handle->rowStart[node_index]);
              j < static_cast<uint64_t>(csr_handle->rowStart[node_index + 1]);j++) {
-           cout<<"row "<<node_index<<" col "<<csr_handle->col_idx[j]<<" value "<<csr_handle->values[j]<<endl;
           if (max_value< csr_handle->values[j]){
             distance_sum += csr_handle->values[j];
              if (max_distance<csr_handle->values[j]) {
