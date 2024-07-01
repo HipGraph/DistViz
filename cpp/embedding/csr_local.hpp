@@ -18,8 +18,8 @@
 #include <string.h>
 
 using namespace std;
-
-namespace distblas::core {
+using namespace hipgraph::distviz::core;
+namespace hipgraph::distviz::embedding {
 
 template <typename INDEX_TYPE, typename VALUE_TYPE> class CSRLocal {
 
@@ -124,38 +124,7 @@ public:
    }
  }
 
- CSRLocal(vector<vector<Tuple<VALUE_TYPE>>> *sparse_data_collector) {
-   handler = unique_ptr<CSRHandle>(new CSRHandle());
-   handler->rowStart.resize(sparse_data_collector->size() + 1, 0);
-   for (auto i = 0; i < sparse_data_collector->size(); i++) {
 
-     std::vector<MKL_INT> firstValues;
-     std::vector<double> Values;
-     vector<Tuple<VALUE_TYPE>> filtered;
-     std::copy_if((*sparse_data_collector)[i].begin(), (*sparse_data_collector)[i].end(),
-                  std::back_inserter(filtered),
-                  [](const Tuple<VALUE_TYPE> &tuple) {
-                    return tuple.col>=0;
-                  });
-
-     std::transform(filtered.begin(), filtered.end(),
-                    std::back_inserter(firstValues),
-                    [](const Tuple<VALUE_TYPE> &tuple) {
-                      return tuple.col;
-                    });
-
-     std::transform(filtered.begin(), filtered.end(),
-                    std::back_inserter(Values),
-                    [](const Tuple<VALUE_TYPE> &tuple) {
-                      return tuple.value;
-                    });
-
-     // Insert the first values into ((handler.get())->col_idx)
-     handler->col_idx.insert((handler->col_idx).end(), firstValues.begin(), firstValues.end());
-     handler->values.insert((handler->values).end(), Values.begin(), Values.end());
-     handler->rowStart[i+1]=filtered.size()+handler->rowStart[i];
-   }
- }
 
  CSRLocal<VALUE_TYPE>& CSRLocal<VALUE_TYPE>::operator=(const CSRLocal<VALUE_TYPE>& other) {
    if (this != &other) {
