@@ -783,7 +783,7 @@ public:
 //
         if (grid->col_world_size > 1){
 
-          data_comm->transfer_and_update_transpose(csr_local, csr_transpose,csrTransposeMatrix);
+          data_comm->transfer_and_update_transpose(csr_local, csr_transpose,csrTransposeMatrix,row_offsets,col_indices,values);
         }else {
           csrTransposeMatrix = csrMatrix.transpose();
         }
