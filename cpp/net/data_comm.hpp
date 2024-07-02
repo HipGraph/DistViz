@@ -485,11 +485,7 @@ public:
       triplets_transpose.emplace_back((*receive_value_ptr)[i].row,(*receive_value_ptr)[i].col, (*receive_value_ptr)[i].value);
     }
 
-    for (const auto& triplet : triplets_transpose) {
-      std::cout<<" rank"<<grid->rank_in_col << "(" << triplet.row() << ", " << triplet.col() << ", " << triplet.value() << ")" << std::endl;
-    }
-
-      //
+    cout<<" rank "<<grid->rank_in_col<<" received nnz "<<triplets_transpose.size()<<endl;
     Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
     csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
     csrTranspose.makeCompressed();

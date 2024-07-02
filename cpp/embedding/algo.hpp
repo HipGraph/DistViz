@@ -790,6 +790,7 @@ public:
         int rows = csrTransposeMatrix.rows();
         int cols = csrTransposeMatrix.cols();
         int nnz = csrTransposeMatrix.nonZeros();
+        cout<<" rank "<<grid->rank_in_col<<" nnz "<<nnz<<endl;
 
         col_indices.clear();
         values.clear();
