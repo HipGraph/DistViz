@@ -486,7 +486,7 @@ public:
     }
 
     for (const auto& triplet : triplets_transpose) {
-      std::cout << "(" << triplet.row() << ", " << triplet.col() << ", " << triplet.value() << ")" << std::endl;
+      std::cout<<" rank"<<grid->rank_in_col << "(" << triplet.row() << ", " << triplet.col() << ", " << triplet.value() << ")" << std::endl;
     }
 
       //
