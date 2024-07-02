@@ -410,7 +410,8 @@ public:
   }
 
 
-  inline void transfer_and_update_transpose(CSRLocal<SPT, DENT>* csr_local,CSRLocal<SPT, DENT>* csr_transpose, Eigen::SparseMatrix<float>& csrTranspose_ref){
+  inline void transfer_and_update_transpose(CSRLocal<SPT, DENT>* csr_local,CSRLocal<SPT, DENT>* csr_transpose,
+                                            std::vector<SPT>& row_offsets,std::vector<SPT>& col_indices, std::vector<DENT>& values_array){
     vector<int> send_counts(grid->col_world_size,0);
     vector<int> receive_counts(grid->col_world_size,0);
 
@@ -490,7 +491,19 @@ public:
     csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
     csrTranspose.makeCompressed();
 
-    csrTranspose_ref = csrTranspose;
+    int rows = csrTranspose.rows();
+    int cols = csrTranspose.cols();
+    int nnz = csrTranspose.nonZeros();
+    cout<<" rank "<<grid->rank_in_col<<" nnz "<<nnz<<endl;
+
+    row_offsets.resize( rows + 1);
+    col_indices.resize(nnz);
+    values_array.resize(nnz);
+
+
+    std::copy(csrTransposeMatrix.outerIndexPtr(), csrTransposeMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
+    std::copy(csrTransposeMatrix.innerIndexPtr(), csrTransposeMatrix.innerIndexPtr() + nnz, col_indices.begin());
+    std::copy(csrTransposeMatrix.valuePtr(), csrTransposeMatrix.valuePtr() + nnz, values_array.begin());
 
   }
 

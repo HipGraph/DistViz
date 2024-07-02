@@ -787,33 +787,27 @@ public:
         }else {
           csrTransposeMatrix = csrMatrix.transpose();
         }
-        int rows = csrTransposeMatrix.rows();
-        int cols = csrTransposeMatrix.cols();
-        int nnz = csrTransposeMatrix.nonZeros();
-        cout<<" rank "<<grid->rank_in_col<<" nnz "<<nnz<<endl;
-
-
-        std::vector<int> row_offsets_test;
-        std::vector<int> col_indices_test;
-        std::vector<float> values_test;
-
+//        int rows = csrTransposeMatrix.rows();
+//        int cols = csrTransposeMatrix.cols();
+//        int nnz = csrTransposeMatrix.nonZeros();
+//        cout<<" rank "<<grid->rank_in_col<<" nnz "<<nnz<<endl;
+//
+//
+//        std::vector<int> row_offsets_test;
+//        std::vector<int> col_indices_test;
+//        std::vector<float> values_test;
+//
 //        row_offsets_test.resize( rows + 1);
 //        col_indices_test.resize(nnz);
 //        values_test.resize(nnz);
-         int total_count=0;
-        for (int k = 0; k < csrTransposeMatrix.outerSize(); ++k) {
-          for (Eigen::SparseMatrix<float>::InnerIterator it(csrTransposeMatrix, k); it; ++it) {
-//            std::cout<<" Rank "<<grid->rank_in_col << " Value at (" << it.row() << ", " << it.col() << ") = " << it.value() << std::endl;
-             total_count++;
-          }
-        }
-        cout<<"rank "<<grid->rank_in_col<<" total count "<<total_count<<endl;
-        std::copy(csrTransposeMatrix.outerIndexPtr(), csrTransposeMatrix.outerIndexPtr() + rows + 1, row_offsets_test.begin());
-        std::copy(csrTransposeMatrix.innerIndexPtr(), csrTransposeMatrix.innerIndexPtr() + nnz, col_indices_test.begin());
-        std::copy(csrTransposeMatrix.valuePtr(), csrTransposeMatrix.valuePtr() + nnz, values_test.begin());
+//
+//
+//        std::copy(csrTransposeMatrix.outerIndexPtr(), csrTransposeMatrix.outerIndexPtr() + rows + 1, row_offsets_test.begin());
+//        std::copy(csrTransposeMatrix.innerIndexPtr(), csrTransposeMatrix.innerIndexPtr() + nnz, col_indices_test.begin());
+//        std::copy(csrTransposeMatrix.valuePtr(), csrTransposeMatrix.valuePtr() + nnz, values_test.begin());
 
         FileWriter<SPT,DENT> fileWriter;
-        fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets_test,col_indices_test,values_test,sp_local_receiver->proc_row_width);
+        fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
 
         // Multiply csrMatrix with its transpose
 //        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
