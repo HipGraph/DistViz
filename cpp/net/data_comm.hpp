@@ -479,7 +479,7 @@ public:
                   SPTUPLE, grid->col_world);
 
     std::vector<Eigen::Triplet<float>> triplets_transpose;
-    triplets_transpose.reserve(transpose_values.size());
+//    triplets_transpose.reserve(transpose_values.size());
 
     for(int i=0;i<total_receive_count;i++) {
       if ((*receive_value_ptr)[i].col>=30000){
