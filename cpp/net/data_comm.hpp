@@ -482,7 +482,7 @@ public:
 //    triplets_transpose.reserve(transpose_values.size());
 
     for(int i=0;i<total_receive_count;i++) {
-      triplets_transpose.emplace_back((*receive_value_ptr)[i].row,(*receive_value_ptr)[i].col, (*receive_value_ptr)[i].value);
+      triplets_transpose.emplace_back(static_cast<SPT>((*receive_value_ptr)[i].row),static_cast<SPT>((*receive_value_ptr)[i].col), static_cast<DENT>((*receive_value_ptr)[i].value));
     }
 
     cout<<" rank "<<grid->rank_in_col<<" received nnz "<<triplets_transpose.size()<<endl;
