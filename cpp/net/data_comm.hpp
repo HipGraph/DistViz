@@ -411,7 +411,7 @@ public:
 
 
   inline void transfer_and_update_transpose(CSRLocal<SPT, DENT>* csr_local,CSRLocal<SPT, DENT>* csr_transpose,
-                                            std::vector<SPT>& row_offsets,std::vector<SPT>& col_indices, std::vector<DENT>& values_array){
+                                            std::vector<SPT>& row_offsets_trans,std::vector<SPT>& col_indices_trans, std::vector<DENT>& values_trans){
     vector<int> send_counts(grid->col_world_size,0);
     vector<int> receive_counts(grid->col_world_size,0);
 
@@ -496,14 +496,14 @@ public:
     int nnz = csrTranspose.nonZeros();
     cout<<" rank "<<grid->rank_in_col<<" nnz "<<nnz<<endl;
 
-    row_offsets.resize( rows + 1);
-    col_indices.resize(nnz);
-    values_array.resize(nnz);
+    row_offsets_trans.resize( rows + 1);
+    col_indices_trans.resize(nnz);
+    values_trans.resize(nnz);
 
 
-    std::copy(csrTransposeMatrix.outerIndexPtr(), csrTransposeMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
-    std::copy(csrTransposeMatrix.innerIndexPtr(), csrTransposeMatrix.innerIndexPtr() + nnz, col_indices.begin());
-    std::copy(csrTransposeMatrix.valuePtr(), csrTransposeMatrix.valuePtr() + nnz, values_array.begin());
+    std::copy(csrTranspose.outerIndexPtr(), csrTranspose.outerIndexPtr() + rows + 1, row_offsets_trans.begin());
+    std::copy(csrTranspose.innerIndexPtr(), csrTranspose.innerIndexPtr() + nnz, col_indices_trans.begin());
+    std::copy(csrTranspose.valuePtr(), csrTranspose.valuePtr() + nnz, values_trans.begin());
 
   }
 
