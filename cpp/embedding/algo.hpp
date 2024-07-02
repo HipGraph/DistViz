@@ -804,7 +804,7 @@ public:
         for (int k = 0; k < csrTransposeMatrix.outerSize(); ++k) {
           for (Eigen::SparseMatrix<float>::InnerIterator it(csrTransposeMatrix, k); it; ++it) {
 //            std::cout<<" Rank "<<grid->rank_in_col << " Value at (" << it.row() << ", " << it.col() << ") = " << it.value() << std::endl;
-             total_count++
+             total_count++;
           }
         }
         cout<<"rank "<<grid->rank_in_col<<" total count "<<total_count<<endl;
