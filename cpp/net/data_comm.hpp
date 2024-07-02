@@ -482,13 +482,14 @@ public:
 //    triplets_transpose.reserve(transpose_values.size());
 
     for(int i=0;i<total_receive_count;i++) {
-      if ((*receive_value_ptr)[i].col>=30000){
-        cout<<grid->rank_in_col<<" "<<(*receive_value_ptr)[i].row<<" "<<(*receive_value_ptr)[i].col<<" "<<(*receive_value_ptr)[i].value<<endl;
-      }
       triplets_transpose.emplace_back((*receive_value_ptr)[i].row,(*receive_value_ptr)[i].col, (*receive_value_ptr)[i].value);
     }
 
-    //
+    for (const auto& triplet : triplets_transpose) {
+      std::cout << "(" << triplet.row() << ", " << triplet.col() << ", " << triplet.value() << ")" << std::endl;
+    }
+
+      //
     Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
     csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
     csrTranspose.makeCompressed();
