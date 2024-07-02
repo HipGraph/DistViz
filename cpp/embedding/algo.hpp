@@ -792,16 +792,20 @@ public:
         int nnz = csrTransposeMatrix.nonZeros();
         cout<<" rank "<<grid->rank_in_col<<" nnz "<<nnz<<endl;
 
-        col_indices.clear();
-        values.clear();
-        col_indices.resize(nnz);
-        values.resize(nnz);
-        std::copy(csrTransposeMatrix.outerIndexPtr(), csrTransposeMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
-        std::copy(csrTransposeMatrix.innerIndexPtr(), csrTransposeMatrix.innerIndexPtr() + nnz, col_indices.begin());
-        std::copy(csrTransposeMatrix.valuePtr(), csrTransposeMatrix.valuePtr() + nnz, values.begin());
+
+        std::vector<int> row_offsets_test;
+        std::vector<int> col_indices_test;
+        std::vector<float> values_test;
+
+        row_offsets_test.resize( rows + 1);
+        col_indices_test.resize(nnz);
+        values_test.resize(nnz);
+        std::copy(csrTransposeMatrix.outerIndexPtr(), csrTransposeMatrix.outerIndexPtr() + rows + 1, row_offsets_test.begin());
+        std::copy(csrTransposeMatrix.innerIndexPtr(), csrTransposeMatrix.innerIndexPtr() + nnz, col_indices_test.begin());
+        std::copy(csrTransposeMatrix.valuePtr(), csrTransposeMatrix.valuePtr() + nnz, values_test.begin());
 
         FileWriter<SPT,DENT> fileWriter;
-        fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
+        fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets_test,col_indices_test,values_test,sp_local_receiver->proc_row_width);
 
         // Multiply csrMatrix with its transpose
 //        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
