@@ -793,6 +793,12 @@ public:
         cout<<" rank "<<grid->rank_in_col<<" nnz "<<nnz<<endl;
 
 
+        for (int k = 0; k < csrTransposeMatrix.outerSize(); ++k) {
+          for (Eigen::SparseMatrix<float>::InnerIterator it(csrTransposeMatrix, k); it; ++it) {
+            std::cout<<" Rank "<<grid->rank_in_col << " Value at (" << it.row() << ", " << it.col() << ") = " << it.value() << std::endl;
+          }
+        }
+
         std::vector<int> row_offsets_test;
         std::vector<int> col_indices_test;
         std::vector<float> values_test;
