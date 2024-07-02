@@ -787,30 +787,41 @@ public:
         }else {
           csrTransposeMatrix = csrMatrix.transpose();
         }
+        int rows = csrTransposeMatrix.rows();
+        int cols = csrTransposeMatrix.cols();
+        int nnz = csrTransposeMatrix.nonZeros();
 
-//        FileWriter<SPT,DENT> fileWriter;
-//        fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
-
-        // Multiply csrMatrix with its transpose
-        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
-
-        // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
-        Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
-//        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
-
-        int rows = tempMatrix.rows();
-        int cols = tempMatrix.cols();
-        int nnz = tempMatrix.nonZeros();
-
+        col_indices.clear();
+        values.clear();
         col_indices.resize(nnz);
         values.resize(nnz);
-
-        std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
-        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
-        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
+        std::copy(csrTransposeMatrix.outerIndexPtr(), csrTransposeMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
+        std::copy(csrTransposeMatrix.innerIndexPtr(), csrTransposeMatrix.innerIndexPtr() + nnz, col_indices.begin());
+        std::copy(csrTransposeMatrix.valuePtr(), csrTransposeMatrix.valuePtr() + nnz, values.begin());
 
         FileWriter<SPT,DENT> fileWriter;
         fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
+
+        // Multiply csrMatrix with its transpose
+//        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
+//
+//        // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
+//        Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
+////        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
+//
+//        int rows = tempMatrix.rows();
+//        int cols = tempMatrix.cols();
+//        int nnz = tempMatrix.nonZeros();
+//
+//        col_indices.resize(nnz);
+//        values.resize(nnz);
+//
+//        std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
+//        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
+//        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
+
+//        FileWriter<SPT,DENT> fileWriter;
+//        fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
 
 
       }
