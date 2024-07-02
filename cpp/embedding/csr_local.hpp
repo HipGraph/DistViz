@@ -200,7 +200,6 @@ public:
           }
           (handler.get())->col_idx[i] = coords[i].col;
           (handler.get())->values[i] = coords[i].value;
-          cout<<" row "<<current_row_value<<" col id "<<coords[i].col<<" value "<<coords[i].value<<endl;
           current_row_value++;
         }
 
