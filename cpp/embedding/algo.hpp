@@ -178,10 +178,6 @@ public:
       std::vector<int>& col_indices =  csr_handle->col_idx;
       std::vector<float>& values = csr_handle->values;
 
-      FileWriter<SPT,DENT> fileWriter;
-      fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
-
-
       calculate_membership_strength(csr_handle);
       cout<<" calculate_membership_strength completed "<<endl;
       apply_set_operations(true,1.0, full_comm.get());
@@ -813,8 +809,8 @@ public:
         std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
         std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
 
-//        FileWriter<SPT,DENT> fileWriter;
-//        fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
+        FileWriter<SPT,DENT> fileWriter;
+        fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
 
 
       }
