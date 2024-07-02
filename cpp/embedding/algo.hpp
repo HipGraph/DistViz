@@ -793,19 +793,21 @@ public:
         cout<<" rank "<<grid->rank_in_col<<" nnz "<<nnz<<endl;
 
 
-        for (int k = 0; k < csrTransposeMatrix.outerSize(); ++k) {
-          for (Eigen::SparseMatrix<float>::InnerIterator it(csrTransposeMatrix, k); it; ++it) {
-            std::cout<<" Rank "<<grid->rank_in_col << " Value at (" << it.row() << ", " << it.col() << ") = " << it.value() << std::endl;
-          }
-        }
-
         std::vector<int> row_offsets_test;
         std::vector<int> col_indices_test;
         std::vector<float> values_test;
 
-        row_offsets_test.resize( rows + 1);
-        col_indices_test.resize(nnz);
-        values_test.resize(nnz);
+//        row_offsets_test.resize( rows + 1);
+//        col_indices_test.resize(nnz);
+//        values_test.resize(nnz);
+         int total_count=0;
+        for (int k = 0; k < csrTransposeMatrix.outerSize(); ++k) {
+          for (Eigen::SparseMatrix<float>::InnerIterator it(csrTransposeMatrix, k); it; ++it) {
+//            std::cout<<" Rank "<<grid->rank_in_col << " Value at (" << it.row() << ", " << it.col() << ") = " << it.value() << std::endl;
+             total_count++
+          }
+        }
+        cout<<"rank "<<grid->rank_in_col<<" total count "<<total_count<<endl;
         std::copy(csrTransposeMatrix.outerIndexPtr(), csrTransposeMatrix.outerIndexPtr() + rows + 1, row_offsets_test.begin());
         std::copy(csrTransposeMatrix.innerIndexPtr(), csrTransposeMatrix.innerIndexPtr() + nnz, col_indices_test.begin());
         std::copy(csrTransposeMatrix.valuePtr(), csrTransposeMatrix.valuePtr() + nnz, values_test.begin());
