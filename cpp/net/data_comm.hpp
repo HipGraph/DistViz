@@ -482,6 +482,7 @@ public:
     triplets_transpose.reserve(transpose_values.size());
 
     for(int i=0;i<total_receive_count;i++) {
+      cout<<grid->rank_in_col<<" "<<(*receive_value_ptr)[i].row<<" "<<(*receive_value_ptr)[i].col<<" "<<(*receive_value_ptr)[i].value<<endl;
       triplets_transpose.emplace_back((*receive_value_ptr)[i].row,(*receive_value_ptr)[i].col, (*receive_value_ptr)[i].value);
     }
 
