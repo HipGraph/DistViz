@@ -762,67 +762,78 @@ public:
         std::vector<int>& transpose_col_indices =  csr_handle_transpose->col_idx;
         std::vector<float>& transpose_values = csr_handle_transpose->values;
 
-        int transNumRows = transpose_row_offsets.size() - 1;
-
-        // Prepare triplet list to avoid locking overhead
-        std::vector<Eigen::Triplet<float>> triplets;
-        triplets.reserve(values.size());
-        for (int i = 0; i < numRows; ++i) {
-          int start = row_offsets[i];
-          int end = row_offsets[i + 1];
-          for (int j = start; j < end; ++j) {
-            triplets.emplace_back(i, col_indices[j], values[j]);
-          }
-        }
-
-        Eigen::SparseMatrix<float> csrMatrix(numRows,sp_local_receiver->gRows);
-        csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
-        csrMatrix.makeCompressed();
-
-        Eigen::SparseMatrix<float> csrTransposeMatrix;
-
         std::vector<int> row_offsets_trans;
         std::vector<int> col_indices_trans;
         std::vector<float> values_trans;
-//
+
         if (grid->col_world_size > 1){
 
           data_comm->transfer_and_update_transpose(csr_local, csr_transpose,row_offsets_trans,col_indices_trans,values_trans);
-          std::vector<Eigen::Triplet<float>> triplets_transpose;
-          triplets_transpose.reserve(values_trans.size());
+
+          std::vector<SPT> final_row_offsets(numRows+1,0);
+          std::vector<SPT> final_col_indices;
+          std::vector<DENT> final_values;
+
+          for(int i=0;i<numRows;i++){
+             unordered_map<SPT,DENT> multi_map;
+             map<SPT,DENT> result_map;
+            for(int j=row_offsets_trans[i];j<row_offsets_trans[i+1];j++){
+              value_map[col_indices_trans[j]]=values_trans[j];
+              result_map[col_indices_trans[j]] = values_trans[j];
+            }
+
+
+            for(int j=row_offsets[i];j<row_offsets[i+1];j++){
+              if(value_map.count(col_indices[j)>0){
+                value_map[col_indices[j]]*=values[j];
+                result_map[col_indices[j]]+= values[j];
+                result_map[col_indices[j]] -= value_map[col_indices[j]];
+              }else{
+                result_map[col_indices[j]] = values[j];
+              }
+            }
+            final_row_offsets[i+1]=final_row_offsets[i]+result_map.size();
+            for(auto it=result_map.begin();it!= result_map.end();it++){
+              final_col_indices.push_back(it->first);
+              final_values.push_back(it->second);
+            }
+          }
+          row_offsets = final_row_offsets;
+          col_indices = final_col_indices;
+          values = final_values;
+
+        }else {
+          int transNumRows = transpose_row_offsets.size() - 1;
+
+          // Prepare triplet list to avoid locking overhead
+          std::vector<Eigen::Triplet<float>> triplets;
+          triplets.reserve(values.size());
           for (int i = 0; i < numRows; ++i) {
-            int start = row_offsets_trans[i];
-            int end = row_offsets_trans[i + 1];
+            int start = row_offsets[i];
+            int end = row_offsets[i + 1];
             for (int j = start; j < end; ++j) {
-              triplets_transpose.emplace_back(i, col_indices_trans[j], values_trans[j]);
+              triplets.emplace_back(i, col_indices[j], values[j]);
             }
           }
 
-          csrTransposeMatrix =  Eigen::SparseMatrix<float>(numRows,sp_local_receiver->gRows);
-          csrTransposeMatrix.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
-          csrTransposeMatrix.makeCompressed();
+          Eigen::SparseMatrix<float> csrMatrix(numRows,sp_local_receiver->gRows);
+          csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
+          csrMatrix.makeCompressed();
 
-        }else {
           csrTransposeMatrix = csrMatrix.transpose();
+          Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
+
+          int rows = tempMatrix.rows();
+          int cols = tempMatrix.cols();
+          int nnz = tempMatrix.nonZeros();
+
+          col_indices.resize(nnz);
+          values.resize(nnz);
+
+          std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
+          std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
+          std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
         }
-
-
-        // Multiply csrMatrix with its transpose
-        Eigen::SparseMatrix<float> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
-
-        // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
-        Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
-
-        int rows = tempMatrix.rows();
-        int cols = tempMatrix.cols();
-        int nnz = tempMatrix.nonZeros();
-
-        col_indices.resize(nnz);
-        values.resize(nnz);
-
-        std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
-        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
-        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
 
         FileWriter<SPT,DENT> fileWriter;
         fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
