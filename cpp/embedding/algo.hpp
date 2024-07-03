@@ -778,16 +778,16 @@ public:
              unordered_map<SPT,DENT> multi_map;
              map<SPT,DENT> result_map;
             for(int j=row_offsets_trans[i];j<row_offsets_trans[i+1];j++){
-              value_map[col_indices_trans[j]]=values_trans[j];
+              multi_map[col_indices_trans[j]]=values_trans[j];
               result_map[col_indices_trans[j]] = values_trans[j];
             }
 
 
             for(int j=row_offsets[i];j<row_offsets[i+1];j++){
               if(value_map.count(col_indices[j)>0){
-                value_map[col_indices[j]]*=values[j];
+                multi_map[col_indices[j]]*=values[j];
                 result_map[col_indices[j]]+= values[j];
-                result_map[col_indices[j]] -= value_map[col_indices[j]];
+                result_map[col_indices[j]] -= multi_map[col_indices[j]];
               }else{
                 result_map[col_indices[j]] = values[j];
               }
