@@ -481,9 +481,13 @@ public:
 
     std::vector<Eigen::Triplet<float>> triplets_transpose;
 //    triplets_transpose.reserve(transpose_values.size());
-
+    ofstream fout;
+    string output_path = "/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/"+to_string(getpid())+".txt";
+    fout.open(, std::ios_base::app);
     for(int i=0;i<total_receive_count;i++) {
       triplets_transpose.emplace_back(static_cast<SPT>((*receive_value_ptr)[i].row),static_cast<SPT>((*receive_value_ptr)[i].col), static_cast<DENT>((*receive_value_ptr)[i].value));
+      fout<<static_cast<SPT>((*receive_value_ptr)[i].row)<<"\t"<<static_cast<SPT>((*receive_value_ptr)[i].col)<<"\t"<<static_cast<DENT>((*receive_value_ptr)[i].value)<<endl;
+      fout.close();
     }
 
     cout<<" rank "<<grid->rank_in_col<<" received nnz "<<triplets_transpose.size()<<endl;
