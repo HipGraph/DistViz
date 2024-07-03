@@ -499,6 +499,23 @@ public:
     row_offsets_trans.resize( rows + 1);
     col_indices_trans.resize(nnz);
     values_trans.resize(nnz);
+    std::cout << "Outer index ptr: ";
+    for (int i = 0; i < rows + 1; ++i) {
+      std::cout<<" i"<<i<<"count  " << csrTranspose.outerIndexPtr()[i] <<endl;
+    }
+//    std::cout << std::endl;
+//
+//    std::cout << "Inner index ptr: ";
+//    for (int i = 0; i < nnz; ++i) {
+//      std::cout << csrTranspose.innerIndexPtr()[i] << " ";
+//    }
+//    std::cout << std::endl;
+//
+//    std::cout << "Values ptr: ";
+//    for (int i = 0; i < nnz; ++i) {
+//      std::cout << csrTranspose.valuePtr()[i] << " ";
+//    }
+//    std::cout << std::endl;
 
 
     std::copy(csrTranspose.outerIndexPtr(), csrTranspose.outerIndexPtr() + rows + 1, row_offsets_trans.begin());
