@@ -491,7 +491,7 @@ public:
     fout.close();
 
     cout<<" rank "<<grid->rank_in_col<<" received nnz "<<triplets_transpose.size()<<endl;
-    Eigen::SparseMatrix<float> csrTranspose(numRows,sp_local_receiver->gRows);
+    Eigen::SparseMatrix<float> csrTranspose(sp_local_receiver->gRows,sp_local_receiver->gRows);
     csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
     csrTranspose.makeCompressed();
 
