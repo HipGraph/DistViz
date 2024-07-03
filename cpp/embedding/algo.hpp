@@ -784,7 +784,7 @@ public:
 
 
             for(int j=row_offsets[i];j<row_offsets[i+1];j++){
-              if(value_map.count(col_indices[j)>0){
+              if(value_map.count(col_indices[j])>0){
                 multi_map[col_indices[j]]*=values[j];
                 result_map[col_indices[j]]+= values[j];
                 result_map[col_indices[j]] -= multi_map[col_indices[j]];
@@ -819,8 +819,8 @@ public:
           Eigen::SparseMatrix<float> csrMatrix(numRows,sp_local_receiver->gRows);
           csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
           csrMatrix.makeCompressed();
-
-          csrTransposeMatrix = csrMatrix.transpose();
+          Eigen::SparseMatrix<float>  csrTransposeMatrix = csrMatrix.transpose();
+          Eigen::SparseMatrix<float>prodMatrix = csrMatrix.cWiseMultiply(csrTransposeMatrix);
           Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
 
           int rows = tempMatrix.rows();
