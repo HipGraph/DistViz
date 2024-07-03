@@ -298,8 +298,8 @@ public:
                 considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
                 0, true);
 
-//            CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
-//            full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i, j);
+            CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
+            full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i, j);
 //            generate_negative_samples(negative_samples_ptr_count.get(),
 //                                      csr_handle, i, j, batch_size,
 //                                      considering_batch_size, seed, max_nnz);
