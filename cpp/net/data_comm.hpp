@@ -452,8 +452,8 @@ public:
       total_receive_count+=receive_counts[proc];
     }
 
-    unique_ptr<vector<Tuple<SPT>>> send_value_ptr = make_unique<vector<Tuple<SPT>>>(total_send_count);
-    unique_ptr<vector<Tuple<SPT>>> receive_value_ptr = make_unique<vector<Tuple<SPT>>>(total_receive_count);
+    unique_ptr<vector<Tuple<DENT>>> send_value_ptr = make_unique<vector<Tuple<DENT>>>(total_send_count);
+    unique_ptr<vector<Tuple<DENT>>> receive_value_ptr = make_unique<vector<Tuple<DENT>>>(total_receive_count);
 
 
     for(int proc=0;proc<grid->col_world_size;proc++){
@@ -479,50 +479,12 @@ public:
                   (receive_counts).data(), (r_displs).data(),
                   SPTUPLE, grid->col_world);
 
-    std::vector<Eigen::Triplet<float>> triplets_transpose;
-    triplets_transpose.reserve(transpose_values.size());
+    unique_ptr<CSRLocal<SPT,DENT>> csr_transpose_ptr = make_unique<CSRLocal<SPT,DENT>>(numRows,(this->sp_local_receiver)->gRows,
+                                                                                         total_receive_count,(*receive_value_ptr.get()),total_receive_count,false);
 
-    for(int i=0;i<total_receive_count;i++) {
-      triplets_transpose.emplace_back(static_cast<SPT>((*receive_value_ptr)[i].row),static_cast<SPT>((*receive_value_ptr)[i].col), static_cast<DENT>((*receive_value_ptr)[i].value));
-    }
-
-
-    cout<<" rank "<<grid->rank_in_col<<" received nnz "<<triplets_transpose.size()<<endl;
-    int col_size = static_cast<int>(sp_local_receiver->gRows);
-    Eigen::SparseMatrix<float> csrTranspose(numRows,col_size);
-    csrTranspose.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
-    csrTranspose.makeCompressed();
-
-    int rows = csrTranspose.rows();
-    int cols = csrTranspose.cols();
-    int nnz = csrTranspose.nonZeros();
-    cout<<" rank "<<grid->rank_in_col<<" nnz "<<nnz<<endl;
-
-    row_offsets_trans.resize( rows + 1);
-    col_indices_trans.resize(nnz);
-    values_trans.resize(nnz);
-    std::cout << "Outer index ptr: ";
-//    for (int i = 0; i < rows + 1; ++i) {
-//      std::cout<<" i"<<i<<"count  " << csrTranspose.outerIndexPtr()[i] <<endl;
-//    }
-//    std::cout << std::endl;
-//
-//    std::cout << "Inner index ptr: ";
-//    for (int i = 0; i < nnz; ++i) {
-//      std::cout << csrTranspose.innerIndexPtr()[i] << " ";
-//    }
-//    std::cout << std::endl;
-//
-//    std::cout << "Values ptr: ";
-//    for (int i = 0; i < nnz; ++i) {
-//      std::cout << csrTranspose.valuePtr()[i] << " ";
-//    }
-//    std::cout << std::endl;
-
-
-    std::copy(csrTranspose.outerIndexPtr(), csrTranspose.outerIndexPtr() + rows + 1, row_offsets_trans.begin());
-    std::copy(csrTranspose.innerIndexPtr(), csrTranspose.innerIndexPtr() + nnz, col_indices_trans.begin());
-    std::copy(csrTranspose.valuePtr(), csrTranspose.valuePtr() + nnz, values_trans.begin());
+    row_offsets_trans = csr_transpose_ptr.get()->handler.get()->rowStart;
+    col_indices_trans = csr_transpose_ptr.get()->handler.get()->col_idx;
+    values_trans = csr_transpose_ptr.get()->handler.get()->values;
     cout<<" rank "<<grid->rank_in_col<<" nnz  after copying "<<row_offsets_trans[row_offsets_trans.size()-1]<<endl;
 
   }
