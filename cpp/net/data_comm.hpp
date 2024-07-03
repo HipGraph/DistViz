@@ -479,8 +479,8 @@ public:
                   (receive_counts).data(), (r_displs).data(),
                   SPTUPLE, grid->col_world);
 
-    unique_ptr<CSRLocal<SPT,DENT>> csr_transpose_ptr = make_unique<CSRLocal<SPT,DENT>>(static_cast<uint64_t>(numRows),(this->sp_local_receiver)->gRows,
-                                                                                         static_cast<uint64_t>(total_receive_count),(*receive_value_ptr.get()),total_receive_count,false);
+    unique_ptr<CSRLocal<SPT,DENT>> csr_transpose_ptr = make_unique<CSRLocal<SPT,DENT>>((numRows),static_cast<int>((this->sp_local_receiver)->gRows),
+                                                                                         (total_receive_count),(*receive_value_ptr.get()).data(),total_receive_count,false);
 
     row_offsets_trans = csr_transpose_ptr.get()->handler.get()->rowStart;
     col_indices_trans = csr_transpose_ptr.get()->handler.get()->col_idx;
