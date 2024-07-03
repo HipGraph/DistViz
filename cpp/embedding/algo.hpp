@@ -788,6 +788,20 @@ public:
         if (grid->col_world_size > 1){
 
           data_comm->transfer_and_update_transpose(csr_local, csr_transpose,row_offsets_trans,col_indices_trans,values_trans);
+          std::vector<Eigen::Triplet<float>> triplets_transpose;
+          triplets_transpose.reserve(values_trans.size());
+          for (int i = 0; i < numRows; ++i) {
+            int start = row_offsets_trans[i];
+            int end = row_offsets_trans[i + 1];
+            for (int j = start; j < end; ++j) {
+              triplets_transpose.emplace_back(i, col_indices_trans[j], values_trans[j]);
+            }
+          }
+
+          csrTransposeMatrix =  Eigen::SparseMatrix<float>(numRows,sp_local_receiver->gRows);
+          csrTransposeMatrix.setFromTriplets(triplets_transpose.begin(), triplets_transpose.end());
+          csrTransposeMatrix.makeCompressed();
+
         }else {
           csrTransposeMatrix = csrMatrix.transpose();
         }
@@ -798,7 +812,6 @@ public:
 
         // Compute result = set_op_mix_ratio * (result + transpose - prod_matrix) + (1.0 - set_op_mix_ratio) * prod_matrix
         Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
-        Eigen::SparseMatrix<float> result = set_op_mix_ratio * tempMatrix + (1.0 - set_op_mix_ratio) * prodMatrix;
 
         int rows = tempMatrix.rows();
         int cols = tempMatrix.cols();
