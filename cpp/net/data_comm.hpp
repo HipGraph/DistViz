@@ -504,6 +504,7 @@ public:
     std::copy(csrTranspose.outerIndexPtr(), csrTranspose.outerIndexPtr() + rows + 1, row_offsets_trans.begin());
     std::copy(csrTranspose.innerIndexPtr(), csrTranspose.innerIndexPtr() + nnz, col_indices_trans.begin());
     std::copy(csrTranspose.valuePtr(), csrTranspose.valuePtr() + nnz, values_trans.begin());
+    cout<<" rank "<<grid->rank_in_col<<" nnz  after copying "<<row_offsets_trans[row_offsets_trans.size()-1]<<endl;
 
   }
 
