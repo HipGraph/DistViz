@@ -551,10 +551,11 @@ public:
                       std::array<DENT, embedding_dim> &colvec =
                           arrayMap[global_col_id].value;
 
-//                      for (int d = 0; d < embedding_dim; d++) {
+                      for (int d = 0; d < embedding_dim; d++) {
 //                        forceDiff[d] = (this->dense_local)->nCoordinates[row_id * embedding_dim + d] - colvec[d];
-//                        repuls += forceDiff[d] * forceDiff[d];
-//                      }
+                        forceDiff[d] =colvec[d];
+                        repuls += forceDiff[d] * forceDiff[d];
+                      }
                     } else {
                       for (int d = 0; d < embedding_dim; d++) {
                         forceDiff[d] =(this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
