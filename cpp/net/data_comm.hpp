@@ -350,7 +350,6 @@ public:
 
     #pragma  omp parallel for
     for(int proc=0;proc<grid->col_world_size;proc++){
-      if (proc != grid->rank_in_col) {
         int start_index = proc * this->sp_local_receiver->proc_row_width;
         int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
         int gRows = static_cast<int>(this->sp_local_receiver->gRows);
@@ -370,7 +369,6 @@ public:
             }
           }
         }
-      }
     }
 
 
