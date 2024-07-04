@@ -545,12 +545,11 @@ public:
                     if (fetch_from_cache) {
                       unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> &arrayMap =
                           (*this->dense_local->tempCachePtr)[owner_rank];
-                      std::array<DENT, embedding_dim> &colvec =
-                          arrayMap[global_col_id].value;
-                      for (int d = 0; d < embedding_dim; d++) {
-                        forceDiff[d] = (this->dense_local)->nCoordinates[row_id * embedding_dim + d] - colvec[d];
-                        repuls += forceDiff[d] * forceDiff[d];
-                      }
+                      std::array<DENT, embedding_dim> &colvec = arrayMap[global_col_id].value;
+//                      for (int d = 0; d < embedding_dim; d++) {
+//                        forceDiff[d] = (this->dense_local)->nCoordinates[row_id * embedding_dim + d] - colvec[d];
+//                        repuls += forceDiff[d] * forceDiff[d];
+//                      }
                     } else {
                       for (int d = 0; d < embedding_dim; d++) {
                         forceDiff[d] =(this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
