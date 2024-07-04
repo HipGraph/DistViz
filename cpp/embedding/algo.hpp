@@ -783,9 +783,11 @@ public:
 
           partitioner.get()->partition_data<int,float>(shared_sparseMat.get());
           cout<<" rank  start partitioning completed "<<grid->rank_in_col<<endl;
+
+          cout<<" rank  start partitioning completed "<<grid->rank_in_col<<csr_handle->rowStart.size()<<endl;
+          shared_sparseMat.get()->initialize_CSR_blocks();
           CSRLocal<int, float> *csr_block = shared_sparseMat.get()->csr_local_data.get();
           CSRHandle<int, float> *csr_handle = csr_block->handler.get();
-          cout<<" rank  start partitioning completed "<<grid->rank_in_col<<csr_handle->rowStart.size()<<endl;
            row_offsets = csr_handle->rowStart;
           col_indices =  csr_handle->col_idx;
            values = csr_handle->values;
