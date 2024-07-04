@@ -303,9 +303,9 @@ public:
             generate_negative_samples(negative_samples_ptr_count.get(),
                                       csr_handle, i, j, batch_size,
                                       considering_batch_size, seed, max_nnz);
-            this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
-                                            negative_samples_ptr_count.get(),alpha, j, batch_size,
-                                            considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
+//            this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
+//                                            negative_samples_ptr_count.get(),alpha, j, batch_size,
+//                                            considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
            this->update_data_matrix_rowptr(
                 prevCoordinates_ptr.get(), j, batch_size);
