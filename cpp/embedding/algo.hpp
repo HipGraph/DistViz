@@ -303,9 +303,9 @@ public:
             generate_negative_samples(negative_samples_ptr_count.get(),
                                       csr_handle, i, j, batch_size,
                                       considering_batch_size, seed, max_nnz);
-//            this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
-//                                            negative_samples_ptr_count.get(),alpha, j, batch_size,
-//                                            considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
+            this->calc_t_dist_replus_rowptr(prevCoordinates_ptr.get(),
+                                            negative_samples_ptr_count.get(),alpha, j, batch_size,
+                                            considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
            this->update_data_matrix_rowptr(
                 prevCoordinates_ptr.get(), j, batch_size);
@@ -547,13 +547,10 @@ public:
                           (*this->dense_local->tempCachePtr)[owner_rank];
                       std::array<DENT, embedding_dim> &colvec =
                           arrayMap[global_col_id].value;
-//                      cout<<"rank in col "<<(grid)->rank_in_col<<" global_col_id "<<global_col_id<<" ";
                       for (int d = 0; d < embedding_dim; d++) {
                         forceDiff[d] = (this->dense_local)->nCoordinates[row_id * embedding_dim + d] - colvec[d];
-//                        cout<<colvec[d]<<" ";
                         repuls += forceDiff[d] * forceDiff[d];
                       }
-//                      cout<<endl;
                     } else {
                       for (int d = 0; d < embedding_dim; d++) {
                         forceDiff[d] =(this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
