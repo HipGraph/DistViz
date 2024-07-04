@@ -547,13 +547,13 @@ public:
                           (*this->dense_local->tempCachePtr)[owner_rank];
                       std::array<DENT, embedding_dim> &colvec =
                           arrayMap[global_col_id].value;
-                      cout<<"rank in col "<<(grid)->rank_in_col<<" global_col_id "<<global_col_id<<" ";
+//                      cout<<"rank in col "<<(grid)->rank_in_col<<" global_col_id "<<global_col_id<<" ";
                       for (int d = 0; d < embedding_dim; d++) {
                         forceDiff[d] = (this->dense_local)->nCoordinates[row_id * embedding_dim + d] - colvec[d];
-                        cout<<colvec[d]<<" ";
+//                        cout<<colvec[d]<<" ";
                         repuls += forceDiff[d] * forceDiff[d];
                       }
-                      cout<<endl;
+//                      cout<<endl;
                     } else {
                       for (int d = 0; d < embedding_dim; d++) {
                         forceDiff[d] =(this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
