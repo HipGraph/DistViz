@@ -524,7 +524,7 @@ public:
 
     int row_base_index = batch_id * batch_size;
 
-    #pragma omp parallel for schedule(static)
+//    #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
@@ -546,7 +546,7 @@ public:
                       unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> &arrayMap =
                           (*this->dense_local->tempCachePtr)[owner_rank];
                       if ((*this->dense_local->tempCachePtr)[owner_rank].count(global_col_id)==0 or (*this->dense_local->tempCachePtr)[owner_rank].size()!=2){
-                        cout<<" rank "<<grid->rank_in_col<< "global id "<<global_col_id<<" wring "<<endl;
+                        cout<<" rank "<<grid->rank_in_col<< "global id "<<global_col_id<<" wring "<<(*this->dense_local->tempCachePtr)[owner_rank].size()<<endl;
                       }
                       std::array<DENT, embedding_dim> &colvec = arrayMap[global_col_id].value;
                       for (int d = 0; d < embedding_dim; d++) {
