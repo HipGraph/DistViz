@@ -691,6 +691,10 @@ public:
     auto source_start_index = 0;
     auto source_end_index =this->sp_local_receiver->proc_row_width;
     DENT maxElement = *std::max_element(csr_handle->values.begin(), csr_handle->values.end());
+    DENT global_max;
+    MPI_Allreduce(&maxElement, &global_max, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+
+
     #pragma omp parallel for schedule(static)
     for(SPT i=source_start_index;i<source_end_index;i++) {
       int nn = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
@@ -702,7 +706,7 @@ public:
         for (uint64_t j = static_cast<uint64_t>(csr_handle->rowStart[i]);
              j < static_cast<uint64_t>(csr_handle->rowStart[i + 1]); j++) {
           DENT value = csr_handle->values[j];
-          DENT n_samples = static_cast<DENT>(iterations) * (value / maxElement);
+          DENT n_samples = static_cast<DENT>(iterations) * (value / global_max);
           if (n_samples > 0) {
             int index = j - static_cast<int>(csr_handle->rowStart[i]);
             samples_per_epoch[i][index] =
