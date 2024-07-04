@@ -350,13 +350,13 @@ public:
 
     #pragma  omp parallel for
     for(int proc=0;proc<grid->col_world_size;proc++){
+//      if (proc != grid->rank_in_col) {
         int start_index = proc * this->sp_local_receiver->proc_row_width;
         int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
         int gRows = static_cast<int>(this->sp_local_receiver->gRows);
         if (proc == grid->col_world_size - 1) {
           end_index = min(end_index, gRows);
         }
-
         for (int i = start_index; i < end_index; i++) {
           if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
             int id = (i+iteration)%this->sp_local_receiver->gRows;
@@ -368,7 +368,8 @@ public:
               current_offset[target_proc]++;
             }
           }
-        }
+//        }
+      }
     }
 
 
