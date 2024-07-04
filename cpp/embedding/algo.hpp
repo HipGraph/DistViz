@@ -692,12 +692,13 @@ public:
     auto source_end_index =this->sp_local_receiver->proc_row_width;
     DENT maxElement = *std::max_element(csr_handle->values.begin(), csr_handle->values.end());
     DENT global_max;
-    MPI_Allreduce(&maxElement, &global_max, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&maxElement, &global_max, 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+    cout<<" rank "<<grid->rank_in_col<<global_max<<endl;
 
-
-    #pragma omp parallel for schedule(static)
+//    #pragma omp parallel for schedule(static)
     for(SPT i=source_start_index;i<source_end_index;i++) {
       int nn = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
+      cout<<" rank "<<grid->rank_in_col<<" index"<<i<<" nn "<<nn<<endl;
       if (nn > 0) {
         samples_per_epoch[i].resize(nn, -1.0);
         samples_per_epoch_next[i].resize(nn, -1.0);
@@ -791,7 +792,7 @@ public:
           CSRLocal<int, float> *csr_block = shared_sparseMat.get()->csr_local_data.get();
           CSRHandle<int, float> *csr_handle = csr_block->handler.get();
            row_offsets = csr_handle->rowStart;
-          col_indices =  csr_handle->col_idx;
+           col_indices =  csr_handle->col_idx;
            values = csr_handle->values;
 //          data_comm->transfer_and_update_transpose(csr_local, csr_transpose,row_offsets_trans,col_indices_trans,values_trans);
 //
