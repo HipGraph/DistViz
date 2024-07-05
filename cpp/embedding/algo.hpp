@@ -301,7 +301,7 @@ public:
             CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
             full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i, j);
 
-            (this->dense_local)->print_cache(i);
+//            (this->dense_local)->print_cache(i);
             generate_negative_samples(negative_samples_ptr_count.get(),
                                       csr_handle, i, j, batch_size,
                                       considering_batch_size, seed, max_nnz);
@@ -545,11 +545,11 @@ public:
           DENT repuls = 0;
 
                     if (fetch_from_cache) {
-                      unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> &arrayMap =
+                      unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> arrayMap =
                           (*this->dense_local->tempCachePtr)[owner_rank];
-                      if (arrayMap.find(global_col_id) != arrayMap.end()) {
+                      if ((*this->dense_local->tempCachePtr)[owner_rank].find(global_col_id) != (*this->dense_local->tempCachePtr)[owner_rank].end()) {
                         cout<<" rank "<<grid->rank_in_col<<" found global_id "<<global_col_id<<"  row "<<row_base_index<<"itr"<<iteration<<" "<<endl;
-                        std::array<DENT, embedding_dim> &colvec = arrayMap[global_col_id].value;
+                        std::array<DENT, embedding_dim> &colvec = (*this->dense_local->tempCachePtr)[owner_rank][global_col_id].value;
                         for (int d = 0; d < embedding_dim; d++) {
                           forceDiff[d] =(this->dense_local)->nCoordinates[row_id * embedding_dim + d] -colvec[d];
                           repuls += forceDiff[d] * forceDiff[d];
