@@ -300,6 +300,8 @@ public:
 
             CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
             full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i, j);
+
+            (this->dense_local)->print_cache(i);
             generate_negative_samples(negative_samples_ptr_count.get(),
                                       csr_handle, i, j, batch_size,
                                       considering_batch_size, seed, max_nnz);
