@@ -504,6 +504,7 @@ public:
       (*receive_counts_cyclic)[i]=0;
       for (auto j = base_index; j < base_index + count; j++) {
         DataTuple<DENT, embedding_dim> t = (*receivebuf)[j];
+        cout<<" grid "<<grid->rank_in_col<<" col "<<t.col<<" iteration "<<iteration<<endl;
         (this->dense_local)->insert_cache(i, t.col, batch_id, iteration, t.value, temp);
       }
     }

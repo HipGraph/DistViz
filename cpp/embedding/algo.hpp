@@ -552,7 +552,7 @@ public:
                           repuls += forceDiff[d] * forceDiff[d];
                         }
                       }else{
-                        cout<<" rank "<<grid->rank_in_col<<" global_id "<<global_col_id<<"  row "<<row_base_index<<"itr"<<iteration<<" "<<endl;
+                        cout<<" rank "<<grid->rank_in_col<<" misssing global_id "<<global_col_id<<"  row "<<row_base_index<<"itr"<<iteration<<" "<<endl;
                       }
                     } else {
                       for (int d = 0; d < embedding_dim; d++) {
