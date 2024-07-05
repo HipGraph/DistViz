@@ -543,9 +543,10 @@ public:
           DENT repuls = 0;
 
                     if (fetch_from_cache) {
-                      unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> arrayMap =
+                      unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> &arrayMap =
                           (*this->dense_local->tempCachePtr)[owner_rank];
                       if (arrayMap.find(global_col_id) != arrayMap.end()) {
+                        cout<<" rank "<<grid->rank_in_col<<" found global_id "<<global_col_id<<"  row "<<row_base_index<<"itr"<<iteration<<" "<<endl;
                         std::array<DENT, embedding_dim> &colvec = arrayMap[global_col_id].value;
                         for (int d = 0; d < embedding_dim; d++) {
                           forceDiff[d] =(this->dense_local)->nCoordinates[row_id * embedding_dim + d] -colvec[d];
