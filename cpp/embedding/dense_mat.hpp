@@ -176,22 +176,23 @@ public:
       unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>> map =
 //          (*this->cachePtr)[i];
       (*this->tempCachePtr)[i];
+      cout<<" rank "<<rank<<" of rank  "<<i<<" size " <<map.size()<<endl;
 
-      string output_path = "rank_" + to_string(rank) + "remote_rank_" +
-                           to_string(i) + " itr_" + to_string(iter) + ".txt";
-      char stats[500];
-      strcpy(stats, output_path.c_str());
-      ofstream fout(stats, std::ios_base::app);
-
-      for (const auto &kvp : map) {
-        uint64_t key = kvp.first;
-        const std::array<DENT, embedding_dim> &value = kvp.second.value;
-        fout << key << " ";
-        for (int i = 0; i < embedding_dim; ++i) {
-          fout << value[i] << " ";
-        }
-        fout << std::endl;
-      }
+//      string output_path = "rank_" + to_string(rank) + "remote_rank_" +
+//                           to_string(i) + " itr_" + to_string(iter) + ".txt";
+//      char stats[500];
+//      strcpy(stats, output_path.c_str());
+//      ofstream fout(stats, std::ios_base::app);
+//
+//      for (const auto &kvp : map) {
+//        uint64_t key = kvp.first;
+//        const std::array<DENT, embedding_dim> &value = kvp.second.value;
+//        fout << key << " ";
+//        for (int i = 0; i < embedding_dim; ++i) {
+//          fout << value[i] << " ";
+//        }
+//        fout << std::endl;
+//      }
     }
   }
 
