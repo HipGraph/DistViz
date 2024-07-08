@@ -525,6 +525,7 @@ public:
       int batch_id, int batch_size, int block_size, int iteration, vector<vector<SPT>> *negative_samples_id, int repulsive_force_scaling_factor=2) {
 
     int row_base_index = batch_id * batch_size;
+    (*this->dense_local->tempCachePtr).print_cache(iteration);
 
 //    #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
