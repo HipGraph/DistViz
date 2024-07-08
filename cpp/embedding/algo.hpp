@@ -218,7 +218,7 @@ public:
     uint64_t  total_tup = static_cast<uint64_t>(total_tuples);
     int proc_row_width =  static_cast<int>(this->sp_local_receiver->gRows);
 
-    auto negative_csr = make_shared<SpMat<SPT,DENT>>(grid,negative_tuples.get(),gRows ,gCOls, total_tup,
+    auto negative_csr = make_unique<SpMat<SPT,DENT>>(grid,negative_tuples.get(),gRows ,gCOls, total_tup,
                                                       last_batch_size,proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
 
     negative_csr.get()->initialize_CSR_blocks(true);
@@ -239,7 +239,8 @@ public:
 
         //negative sample generation
         if (i>0 and i%ns_generation_skip_factor==0){
-          negative_tuples = make_unique<vector<Tuple<DENT>>>(total_tuples);
+          negative_tuples->clear();
+          negative_tuples->resize(total_tuples);
           std::mt19937_64 gen1(rd());
 //          #pragma omp parallel for schedule(static)
           for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
@@ -256,7 +257,7 @@ public:
             }
           }
           if(grid->col_world_size > 1) {
-            negative_csr = make_shared<SpMat<SPT, DENT>>(grid, negative_tuples.get(), gRows, gCOls,
+            negative_csr = make_unique<SpMat<SPT, DENT>>(grid, negative_tuples.get(), gRows, gCOls,
                                                          total_tup,last_batch_size, this->sp_local_receiver->proc_row_width,
                 this->sp_local_receiver->proc_row_width, false, false);
             negative_csr.get()->initialize_CSR_blocks();
