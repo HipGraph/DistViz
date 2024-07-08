@@ -172,7 +172,7 @@ public:
   void print_cache(int iter) {
     int rank = grid->rank_in_col;
 
-    for (int i = 0; i < (*this->cachePtr).size(); i++) {
+    for (int i = 0; i < (*this->tempCachePtr).size(); i++) {
       unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>> map =
 //          (*this->cachePtr)[i];
       (*this->tempCachePtr)[i];
