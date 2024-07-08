@@ -299,9 +299,6 @@ public:
                 this->data_comm_cache[j].get(), csr_block, batch_size,
                 considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
                 0, true);
-
-
-
 //            (this->dense_local)->print_cache(i);
             generate_negative_samples(negative_samples_ptr_count.get(),
                                       csr_handle, i, j, batch_size,
@@ -310,8 +307,7 @@ public:
                                             negative_samples_ptr_count.get(),alpha, j, batch_size,
                                             considering_batch_size,i,negative_samples_ids.get(),repulsive_force_scaling_factor);
 
-           this->update_data_matrix_rowptr(
-                prevCoordinates_ptr.get(), j, batch_size);
+           this->update_data_matrix_rowptr(prevCoordinates_ptr.get(), j, batch_size);
 
             for (int k = 0; k < batch_size; k++) {
               int IDIM = k * embedding_dim;
@@ -547,18 +543,13 @@ public:
           DENT repuls = 0;
 
                     if (fetch_from_cache) {
-                      unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>> arrayMap =
-                          (*this->dense_local->tempCachePtr)[owner_rank];
-                      if ((*this->dense_local->tempCachePtr)[owner_rank].find(global_col_id) != (*this->dense_local->tempCachePtr)[owner_rank].end()) {
+                      unordered_map<uint64_t , CacheEntry<DENT, embedding_dim>>& arrayMap =(*this->dense_local->tempCachePtr)[owner_rank];
 //                        cout<<" rank "<<grid->rank_in_col<<" found global_id "<<global_col_id<<"  row "<<row_base_index<<"itr"<<iteration<<" "<<endl;
                         std::array<DENT, embedding_dim> &colvec = (*this->dense_local->tempCachePtr)[owner_rank][global_col_id].value;
                         for (int d = 0; d < embedding_dim; d++) {
                           forceDiff[d] =(this->dense_local)->nCoordinates[row_id * embedding_dim + d] -colvec[d];
                           repuls += forceDiff[d] * forceDiff[d];
                         }
-                      }else{
-                        cout<<" rank "<<grid->rank_in_col<<" misssing global_id "<<global_col_id<<"  row "<<row_base_index<<"itr"<<iteration<<" "<<endl;
-                      }
                     } else {
                       for (int d = 0; d < embedding_dim; d++) {
                         forceDiff[d] =(this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
