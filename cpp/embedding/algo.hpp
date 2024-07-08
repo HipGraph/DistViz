@@ -291,15 +291,16 @@ public:
               prevCoordinates_ptr.get(), j, batch_size);
           alpha = lr * (1.0 - (float(i) / float(iterations)));
         } else {
+          CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
+          full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i, j);
           // These operations are for more than one processes.
-//            this->execute_pull_model_computations(
-//                sendbuf_ptr.get(), update_ptr.get(), i, j,
-//                this->data_comm_cache[j].get(), csr_block, batch_size,
-//                considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
-//                0, true);
+            this->execute_pull_model_computations(
+                sendbuf_ptr.get(), update_ptr.get(), i, j,
+                this->data_comm_cache[j].get(), csr_block, batch_size,
+                considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
+                0, true);
 
-            CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
-            full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i, j);
+
 
 //            (this->dense_local)->print_cache(i);
             generate_negative_samples(negative_samples_ptr_count.get(),
@@ -527,7 +528,7 @@ public:
     int row_base_index = batch_id * batch_size;
 //    (this->dense_local)->print_cache(iteration);
 
-//    #pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
       for(int k=0;k<(*negative_samples_ptr_count)[row_id];k++){
