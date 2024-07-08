@@ -779,7 +779,7 @@ public:
           shared_ptr<vector<Tuple<float>>> knng_graph_ptr =
               make_shared<vector<Tuple<float>>>();
           FileReader<int, float>::parallel_read_MM(
-              "/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_single.txt",
+              "/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_single.mtx",
               knng_graph_ptr.get(), false);
           uint64_t gNNZ = (*knng_graph_ptr).size();
           auto localARows =
