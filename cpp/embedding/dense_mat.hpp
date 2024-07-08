@@ -171,7 +171,7 @@ public:
 
   void print_cache(int iter) {
     int rank = grid->rank_in_col;
-
+    cout<<" rank "<<rank<<" cache  size "<<(*this->tempCachePtr).size()<<endl;
     for (int i = 0; i < (*this->tempCachePtr).size(); i++) {
       unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>> map =
 //          (*this->cachePtr)[i];
