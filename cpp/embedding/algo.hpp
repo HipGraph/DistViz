@@ -248,20 +248,21 @@ public:
             for(uint64_t j =0;j < max_nnz ; j++) {
               (*negative_samples_ids)[i][j]=distribution(gen1);
               if(grid->col_world_size > 1){
-                Tuple<DENT> tuple;
-                tuple.row = (*negative_samples_ids)[i][j] ;
-                tuple.col= i;
-                tuple.value=1;
-                (*negative_tuples)[i*max_nnz+j]=tuple;
+                negative_csr->csr_local_data->handler->values[i*max_nnz+j]=(*negative_samples_ids)[i][j];
+//                Tuple<DENT> tuple;
+//                tuple.row = (*negative_samples_ids)[i][j] ;
+//                tuple.col= i;
+//                tuple.value=1;
+//                (*negative_tuples)[i*max_nnz+j]=tuple;
               }
             }
           }
-          if(grid->col_world_size > 1) {
-            negative_csr = make_unique<SpMat<SPT, DENT>>(grid, negative_tuples.get(), gRows, gCOls,
-                                                         total_tup,last_batch_size, this->sp_local_receiver->proc_row_width,
-                this->sp_local_receiver->proc_row_width, false, false);
-            negative_csr.get()->initialize_CSR_blocks();
-          }
+//          if(grid->col_world_size > 1) {
+//            negative_csr = make_unique<SpMat<SPT, DENT>>(grid, negative_tuples.get(), gRows, gCOls,
+//                                                         total_tup,last_batch_size, this->sp_local_receiver->proc_row_width,
+//                this->sp_local_receiver->proc_row_width, false, false);
+//            negative_csr.get()->initialize_CSR_blocks();
+//          }
         }
 
 
