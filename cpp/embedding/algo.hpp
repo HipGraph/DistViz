@@ -242,27 +242,15 @@ public:
           negative_tuples->clear();
           negative_tuples->resize(total_tuples);
           std::mt19937_64 gen1(rd());
-//          #pragma omp parallel for schedule(static)
           for(int i=0;i<this->sp_local_receiver->proc_row_width;i++){
             (*negative_samples_ids)[i]=vector<SPT>(max_nnz);
             for(uint64_t j =0;j < max_nnz ; j++) {
               (*negative_samples_ids)[i][j]=distribution(gen1);
               if(grid->col_world_size > 1){
                 negative_csr->csr_local_data->handler->values[i*max_nnz+j]=(*negative_samples_ids)[i][j];
-//                Tuple<DENT> tuple;
-//                tuple.row = (*negative_samples_ids)[i][j] ;
-//                tuple.col= i;
-//                tuple.value=1;
-//                (*negative_tuples)[i*max_nnz+j]=tuple;
               }
             }
           }
-//          if(grid->col_world_size > 1) {
-//            negative_csr = make_unique<SpMat<SPT, DENT>>(grid, negative_tuples.get(), gRows, gCOls,
-//                                                         total_tup,last_batch_size, this->sp_local_receiver->proc_row_width,
-//                this->sp_local_receiver->proc_row_width, false, false);
-//            negative_csr.get()->initialize_CSR_blocks();
-//          }
         }
 
 
@@ -771,100 +759,100 @@ public:
         std::vector<float> values_trans;
 
         if (grid->col_world_size > 1) {
-          shared_ptr<vector<Tuple<float>>> knng_graph_ptr =
-              make_shared<vector<Tuple<float>>>();
-          FileReader<int, float>::parallel_read_MM(
-              "/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_single.mtx",
-              knng_graph_ptr.get(), false);
-          uint64_t gNNZ = (*knng_graph_ptr).size();
-          auto localARows =
-              divide_and_round_up((sp_local_native)->gRows, grid->col_world_size);
-          auto shared_sparseMat = make_shared<SpMat<int, float>>(
-              grid, knng_graph_ptr.get(), (sp_local_native)->gRows,
-              (sp_local_native)->gCols, gNNZ, (sp_local_native)->proc_row_width,
-              localARows, localARows, false, false);
+//          shared_ptr<vector<Tuple<float>>> knng_graph_ptr =
+//              make_shared<vector<Tuple<float>>>();
+//          FileReader<int, float>::parallel_read_MM(
+//              "/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_single.mtx",
+//              knng_graph_ptr.get(), false);
+//          uint64_t gNNZ = (*knng_graph_ptr).size();
+//          auto localARows =
+//              divide_and_round_up((sp_local_native)->gRows, grid->col_world_size);
+//          auto shared_sparseMat = make_shared<SpMat<int, float>>(
+//              grid, knng_graph_ptr.get(), (sp_local_native)->gRows,
+//              (sp_local_native)->gCols, gNNZ, (sp_local_native)->proc_row_width,
+//              localARows, localARows, false, false);
+//
+//          auto partitioner = unique_ptr<GlobalAdjacency1DPartitioner>(
+//              new GlobalAdjacency1DPartitioner(grid));
+//          cout << " rank  start partitioning data" << grid->rank_in_col << endl;
+//
+//          partitioner.get()->partition_data<int, float>(shared_sparseMat.get());
+//          cout << " rank  start partitioning completed " << grid->rank_in_col
+//               << endl;
+//          shared_sparseMat.get()->initialize_CSR_blocks();
+//          CSRLocal<int, float> *csr_block =
+//              shared_sparseMat.get()->csr_local_data.get();
+//          CSRHandle<int, float> *csr_handle = csr_block->handler.get();
+//          row_offsets = csr_handle->rowStart;
+//          col_indices = csr_handle->col_idx;
+//          values = csr_handle->values;
+                              data_comm->transfer_and_update_transpose(csr_local, csr_transpose,row_offsets_trans,col_indices_trans,values_trans);
 
-          auto partitioner = unique_ptr<GlobalAdjacency1DPartitioner>(
-              new GlobalAdjacency1DPartitioner(grid));
-          cout << " rank  start partitioning data" << grid->rank_in_col << endl;
+                              std::vector<SPT> final_row_offsets(numRows+1,0);
+                              std::vector<SPT> final_col_indices;
+                              std::vector<DENT> final_values;
 
-          partitioner.get()->partition_data<int, float>(shared_sparseMat.get());
-          cout << " rank  start partitioning completed " << grid->rank_in_col
-               << endl;
-          shared_sparseMat.get()->initialize_CSR_blocks();
-          CSRLocal<int, float> *csr_block =
-              shared_sparseMat.get()->csr_local_data.get();
-          CSRHandle<int, float> *csr_handle = csr_block->handler.get();
-          row_offsets = csr_handle->rowStart;
-          col_indices = csr_handle->col_idx;
-          values = csr_handle->values;
-          //                    data_comm->transfer_and_update_transpose(csr_local, csr_transpose,row_offsets_trans,col_indices_trans,values_trans);
-          //
-          //                    std::vector<SPT> final_row_offsets(numRows+1,0);
-          //                    std::vector<SPT> final_col_indices;
-          //                    std::vector<DENT> final_values;
-          //
-          //                    for(int i=0;i<numRows;i++){
-          //                       unordered_map<SPT,DENT> multi_map;
-          //                       map<SPT,DENT> result_map;
-          //                      for(int j=row_offsets_trans[i];j<row_offsets_trans[i+1];j++){
-          //                        multi_map[col_indices_trans[j]]=values_trans[j];
-          //                        result_map[col_indices_trans[j]] = values_trans[j];
-          //                      }
-          //
-          //
-          //                      for(int j=row_offsets[i];j<row_offsets[i+1];j++){
-          //                        if(multi_map.count(col_indices[j])>0){
-          //                          multi_map[col_indices[j]]*=values[j];
-          //                          result_map[col_indices[j]]+= values[j];
-          //                          result_map[col_indices[j]] -= multi_map[col_indices[j]];
-          //                        }else{
-          //                          result_map[col_indices[j]] = values[j];
-          //                        }
-          //                      }
-          //                      final_row_offsets[i+1]=final_row_offsets[i]+result_map.size();
-          //                      for(auto it=result_map.begin();it!= result_map.end();it++){
-          //                        final_col_indices.push_back(it->first);
-          //                        final_values.push_back(it->second);
-          //                      }
-          //                    }
-          //
-          //
-          //                    row_offsets = final_row_offsets;
-          //                    col_indices = final_col_indices;
-          //                    values = final_values;
-          //
-          //                  }else {
-          //                    int transNumRows = transpose_row_offsets.size() - 1;
-          //
-          //                    // Prepare triplet list to avoid locking overhead
-          //                    std::vector<Eigen::Triplet<float>> triplets;
-          //                    triplets.reserve(values.size());
-          //                    for (int i = 0; i < numRows; ++i) {
-          //                      int start = row_offsets[i];
-          //                      int end = row_offsets[i + 1];
-          //                      for (int j = start; j < end; ++j) {
-          //                        triplets.emplace_back(i, col_indices[j], values[j]);
-          //                      }
-          //                    }
-          //
-          //                    Eigen::SparseMatrix<float> csrMatrix(numRows,sp_local_receiver->gRows);
-          //                    csrMatrix.setFromTriplets(triplets.begin(), triplets.end()); csrMatrix.makeCompressed();
-          //                    Eigen::SparseMatrix<float>  csrTransposeMatrix = csrMatrix.transpose(); Eigen::SparseMatrix<float>prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
-          //                    Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
-          //
-          //                    int rows = tempMatrix.rows();
-          //                    int cols = tempMatrix.cols();
-          //                    int nnz = tempMatrix.nonZeros();
-          //
-          //                    col_indices.resize(nnz);
-          //                    values.resize(nnz);
-          //
-          //                    std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
-          //                    std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
-          //                    std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
-          //                  }
-          //
+                              for(int i=0;i<numRows;i++){
+                                 unordered_map<SPT,DENT> multi_map;
+                                 map<SPT,DENT> result_map;
+                                for(int j=row_offsets_trans[i];j<row_offsets_trans[i+1];j++){
+                                  multi_map[col_indices_trans[j]]=values_trans[j];
+                                  result_map[col_indices_trans[j]] = values_trans[j];
+                                }
+
+
+                                for(int j=row_offsets[i];j<row_offsets[i+1];j++){
+                                  if(multi_map.count(col_indices[j])>0){
+                                    multi_map[col_indices[j]]*=values[j];
+                                    result_map[col_indices[j]]+= values[j];
+                                    result_map[col_indices[j]] -= multi_map[col_indices[j]];
+                                  }else{
+                                    result_map[col_indices[j]] = values[j];
+                                  }
+                                }
+                                final_row_offsets[i+1]=final_row_offsets[i]+result_map.size();
+                                for(auto it=result_map.begin();it!= result_map.end();it++){
+                                  final_col_indices.push_back(it->first);
+                                  final_values.push_back(it->second);
+                                }
+                              }
+
+
+                              row_offsets = final_row_offsets;
+                              col_indices = final_col_indices;
+                              values = final_values;
+
+                            }else {
+                              int transNumRows = transpose_row_offsets.size() - 1;
+
+                              // Prepare triplet list to avoid locking overhead
+                              std::vector<Eigen::Triplet<float>> triplets;
+                              triplets.reserve(values.size());
+                              for (int i = 0; i < numRows; ++i) {
+                                int start = row_offsets[i];
+                                int end = row_offsets[i + 1];
+                                for (int j = start; j < end; ++j) {
+                                  triplets.emplace_back(i, col_indices[j], values[j]);
+                                }
+                              }
+
+                              Eigen::SparseMatrix<float> csrMatrix(numRows,sp_local_receiver->gRows);
+                              csrMatrix.setFromTriplets(triplets.begin(), triplets.end()); csrMatrix.makeCompressed();
+                              Eigen::SparseMatrix<float>  csrTransposeMatrix = csrMatrix.transpose(); Eigen::SparseMatrix<float>prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
+                              Eigen::SparseMatrix<float> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
+
+                              int rows = tempMatrix.rows();
+                              int cols = tempMatrix.cols();
+                              int nnz = tempMatrix.nonZeros();
+
+                              col_indices.resize(nnz);
+                              values.resize(nnz);
+
+                              std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
+                              std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz, col_indices.begin());
+                              std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz, values.begin());
+                            }
+
           //                  FileWriter<SPT,DENT> fileWriter;
           //                  fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
         }

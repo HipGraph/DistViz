@@ -176,7 +176,7 @@ public:
       unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>& map =
 //          (*this->cachePtr)[i];
       (*this->tempCachePtr)[i];
-      cout<<" rank "<<rank<<" of rank  "<<i<<" size " <<map.size()<<endl;
+
 
       string output_path = "rank_" + to_string(rank) + "remote_rank_" +
                            to_string(i) + " itr_" + to_string(iter) + ".txt";
