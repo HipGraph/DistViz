@@ -275,7 +275,7 @@ static void  read_txt(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
     }
 
   } else {
-    std::cerr << "Error opening file: " << file_path << std::endl;
+    std::cerr << "Error opening file: " << filename << std::endl;
   }
 }
 
