@@ -271,7 +271,7 @@ static void  read_txt(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
     }
     datamatrix->resize(data.size());
     for(int i=0;i<data.size();i++){
-      datamatrix[i]=data[i];
+      (*datamatrix)[i]=data[i];
     }
 
   } else {
