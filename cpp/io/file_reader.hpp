@@ -249,6 +249,39 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 }
 
 
+static void  read_txt(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
+                     INDEX_TYPE no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=8) {
+  std::ifstream infile(filename); // Open the file for reading
+  std::vector<std::vector<VALUE_TYPE>> data; // Vector to hold the loaded data
+
+  if (infile) {
+    std::string line;
+    while (std::getline(infile, line)) {
+      std::vector<VALUE_TYPE> row;
+      std::istringstream iss(line);
+      VALUE_TYPE value;
+
+      // Read each value (label followed by features)
+      while (iss >> value) {
+        row.push_back(value);
+      }
+
+      // Add the row (data vector) to the data vector
+      data.push_back(row);
+    }
+    datamatrix->resize(data.size());
+    for(int i=0;i<data.size();i++){
+      datamatrix[i]=data[i];
+    }
+
+  } else {
+    std::cerr << "Error opening file: " << file_path << std::endl;
+  }
+
+  return data;
+}
+
+
 static void  read_fbin_sparse(string filename, Eigen::SparseMatrix<float, Eigen::RowMajor> &output,
                       INDEX_TYPE no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=8) {
   cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;

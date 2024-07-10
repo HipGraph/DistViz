@@ -218,6 +218,10 @@ int main(int argc, char* argv[]) {
     }
   } else if (file_format == 3) {
     skip_knng = true;
+  }else if (file_format == 4) {
+    FileReader<int, float>::read_txt(
+        input_path, data_matrix_ptr.get(), data_set_size, dimension,
+        grid.get()->rank_in_col, grid.get()->col_world_size);
   }
 
   MPI_Barrier(MPI_COMM_WORLD);
