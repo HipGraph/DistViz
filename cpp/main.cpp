@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
   double density = 0;
   int nn = 0;
   double tree_depth_ratio = 1;
-  bool use_locality_optimization = true;
+  bool use_locality_optimization = false;
   int local_tree_offset = 2;
   int file_format = 0;
   int data_starting_index = 8;
