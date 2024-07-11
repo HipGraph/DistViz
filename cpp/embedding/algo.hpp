@@ -627,6 +627,7 @@ public:
     if (sigma_cache[node_index] > -1) {
       return sigma_cache[node_index];
     }
+    int count=0;
     do {
       value = 0;
       if (csr_handle != nullptr) {
@@ -679,6 +680,11 @@ public:
         } else {
           mid = (lo + hi) / 2;
         }
+      }
+      if (count==100){
+        return mid;
+      }else{
+        count++;
       }
     } while (true);
   }
