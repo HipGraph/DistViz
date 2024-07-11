@@ -124,22 +124,16 @@ public:
       //
       //	//calculate locality optimization to improve data locality
       if (use_locality_optimization) {
-        cout << " rank " << grid->rank_in_col
-             << " starting tree leaf correlation " << endl;
+        cout << " rank " << grid->rank_in_col << " starting tree leaf correlation " << endl;
         drpt_global.calculate_tree_leaf_correlation();
-        cout << " rank " << grid->rank_in_col
-             << "  tree leaf correlation completed " << endl;
+        cout << " rank " << grid->rank_in_col << "  tree leaf correlation completed " << endl;
       }
 
-      shared_ptr<DataNode3DVector<INDEX_TYPE, VALUE_TYPE>>
-          leaf_nodes_of_trees_ptr =
-              make_shared<DataNode3DVector<INDEX_TYPE, VALUE_TYPE>>(1);
+      shared_ptr<DataNode3DVector<INDEX_TYPE, VALUE_TYPE>> leaf_nodes_of_trees_ptr = make_shared<DataNode3DVector<INDEX_TYPE, VALUE_TYPE>>(1);
 
-      cout << " rank " << grid->rank_in_col
-           << " running  datapoint collection  " << endl;
+      cout << " rank " << grid->rank_in_col << " running  datapoint collection  " << endl;
 
-      shared_ptr<vector<VALUE_TYPE>> receive_values_ptr =
-          make_shared<vector<VALUE_TYPE>>();
+      shared_ptr<vector<VALUE_TYPE>> receive_values_ptr = make_shared<vector<VALUE_TYPE>>();
 
       drpt_global.collect_similar_data_points_of_all_trees(
           receive_values_ptr.get(), use_locality_optimization,
@@ -151,8 +145,7 @@ public:
       Eigen::Map<Eigen::MatrixXf> data_matrix(
           (*receive_values_ptr).data(), data_dimension, total_receive_count);
 
-      cout << "rank " << grid->rank_in_col << " rows " << (data_matrix).rows()
-           << " cols " << (data_matrix).cols() << endl;
+      cout << "rank " << grid->rank_in_col << " rows " << (data_matrix).rows() << " cols " << (data_matrix).cols() << endl;
 
       //    int effective_nn = 2 * nn;
       int effective_nn = nn;
