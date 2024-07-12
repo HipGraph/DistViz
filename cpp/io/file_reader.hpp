@@ -281,7 +281,7 @@ static void read_ubin(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
   }
   datamatrix->resize(chunk_size, vector<VALUE_TYPE> (dim));
   cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<endl;
-  std::vector<float> data(chunk_size * dim);
+  std::vector<uint8_t> data(chunk_size * dim);
 
   file.seekg(start_idx * 1 * dim+offset, std::ios::beg);
   file.read(reinterpret_cast<char*>(data.data()),  chunk_size * dim);
@@ -292,7 +292,7 @@ static void read_ubin(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
     std::vector<float> vec(dim);
     std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
     std::transform(vec.begin(), vec.end(), vec.begin(),
-                   [scaleParameter](double value) { return value * scaleParameter; });
+                   [scaleParameter](float value) { return value * scaleParameter; });
 
     (*datamatrix)[i]=vec;
   }
