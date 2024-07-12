@@ -248,13 +248,6 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
   cout<<" rank  "<<rank<<"  data loading completed"<<endl;
 }
 
-
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <stdexcept>
-#include <cassert>
-
 static void read_ubin(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
                        INDEX_TYPE no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=8) {
   cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
