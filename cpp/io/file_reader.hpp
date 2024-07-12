@@ -298,32 +298,6 @@ static void read_ubin(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
   }
 }
 
-int main() {
-  try {
-    std::string filename = "your_file.bvec";
-    std::vector<int> bounds = {1, 10}; // Example bounds
-    std::vector<std::vector<uint8_t>> vectors = bvecs_read(filename, bounds);
-
-    // Print the read vectors (for verification)
-    for (const auto& vec : vectors) {
-      for (uint8_t val : vec) {
-        std::cout << static_cast<int>(val) << " ";
-      }
-      std::cout << std::endl;
-    }
-  } catch (const std::invalid_argument& e) {
-    std::cerr << "Invalid argument: " << e.what() << std::endl;
-  } catch (const std::runtime_error& e) {
-    std::cerr << "Runtime error: " << e.what() << std::endl;
-  } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
-  }
-
-  return 0;
-}
-
-
-
 static void  read_txt(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
                      INDEX_TYPE no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=8) {
   std::ifstream infile(filename); // Open the file for reading
