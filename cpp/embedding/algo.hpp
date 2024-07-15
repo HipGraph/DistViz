@@ -232,7 +232,7 @@ public:
         proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
 
     negative_csr.get()->initialize_CSR_blocks(true);
-
+    cout<<" rank "<<grid->rank_in_col<<" negative initialization completed "<<endl;
     stop_clock_and_add(t, "Iteration Total Time");
 
     for (int i = 0; i < iterations; i++) {
@@ -295,6 +295,7 @@ public:
               negative_csr->csr_local_data.get();
           full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i,
                                                           j);
+          cout<<" rank "<<grid->rank_in_col<<" transfer_negative_sampled_data completed "<<endl;
           // These operations are for more than one processes.
           this->execute_pull_model_computations(
               sendbuf_ptr.get(), update_ptr.get(), i, j,
@@ -302,13 +303,16 @@ public:
               considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
               0, true);
           //            (this->dense_local)->print_cache(i);
+          cout<<" rank "<<grid->rank_in_col<<"  attractive completed "<<endl;
           generate_negative_samples(negative_samples_ptr_count.get(),
                                     csr_handle, i, j, batch_size,
                                     considering_batch_size, seed, max_nnz);
+          cout<<" rank "<<grid->rank_in_col<<"  generate_negative_samples completed "<<endl;
           this->calc_t_dist_replus_rowptr(
               prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
               alpha, j, batch_size, considering_batch_size, i,
               negative_samples_ids.get(), repulsive_force_scaling_factor);
+          cout<<" rank "<<grid->rank_in_col<<"  calc_t_dist_replus_rowptr completed "<<endl;
 
           this->update_data_matrix_rowptr(prevCoordinates_ptr.get(), j,
                                           batch_size);
