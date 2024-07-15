@@ -185,12 +185,12 @@ public:
       std::vector<float> &values = csr_handle->values;
 
       calculate_membership_strength(csr_handle);
-      cout << " calculate_membership_strength completed " << endl;
+      cout<<" rank "<<grid->rank_in_col << " calculate_membership_strength completed " << endl;
       apply_set_operations(true, 1.0, full_comm.get());
-      cout << " apply_set_operations completed " << endl;
+      cout<<" rank "<<grid->rank_in_col << " apply_set_operations completed " << endl;
       make_epochs_per_sample(csr_handle, iterations, ns);
     }
-    cout << " preprocessing completed " << endl;
+    cout<<" rank "<<grid->rank_in_col << " preprocessing completed " << endl;
 
     int seed = 0;
     DENT alpha = lr;

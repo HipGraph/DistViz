@@ -84,7 +84,7 @@ public:
       }
     }
 
-    cout<<" data filling completed "<<endl;
+    cout<<" rank "<<this->grid->rank_in_col<<" data filling completed "<<endl;
 
     Tuple<VALUE_TYPE> *coords_ptr = (*coords).data();
     if (col_partitioned) {
