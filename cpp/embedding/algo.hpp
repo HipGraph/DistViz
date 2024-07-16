@@ -564,14 +564,16 @@ public:
           //                        global_id "<<global_col_id<<"  row
           //                        "<<row_base_index<<"itr"<<iteration<<"
           //                        "<<endl;
-          std::array<DENT, embedding_dim> &colvec =
-              (*this->dense_local->tempCachePtr)[owner_rank][global_col_id]
-                  .value;
-          for (int d = 0; d < embedding_dim; d++) {
-            forceDiff[d] =
-                (this->dense_local)->nCoordinates[row_id * embedding_dim + d] -
-                colvec[d];
-            repuls += forceDiff[d] * forceDiff[d];
+          if ((*this->dense_local->tempCachePtr)[owner_rank].count(global_col_id)>0) {//remove this hack later
+            std::array<DENT, embedding_dim> &colvec =
+                (*this->dense_local->tempCachePtr)[owner_rank][global_col_id]
+                    .value;
+            for (int d = 0; d < embedding_dim; d++) {
+              forceDiff[d] = (this->dense_local)
+                                 ->nCoordinates[row_id * embedding_dim + d] -
+                             colvec[d];
+              repuls += forceDiff[d] * forceDiff[d];
+            }
           }
         } else {
           for (int d = 0; d < embedding_dim; d++) {
