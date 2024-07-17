@@ -202,10 +202,7 @@ public:
         make_unique<vector<vector<SPT>>>(last_batch_size);
     int max_nnz = average_degree * 10;
     int total_tuples = max_nnz * sp_local_receiver->proc_row_width;
-    unique_ptr<vector<Tuple<DENT>>> negative_tuples =
-        make_unique<vector<Tuple<DENT>>>(total_tuples);
-//    cout << " rank " << grid->rank_in_col << " total tuples " << total_tuples
-//         << endl;
+    unique_ptr<vector<Tuple<DENT>>> negative_tuples = make_unique<vector<Tuple<DENT>>>(total_tuples);
 
     auto t = start_clock();
     //    #pragma omp parallel for schedule(static)
@@ -475,13 +472,9 @@ public:
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
             if (dst_id >= dst_start_index and dst_id <= dst_end_index) {
-              uint64_t local_dst =
-                  dst_id - (grid)->rank_in_col *
-                               (this->sp_local_receiver)->proc_col_width;
-              int target_rank =
-                  (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
-              bool fetch_from_cache =
-                  target_rank == (grid)->rank_in_col ? false : true;
+              uint64_t local_dst = dst_id - (grid)->rank_in_col * (this->sp_local_receiver)->proc_col_width;
+              int target_rank = (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
+              bool fetch_from_cache = target_rank == (grid)->rank_in_col ? false : true;
 
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
@@ -501,12 +494,9 @@ public:
                 if (!fetch_from_cache) {
                   forceDiff[d] =
                       (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-                      (this->dense_local)
-                          ->nCoordinates[local_dst * embedding_dim + d];
+                      (this->dense_local)->nCoordinates[local_dst * embedding_dim + d];
                 } else {
-                  forceDiff[d] =
-                      (this->dense_local)->nCoordinates[i * embedding_dim + d] -
-                      array_ptr[d];
+                  forceDiff[d] = (this->dense_local)->nCoordinates[i * embedding_dim + d] - array_ptr[d];
                 }
                 attrc += forceDiff[d] * forceDiff[d];
               }
@@ -560,9 +550,8 @@ public:
           unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>> &arrayMap =
               (*this->dense_local->tempCachePtr)[owner_rank];
 //          if ((*this->dense_local->tempCachePtr)[owner_rank].count(global_col_id)>0) {//remove this hack later
-            std::array<DENT, embedding_dim> &colvec =
-                (*this->dense_local->tempCachePtr)[owner_rank][global_col_id]
-                    .value;
+            std::array<DENT, embedding_dim> colvec =
+                (*this->dense_local->tempCachePtr)[owner_rank][global_col_id].value;
             for (int d = 0; d < embedding_dim; d++) {
               forceDiff[d] = (this->dense_local)
                                  ->nCoordinates[row_id * embedding_dim + d] -
@@ -715,17 +704,14 @@ public:
     }
   }
 
-  void make_epochs_per_sample(CSRHandle<SPT, DENT> *csr_handle, int iterations,
-                              int ns) {
+  void make_epochs_per_sample(CSRHandle<SPT, DENT> *csr_handle, int iterations, int ns) {
     auto source_start_index = 0;
     auto source_end_index = this->sp_local_receiver->proc_row_width;
     DENT maxElement =
         *std::max_element(csr_handle->values.begin(), csr_handle->values.end());
     DENT global_max;
-    MPI_Allreduce(&maxElement, &global_max, 1, MPI_FLOAT, MPI_MAX,
-                  MPI_COMM_WORLD);
-
-#pragma omp parallel for schedule(static)
+    MPI_Allreduce(&maxElement, &global_max, 1, MPI_FLOAT, MPI_MAX,MPI_COMM_WORLD);
+    #pragma omp parallel for schedule(static)
     for (SPT i = source_start_index; i < source_end_index; i++) {
       int nn = csr_handle->rowStart[i + 1] - csr_handle->rowStart[i];
       if (nn > 0) {
@@ -820,8 +806,7 @@ public:
         for (int i = 0; i < numRows; i++) {
           unordered_map<SPT, DENT> multi_map;
           map<SPT, DENT> result_map;
-          for (int j = row_offsets_trans[i]; j < row_offsets_trans[i + 1];
-               j++) {
+          for (int j = row_offsets_trans[i]; j < row_offsets_trans[i + 1];j++) {
             multi_map[col_indices_trans[j]] = values_trans[j];
             result_map[col_indices_trans[j]] = values_trans[j];
           }
