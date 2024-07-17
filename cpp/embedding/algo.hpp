@@ -547,8 +547,6 @@ public:
         DENT repuls = 0;
 
         if (fetch_from_cache) {
-          unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>> &arrayMap =
-              (*this->dense_local->tempCachePtr)[owner_rank];
 //          if ((*this->dense_local->tempCachePtr)[owner_rank].count(global_col_id)>0) {//remove this hack later
             std::array<DENT, embedding_dim> colvec =
                 (*this->dense_local->tempCachePtr)[owner_rank][global_col_id].value;
