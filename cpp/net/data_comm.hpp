@@ -390,7 +390,7 @@ public:
       int local_key = (*receivebuf_ids)[j] - (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
       std::array<DENT, embedding_dim> val_arr = (this->dense_local)->fetch_local_data(local_key);
       cout<<grid->rank_in_col<<" "<<(*receivebuf_ids)[j]<<" "<<local_key<<" ";
-      for(int k=0;k<embedding_dim<k++){
+      for(int k=0;k<embedding_dim;k++){
         cout<<val_arr[k]<<" ";
       }
       cout<<endl;
