@@ -293,8 +293,7 @@ public:
         } else {
           CSRLocal<SPT, DENT> *csr_block_negative =
               negative_csr->csr_local_data.get();
-          full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i,
-                                                          j);
+          full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i,j);
 //          cout<<" rank "<<grid->rank_in_col<<" transfer_negative_sampled_data completed "<<endl;
           // These operations are for more than one processes.
           this->execute_pull_model_computations(
@@ -560,7 +559,7 @@ public:
         if (fetch_from_cache) {
           unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>> &arrayMap =
               (*this->dense_local->tempCachePtr)[owner_rank];
-          if ((*this->dense_local->tempCachePtr)[owner_rank].count(global_col_id)>0) {//remove this hack later
+//          if ((*this->dense_local->tempCachePtr)[owner_rank].count(global_col_id)>0) {//remove this hack later
             std::array<DENT, embedding_dim> &colvec =
                 (*this->dense_local->tempCachePtr)[owner_rank][global_col_id]
                     .value;
@@ -570,7 +569,7 @@ public:
                              colvec[d];
               repuls += forceDiff[d] * forceDiff[d];
             }
-          }
+//          }
         } else {
           for (int d = 0; d < embedding_dim; d++) {
             forceDiff[d] =
