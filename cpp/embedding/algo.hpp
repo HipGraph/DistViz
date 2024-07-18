@@ -288,8 +288,7 @@ public:
               prevCoordinates_ptr.get(), j, batch_size);
           alpha = lr * (1.0 - (float(i) / float(iterations)));
         } else {
-          CSRLocal<SPT, DENT> *csr_block_negative =
-              negative_csr->csr_local_data.get();
+          CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
           full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i,j);
 //          cout<<" rank "<<grid->rank_in_col<<" transfer_negative_sampled_data completed "<<endl;
           // These operations are for more than one processes.
@@ -310,7 +309,7 @@ public:
               negative_samples_ids.get(), repulsive_force_scaling_factor);
 //          cout<<" rank "<<grid->rank_in_col<<"  calc_t_dist_replus_rowptr completed "<<endl;
 
-          if (i==10) {
+          if (i==2) {
             (this->dense_local)->print_cache(i);
             (this->dense_local)->print_matrix_rowptr(i);
           }
