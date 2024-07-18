@@ -425,15 +425,16 @@ public:
                                block_size, fetch_from_temp_cache);
 
     } else {
-      for (int r = start_process; r < end_process; r++) {
+      for (int r = 0; r <  grid->col_word_size; r++) {
 
-        if (r != grid->rank_in_col) {
+
 
           int computing_rank =
               (grid->rank_in_col >= r)
                   ? (grid->rank_in_col - r) % grid->col_world_size
                   : (grid->col_world_size - r + grid->rank_in_col) %
                         grid->col_world_size;
+          if (computing_rank != grid->rank_in_col) {
           cout<<" rank "<<grid->rank_in_col<<" computing for "<<computing_rank<<endl;
           dst_start_index =
               this->sp_local_receiver->proc_row_width * computing_rank;
