@@ -425,7 +425,7 @@ public:
                                block_size, fetch_from_temp_cache);
 
     } else {
-      for (int r = 0; r <  grid->col_word_size; r++) {
+      for (int r = 0; r <  grid->col_world_size; r++) {
 
 
 
