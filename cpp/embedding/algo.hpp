@@ -435,7 +435,7 @@ public:
                   : (grid->col_world_size - r + grid->rank_in_col) %
                         grid->col_world_size;
           if (computing_rank != grid->rank_in_col) {
-          cout<<" rank "<<grid->rank_in_col<<" computing for "<<computing_rank<<endl;
+//          cout<<" rank "<<grid->rank_in_col<<" computing for "<<computing_rank<<endl;
           dst_start_index =
               this->sp_local_receiver->proc_row_width * computing_rank;
           dst_end_index = std::min(static_cast<uint64_t>(
