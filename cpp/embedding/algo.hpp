@@ -309,10 +309,10 @@ public:
               negative_samples_ids.get(), repulsive_force_scaling_factor);
 //          cout<<" rank "<<grid->rank_in_col<<"  calc_t_dist_replus_rowptr completed "<<endl;
 
-          if (i==2) {
-            (this->dense_local)->print_cache(i);
-            (this->dense_local)->print_matrix_rowptr(i);
-          }
+//          if (i==2) {
+//            (this->dense_local)->print_cache(i);
+//            (this->dense_local)->print_matrix_rowptr(i);
+//          }
           this->update_data_matrix_rowptr(prevCoordinates_ptr.get(), j,
                                           batch_size);
 
@@ -418,7 +418,7 @@ public:
         1;
 
     if (local) {
-
+      cout<<" rank "<<grid->rank_in_col<<" calling local execution "<<endl;
       calc_embedding_row_major(iteration, source_start_index, source_end_index,
                                dst_start_index, dst_end_index, csr_block,
                                prevCoordinates, lr, batch_id, batch_size,
