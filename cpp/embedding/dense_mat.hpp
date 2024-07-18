@@ -178,8 +178,7 @@ public:
       (*this->tempCachePtr)[i];
 
 
-      string output_path = "rank_" + to_string(rank) + "remote_rank_" +
-                           to_string(i) + " itr_" + to_string(iter) + ".txt";
+      string output_path = "rank_" + to_string(rank) + "remote_rank_" +to_string(i) + "_itr_" + to_string(iter) + ".txt";
       char stats[500];
       strcpy(stats, output_path.c_str());
       ofstream fout(stats, std::ios_base::app);
