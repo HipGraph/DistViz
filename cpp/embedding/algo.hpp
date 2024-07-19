@@ -794,7 +794,7 @@ public:
       std::vector<int> col_indices_trans;
       std::vector<float> values_trans;
 
-      if (grid->col_world_size > 1) {
+//      if (grid->col_world_size > 1) {
 
 //        data_comm->transfer_and_update_transpose(
 //            csr_local, csr_transpose, row_offsets_trans, col_indices_trans,
@@ -852,43 +852,43 @@ public:
 //        col_indices = final_col_indices;
 //        values = final_values;
 
-      } else {
-        int transNumRows = transpose_row_offsets.size() - 1;
-
-        // Prepare triplet list to avoid locking overhead
-        std::vector<Eigen::Triplet<float>> triplets;
-        triplets.reserve(values.size());
-        for (int i = 0; i < numRows; ++i) {
-          int start = row_offsets[i];
-          int end = row_offsets[i + 1];
-          for (int j = start; j < end; ++j) {
-            triplets.emplace_back(i, col_indices[j], values[j]);
-          }
-        }
-
-        Eigen::SparseMatrix<float> csrMatrix(numRows, sp_local_receiver->gRows);
-        csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
-        csrMatrix.makeCompressed();
-        Eigen::SparseMatrix<float> csrTransposeMatrix = csrMatrix.transpose();
-        Eigen::SparseMatrix<float> prodMatrix =
-            csrMatrix.cwiseProduct(csrTransposeMatrix);
-        Eigen::SparseMatrix<float> tempMatrix =
-            csrMatrix + csrTransposeMatrix - prodMatrix;
-
-        int rows = tempMatrix.rows();
-        int cols = tempMatrix.cols();
-        int nnz = tempMatrix.nonZeros();
-
-        col_indices.resize(nnz);
-        values.resize(nnz);
-
-        std::copy(tempMatrix.outerIndexPtr(),
-                  tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
-        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz,
-                  col_indices.begin());
-        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz,
-                  values.begin());
-      }
+//      } else {
+//        int transNumRows = transpose_row_offsets.size() - 1;
+//
+//        // Prepare triplet list to avoid locking overhead
+//        std::vector<Eigen::Triplet<float>> triplets;
+//        triplets.reserve(values.size());
+//        for (int i = 0; i < numRows; ++i) {
+//          int start = row_offsets[i];
+//          int end = row_offsets[i + 1];
+//          for (int j = start; j < end; ++j) {
+//            triplets.emplace_back(i, col_indices[j], values[j]);
+//          }
+//        }
+//
+//        Eigen::SparseMatrix<float> csrMatrix(numRows, sp_local_receiver->gRows);
+//        csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
+//        csrMatrix.makeCompressed();
+//        Eigen::SparseMatrix<float> csrTransposeMatrix = csrMatrix.transpose();
+//        Eigen::SparseMatrix<float> prodMatrix =
+//            csrMatrix.cwiseProduct(csrTransposeMatrix);
+//        Eigen::SparseMatrix<float> tempMatrix =
+//            csrMatrix + csrTransposeMatrix - prodMatrix;
+//
+//        int rows = tempMatrix.rows();
+//        int cols = tempMatrix.cols();
+//        int nnz = tempMatrix.nonZeros();
+//
+//        col_indices.resize(nnz);
+//        values.resize(nnz);
+//
+//        std::copy(tempMatrix.outerIndexPtr(),
+//                  tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
+//        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz,
+//                  col_indices.begin());
+//        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz,
+//                  values.begin());
+//      }
 
 //      FileWriter<SPT,DENT> fileWriter;
 //      fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
