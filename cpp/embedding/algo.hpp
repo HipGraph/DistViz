@@ -807,7 +807,7 @@ public:
         FileReader<int, float>::parallel_read_MM("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_single.mtx", nn_values.get(),
                                                  false);
 
-        auto shared_sparseMat = make_shared<SpMat<int,float>>(grid,nn_values.get(), sp_local_receiver->gRows,sp_local_receiver->gCols,  sp_local_receiver->gNNZ, sp_local_receiver->proc_row_width,
+        auto shared_sparseMat = make_shared<SpMat<int,float>>(grid,nn_values.get(), sp_local_receiver->gRows,sp_local_receiver->gCols,  sp_local_receiver->gNNz, sp_local_receiver->proc_row_width,
                                                                            sp_local_receiver->proc_row_width, sp_local_receiver->proc_row_width, false, false);
 
 
