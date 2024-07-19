@@ -529,7 +529,7 @@ public:
 //#pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
-      fout<<"rank:"<<grid->rank_in_col<<" itr:"<<iteration<<" index:"<<(row_id+((this->sp_local_receiver)->proc_row_width*grid->rank_in_col))<<" count:"<<(*negative_samples_ptr_count)[row_id]<<endl;
+      fout<<" itr:"<<iteration<<" index:"<<(row_id+((this->sp_local_receiver)->proc_row_width*grid->rank_in_col))<<" count:"<<(*negative_samples_ptr_count)[row_id]<<endl;
       for (int k = 0; k < (*negative_samples_ptr_count)[row_id]; k++) {
         DENT forceDiff[embedding_dim];
         uint64_t global_col_id_int =
