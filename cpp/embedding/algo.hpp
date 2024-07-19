@@ -32,6 +32,7 @@
 #include <mkl_spblas.h>
 //#include <slepceps.h>
 //#include <petscmat.h>
+#include "partitioner.hpp"
 
 using namespace std;
 using namespace hipgraph::distviz::common;
@@ -810,8 +811,11 @@ public:
         auto shared_sparseMat = make_shared<SpMat<int,float>>(grid,nn_values.get(), sp_local_receiver->gRows,sp_local_receiver->gCols,  sp_local_receiver->gNNz, sp_local_receiver->proc_row_width,
                                                                            sp_local_receiver->proc_row_width, sp_local_receiver->proc_row_width, false, false);
 
+        auto partitioner = unique_ptr<GlobalAdjacency1DPartitioner>(new GlobalAdjacency1DPartitioner(grid));
+        cout<<" rank  start partitioning data"<<grid->rank_in_col<<endl;
 
-        shared_sparseMat.get()->initialize_CSR_blocks(true);
+        partitioner.get()->partition_data<INDEX_TYPE,VALUE_TYPE>(shared_sparseMat.get());
+        shared_sparseMat.get()->initialize_CSR_blocks();
 
         CSRLocal<int, float> *csr_block = shared_sparseMat.get()->csr_local_data.get();
         CSRHandle<int, float> *csr_handle = csr_block->handler.get();
