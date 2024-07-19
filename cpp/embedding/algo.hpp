@@ -796,41 +796,61 @@ public:
 
       if (grid->col_world_size > 1) {
 
-        data_comm->transfer_and_update_transpose(
-            csr_local, csr_transpose, row_offsets_trans, col_indices_trans,
-            values_trans);
+//        data_comm->transfer_and_update_transpose(
+//            csr_local, csr_transpose, row_offsets_trans, col_indices_trans,
+//            values_trans);
+//
+//        std::vector<SPT> final_row_offsets(numRows + 1, 0);
+//        std::vector<SPT> final_col_indices;
+//        std::vector<DENT> final_values;
+        shared_ptr<vector<Tuple<float>>> nn_values = make_shared<vector<Tuple<float>>>();
+        FileReader<int, float>::parallel_read_MM("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_single.mtx", nn_values.get(),
+                                                 false);
 
-        std::vector<SPT> final_row_offsets(numRows + 1, 0);
-        std::vector<SPT> final_col_indices;
-        std::vector<DENT> final_values;
+        auto shared_sparseMat = make_shared<SpMat<INDEX_TYPE,VALUE_TYPE>>(grid,nn_values.get(), sp_local_receiver->gRows,sp_local_receiver->gCols,  sp_local_receiver->gNNZ, sp_local_receiver->proc_row_width,
+                                                                           sp_local_receiver->proc_row_width, sp_local_receiver->proc_row_width, false, false);
 
-        for (int i = 0; i < numRows; i++) {
-          unordered_map<SPT, DENT> multi_map;
-          map<SPT, DENT> result_map;
-          for (int j = row_offsets_trans[i]; j < row_offsets_trans[i + 1];j++) {
-            multi_map[col_indices_trans[j]] = values_trans[j];
-            result_map[col_indices_trans[j]] = values_trans[j];
-          }
 
-          for (int j = row_offsets[i]; j < row_offsets[i + 1]; j++) {
-            if (multi_map.count(col_indices[j]) > 0) {
-              multi_map[col_indices[j]] *= values[j];
-              result_map[col_indices[j]] += values[j];
-              result_map[col_indices[j]] -= multi_map[col_indices[j]];
-            } else {
-              result_map[col_indices[j]] = values[j];
-            }
-          }
-          final_row_offsets[i + 1] = final_row_offsets[i] + result_map.size();
-          for (auto it = result_map.begin(); it != result_map.end(); it++) {
-            final_col_indices.push_back(it->first);
-            final_values.push_back(it->second);
-          }
-        }
+        shared_sparseMat.get()->initialize_CSR_blocks(true);
 
-        row_offsets = final_row_offsets;
-        col_indices = final_col_indices;
-        values = final_values;
+        CSRLocal<INDEX_TYPE, VALUE_TYPE> *csr_block = shared_sparseMat.get()->csr_local_data.get();
+        CSRHandle<INDEX_TYPE, VALUE_TYPE> *csr_handle = csr_block->handler.get();
+
+        row_offsets = csr_handle->rowStart;
+        col_indices =  csr_handle->col_idx;
+        values = csr_handle->values;
+
+
+//
+//        for (int i = 0; i < numRows; i++) {
+//          unordered_map<SPT, DENT> multi_map;
+//          map<SPT, DENT> result_map;
+//          for (int j = row_offsets_trans[i]; j < row_offsets_trans[i + 1];j++) {
+//            multi_map[col_indices_trans[j]] = values_trans[j];
+//            result_map[col_indices_trans[j]] = values_trans[j];
+//          }
+//
+//          for (int j = row_offsets[i]; j < row_offsets[i + 1]; j++) {
+//            if (multi_map.count(col_indices[j]) > 0) {
+//              multi_map[col_indices[j]] *= values[j];
+//              result_map[col_indices[j]] += values[j];
+//              result_map[col_indices[j]] -= multi_map[col_indices[j]];
+//            } else {
+//              result_map[col_indices[j]] = values[j];
+//            }
+//          }
+//          final_row_offsets[i + 1] = final_row_offsets[i] + result_map.size();
+//          for (auto it = result_map.begin(); it != result_map.end(); it++) {
+//            final_col_indices.push_back(it->first);
+//            final_values.push_back(it->second);
+//          }
+//        }
+
+
+
+//        row_offsets = final_row_offsets;
+//        col_indices = final_col_indices;
+//        values = final_values;
 
       } else {
         int transNumRows = transpose_row_offsets.size() - 1;
