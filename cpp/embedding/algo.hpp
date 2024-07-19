@@ -807,14 +807,14 @@ public:
         FileReader<int, float>::parallel_read_MM("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_single.mtx", nn_values.get(),
                                                  false);
 
-        auto shared_sparseMat = make_shared<SpMat<INDEX_TYPE,VALUE_TYPE>>(grid,nn_values.get(), sp_local_receiver->gRows,sp_local_receiver->gCols,  sp_local_receiver->gNNZ, sp_local_receiver->proc_row_width,
+        auto shared_sparseMat = make_shared<SpMat<int,float>>(grid,nn_values.get(), sp_local_receiver->gRows,sp_local_receiver->gCols,  sp_local_receiver->gNNZ, sp_local_receiver->proc_row_width,
                                                                            sp_local_receiver->proc_row_width, sp_local_receiver->proc_row_width, false, false);
 
 
         shared_sparseMat.get()->initialize_CSR_blocks(true);
 
-        CSRLocal<INDEX_TYPE, VALUE_TYPE> *csr_block = shared_sparseMat.get()->csr_local_data.get();
-        CSRHandle<INDEX_TYPE, VALUE_TYPE> *csr_handle = csr_block->handler.get();
+        CSRLocal<int, float> *csr_block = shared_sparseMat.get()->csr_local_data.get();
+        CSRHandle<int, float> *csr_handle = csr_block->handler.get();
 
         row_offsets = csr_handle->rowStart;
         col_indices =  csr_handle->col_idx;
