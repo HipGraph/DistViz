@@ -324,11 +324,10 @@ public:
               negative_samples_ids.get(), repulsive_force_scaling_factor);
 //          cout<<" rank "<<grid->rank_in_col<<"  calc_t_dist_replus_rowptr completed "<<endl;
 
-//          if (i==2) {
-//            (this->dense_local)->print_cache(i);
-//            (this->dense_local)->print_matrix_rowptr(i);
-//          }
-          alpha = lr * (1.0 - (float(i) / float(iterations)));
+          if (i==1198) {
+            (this->dense_local)->print_cache(i);
+            (this->dense_local)->print_matrix_rowptr(i);
+          }
         }
 
         this->update_data_matrix_rowptr(
