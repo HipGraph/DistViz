@@ -57,10 +57,23 @@ public:
         grid->col_world_size);
     nCoordinates =
         static_cast<DENT *>(::operator new(sizeof(DENT[rows * embedding_dim])));
+    uint64_t seed=0;
+    if (grid->rank_in_col==0){
+      std::random_device rd;
+      seed  = rd();
+    }
+
+    std::mt19937_64 gen(seed);
+    //    gen.seed(seed);
+    int subset_start = rows* grid->rank_in_col*embedding_dim;
+    gen.discard(subset_start);
+
+    std::uniform_int_distribution<int> dist(0, RAND_MAX);
+
 //    std::srand(this->grid->global_rank);
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < embedding_dim; j++) {
-        DENT val = -1.0 + 2.0 * rand() / (RAND_MAX + 1.0);
+        DENT val = -1.0 + 2.0 * dist(gen) / (RAND_MAX + 1.0);
         nCoordinates[i * embedding_dim + j] = val;
       }
     }
