@@ -256,21 +256,21 @@ public:
         CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
         // negative sample generation
-        if (i > 0 and i % ns_generation_skip_factor == 0) {
-          negative_tuples->clear();
-          negative_tuples->resize(total_tuples);
-          std::mt19937_64 gen1(rd());
-          for (int i = 0; i < this->sp_local_receiver->proc_row_width; i++) {
-            (*negative_samples_ids)[i] = vector<SPT>(max_nnz);
-            for (uint64_t j = 0; j < max_nnz; j++) {
-              (*negative_samples_ids)[i][j] = distribution(gen1);
-              if (grid->col_world_size > 1) {
-                negative_csr->csr_local_data->handler->values[i * max_nnz + j] =
-                    (*negative_samples_ids)[i][j];
-              }
-            }
-          }
-        }
+//        if (i > 0 and i % ns_generation_skip_factor == 0) {
+//          negative_tuples->clear();
+//          negative_tuples->resize(total_tuples);
+//          std::mt19937_64 gen1(rd());
+//          for (int i = 0; i < this->sp_local_receiver->proc_row_width; i++) {
+//            (*negative_samples_ids)[i] = vector<SPT>(max_nnz);
+//            for (uint64_t j = 0; j < max_nnz; j++) {
+//              (*negative_samples_ids)[i][j] = distribution(gen1);
+//              if (grid->col_world_size > 1) {
+//                negative_csr->csr_local_data->handler->values[i * max_nnz + j] =
+//                    (*negative_samples_ids)[i][j];
+//              }
+//            }
+//          }
+//        }
         for (int k = 0; k < batch_size; k++) {
           int IDIM = k * embedding_dim;
           for (int d = 0; d < embedding_dim; d++) {
