@@ -202,8 +202,8 @@ public:
 
     int max_nnz = average_degree * 50;
 
-    std::mt19937_64 gen(seed);
-    gen.seed(seed);
+    std::mt19937_64 gen(1482033272);
+//    gen.seed(seed);
 
     int subset_start = sp_local_receiver->proc_row_width* grid->rank_in_col*max_nnz;
     gen.discard(subset_start);
