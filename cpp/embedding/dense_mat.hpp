@@ -62,6 +62,7 @@ public:
       std::random_device rd;
       seed  = rd();
     }
+    MPI_Bcast(&seed, 1, MPI_UINT64_T, 0, grid->col_world);
 
     std::mt19937_64 gen(seed);
     //    gen.seed(seed);
