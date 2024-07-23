@@ -140,9 +140,7 @@ public:
             sp_local_receiver, sp_local_sender, dense_local, grid, -1, alpha));
     //    full_comm.get()->onboard_data();
 
-    cout << " rank " << grid->rank_in_col
-         << " onboard data sucessfully for initial iteration" << batches
-         << endl;
+    cout << " rank " << grid->rank_in_col << " onboard data sucessfully for initial iteration" << batches << endl;
 
     // Buffer used for receive MPI operations data
     unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> update_ptr =
@@ -193,15 +191,26 @@ public:
     }
     cout<<" rank "<<grid->rank_in_col << " preprocessing completed " << endl;
 
-    int seed = 0;
     DENT alpha = lr;
+    int seed=0;
+    if (grid->rank_in_col==0){
+      std::random_device rd;
+      seed  = rd();
+    }
+    MPI_Bcast(&seed, 1, MPI_INT, 0, grid->col_world);
+    cout<<grid->rank_in_col<<" seed "<<seed<<endl;
 
-    std::random_device rd;
-    std::mt19937_64 gen(rd());
+    int max_nnz = average_degree * 50;
+
+    std::mt19937_64 gen(seed);
+    gen.seed(seed);
+
+    int subset_start = sp_local_receiver->proc_row_width* grid->rank_in_col*max_nnz;
+    gen.discard(subset_start);
 
     unique_ptr<vector<vector<SPT>>> negative_samples_ids =
         make_unique<vector<vector<SPT>>>(last_batch_size);
-    int max_nnz = average_degree * 10;
+
     int total_tuples = max_nnz * sp_local_receiver->proc_row_width;
     unique_ptr<vector<Tuple<DENT>>> negative_tuples = make_unique<vector<Tuple<DENT>>>(total_tuples);
 
@@ -311,16 +320,7 @@ public:
 //            (this->dense_local)->print_cache(i);
 //            (this->dense_local)->print_matrix_rowptr(i);
 //          }
-//          this->update_data_matrix_rowptr(prevCoordinates_ptr.get(), j,
-//                                          batch_size);
-//
-//          for (int k = 0; k < batch_size; k++) {
-//            int IDIM = k * embedding_dim;
-//            for (int d = 0; d < embedding_dim; d++) {
-//              (*prevCoordinates_ptr)[IDIM + d] = 0;
-//            }
-//          }
-//          alpha = lr * (1.0 - (float(i) / float(iterations)));
+          alpha = lr * (1.0 - (float(i) / float(iterations)));
         }
 
         this->update_data_matrix_rowptr(
@@ -526,7 +526,7 @@ public:
     //    (this->dense_local)->print_cache(iteration);
 //    ofstream fout;
 //    fout.open("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/count_collect.txt", std::ios_base::app);
-//#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
 //      fout<<" itr:"<<iteration<<" index:"<<(row_id+((this->sp_local_receiver)->proc_row_width*grid->rank_in_col))<<" count:"<<(*negative_samples_ptr_count)[row_id]<<endl;
@@ -535,7 +535,7 @@ public:
         uint64_t global_col_id_int =
             ((*negative_samples_id)[row_id][k] + iteration) %
             (this->sp_local_receiver)->gCols;
-        cout<<(row_id+((this->sp_local_receiver)->proc_row_width*grid->rank_in_col))<<":"<<global_col_id_int<<endl;
+//        cout<<(row_id+((this->sp_local_receiver)->proc_row_width*grid->rank_in_col))<<":"<<global_col_id_int<<endl;
         SPT global_col_id = static_cast<SPT>(global_col_id_int);
         SPT local_col_id =
             global_col_id -
