@@ -560,52 +560,55 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
   }
 }
 
-static void read_txt_dist(string filename, VALUE_TYPE* nCoordinates,
-                          int no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=0) {
-  cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
-  std::ifstream file(filename, std::ios::binary);
-  cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
+static void read_txt_dist(std::string filename, VALUE_TYPE* nCoordinates,
+                          int no_of_datapoints, int dim, int rank, int world_size, INDEX_TYPE offset = 0) {
+  std::cout << "Rank " << rank << " opening file " << filename << std::endl;
+  std::ifstream file(filename);
+
   if (!file.is_open()) {
     // Handle file opening error
     std::cerr << "Error: Unable to open the file " << filename << std::endl;
     return;
   }
-  cout<<" rank  "<<rank<<"  openinig completed "<<filename<<endl;
-  int nvecs=no_of_datapoints;
-
-  //  file.read(reinterpret_cast<char*>(&nvecs), sizeof(int));
-  //  file.read(reinterpret_cast<char*>(&dim), sizeof(int));
-  //
-  //  cout<<" rank  "<<rank<<"  nvecs "<<nvecs<<" dim "<<dim<<endl;
+  std::cout << "Rank " << rank << " opened file " << filename << std::endl;
 
   INDEX_TYPE chunk_size = no_of_datapoints / world_size;
-  INDEX_TYPE start_idx =rank*chunk_size;
+  INDEX_TYPE start_idx = rank * chunk_size;
   INDEX_TYPE end_index = 0;
-  if (rank < world_size - 1){
-    end_index = (rank+1) * chunk_size -1;
-  }else if (rank == world_size - 1){
-    end_index = std::min((rank+1) * chunk_size -1,no_of_datapoints-1);
-    chunk_size = no_of_datapoints-(rank)*chunk_size;
+
+  if (rank < world_size - 1) {
+    end_index = (rank + 1) * chunk_size - 1;
+  } else if (rank == world_size - 1) {
+    end_index = std::min((rank + 1) * chunk_size - 1, no_of_datapoints - 1);
+    chunk_size = no_of_datapoints - rank * chunk_size;
   }
 
   if (chunk_size == -1) {
     chunk_size = no_of_datapoints - start_idx;
   }
-  cout<<" rank  "<<rank<<"  selected chunk size  "<<chunk_size<<" starting "<<start_idx<<endl;
-  std::vector<float> data(chunk_size * dim);
 
-  file.seekg(start_idx * 4 * dim+offset, std::ios::beg);
-  file.read(reinterpret_cast<char*>(data.data()),  chunk_size * dim*4);
-  //  const double scaleParameter = 100;
-  cout<<" rank  "<<rank<<"  data reading  completed"<<endl;
+  std::cout << "Rank " << rank << " selected chunk size " << chunk_size << " starting " << start_idx << std::endl;
 
+  // Skip lines up to start_idx
+  std::string line;
+  for (INDEX_TYPE i = 0; i < start_idx + offset && std::getline(file, line); ++i);
+
+  // Read and parse the data
   for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
-    std::vector<float> vec(dim);
-    std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
-    for(int j=0;j<dim;j++){
-      nCoordinates[i * dim + j] = vec[j];
+    if (std::getline(file, line)) {
+      std::istringstream ss(line);
+      int nodeId;
+      VALUE_TYPE value1, value2;
+
+      ss >> nodeId >> value1 >> value2;  // Read nodeId and values
+
+      // Store values in row-major order
+      nCoordinates[i * dim] = value1;
+      nCoordinates[i * dim + 1] = value2;
     }
   }
+
+  std::cout << "Rank " << rank << " data reading completed" << std::endl;
 }
 
 
