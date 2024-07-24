@@ -560,7 +560,7 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
   }
 }
 
-static void read_txt_dist(string filename, DenseMat<int, float, 2> * dense_mat,
+static void read_txt_dist(string filename, hipgraph::distviz::common::DenseMat<int, float, 2> * dense_mat,
                           int no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=0) {
   cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
   std::ifstream file(filename, std::ios::binary);
