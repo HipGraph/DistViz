@@ -22,7 +22,7 @@ namespace hipgraph::distviz::io {
 
 
 
-template <typename INDEX_TYPE,typename VALUE_TYPE, typename DIM>
+template <typename INDEX_TYPE,typename VALUE_TYPE, size_t DIM>
 class FileReader {
 
 public:
