@@ -304,7 +304,7 @@ int main(int argc, char* argv[]) {
       new DenseMat<int, float, embedding_dimension>(grid.get(), localARows,false));
 
   FileReader<int, float,2>::read_txt_dist(
-      "/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/embedding.mtx", dense_mat.get(), data_set_size, embedding_dimension,
+      "/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/embedding.mtx", dense_mat.get()->nCoordinates, data_set_size, embedding_dimension,
       grid.get()->rank_in_col, grid.get()->col_world_size);
 
 //  dense_mat->print_matrix_rowptr(0);
