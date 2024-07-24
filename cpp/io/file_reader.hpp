@@ -595,7 +595,7 @@ static void read_txt_dist(string filename, VALUE_TYPE* nCoordinates,
   std::vector<float> data(chunk_size * dim);
 
   file.seekg(start_idx * 4 * dim+offset, std::ios::beg);
-  file.read(reinterpret_cast<char*>(data.data()),  chunk_size * dim);
+  file.read(reinterpret_cast<char*>(data.data()),  chunk_size * dim*4);
   //  const double scaleParameter = 100;
   cout<<" rank  "<<rank<<"  data reading  completed"<<endl;
 
