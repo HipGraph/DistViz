@@ -42,7 +42,7 @@ public:
    * @param std  initialize with normal distribution with given standard
    * deviation
    */
-  DenseMat(Process3DGrid *grid, uint64_t rows) {
+  DenseMat(Process3DGrid *grid, uint64_t rows,bool initialize=true) {
 
     this->rows = rows;
     this->grid = grid;
@@ -72,10 +72,12 @@ public:
     std::uniform_int_distribution<int> dist(0, RAND_MAX);
 
 //    std::srand(this->grid->global_rank);
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < embedding_dim; j++) {
-        DENT val = -1.0 + 2.0 * dist(gen) / (RAND_MAX + 1.0);
-        nCoordinates[i * embedding_dim + j] = val;
+    if (initialize) {
+      for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < embedding_dim; j++) {
+          DENT val = -1.0 + 2.0 * dist(gen) / (RAND_MAX + 1.0);
+          nCoordinates[i * embedding_dim + j] = val;
+        }
       }
     }
   }
