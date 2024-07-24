@@ -814,7 +814,7 @@ public:
 //        std::vector<SPT> final_col_indices;
 //        std::vector<DENT> final_values;
         shared_ptr<vector<Tuple<float>>> nn_values = make_shared<vector<Tuple<float>>>();
-        FileReader<int, float>::parallel_read_MM("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_single.mtx", nn_values.get(),
+        FileReader<int, float,2>::parallel_read_MM("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_single.mtx", nn_values.get(),
                                                  false);
 
         auto shared_sparseMat = make_shared<SpMat<int,float>>(grid,nn_values.get(), sp_local_receiver->gRows,sp_local_receiver->gCols,  sp_local_receiver->gNNz, sp_local_receiver->proc_row_width,
