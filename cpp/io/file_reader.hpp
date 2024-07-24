@@ -9,6 +9,7 @@
 #include "../net/process_3D_grid.hpp"
 #include "CombBLAS/CombBLAS.h"
 #include "../embedding/sparse_mat.hpp"
+#include "../embedding/dense_mat.hpp"
 
 
 
