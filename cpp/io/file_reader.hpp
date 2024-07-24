@@ -22,7 +22,7 @@ namespace hipgraph::distviz::io {
 
 
 
-template <typename INDEX_TYPE,typename VALUE_TYPE>
+template <typename INDEX_TYPE,typename VALUE_TYPE, typename DIM>
 class FileReader {
 
 public:
@@ -560,7 +560,7 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
   }
 }
 
-static void read_txt_dist(string filename, hipgraph::distviz::common::DenseMat<int, float, 2> * dense_mat,
+static void read_txt_dist(string filename, hipgraph::distviz::common::DenseMat<INDEX_TYPE, VALUE_TYPE, DIM> * dense_mat,
                           int no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=0) {
   cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
   std::ifstream file(filename, std::ios::binary);

@@ -197,33 +197,33 @@ int main(int argc, char* argv[]) {
 
   auto t = start_clock();
   if (file_format == 0) {
-    FileReader<int, float>::ubyte_read(
+    FileReader<int, float,2>::ubyte_read(
         input_path, data_matrix_ptr.get(), data_set_size, dimension,
         grid.get()->rank_in_col, grid.get()->col_world_size);
   } else if (file_format == 1) {
-    FileReader<int, float>::fvecs_read(
+    FileReader<int, float,2>::fvecs_read(
         input_path, data_matrix_ptr.get(), data_set_size, dimension,
         grid.get()->rank_in_col, grid.get()->col_world_size);
   } else if (file_format == 2) {
     if (sparse_input) {
       sparse_matrix =
           Eigen::SparseMatrix<float, Eigen::RowMajor>(dimension, data_set_size);
-      FileReader<uint64_t, float>::read_fbin_sparse(
+      FileReader<uint64_t, float,2>::read_fbin_sparse(
           input_path, sparse_matrix, data_set_size, dimension,
           grid.get()->rank_in_col, grid.get()->col_world_size, file_offset);
     } else {
-      FileReader<uint64_t, float>::read_fbin(
+      FileReader<uint64_t, float,2>::read_fbin(
           input_path, data_matrix_ptr.get(), data_set_size, dimension,
           grid.get()->rank_in_col, grid.get()->col_world_size, file_offset);
     }
   } else if (file_format == 3) {
     skip_knng = true;
   }else if (file_format == 4) {
-    FileReader<int, float>::read_txt(
+    FileReader<int, float,2>::read_txt(
         input_path, data_matrix_ptr.get(), data_set_size, dimension,
         grid.get()->rank_in_col, grid.get()->col_world_size);
   }else if (file_format == 5) {
-    FileReader<int, float>::read_ubin(
+    FileReader<int, float,2>::read_ubin(
         input_path, data_matrix_ptr.get(), data_set_size, dimension,
         grid.get()->rank_in_col, grid.get()->col_world_size);
   }
@@ -240,7 +240,7 @@ int main(int argc, char* argv[]) {
   Eigen::MatrixXf data_matrix = Eigen::MatrixXf();
   //   t = start_clock();
   if (skip_knng) {
-    FileReader<int, float>::parallel_read_MM(input_path, knng_graph_ptr.get(),
+    FileReader<int, float,2>::parallel_read_MM(input_path, knng_graph_ptr.get(),
                                              false);
   } else {
     std::cout << "calling KNNGHandler rank " << rank << " with input matrix:  "
@@ -303,7 +303,7 @@ int main(int argc, char* argv[]) {
   auto dense_mat = shared_ptr<DenseMat<int, float, embedding_dimension>>(
       new DenseMat<int, float, embedding_dimension>(grid.get(), localARows,false));
 
-  FileReader<int, float>::read_txt_dist(
+  FileReader<int, float,2>::read_txt_dist(
       "/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/embedding.mtx", dense_mat.get(), data_set_size, embedding_dimension,
       grid.get()->rank_in_col, grid.get()->col_world_size);
 
