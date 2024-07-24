@@ -560,7 +560,7 @@ static void parallel_read_MM(string file_path, vector<Tuple<VALUE_TYPE>> *coords
   }
 }
 
-static void read_txt_dist(string filename, DENT* nCoordinates,
+static void read_txt_dist(string filename, VALUE_TYPE* nCoordinates,
                           int no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=0) {
   cout<<" rank  "<<rank<<"  openinig file "<<filename<<endl;
   std::ifstream file(filename, std::ios::binary);
