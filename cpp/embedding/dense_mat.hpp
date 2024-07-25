@@ -185,7 +185,7 @@ public:
 //      fout << endl;
 //    }
 
-    FileWriter<int,float> fileWriter;
+    FileWriter<int,float,embedding_dim> fileWriter;
     fileWriter.parallel_write(output_path,this->nCoordinates,rows, embedding_dim);
   }
 
@@ -217,7 +217,7 @@ public:
 //        }
 ////        fout << std::endl;
 //      }
-      FileWriter<int,float> fileWriter;
+      FileWriter<int,float,embedding_dim> fileWriter;
       fileWriter.parallel_write_map(output_path,map);
     }
   }
