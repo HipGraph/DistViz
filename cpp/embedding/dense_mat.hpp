@@ -192,10 +192,10 @@ public:
   void print_cache(int iter) {
     int rank = grid->rank_in_col;
     cout<<" rank "<<rank<<" cache  size "<<(*this->tempCachePtr).size()<<endl;
-    for (int i = 0; i < (*this->tempCachePtr).size(); i++) {
-      unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>& map =
-//          (*this->cachePtr)[i];
-      (*this->tempCachePtr)[i];
+//    for (int i = 0; i < (*this->tempCachePtr).size(); i++) {
+//      unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>& map =
+////          (*this->cachePtr)[i];
+//      (*this->tempCachePtr)[i];
 
 
       string output_path = "cache.txt";
@@ -218,8 +218,8 @@ public:
 ////        fout << std::endl;
 //      }
       FileWriter<int,float,embedding_dim> fileWriter;
-      fileWriter.parallel_write_map(output_path,map);
-    }
+      fileWriter.parallel_write_map(output_path,this->tempCachePtr.get());
+//    }
   }
 
   bool searchForKey(uint64_t key) {
