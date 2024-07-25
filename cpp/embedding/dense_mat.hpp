@@ -177,7 +177,7 @@ public:
     //    fout << (*this->matrixPtr).rows() << " " << (*this->matrixPtr).cols()
     //         << endl;
     for (int i = 0; i < rows; ++i) {
-      fout << i  + rank * rows << " ";
+      fout << i  + rank * rows +1 << " ";
       for (int j = 0; j < embedding_dim; ++j) {
         fout << this->nCoordinates[i * embedding_dim + j] << " ";
       }
@@ -202,7 +202,7 @@ public:
       for (const auto &kvp : map) {
         uint64_t key = kvp.first;
         const std::array<DENT, embedding_dim> &value = kvp.second.value;
-        fout << key << " ";
+        fout << (key +1)<< " ";
         for (int i = 0; i < embedding_dim; ++i) {
           fout << value[i] << " ";
         }
