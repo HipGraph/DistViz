@@ -10,11 +10,13 @@
 #include <mpi.h>
 #include <random>
 #include <unordered_map>
+#include "../io/file_writer.hpp"
 
 using namespace std;
 using namespace Eigen;
 using namespace hipgraph::distviz::net;
 using namespace hipgraph::distviz::common;
+using namespace hipgraph::distviz::io;
 
 namespace hipgraph::distviz::embedding {
 
@@ -171,18 +173,21 @@ public:
     int rank= grid->rank_in_col;
     string output_path =
         "rank_" + to_string(rank) + "itr_" + to_string(iter) + "_embedding.txt";
-    char stats[500];
-    strcpy(stats, output_path.c_str());
-    ofstream fout(stats, std::ios_base::app);
-    //    fout << (*this->matrixPtr).rows() << " " << (*this->matrixPtr).cols()
-    //         << endl;
-    for (int i = 0; i < rows; ++i) {
-      fout << i  + rank * rows +1 << " ";
-      for (int j = 0; j < embedding_dim; ++j) {
-        fout << this->nCoordinates[i * embedding_dim + j] << " ";
-      }
-      fout << endl;
-    }
+//    char stats[500];
+//    strcpy(stats, output_path.c_str());
+//    ofstream fout(stats, std::ios_base::app);
+//    //    fout << (*this->matrixPtr).rows() << " " << (*this->matrixPtr).cols()
+//    //         << endl;
+//    for (int i = 0; i < rows; ++i) {
+//      fout << i  + rank * rows +1 << " ";
+//      for (int j = 0; j < embedding_dim; ++j) {
+//        fout << this->nCoordinates[i * embedding_dim + j] << " ";
+//      }
+//      fout << endl;
+//    }
+
+    FileWriter<int,float> fileWriter;
+    fileWriter.parallel_write(output_path,this->nCoordinates,rows, embedding_dim);
   }
 
   void print_cache(int iter) {
