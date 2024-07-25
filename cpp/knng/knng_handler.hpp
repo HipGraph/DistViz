@@ -226,7 +226,7 @@ public:
 
     if (print_output) {
       auto t = start_clock();
-      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+      FileWriter<INDEX_TYPE,VALUE_TYPE,2> fileWriter;
       fileWriter.mpi_write_edge_list(final_nn_map.get(),output_path,nn-1,grid->rank_in_col,grid->col_world_size,true);
       stop_clock_and_add(t, "IO Time");
     }
@@ -263,7 +263,7 @@ public:
 
 //    stop_clock_and_add(t, "KNNG Total Time");
     if (print_output) {
-      FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+      FileWriter<INDEX_TYPE,VALUE_TYPE,2> fileWriter;
       fileWriter.write_list(output_knng,output_path);
     }
     return mrpt;
@@ -304,7 +304,7 @@ public:
       }
       cout<<" KNNG fill completed "<<endl;
       if (print_output) {
-        FileWriter<INDEX_TYPE,VALUE_TYPE> fileWriter;
+        FileWriter<INDEX_TYPE,VALUE_TYPE,2> fileWriter;
         fileWriter.parallel_write_knng(grid,output_path,output_knng,false);
       }
    return mrpt;
