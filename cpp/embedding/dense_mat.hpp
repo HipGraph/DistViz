@@ -198,20 +198,27 @@ public:
       (*this->tempCachePtr)[i];
 
 
-      string output_path = "rank_" + to_string(rank) + "remote_rank_" +to_string(i) + "_itr_" + to_string(iter) + ".txt";
-      char stats[500];
-      strcpy(stats, output_path.c_str());
-      ofstream fout(stats, std::ios_base::app);
-
-      for (const auto &kvp : map) {
-        uint64_t key = kvp.first;
-        const std::array<DENT, embedding_dim> &value = kvp.second.value;
-        fout << (key +1)<< " ";
-        for (int i = 0; i < embedding_dim; ++i) {
-          fout << value[i] << " ";
-        }
-        fout << std::endl;
-      }
+      string output_path = "cache.txt";
+//      char stats[500];
+//      strcpy(stats, output_path.c_str());
+//      ofstream fout(stats, std::ios_base::app);
+//
+//      int size = map.size();
+//      int total_st = size*embedding_dim;
+//
+//      DENT*  coord[size*embedding_dim];
+//
+//      for (const auto &kvp : map) {
+//        uint64_t key = kvp.first;
+//        const std::array<DENT, embedding_dim> &value = kvp.second.value;
+//        fout << (key +1)<< " ";
+//        for (int i = 0; i < embedding_dim; ++i) {
+//          fout << value[i] << " ";
+//        }
+////        fout << std::endl;
+//      }
+      FileWriter<int,float> fileWriter;
+      fileWriter.parallel_write_map(output_path,map);
     }
   }
 
