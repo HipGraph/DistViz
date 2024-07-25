@@ -171,8 +171,7 @@ public:
 
   void print_matrix_rowptr(int iter) {
     int rank= grid->rank_in_col;
-    string output_path =
-        "rank_" + to_string(rank) + "itr_" + to_string(iter) + "_embedding.txt";
+    string output_path =to_string(iter) + "_embedding.txt";
 //    char stats[500];
 //    strcpy(stats, output_path.c_str());
 //    ofstream fout(stats, std::ios_base::app);
