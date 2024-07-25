@@ -292,6 +292,8 @@ public:
           this->calc_t_dist_grad_rowptr(
               csr_block, prevCoordinates_ptr.get(), alpha, i, j, batch_size,
               considering_batch_size, true, false, 0, 0, false);
+          (this->dense_local)->print_cache(i);
+          (this->dense_local)->print_matrix_rowptr(i);
 
           // One process computations without MPI operations
 //          generate_negative_samples(negative_samples_ptr_count.get(),
