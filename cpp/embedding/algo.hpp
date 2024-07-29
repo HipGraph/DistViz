@@ -440,7 +440,7 @@ public:
                                prevCoordinates, lr, batch_id, batch_size,
                                block_size, fetch_from_temp_cache,knng_graph_ptr.get());
       cout<<" rank "<<grid->rank_in_col<<"KNNG starting size "<< knng_graph_ptr->size()<<endl;
-      fileWriter.parallel_write("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/coords_local.txt",prevCoordinates,this->sp_local_receiver->proc_col_width, 2);
+      fileWriter.parallel_write("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/coords_local.txt",prevCoordinates->data(),this->sp_local_receiver->proc_col_width, 2);
 
     } else {
       for (int r = 0; r <  grid->col_world_size; r++) {
