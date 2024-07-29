@@ -338,8 +338,8 @@ public:
 //          }
         }
 
-//        FileWriter<int,float,2> fileWriter;
-//        fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
+        FileWriter<int,float,2> fileWriter;
+        fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
 
         this->update_data_matrix_rowptr(
             prevCoordinates_ptr.get(), j, batch_size);
@@ -512,12 +512,12 @@ public:
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
 
-//              Tuple<float> tp;
-//              tp.row= i+ grid->rank_in_col*(this->sp_local_receiver)->proc_col_width;
-//              tp.col=dst_id;
-//              tp.value=1;
-//
-//              (*knng_graph_ptr).push_back(tp);
+              Tuple<float> tp;
+              tp.row= i+ grid->rank_in_col*(this->sp_local_receiver)->proc_col_width;
+              tp.col=dst_id;
+              tp.value=1;
+
+              (*knng_graph_ptr).push_back(tp);
 
 
               if (fetch_from_cache) {
