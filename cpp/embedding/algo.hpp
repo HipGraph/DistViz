@@ -251,8 +251,8 @@ public:
 //    cout<<" rank "<<grid->rank_in_col<<" negative initialization completed "<<endl;
     stop_clock_and_add(t, "Iteration Total Time");
 
-    FileWriter<SPT,DENT,2> fileWriter;
-    fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr.txt",csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,sp_local_receiver->proc_row_width);
+//    FileWriter<SPT,DENT,2> fileWriter;
+//    fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr.txt",csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,sp_local_receiver->proc_row_width);
 
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
@@ -296,8 +296,8 @@ public:
           this->calc_t_dist_grad_rowptr(
               csr_block, prevCoordinates_ptr.get(), alpha, i, j, batch_size,
               considering_batch_size, true, false, 0, 0, false);
-          (this->dense_local)->print_cache(i);
-          (this->dense_local)->print_matrix_rowptr(i);
+//          (this->dense_local)->print_cache(i);
+//          (this->dense_local)->print_matrix_rowptr(i);
 
           // One process computations without MPI operations
 //          generate_negative_samples(negative_samples_ptr_count.get(),
@@ -309,8 +309,8 @@ public:
 //              alpha, j, batch_size, considering_batch_size, i,
 //              negative_samples_ids.get(), repulsive_force_scaling_factor);
         } else {
-          CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
-          full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i,j);
+//          CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
+//          full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i,j);
 //          cout<<" rank "<<grid->rank_in_col<<" transfer_negative_sampled_data completed "<<endl;
           // These operations are for more than one processes.
           this->execute_pull_model_computations(
@@ -318,8 +318,8 @@ public:
               this->data_comm_cache[j].get(), csr_block, batch_size,
               considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
               0, true);
-          (this->dense_local)->print_cache(i);
-          (this->dense_local)->print_matrix_rowptr(i);
+//          (this->dense_local)->print_cache(i);
+//          (this->dense_local)->print_matrix_rowptr(i);
           //            (this->dense_local)->print_cache(i);
 //          cout<<" rank "<<grid->rank_in_col<<"  attractive completed "<<endl;
 //          generate_negative_samples(negative_samples_ptr_count.get(),
