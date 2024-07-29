@@ -250,6 +250,9 @@ public:
 //    cout<<" rank "<<grid->rank_in_col<<" negative initialization completed "<<endl;
     stop_clock_and_add(t, "Iteration Total Time");
 
+    FileWriter<SPT,DENT> fileWriter;
+    fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr.txt",csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,sp_local_receiver->proc_row_width);
+
     for (int i = 0; i < iterations; i++) {
       DENT batch_error = 0;
       // Generate three random numbers
