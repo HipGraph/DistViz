@@ -456,10 +456,10 @@ public:
                                    this->sp_local_receiver->gCols) -
                           1;
           cout<<" rank "<<grid->rank_in_col<<" remote execution "<<computing_rank<<" indexes "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
-//          calc_embedding_row_major(
-//              iteration, source_start_index, source_end_index, dst_start_index,
-//              dst_end_index, csr_block, prevCoordinates, lr, batch_id,
-//              batch_size, block_size, fetch_from_temp_cache);
+          calc_embedding_row_major(
+              iteration, source_start_index, source_end_index, dst_start_index,
+              dst_end_index, csr_block, prevCoordinates, lr, batch_id,
+              batch_size, block_size, fetch_from_temp_cache);
         }
       }
     }
@@ -489,8 +489,9 @@ public:
           if (samples_per_epoch_next[i][dst_index] <= iteration + 1) {
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
-            if (dst_id >= dst_start_index && dst_id <= dst_end_index &&
-                (((i <= 29999) and grid->rank_in_col==0) ? (dst_id <= 29999) : (dst_id >= 30000))) {
+//            if (dst_id >= dst_start_index && dst_id <= dst_end_index &&
+//                (((i <= 29999) and grid->rank_in_col==0) ? (dst_id <= 29999) : (dst_id >= 30000))) {
+              if (dst_id >= dst_start_index && dst_id <= dst_end_index ) {
               uint64_t local_dst = dst_id - (grid)->rank_in_col * (this->sp_local_receiver)->proc_col_width;
               int target_rank = (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
               bool fetch_from_cache = target_rank == (grid)->rank_in_col ? false : true;
@@ -498,9 +499,10 @@ public:
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
 
+              unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>> arrayMap;
+
               if (fetch_from_cache) {
-                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
-                    &arrayMap =
+              arrayMap =
                         (temp_cache)
                             ? (*this->dense_local->tempCachePtr)[target_rank]
                             : (*this->dense_local->cachePtr)[target_rank];
@@ -515,7 +517,7 @@ public:
                       (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                       (this->dense_local)->nCoordinates[local_dst * embedding_dim + d];
                 } else {
-                  forceDiff[d] = (this->dense_local)->nCoordinates[i * embedding_dim + d] - array_ptr[d];
+                  forceDiff[d] = (this->dense_local)->nCoordinates[i * embedding_dim + d] - (*this->dense_local->tempCachePtr)[target_rank][dst_id][d];
                 }
                 attrc += forceDiff[d] * forceDiff[d];
               }
