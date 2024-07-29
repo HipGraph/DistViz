@@ -456,10 +456,10 @@ public:
                                    this->sp_local_receiver->gCols) -
                           1;
           cout<<" rank "<<grid->rank_in_col<<" remote execution "<<computing_rank<<" indexes "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
-          calc_embedding_row_major(
-              iteration, source_start_index, source_end_index, dst_start_index,
-              dst_end_index, csr_block, prevCoordinates, lr, batch_id,
-              batch_size, block_size, fetch_from_temp_cache);
+//          calc_embedding_row_major(
+//              iteration, source_start_index, source_end_index, dst_start_index,
+//              dst_end_index, csr_block, prevCoordinates, lr, batch_id,
+//              batch_size, block_size, fetch_from_temp_cache);
         }
       }
     }
@@ -490,7 +490,7 @@ public:
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
             if (dst_id >= dst_start_index && dst_id <= dst_end_index &&
-                ((i <= 29999) ? (dst_id <= 29999) : (dst_id >= 30000))) {
+                (((i <= 29999) and grid->rank_in_col==0) ? (dst_id <= 29999) : (dst_id >= 30000))) {
               uint64_t local_dst = dst_id - (grid)->rank_in_col * (this->sp_local_receiver)->proc_col_width;
               int target_rank = (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
               bool fetch_from_cache = target_rank == (grid)->rank_in_col ? false : true;
