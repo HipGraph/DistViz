@@ -499,10 +499,10 @@ public:
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
 
-              unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>> arrayMap;
 
               if (fetch_from_cache) {
-              arrayMap =
+                unordered_map<uint64_t, CacheEntry<DENT, embedding_dim>>
+                    &arrayMap =
                         (temp_cache)
                             ? (*this->dense_local->tempCachePtr)[target_rank]
                             : (*this->dense_local->cachePtr)[target_rank];
@@ -517,7 +517,7 @@ public:
                       (this->dense_local)->nCoordinates[i * embedding_dim + d] -
                       (this->dense_local)->nCoordinates[local_dst * embedding_dim + d];
                 } else {
-                  forceDiff[d] = (this->dense_local)->nCoordinates[i * embedding_dim + d] - (*this->dense_local->tempCachePtr)[target_rank][dst_id][d];
+                  forceDiff[d] = (this->dense_local)->nCoordinates[i * embedding_dim + d] - (*this->dense_local->tempCachePtr)[target_rank][dst_id].value[d];
                 }
                 attrc += forceDiff[d] * forceDiff[d];
               }
