@@ -424,7 +424,7 @@ public:
                                       int start_process, int end_process,
                                       bool fetch_from_temp_cache,vector<Tuple<float>> *knng_graph_ptr=nullptr) {
     FileWriter<int,float,2> fileWriter;
-    fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
+    fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr,false);
 
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
@@ -441,7 +441,7 @@ public:
       calc_embedding_row_major(iteration, source_start_index, source_end_index,
                                dst_start_index, dst_end_index, csr_block,
                                prevCoordinates, lr, batch_id, batch_size,
-                               block_size, fetch_from_temp_cache,knng_graph_ptr.get());
+                               block_size, fetch_from_temp_cache,knng_graph_ptr);
       cout<<" rank "<<grid->rank_in_col<<"KNNG starting size "<< knng_graph_ptr->size()<<endl;
       fileWriter.parallel_write("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/coords_local.txt",prevCoordinates->data(),this->sp_local_receiver->proc_col_width, 2);
 
@@ -466,7 +466,7 @@ public:
           calc_embedding_row_major(
               iteration, source_start_index, source_end_index, dst_start_index,
               dst_end_index, csr_block, prevCoordinates, lr, batch_id,
-              batch_size, block_size, fetch_from_temp_cache,knng_graph_ptr.get());
+              batch_size, block_size, fetch_from_temp_cache,knng_graph_ptr);
         }
       }
     }
