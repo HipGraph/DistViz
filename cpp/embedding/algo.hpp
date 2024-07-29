@@ -289,13 +289,13 @@ public:
             (*prevCoordinates_ptr)[IDIM + d] = 0;
           }
         }
-
+        shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
         if (grid->col_world_size == 1) {
 
           // local computations for 1 process
           this->calc_t_dist_grad_rowptr(
               csr_block, prevCoordinates_ptr.get(), alpha, i, j, batch_size,
-              considering_batch_size, true, false, 0, 0, false);
+              considering_batch_size, true, false, 0, 0, false,knng_graph_ptr.get());
 //          (this->dense_local)->print_cache(i);
 //          (this->dense_local)->print_matrix_rowptr(i);
 
@@ -317,7 +317,7 @@ public:
               sendbuf_ptr.get(), update_ptr.get(), i, j,
               this->data_comm_cache[j].get(), csr_block, batch_size,
               considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
-              0, true);
+              0, true,knng_graph_ptr.get());
 //          (this->dense_local)->print_cache(i);
 //          (this->dense_local)->print_matrix_rowptr(i);
           //            (this->dense_local)->print_cache(i);
@@ -338,6 +338,9 @@ public:
 //          }
         }
 
+        FileWriter<int,float,2> fileWriter;
+        fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
+
         this->update_data_matrix_rowptr(
             prevCoordinates_ptr.get(), j, batch_size);
         alpha = lr * (1.0 - (float(i) / float(iterations)));
@@ -352,7 +355,7 @@ public:
       CSRLocal<SPT, DENT> *csr_block, int batch_size,
       int considering_batch_size, double lr, vector<DENT> *prevCoordinates,
       int comm_initial_start, bool local_execution, int first_execution_proc,
-      bool communication) {
+      bool communication, vector<Tuple<float>>* knng_ptr=nullptr) {
 
     int proc_length = get_proc_length(beta, grid->col_world_size);
     int prev_start = comm_initial_start;
@@ -382,7 +385,7 @@ public:
         this->calc_t_dist_grad_rowptr(
             csr_block, prevCoordinates, lr, iteration, batch, batch_size,
             considering_batch_size, local_execution, col_major,
-            first_execution_proc, prev_start, local_execution);
+            first_execution_proc, prev_start, local_execution,knng_ptr);
 
       } else if (k > comm_initial_start) {
         int prev_end_process =
@@ -391,7 +394,7 @@ public:
         this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, iteration,
                                       batch, batch_size, considering_batch_size,
                                       false, col_major, prev_start,
-                                      prev_end_process, true);
+                                      prev_end_process, true,knng_ptr);
       }
 
       if (!sync and communication) {
@@ -408,7 +411,7 @@ public:
     this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, batch,
                                   iteration, batch_size, considering_batch_size,
                                   false, col_major, prev_start,
-                                  prev_end_process, true);
+                                  prev_end_process, true,knng_ptr);
 
     // dense_local->invalidate_cache(i, j, true);
   }
@@ -419,8 +422,9 @@ public:
                                       int batch_size, int block_size,
                                       bool local, bool col_major,
                                       int start_process, int end_process,
-                                      bool fetch_from_temp_cache) {
+                                      bool fetch_from_temp_cache,vector<Tuple<float>> *knng_graph_ptr=nullptr) {
     FileWriter<int,float,2> fileWriter;
+    fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
 
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
@@ -432,7 +436,6 @@ public:
     auto dst_end_index =
         std::min(static_cast<uint64_t>(this->sp_local_receiver->proc_col_width *
                                        (grid->rank_in_col + 1)),this->sp_local_receiver->gCols) - 1;
-    shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
     if (local) {
       cout<<" rank "<<grid->rank_in_col<<" local execution "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
       calc_embedding_row_major(iteration, source_start_index, source_end_index,
@@ -467,8 +470,6 @@ public:
         }
       }
     }
-
-    fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
   }
 
   inline void calc_embedding_row_major(
