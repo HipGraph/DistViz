@@ -338,8 +338,8 @@ public:
 //          }
         }
 
-        FileWriter<int,float,2> fileWriter;
-        fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
+//        FileWriter<int,float,2> fileWriter;
+//        fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
 
         this->update_data_matrix_rowptr(
             prevCoordinates_ptr.get(), j, batch_size);
@@ -424,7 +424,6 @@ public:
                                       int start_process, int end_process,
                                       bool fetch_from_temp_cache,vector<Tuple<float>> *knng_graph_ptr=nullptr) {
     FileWriter<int,float,2> fileWriter;
-    fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr,false);
 
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
@@ -443,7 +442,7 @@ public:
                                prevCoordinates, lr, batch_id, batch_size,
                                block_size, fetch_from_temp_cache,knng_graph_ptr);
       cout<<" rank "<<grid->rank_in_col<<"KNNG starting size "<< knng_graph_ptr->size()<<endl;
-      fileWriter.parallel_write("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/coords_local.txt",prevCoordinates->data(),this->sp_local_receiver->proc_col_width, 2);
+//      fileWriter.parallel_write("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/coords_local.txt",prevCoordinates->data(),this->sp_local_receiver->proc_col_width, 2);
 
     } else {
       for (int r = 0; r <  grid->col_world_size; r++) {
@@ -513,12 +512,12 @@ public:
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
 
-              Tuple<float> tp;
-              tp.row= i+ grid->rank_in_col*(this->sp_local_receiver)->proc_col_width;
-              tp.col=dst_id;
-              tp.value=1;
-
-              (*knng_graph_ptr).push_back(tp);
+//              Tuple<float> tp;
+//              tp.row= i+ grid->rank_in_col*(this->sp_local_receiver)->proc_col_width;
+//              tp.col=dst_id;
+//              tp.value=1;
+//
+//              (*knng_graph_ptr).push_back(tp);
 
 
               if (fetch_from_cache) {
