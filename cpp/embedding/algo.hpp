@@ -431,13 +431,13 @@ public:
     auto dst_end_index =
         std::min(static_cast<uint64_t>(this->sp_local_receiver->proc_col_width *
                                        (grid->rank_in_col + 1)),this->sp_local_receiver->gCols) - 1;
-
+    shared_ptr<vector<Tuple<float>>> knng_graph_ptr = make_shared<vector<Tuple<float>>>();
     if (local) {
       cout<<" rank "<<grid->rank_in_col<<" local execution "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
       calc_embedding_row_major(iteration, source_start_index, source_end_index,
                                dst_start_index, dst_end_index, csr_block,
                                prevCoordinates, lr, batch_id, batch_size,
-                               block_size, fetch_from_temp_cache);
+                               block_size, fetch_from_temp_cache,knng_graph_ptr.get());
 
     } else {
       for (int r = 0; r <  grid->col_world_size; r++) {
@@ -459,23 +459,25 @@ public:
           calc_embedding_row_major(
               iteration, source_start_index, source_end_index, dst_start_index,
               dst_end_index, csr_block, prevCoordinates, lr, batch_id,
-              batch_size, block_size, fetch_from_temp_cache);
+              batch_size, block_size, fetch_from_temp_cache,knng_graph_ptr.get());
         }
       }
     }
+    FileWriter<int,float,2> fileWriter;
+    fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
   }
 
   inline void calc_embedding_row_major(
       int iteration, uint64_t source_start_index, uint64_t source_end_index,
       uint64_t dst_start_index, uint64_t dst_end_index,
       CSRLocal<SPT, DENT> *csr_block, vector<DENT> *prevCoordinates, DENT lr,
-      int batch_id, int batch_size, int block_size, bool temp_cache) {
-
+      int batch_id, int batch_size, int block_size, bool temp_cache,
+      vector<Tuple<float>> *knng_graph_ptr) {
 
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
-#pragma omp parallel for schedule(static) // enable for full batch training or
+//#pragma omp parallel for schedule(static) // enable for full batch training or
                                           // // batch size larger than 1000000
       for (uint64_t i = source_start_index; i <= source_end_index; i++) {
 
@@ -498,6 +500,13 @@ public:
 
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
+
+              Tuple<float> tp;
+              tp.row= i+ grid->rank_in_col*(this->sp_local_receiver)->proc_col_width;
+              tp.col=dst_id;
+              tp.value=1;
+
+              (*knng_graph_ptr).push_back(tp);
 
 
               if (fetch_from_cache) {
@@ -532,6 +541,7 @@ public:
         }
       }
     }
+
   }
 
   inline void calc_t_dist_replus_rowptr(
