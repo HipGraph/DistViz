@@ -175,9 +175,10 @@ public:
 
     int considering_batch_size = batch_size;
     vector<DENT> error_convergence;
+    CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
     if (csr_block->handler != nullptr) {
-      CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
+
 
       std::vector<int> &row_offsets = csr_handle->rowStart;
       std::vector<int> &col_indices = csr_handle->col_idx;
@@ -250,7 +251,7 @@ public:
 //    cout<<" rank "<<grid->rank_in_col<<" negative initialization completed "<<endl;
     stop_clock_and_add(t, "Iteration Total Time");
 
-    FileWriter<SPT,DENT> fileWriter;
+    FileWriter<SPT,DENT,2> fileWriter;
     fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr.txt",csr_handle->rowStart,csr_handle->col_idx,csr_handle->values,sp_local_receiver->proc_row_width);
 
     for (int i = 0; i < iterations; i++) {
