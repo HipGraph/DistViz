@@ -430,9 +430,7 @@ public:
         this->sp_local_receiver->proc_col_width * grid->rank_in_col;
     auto dst_end_index =
         std::min(static_cast<uint64_t>(this->sp_local_receiver->proc_col_width *
-                                       (grid->rank_in_col + 1)),
-                 this->sp_local_receiver->gCols) -
-        1;
+                                       (grid->rank_in_col + 1)),this->sp_local_receiver->gCols) - 1;
 
     if (local) {
       cout<<" rank "<<grid->rank_in_col<<" local execution "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
@@ -472,6 +470,8 @@ public:
       uint64_t dst_start_index, uint64_t dst_end_index,
       CSRLocal<SPT, DENT> *csr_block, vector<DENT> *prevCoordinates, DENT lr,
       int batch_id, int batch_size, int block_size, bool temp_cache) {
+
+
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
@@ -489,7 +489,8 @@ public:
           if (samples_per_epoch_next[i][dst_index] <= iteration + 1) {
             auto dst_id = csr_handle->col_idx[j];
             auto distance = csr_handle->values[j];
-            if (dst_id >= dst_start_index and dst_id <= dst_end_index) {
+            if (dst_id >= dst_start_index && dst_id <= dst_end_index &&
+                ((i <= 29999) ? (dst_id <= 29999) : (dst_id >= 30000))) {
               uint64_t local_dst = dst_id - (grid)->rank_in_col * (this->sp_local_receiver)->proc_col_width;
               int target_rank = (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
               bool fetch_from_cache = target_rank == (grid)->rank_in_col ? false : true;
