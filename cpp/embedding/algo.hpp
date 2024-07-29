@@ -456,10 +456,10 @@ public:
                                    this->sp_local_receiver->gCols) -
                           1;
           cout<<" rank "<<grid->rank_in_col<<" remote execution "<<computing_rank<<" indexes "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
-//          calc_embedding_row_major(
-//              iteration, source_start_index, source_end_index, dst_start_index,
-//              dst_end_index, csr_block, prevCoordinates, lr, batch_id,
-//              batch_size, block_size, fetch_from_temp_cache,knng_graph_ptr.get());
+          calc_embedding_row_major(
+              iteration, source_start_index, source_end_index, dst_start_index,
+              dst_end_index, csr_block, prevCoordinates, lr, batch_id,
+              batch_size, block_size, fetch_from_temp_cache,knng_graph_ptr.get());
         }
       }
     }
