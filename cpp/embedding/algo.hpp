@@ -407,8 +407,8 @@ public:
 
     int prev_end_process = get_end_proc(prev_start, beta, grid->col_world_size);
 
-    (this->dense_local)->print_cache(iteration);
-    (this->dense_local)->print_matrix_rowptr(iteration);
+//    (this->dense_local)->print_cache(iteration);
+//    (this->dense_local)->print_matrix_rowptr(iteration);
     // updating last remote fetched data vectors
     this->calc_t_dist_grad_rowptr(csr_block, prevCoordinates, lr, iteration,
                                   batch, batch_size, considering_batch_size,
