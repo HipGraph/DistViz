@@ -95,7 +95,7 @@ public:
     if (temp) {
       (*this->tempCachePtr)[rank][key]= entry;
       if ((*this->tempCachePtr)[rank][key].value[0]==0 and (*this->tempCachePtr)[rank][key].value[1]==0){
-        cout<<grid->rank_in_col<<" zero entry  col id : "<<dst_id<<endl;
+        cout<<grid->rank_in_col<<" zero entry  col id : "<<key<<endl;
       }
     } else {
       (*this->cachePtr)[rank][key]= entry;
