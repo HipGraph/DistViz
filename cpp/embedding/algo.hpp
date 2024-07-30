@@ -318,7 +318,7 @@ public:
               this->data_comm_cache[j].get(), csr_block, batch_size,
               considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
               0, true,knng_graph_ptr.get());
-          (this->dense_local)->print_cache(i);
+ //         (this->dense_local)->print_cache(i);
 //          (this->dense_local)->print_matrix_rowptr(i);
           //            (this->dense_local)->print_cache(i);
 //          cout<<" rank "<<grid->rank_in_col<<"  attractive completed "<<endl;
@@ -544,7 +544,7 @@ public:
                 attrc += forceDiff[d] * forceDiff[d];
               }
 
-              if (forceDiff[0]==0 and forceDiff[1]==0){
+              if ((*this->dense_local->tempCachePtr)[target_rank][dst_id].value[0]==0 and (*this->dense_local->tempCachePtr)[target_rank][dst_id].value[1]==0){
                 cout<<grid->rank_in_col<<" row: "<<tp.row<<" zero force col id : "<<dst_id<<endl;
               }
 
