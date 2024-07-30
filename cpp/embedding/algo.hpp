@@ -338,8 +338,8 @@ public:
 //          }
         }
 
-        FileWriter<int,float,2> fileWriter;
-        fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
+//        FileWriter<int,float,2> fileWriter;
+//        fileWriter.parallel_write_knng(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/access.txt",knng_graph_ptr.get(),false);
 
         this->update_data_matrix_rowptr(
             prevCoordinates_ptr.get(), j, batch_size);
@@ -425,7 +425,7 @@ public:
                                       bool local, bool col_major,
                                       int start_process, int end_process,
                                       bool fetch_from_temp_cache,vector<Tuple<float>> *knng_graph_ptr=nullptr) {
-    FileWriter<int,float,2> fileWriter;
+
 
     auto source_start_index = batch_id * batch_size;
     auto source_end_index = std::min((batch_id + 1) * batch_size,
