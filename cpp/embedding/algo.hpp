@@ -506,7 +506,7 @@ public:
 
             //            if (dst_id >= dst_start_index && dst_id <= dst_end_index &&
 //                (((i <= 29999) and grid->rank_in_col==0) ? (dst_id <= 29999) : (dst_id >= 30000))) {
-              if (dst_id >= dst_start_index && dst_id <= dst_end_index  and dst_id != i) {
+              if (dst_id >= dst_start_index && dst_id <= dst_end_index  and dst_id != (i+ grid->rank_in_col*(this->sp_local_receiver)->proc_col_width)) {
               uint64_t local_dst = dst_id - (grid)->rank_in_col * (this->sp_local_receiver)->proc_col_width;
               int target_rank = (int)(dst_id / (this->sp_local_receiver)->proc_col_width);
               bool fetch_from_cache = target_rank == (grid)->rank_in_col ? false : true;
