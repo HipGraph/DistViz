@@ -93,6 +93,7 @@ public:
     entry.inserted_itr = iteration;
     entry.value = arr;
     if (temp) {
+      cout<<grid->rank_in_col<<" inserting  "<<key<<endl;
       (*this->tempCachePtr)[rank][key]= entry;
       if ((*this->tempCachePtr)[rank][key].value[0]==0 and (*this->tempCachePtr)[rank][key].value[1]==0){
         cout<<grid->rank_in_col<<" zero entry  col id : "<<key<<endl;
