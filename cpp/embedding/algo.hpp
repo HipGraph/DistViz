@@ -540,13 +540,13 @@ public:
                       (this->dense_local)->nCoordinates[local_dst * embedding_dim + d];
                 } else {
                   forceDiff[d] = (this->dense_local)->nCoordinates[i * embedding_dim + d] - (*this->dense_local->tempCachePtr)[target_rank][dst_id].value[d];
+                    if ((*this->dense_local->tempCachePtr)[target_rank][dst_id].value[0]==0 and (*this->dense_local->tempCachePtr)[target_rank][dst_id].value[1]==0){
+                        cout<<grid->rank_in_col<<" row: "<<tp.row<<" zero force col id : "<<dst_id<<endl;
+                    }
                 }
                 attrc += forceDiff[d] * forceDiff[d];
               }
 
-              if ((*this->dense_local->tempCachePtr)[target_rank][dst_id].value[0]==0 and (*this->dense_local->tempCachePtr)[target_rank][dst_id].value[1]==0){
-                cout<<grid->rank_in_col<<" row: "<<tp.row<<" zero force col id : "<<dst_id<<endl;
-              }
 
               DENT d1 = -2.0 / (1.0 + attrc);
               for (int d = 0; d < embedding_dim; d++) {
