@@ -190,7 +190,6 @@ public:
             (*sendbuf_cyclic)[index].col =
                 col_id + (this->sp_local_sender->proc_col_width *
                           this->grid->global_rank);
-            cout<< " rank "<<grid->rank_in_col<<" loading id "<<(*sendbuf_cyclic)[index].col<<endl;
             (*sendbuf_cyclic)[index].value = dense_vector;
             offset_vector[sending_procs[i]]++;
           }
