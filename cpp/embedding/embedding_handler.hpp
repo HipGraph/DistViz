@@ -89,7 +89,7 @@ public:
 
     cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat_receiver initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
     fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr_native.txt",row_offsets,col_indices,values,shared_sparseMat_receiver.get()->proc_row_width);
-    fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr_sender.txt",row_offsets_send,col_indices_send,values_send,shared_sparseMat_receiver.get()->proc_row_width);
+    fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr_sender.txt",row_offsets_send,col_indices_send,values_send,shared_sparseMat_receiver.get()->proc_row_width,true);
     unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>
 
         embedding_algo = unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>(
