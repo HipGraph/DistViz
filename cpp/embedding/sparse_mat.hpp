@@ -141,7 +141,7 @@ public:
           if (rank != procs[r] and (handle->rowStart[i + 1] - handle->rowStart[i]) > 0) {
             for (auto j = handle->rowStart[i]; j < handle->rowStart[i + 1];j++) {
               auto col_val = handle->col_idx[j];
-              fout<<i<<" "<<col_val+proc_row_width * rank<<" "<< handle->values[j]<<endl;
+              fout<<(i+1)<<" "<<(col_val+1)+proc_row_width * rank<<" "<< handle->values[j]<<endl;
               { (*proc_to_id_mapping)[procs[r]].insert(col_val);
                 (*id_to_proc_mapping)[col_val][procs[r]] = true;
               }
