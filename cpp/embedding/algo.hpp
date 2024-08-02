@@ -215,8 +215,8 @@ public:
     int total_tuples = max_nnz * sp_local_receiver->proc_row_width;
     unique_ptr<vector<Tuple<DENT>>> negative_tuples = make_unique<vector<Tuple<DENT>>>(total_tuples);
 
-    ofstream fout;
-    fout.open("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/negatives.txt", std::ios_base::app);
+    //ofstream fout;
+   // fout.open("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/negatives.txt", std::ios_base::app);
 
     auto t = start_clock();
     //    #pragma omp parallel for schedule(static)
@@ -224,11 +224,11 @@ public:
       (*negative_samples_ids)[i] = vector<SPT>(max_nnz);
       for (uint64_t j = 0; j < max_nnz; j++) {
         (*negative_samples_ids)[i][j] = distribution(gen);
-        if (j==0) {
-          fout << (i + ((this->sp_local_receiver)->proc_row_width *
-                        grid->rank_in_col))
-               << ":" << (*negative_samples_ids)[i][j] << endl;
-        }
+       // if (j==0) {
+       //   fout << (i + ((this->sp_local_receiver)->proc_row_width *
+       //                 grid->rank_in_col))
+       //        << ":" << (*negative_samples_ids)[i][j] << endl;
+        //}
         Tuple<DENT> tuple;
         tuple.row = (*negative_samples_ids)[i][j];
         tuple.col = i;
