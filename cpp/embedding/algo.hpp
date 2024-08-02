@@ -322,14 +322,14 @@ public:
 //          (this->dense_local)->print_matrix_rowptr(i);
           //            (this->dense_local)->print_cache(i);
 //          cout<<" rank "<<grid->rank_in_col<<"  attractive completed "<<endl;
-//          generate_negative_samples(negative_samples_ptr_count.get(),
-//                                    csr_handle, i, j, batch_size,
-//                                    considering_batch_size, seed, max_nnz);
+          generate_negative_samples(negative_samples_ptr_count.get(),
+                                    csr_handle, i, j, batch_size,
+                                    considering_batch_size, seed, max_nnz);
 //          cout<<" rank "<<grid->rank_in_col<<"  generate_negative_samples completed "<<endl;
-//          this->calc_t_dist_replus_rowptr(
-//              prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
-//              alpha, j, batch_size, considering_batch_size, i,
-//              negative_samples_ids.get(), repulsive_force_scaling_factor);
+          this->calc_t_dist_replus_rowptr(
+              prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
+              alpha, j, batch_size, considering_batch_size, i,
+              negative_samples_ids.get(), repulsive_force_scaling_factor);
 //          cout<<" rank "<<grid->rank_in_col<<"  calc_t_dist_replus_rowptr completed "<<endl;
 
 //          if (i==1198) {
@@ -438,12 +438,12 @@ public:
         std::min(static_cast<uint64_t>(this->sp_local_receiver->proc_col_width *
                                        (grid->rank_in_col + 1)),this->sp_local_receiver->gCols) - 1;
     if (local) {
-      cout<<" rank "<<grid->rank_in_col<<" local execution "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
+   //   cout<<" rank "<<grid->rank_in_col<<" local execution "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
       calc_embedding_row_major(iteration, source_start_index, source_end_index,
                                dst_start_index, dst_end_index, csr_block,
                                prevCoordinates, lr, batch_id, batch_size,
                                block_size, fetch_from_temp_cache,knng_graph_ptr);
-      cout<<" rank "<<grid->rank_in_col<<"KNNG starting size "<< knng_graph_ptr->size()<<endl;
+      //cout<<" rank "<<grid->rank_in_col<<"KNNG starting size "<< knng_graph_ptr->size()<<endl;
 //      fileWriter.parallel_write("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/coords_local.txt",prevCoordinates->data(),this->sp_local_receiver->proc_col_width, 2);
 
     } else {
@@ -462,7 +462,7 @@ public:
                                        (computing_rank + 1)),
                                    this->sp_local_receiver->gCols) -
                           1;
-          cout<<" rank "<<grid->rank_in_col<<" remote execution "<<computing_rank<<" indexes "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
+      //    cout<<" rank "<<grid->rank_in_col<<" remote execution "<<computing_rank<<" indexes "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
 
           calc_embedding_row_major(
               iteration, source_start_index, source_end_index, dst_start_index,
@@ -483,8 +483,7 @@ public:
     if (csr_block->handler != nullptr) {
       CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
-//#pragma omp parallel for schedule(static) // enable for full batch training or
-                                          // // batch size larger than 1000000
+     #pragma omp parallel for schedule(static) // enable for full batch training or
       for (uint64_t i = source_start_index; i <= source_end_index; i++) {
 
         uint64_t index = i - batch_id * batch_size;
@@ -514,12 +513,11 @@ public:
               DENT forceDiff[embedding_dim];
               std::array<DENT, embedding_dim> array_ptr;
 
-              Tuple<float> tp;
-              tp.row= i+ grid->rank_in_col*(this->sp_local_receiver)->proc_col_width;
-              tp.col=dst_id;
-              tp.value=1;
-
-              (*knng_graph_ptr).push_back(tp);
+       //       Tuple<float> tp;
+      ///        tp.row= i+ grid->rank_in_col*(this->sp_local_receiver)->proc_col_width;
+       //       tp.col=dst_id;
+        ///      tp.value=1;
+//    (*knng_graph_ptr).push_back(tp);
 
 
               if (fetch_from_cache) {
