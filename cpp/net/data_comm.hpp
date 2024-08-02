@@ -387,10 +387,7 @@ public:
               #pragma omp atomic
               current_offset[target_proc]++;
             }
-          }
-
-//        }
-      }
+        }
     }
 
 
