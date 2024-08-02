@@ -208,7 +208,7 @@ public:
                     (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
                     DENSETUPLE, grid->col_world);
       MPI_Request dumy;
-      this->populate_cache(sendbuf_cyclic, receivebuf, &dumy, true, iteration, batch_id,temp_cache);
+      this->populate_cache(sendbuf_cyclic, receivebuf, &dumy, true, iteration, batch_id,temp_cache,);
       stop_clock_and_add(t, "Embedding Communication Time");
     }
   }
@@ -291,8 +291,10 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
 
     vector<int> sendcounts(grid->col_world_size, 0);
     vector<int> sdispls(grid->col_world_size, 0);
-    unique_ptr<vector<int>> receive_counts_cyclic = unique_ptr<vector<int>>(new vector<int>(grid->col_world_size, 0));
-    unique_ptr<vector<int>> rdispls_cyclic = unique_ptr<vector<int>>(new vector<int>(grid->col_world_size, 0));
+    //unique_ptr<vector<int>> receive_counts_cyclic = unique_ptr<vector<int>>(new vector<int>(grid->col_world_size, 0));
+   // unique_ptr<vector<int>> rdispls_cyclic = unique_ptr<vector<int>>(new vector<int>(grid->col_world_size, 0));
+    receive_counts_cyclic = make_shared<vector<int>>(grid->col_world_size, 0);
+    rdispls_cyclic = make_shared<vector<int>>(grid->col_world_size, 0);
 
     #pragma omp parallel for
     for (int proc = 0; proc < grid->col_world_size; proc++) {
