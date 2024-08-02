@@ -336,7 +336,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
 
     MPI_Alltoall(sendcounts.data(), 1, MPI_INT, receive_counts_cyclic->data(),
                  1, MPI_INT, grid->col_world);
-
+    cout<<grid->rank_in_col<<" count exchange done "<<endl;
     for (int i = 0; i < grid->col_world_size; i++) {
         sdispls[i] = (i > 0) ? sdispls[i - 1] + sendcounts[i - 1] : 0;
         (*rdispls_cyclic)[i] = (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1] : 0;
@@ -347,7 +347,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
 
     vector<int> current_offset(grid->col_world_size, 0);
 
-    #pragma omp parallel for
+  //  #pragma omp parallel for
     for (int proc = 0; proc < grid->col_world_size; proc++) {
         int start_index = proc * this->sp_local_receiver->proc_row_width;
         int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
@@ -366,7 +366,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
                     current_offset[target_proc]++;
                 }
             }
-
+           cout<<grid->rank_in_col<<" data_handler_repulsive id insertion completed "<<endl;
             for (int j = data_handler_attractive->rowStart[i]; j < data_handler_attractive->rowStart[i + 1]; j++) {
                 int id = data_handler_attractive->col_idx[j];
                 int target_proc = id / this->sp_local_receiver->proc_row_width;
@@ -384,7 +384,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
                   MPI_INT, (*receivebuf_ids).data(),
                   receive_counts_cyclic->data(), rdispls_cyclic->data(),
                   MPI_INT, grid->col_world);
-
+    cout<<grid->rank_in_col<<"  id exchange completed "<<endl;
     unique_ptr<vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
         unique_ptr<vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
     sendbuf_data->resize(total_receive_count);
