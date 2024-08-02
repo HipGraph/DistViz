@@ -522,7 +522,7 @@ for (int i = start_index; i < end_index; i++) {
       auto count = (*receive_counts_cyclic)[i];
       (*rdispls_cyclic)[i]=0;
       (*receive_counts_cyclic)[i]=0;
-//      cout<<" grid "<<grid->rank_in_col<<" for rank  "<<i<<" insertion started from "<<base_index<<"  count "<<count<<endl;
+      cout<<" grid "<<grid->rank_in_col<<" for rank  "<<i<<" insertion started from "<<base_index<<"  count "<<count<<endl;
       for (auto j = base_index; j < base_index + count; j++) {
         DataTuple<DENT, embedding_dim> t = (*receivebuf)[j];
          cout<<grid->rank_in_col<<" receving "<<t.col<<endl;
