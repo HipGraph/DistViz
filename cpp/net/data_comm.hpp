@@ -346,7 +346,6 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
 
     MPI_Alltoall(sendcounts.data(), 1, MPI_INT, receive_counts_cyclic->data(),
                  1, MPI_INT, grid->col_world);
-    cout<<grid->rank_in_col<<" count exchange done "<<endl;
     for (int i = 0; i < grid->col_world_size; i++) {
         sdispls[i] = (i > 0) ? sdispls[i - 1] + sendcounts[i - 1] : 0;
         (*rdispls_cyclic)[i] = (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1] : 0;
@@ -376,7 +375,6 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
                     current_offset[target_proc]++;
                 }
             }
-           cout<<grid->rank_in_col<<" data_handler_repulsive id insertion completed "<<endl;
 
         }
     }
@@ -399,9 +397,10 @@ for (int i = start_index; i < end_index; i++) {
                   MPI_INT, (*receivebuf_ids).data(),
                   receive_counts_cyclic->data(), rdispls_cyclic->data(),
                   MPI_INT, grid->col_world);
-    cout<<grid->rank_in_col<<"  id exchange completed "<<endl;
     unique_ptr<vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
         unique_ptr<vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
+
+    cout<<grid->rank_in_col<<" total_receive_count "<<total_receive_count<<endl;
     sendbuf_data->resize(total_receive_count);
 
     unique_ptr<vector<DataTuple<DENT, embedding_dim>>> receivebuf_data =
