@@ -310,7 +310,7 @@ public:
 //              negative_samples_ids.get(), repulsive_force_scaling_factor);
         } else {
           CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
-          full_comm.get()->transfer_negative_sampled_data(csr_block_negative,csr_block, i,j);
+          full_comm.get()->transfer_data(csr_block_negative,csr_block, i,j);
 //          cout<<" rank "<<grid->rank_in_col<<" transfer_negative_sampled_data completed "<<endl;
           // These operations are for more than one processes.
           this->execute_pull_model_computations(
