@@ -134,9 +134,7 @@ public:
     if (col_partitioned) {
       for (int r = 0 ; r < procs.size(); r++) {
         uint64_t starting_index = batch_id * batch_size + proc_row_width * procs[r];
-        auto end_index =
-            std::min(std::min((starting_index+batch_size),static_cast<uint64_t>((procs[r] + 1) * proc_row_width)), gRows);
-
+        auto end_index =  std::min(std::min((starting_index+batch_size),static_cast<uint64_t>((procs[r] + 1) * proc_row_width)), gRows);
         for (auto i = starting_index; i < end_index; i++) {
           if (rank != procs[r] and (handle->rowStart[i + 1] - handle->rowStart[i]) > 0) {
             for (auto j = handle->rowStart[i]; j < handle->rowStart[i + 1];j++) {
