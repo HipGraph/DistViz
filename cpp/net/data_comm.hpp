@@ -285,141 +285,132 @@ public:
   }
 
 
-  void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive,CSRLocal<SPT, DENT> *csr_block_attractive, int iteration, int batch_id) {
+void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT> *csr_block_attractive, int iteration, int batch_id) {
+    CSRHandle<SPT, DENT>* data_handler_repulsive = csr_block_repulsive->handler.get();
+    CSRHandle<SPT, DENT>* data_handler_attractive = csr_block_attractive->handler.get();
 
-    CSRHandle<SPT,DENT>* data_handler_repulsive = csr_block_repulsive->handler.get();
-   CSRHandle<SPT,DENT>* data_handler_attractive = csr_block_attractive->handler.get();
+    vector<int> sendcounts(grid->col_world_size, 0);
+    vector<int> sdispls(grid->col_world_size, 0);
+    unique_ptr<vector<int>> receive_counts_cyclic = unique_ptr<vector<int>>(new vector<int>(grid->col_world_size, 0));
+    unique_ptr<vector<int>> rdispls_cyclic = unique_ptr<vector<int>>(new vector<int>(grid->col_world_size, 0));
 
-
-
-    vector<int> sendcounts(grid->col_world_size,0);
-    vector<int> sdispls(grid->col_world_size,0);
-//    vector<int> rdispls_cyclic(grid->col_world_size,0);
-//    vector<int> receive_counts_cyclic(grid->col_world_size,0);
-    #pragma  omp parallel for
-    for(int proc=0;proc<grid->col_world_size;proc++){
+    #pragma omp parallel for
+    for (int proc = 0; proc < grid->col_world_size; proc++) {
         int start_index = proc * this->sp_local_receiver->proc_row_width;
         int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
         int gRows = static_cast<int>(this->sp_local_receiver->gRows);
         if (proc == grid->col_world_size - 1) {
-          end_index = min(end_index, gRows);
+            end_index = min(end_index, gRows);
         }
         for (int i = start_index; i < end_index; i++) {
-          if ((data_handler_repulsive->rowStart[i + 1] - data_handler_repulsive->rowStart[i]) > 0) {
-            int id = (i+iteration)%this->sp_local_receiver->gRows;
-
-            int target_proc = id/this->sp_local_receiver->proc_row_width;
-            if (target_proc != grid->rank_in_col) {
-              #pragma omp atomic
-              sendcounts[target_proc]++;
+            if ((data_handler_repulsive->rowStart[i + 1] - data_handler_repulsive->rowStart[i]) > 0) {
+                int id = (i + iteration) % this->sp_local_receiver->gRows;
+                int target_proc = id / this->sp_local_receiver->proc_row_width;
+                if (target_proc != grid->rank_in_col) {
+                    #pragma omp atomic
+                    sendcounts[target_proc]++;
+                }
             }
-          }
 
-          for(int j= data_handler_attractive->rowStart[i];j<data_handler_attractive->rowStart[i+1];j++) {
-            int id = data_handler_attractive->col_idx[j];
-            int target_proc = id/this->sp_local_receiver->proc_row_width;
-            if (target_proc != grid->rank_in_col) {
-              #pragma omp atomic
-              sendcounts[target_proc]++;
+            for (int j = data_handler_attractive->rowStart[i]; j < data_handler_attractive->rowStart[i + 1]; j++) {
+                int id = data_handler_attractive->col_idx[j];
+                int target_proc = id / this->sp_local_receiver->proc_row_width;
+                if (target_proc != grid->rank_in_col) {
+                    #pragma omp atomic
+                    sendcounts[target_proc]++;
+                }
             }
-          }
         }
     }
-    int total_send_count=0;
-    int total_receive_count=0;
-    for(int proc=0;proc<grid->col_world_size;proc++){
-      total_send_count += (sendcounts)[proc];
+
+    int total_send_count = 0;
+    int total_receive_count = 0;
+    for (int proc = 0; proc < grid->col_world_size; proc++) {
+        total_send_count += sendcounts[proc];
     }
 
-    unique_ptr<std::vector<SPT>> sendbuf_ids = unique_ptr<std::vector<SPT>>(new vector<SPT>());
-
+    unique_ptr<vector<SPT>> sendbuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
     sendbuf_ids->resize(total_send_count);
 
-    unique_ptr<std::vector<SPT>> receivebuf_ids = unique_ptr<std::vector<SPT>>(new vector<SPT>());
+    unique_ptr<vector<SPT>> receivebuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
 
-    MPI_Alltoall((sendcounts).data(), 1, MPI_INT,(*receive_counts_cyclic.get()).data(),
-                  1, MPI_INT,grid->col_world);
-
+    MPI_Alltoall(sendcounts.data(), 1, MPI_INT, receive_counts_cyclic->data(),
+                 1, MPI_INT, grid->col_world);
 
     for (int i = 0; i < grid->col_world_size; i++) {
-
-      (sdispls)[i] = (i > 0) ? (sdispls)[i - 1] + (sendcounts)[i - 1]
-                              : (sdispls)[i];
-      (*rdispls_cyclic)[i] =
-          (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1]
-                  : (*rdispls_cyclic)[i];
-      total_receive_count = total_receive_count + (*receive_counts_cyclic)[i];
+        sdispls[i] = (i > 0) ? sdispls[i - 1] + sendcounts[i - 1] : 0;
+        (*rdispls_cyclic)[i] = (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1] : 0;
+        total_receive_count += (*receive_counts_cyclic)[i];
     }
 
-    receivebuf_ids.get()->resize(total_receive_count);
+    receivebuf_ids->resize(total_receive_count);
 
-    vector<int> current_offset(grid->col_world_size,0);
+    vector<int> current_offset(grid->col_world_size, 0);
 
-    #pragma  omp parallel for
-    for(int proc=0;proc<grid->col_world_size;proc++){
-//      if (proc != grid->rank_in_col) {
+    #pragma omp parallel for
+    for (int proc = 0; proc < grid->col_world_size; proc++) {
         int start_index = proc * this->sp_local_receiver->proc_row_width;
         int end_index = (proc + 1) * this->sp_local_receiver->proc_row_width;
         int gRows = static_cast<int>(this->sp_local_receiver->gRows);
         if (proc == grid->col_world_size - 1) {
-          end_index = min(end_index, gRows);
+            end_index = min(end_index, gRows);
         }
         for (int i = start_index; i < end_index; i++) {
-          if ((data_handler_repulsive->rowStart[i + 1] - data_handler_repulsive->rowStart[i]) > 0) {
-            int id = (i+iteration)%this->sp_local_receiver->gRows;
-            int target_proc = id/this->sp_local_receiver->proc_row_width;
-            if (target_proc != grid->rank_in_col) {
-              int index = (sdispls)[target_proc] + current_offset[target_proc];
-              (*sendbuf_ids)[index] = id;
-              #pragma omp atomic
-              current_offset[target_proc]++;
+            if ((data_handler_repulsive->rowStart[i + 1] - data_handler_repulsive->rowStart[i]) > 0) {
+                int id = (i + iteration) % this->sp_local_receiver->gRows;
+                int target_proc = id / this->sp_local_receiver->proc_row_width;
+                if (target_proc != grid->rank_in_col) {
+                    int index = sdispls[target_proc] + current_offset[target_proc];
+                    (*sendbuf_ids)[index] = id;
+                    #pragma omp atomic
+                    current_offset[target_proc]++;
+                }
             }
-          }
 
-          for(int j= data_handler_attractive->rowStart[i];j<data_handler_attractive->rowStart[i+1];j++) {
-            int id = data_handler_attractive->col_idx[j];
-            int target_proc = id/this->sp_local_receiver->proc_row_width;
-            if (target_proc != grid->rank_in_col) {
-              int index = (sdispls)[target_proc] + current_offset[target_proc];
-              (*sendbuf_ids)[index] = id;
-              #pragma omp atomic
-              current_offset[target_proc]++;
+            for (int j = data_handler_attractive->rowStart[i]; j < data_handler_attractive->rowStart[i + 1]; j++) {
+                int id = data_handler_attractive->col_idx[j];
+                int target_proc = id / this->sp_local_receiver->proc_row_width;
+                if (target_proc != grid->rank_in_col) {
+                    int index = sdispls[target_proc] + current_offset[target_proc];
+                    (*sendbuf_ids)[index] = id;
+                    #pragma omp atomic
+                    current_offset[target_proc]++;
+                }
             }
         }
     }
 
-
-    MPI_Alltoallv((*sendbuf_ids).data(), (sendcounts).data(), (sdispls).data(),
-                  MPI_INT, (*receivebuf_ids.get()).data(),
-                  (*receive_counts_cyclic.get()).data(), (*rdispls_cyclic.get()).data(),
+    MPI_Alltoallv((*sendbuf_ids).data(), sendcounts.data(), sdispls.data(),
+                  MPI_INT, (*receivebuf_ids).data(),
+                  receive_counts_cyclic->data(), rdispls_cyclic->data(),
                   MPI_INT, grid->col_world);
 
-    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
-        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
+    unique_ptr<vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
+        unique_ptr<vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
     sendbuf_data->resize(total_receive_count);
-    unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> receivebuf_data =
-        unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
+
+    unique_ptr<vector<DataTuple<DENT, embedding_dim>>> receivebuf_data =
+        unique_ptr<vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
     receivebuf_data->resize(total_send_count);
 
-
     for (int j = 0; j < (*receivebuf_ids).size(); j++) {
-      int local_key = (*receivebuf_ids)[j] - (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
-      std::array<DENT, embedding_dim> val_arr = (this->dense_local)->fetch_local_data(local_key);
-      (*sendbuf_data)[j].col = (*receivebuf_ids)[j];
-      (*sendbuf_data)[j].value = val_arr;
+        int local_key = (*receivebuf_ids)[j] - (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
+        std::array<DENT, embedding_dim> val_arr = (this->dense_local)->fetch_local_data(local_key);
+        (*sendbuf_data)[j].col = (*receivebuf_ids)[j];
+        (*sendbuf_data)[j].value = val_arr;
     }
 
     auto t = start_clock();
-    MPI_Alltoallv((*sendbuf_data).data(), (*receive_counts_cyclic.get()).data(), (*rdispls_cyclic.get()).data(),
-                  DENSETUPLE, (*receivebuf_data.get()).data(),
-                  (sendcounts).data(), (sdispls).data(),
+    MPI_Alltoallv((*sendbuf_data).data(), receive_counts_cyclic->data(), rdispls_cyclic->data(),
+                  DENSETUPLE, receivebuf_data->data(),
+                  sendcounts.data(), sdispls.data(),
                   DENSETUPLE, grid->col_world);
     stop_clock_and_add(t, "Embedding Communication Time");
     MPI_Request dumy;
 
-    this->populate_cache(sendbuf_data.get(),receivebuf_data.get(), &dumy, true, iteration, batch_id,true,false); // we should not do this
+    this->populate_cache(sendbuf_data.get(), receivebuf_data.get(), &dumy, true, iteration, batch_id, true, false);
+}
 
-  }
 
 
   inline void transfer_and_update_transpose(CSRLocal<SPT, DENT>* csr_local,CSRLocal<SPT, DENT>* csr_transpose,
