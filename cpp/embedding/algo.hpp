@@ -309,15 +309,15 @@ public:
 //              alpha, j, batch_size, considering_batch_size, i,
 //              negative_samples_ids.get(), repulsive_force_scaling_factor);
         } else {
-//          CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
-//          full_comm.get()->transfer_negative_sampled_data(csr_block_negative, i,j);
+          CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
+          full_comm.get()->transfer_negative_sampled_data(csr_block_negative,csr_block, i,j);
 //          cout<<" rank "<<grid->rank_in_col<<" transfer_negative_sampled_data completed "<<endl;
           // These operations are for more than one processes.
           this->execute_pull_model_computations(
               sendbuf_ptr.get(), update_ptr.get(), i, j,
               this->data_comm_cache[j].get(), csr_block, batch_size,
               considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
-              0, true,knng_graph_ptr.get());
+              0, false,knng_graph_ptr.get());
  //         (this->dense_local)->print_cache(i);
 //          (this->dense_local)->print_matrix_rowptr(i);
           //            (this->dense_local)->print_cache(i);

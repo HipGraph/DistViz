@@ -287,9 +287,12 @@ public:
   }
 
 
-  void transfer_negative_sampled_data(CSRLocal<SPT, DENT> *csr_block, int iteration, int batch_id) {
+  void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive,CSRLocal<SPT, DENT> *csr_block_attractive, int iteration, int batch_id) {
 
-    CSRHandle<SPT,DENT>* data_handler = csr_block->handler.get();
+    CSRHandle<SPT,DENT>* data_handler_repulsive = csr_block_repulsive->handler.get();
+   CSRHandle<SPT,DENT>* data_handler_attractive = csr_block_attractive->handler.get();
+
+
 
     vector<int> sendcounts(grid->col_world_size,0);
     vector<int> sdispls(grid->col_world_size,0);
@@ -304,7 +307,7 @@ public:
           end_index = min(end_index, gRows);
         }
         for (int i = start_index; i < end_index; i++) {
-          if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
+          if ((data_handler_repulsive->rowStart[i + 1] - data_handler_repulsive->rowStart[i]) > 0) {
             int id = (i+iteration)%this->sp_local_receiver->gRows;
 
             int target_proc = id/this->sp_local_receiver->proc_row_width;
@@ -313,10 +316,16 @@ public:
               sendcounts[target_proc]++;
             }
           }
+
+          for(int j= data_handler_attractive->rowStart[i];j<data_handler_attractive->rowStart[i+1];j++) {
+            int id = data_handler_attractive->col_idx[j];
+            int target_proc = id/this->sp_local_receiver->proc_row_width;
+            if (target_proc != grid->rank_in_col) {
+              #pragma omp atomic
+              sendcounts[target_proc]++;
+            }
+          }
         }
-    }
-
-
 
     int total_send_count=0;
     int total_receive_count=0;
@@ -358,7 +367,7 @@ public:
           end_index = min(end_index, gRows);
         }
         for (int i = start_index; i < end_index; i++) {
-          if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
+          if ((data_handler_repulsive->rowStart[i + 1] - data_handler_repulsive->rowStart[i]) > 0) {
             int id = (i+iteration)%this->sp_local_receiver->gRows;
             int target_proc = id/this->sp_local_receiver->proc_row_width;
             if (target_proc != grid->rank_in_col) {
@@ -368,6 +377,18 @@ public:
               current_offset[target_proc]++;
             }
           }
+
+          for(int j= data_handler_attractive->rowStart[i];j<data_handler_attractive->rowStart[i+1];j++) {
+            int id = data_handler_attractive->col_idx[j];
+            int target_proc = id/this->sp_local_receiver->proc_row_width;
+            if (target_proc != grid->rank_in_col) {
+              int index = (sdispls)[target_proc] + current_offset[target_proc];
+              (*sendbuf_ids)[index] = id;
+              #pragma omp atomic
+              current_offset[target_proc]++;
+            }
+          }
+
 //        }
       }
     }
