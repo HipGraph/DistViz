@@ -317,7 +317,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
     int start_index = 0;
     int end_index = this->sp_local_receiver->proc_row_width;
     if (grid->rank_in_col == grid->col_world_size - 1) {
-       end_index = min(end_index, gRows-(grid->rank_in_col*this->sp_local_receiver->proc_row_width));
+       end_index = min(end_index, this->sp_local_receiver->gRows-(grid->rank_in_col*this->sp_local_receiver->proc_row_width));
     }
 
     #pragma omp parallel for
