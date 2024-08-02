@@ -410,7 +410,6 @@ for (int i = start_index; i < end_index; i++) {
         int local_key = (*receivebuf_ids)[j] - (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
         std::array<DENT, embedding_dim> val_arr = (this->dense_local)->fetch_local_data(local_key);
         (*sendbuf_data)[j].col = (*receivebuf_ids)[j];
-         cout<<grid->rank_in_col<<" sending "<<(*sendbuf_data)[j].col<<endl;
         (*sendbuf_data)[j].value = val_arr;
     }
 
@@ -526,6 +525,7 @@ for (int i = start_index; i < end_index; i++) {
 //      cout<<" grid "<<grid->rank_in_col<<" for rank  "<<i<<" insertion started from "<<base_index<<"  count "<<count<<endl;
       for (auto j = base_index; j < base_index + count; j++) {
         DataTuple<DENT, embedding_dim> t = (*receivebuf)[j];
+         cout<<grid->rank_in_col<<" receving "<<t.col<<endl;
         (this->dense_local)->insert_cache(i, t.col, batch_id, iteration, t.value, temp);
       }
     }
