@@ -400,7 +400,6 @@ for (int i = start_index; i < end_index; i++) {
     unique_ptr<vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
         unique_ptr<vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
 
-    cout<<grid->rank_in_col<<" total_receive_count "<<total_receive_count<<endl;
     sendbuf_data->resize(total_receive_count);
 
     unique_ptr<vector<DataTuple<DENT, embedding_dim>>> receivebuf_data =
@@ -411,6 +410,7 @@ for (int i = start_index; i < end_index; i++) {
         int local_key = (*receivebuf_ids)[j] - (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
         std::array<DENT, embedding_dim> val_arr = (this->dense_local)->fetch_local_data(local_key);
         (*sendbuf_data)[j].col = (*receivebuf_ids)[j];
+         cout<<grid->rank_in_col<<" sending "<<(*sendbuf_data)[j].col<<endl;
         (*sendbuf_data)[j].value = val_arr;
     }
 
