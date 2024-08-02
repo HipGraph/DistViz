@@ -282,8 +282,6 @@ public:
     stop_clock_and_add(t, "Embedding Communication Time");
     MPI_Request dumy;
     this->populate_cache(sendbuf.get(),receivebuf_ptr.get(), &dumy, true, iteration, batch_id,true); // we should not do this
-
-    //    delete[] sendbuf;
   }
 
 
@@ -326,7 +324,7 @@ public:
             }
           }
         }
-
+    }
     int total_send_count=0;
     int total_receive_count=0;
     for(int proc=0;proc<grid->col_world_size;proc++){
