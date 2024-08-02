@@ -208,7 +208,7 @@ public:
                     (*receive_counts_cyclic).data(), (*rdispls_cyclic).data(),
                     DENSETUPLE, grid->col_world);
       MPI_Request dumy;
-      this->populate_cache(sendbuf_cyclic, receivebuf, &dumy, true, iteration, batch_id,temp_cache,);
+      this->populate_cache(sendbuf_cyclic, receivebuf, &dumy, true, iteration, batch_id,temp_cache);
       stop_clock_and_add(t, "Embedding Communication Time");
     }
   }
