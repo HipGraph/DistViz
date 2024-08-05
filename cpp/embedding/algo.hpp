@@ -296,21 +296,21 @@ public:
           this->calc_t_dist_grad_rowptr(
               csr_block, prevCoordinates_ptr.get(), alpha, i, j, batch_size,
               considering_batch_size, true, false, 0, 0, false,knng_graph_ptr.get());
-//          (this->dense_local)->print_cache(i);
-//          (this->dense_local)->print_matrix_rowptr(i);
 
           // One process computations without MPI operations
-//          generate_negative_samples(negative_samples_ptr_count.get(),
-//                                    csr_handle, i, j, batch_size,
-//                                    considering_batch_size, seed, max_nnz);
-//
-//          this->calc_t_dist_replus_rowptr(
-//              prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
-//              alpha, j, batch_size, considering_batch_size, i,
-//              negative_samples_ids.get(), repulsive_force_scaling_factor);
+          generate_negative_samples(negative_samples_ptr_count.get(),
+                                            csr_handle, i, j, batch_size,
+                                    considering_batch_size, seed, max_nnz);
+
+          this->calc_t_dist_replus_rowptr(
+              prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
+             alpha, j, batch_size, considering_batch_size, i,
+              negative_samples_ids.get(), repulsive_force_scaling_factor);
         } else {
           CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
+            auto t = start_clock();
           full_comm.get()->transfer_data(csr_block_negative,csr_block, i,j);
+            stop_clock_and_add(t, "Embedding Communication Time");
 //          cout<<" rank "<<grid->rank_in_col<<" transfer_negative_sampled_data completed "<<endl;
           // These operations are for more than one processes.
           this->execute_pull_model_computations(
@@ -359,8 +359,7 @@ public:
 
     int proc_length = get_proc_length(beta, grid->col_world_size);
     int prev_start = comm_initial_start;
-    //    cout << " rank " << grid->rank_in_col << " run pull model algorithm "
-    //    << endl;
+
     for (int k = prev_start; k < grid->col_world_size; k += proc_length) {
       int end_process = get_end_proc(k, beta, grid->col_world_size);
 
@@ -438,13 +437,10 @@ public:
         std::min(static_cast<uint64_t>(this->sp_local_receiver->proc_col_width *
                                        (grid->rank_in_col + 1)),this->sp_local_receiver->gCols) - 1;
     if (local) {
-   //   cout<<" rank "<<grid->rank_in_col<<" local execution "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
       calc_embedding_row_major(iteration, source_start_index, source_end_index,
                                dst_start_index, dst_end_index, csr_block,
                                prevCoordinates, lr, batch_id, batch_size,
                                block_size, fetch_from_temp_cache,knng_graph_ptr);
-      //cout<<" rank "<<grid->rank_in_col<<"KNNG starting size "<< knng_graph_ptr->size()<<endl;
-//      fileWriter.parallel_write("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/coords_local.txt",prevCoordinates->data(),this->sp_local_receiver->proc_col_width, 2);
 
     } else {
       for (int r = 0; r <  grid->col_world_size; r++) {
@@ -454,7 +450,6 @@ public:
                   : (grid->col_world_size - r + grid->rank_in_col) %
                         grid->col_world_size;
           if (computing_rank != grid->rank_in_col) {
-//          cout<<" rank "<<grid->rank_in_col<<" computing for "<<computing_rank<<endl;
           dst_start_index =
               this->sp_local_receiver->proc_row_width * computing_rank;
           dst_end_index = std::min(static_cast<uint64_t>(
@@ -462,8 +457,6 @@ public:
                                        (computing_rank + 1)),
                                    this->sp_local_receiver->gCols) -
                           1;
-      //    cout<<" rank "<<grid->rank_in_col<<" remote execution "<<computing_rank<<" indexes "<<source_start_index<<":"<<source_end_index<<" dst "<<dst_start_index<<":"<<dst_end_index<<endl;
-
           calc_embedding_row_major(
               iteration, source_start_index, source_end_index, dst_start_index,
               dst_end_index, csr_block, prevCoordinates, lr, batch_id,
@@ -567,19 +560,15 @@ public:
       int repulsive_force_scaling_factor = 2) {
 
     int row_base_index = batch_id * batch_size;
-    //    (this->dense_local)->print_cache(iteration);
-//    ofstream fout;
-//    fout.open("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/count_collect.txt", std::ios_base::app);
+
 #pragma omp parallel for schedule(static)
     for (int i = 0; i < block_size; i++) {
       uint64_t row_id = static_cast<uint64_t>(i + row_base_index);
-//      fout<<" itr:"<<iteration<<" index:"<<(row_id+((this->sp_local_receiver)->proc_row_width*grid->rank_in_col))<<" count:"<<(*negative_samples_ptr_count)[row_id]<<endl;
       for (int k = 0; k < (*negative_samples_ptr_count)[row_id]; k++) {
         DENT forceDiff[embedding_dim];
         uint64_t global_col_id_int =
             ((*negative_samples_id)[row_id][k] + iteration) %
             (this->sp_local_receiver)->gCols;
-//        cout<<(row_id+((this->sp_local_receiver)->proc_row_width*grid->rank_in_col))<<":"<<global_col_id_int<<endl;
         SPT global_col_id = static_cast<SPT>(global_col_id_int);
         SPT local_col_id =
             global_col_id -
@@ -597,7 +586,6 @@ public:
         DENT repuls = 0;
 
         if (fetch_from_cache) {
-//          if ((*this->dense_local->tempCachePtr)[owner_rank].count(global_col_id)>0) {//remove this hack later
             std::array<DENT, embedding_dim> colvec =
                 (*this->dense_local->tempCachePtr)[owner_rank][global_col_id].value;
             for (int d = 0; d < embedding_dim; d++) {
@@ -606,7 +594,6 @@ public:
                              colvec[d];
               repuls += forceDiff[d] * forceDiff[d];
             }
-//          }
         } else {
           for (int d = 0; d < embedding_dim; d++) {
             forceDiff[d] =

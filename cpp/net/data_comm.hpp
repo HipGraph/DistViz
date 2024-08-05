@@ -408,6 +408,7 @@ for (int i = start_index; i < end_index; i++) {
         unique_ptr<vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
     receivebuf_data->resize(total_send_count);
 
+    #pragma omp parallel for
     for (int j = 0; j < (*receivebuf_ids).size(); j++) {
         int local_key = (*receivebuf_ids)[j] - (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
         std::array<DENT, embedding_dim> val_arr = (this->dense_local)->fetch_local_data(local_key);
@@ -415,12 +416,12 @@ for (int i = start_index; i < end_index; i++) {
         (*sendbuf_data)[j].value = val_arr;
     }
 
-    auto t = start_clock();
+
     MPI_Alltoallv((*sendbuf_data).data(), receive_counts_cyclic->data(), rdispls_cyclic->data(),
                   DENSETUPLE, receivebuf_data->data(),
                   sendcounts.data(), sdispls.data(),
                   DENSETUPLE, grid->col_world);
-    stop_clock_and_add(t, "Embedding Communication Time");
+
     MPI_Request dumy;
 
     this->populate_cache(sendbuf_data.get(), receivebuf_data.get(), &dumy, true, iteration, batch_id, true, false);
