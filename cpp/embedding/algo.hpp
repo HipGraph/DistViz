@@ -804,8 +804,8 @@ public:
 
         unique_ptr<vector<Tuple<float>>> tuples = make_unique<vector<Tuple<float>>>((sp_local_native)->coords.size());
 
-        for(int i=0;i<sp_local_native->coords.size();i++) {
-          Tuple<DENT> tp= sp_local_native->coords[i];
+        for(int i=0;i<sp_local_native->coords->size();i++) {
+          Tuple<DENT> tp= (*sp_local_native->coords)[i];
           Tuple<DENT> tp_new;
           tp_new.row= tp.col;
           tp_new.col= tp.row+ grid->rank_in_col*this->sp_local_receiver->proc_row_width;
