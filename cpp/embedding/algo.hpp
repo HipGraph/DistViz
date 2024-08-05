@@ -239,7 +239,7 @@ public:
 
       unique_ptr<vector<Tuple<DENT>>> communication_tuples = make_unique<vector<Tuple<DENT>>>();
 
-      (*communication_tuples).insert((*communication_tuples).begin(),sp_local_native->coords.begin(),sp_local_native->coords.end());
+      (*communication_tuples).insert((*communication_tuples).begin(),sp_local_native->coords->begin(),sp_local_native->coords->end());
       (*communication_tuples).insert((*communication_tuples).begin(),(*negative_tuples).begin(),(*negative_tuples).end());
 
 
@@ -320,7 +320,7 @@ public:
           CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
             CSRLocal<SPT, DENT> *comm_block_csr = communication_csr->csr_local_data.get();
            auto t = start_clock();
-          full_comm.get()->transfer_data(comm_block_csr,csr_block, i,j);
+          full_comm.get()->transfer_data(comm_block_csr, i,j);
           stop_clock_and_add(t, "Embedding Communication Time");
           this->execute_pull_model_computations(
               sendbuf_ptr.get(), update_ptr.get(), i, j,
