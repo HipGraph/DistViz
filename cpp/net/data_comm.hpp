@@ -285,9 +285,9 @@ public:
   }
 
 
-void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT> *csr_block_attractive, int iteration, int batch_id) {
-    CSRHandle<SPT, DENT>* data_handler_repulsive = csr_block_repulsive->handler.get();
-    CSRHandle<SPT, DENT>* data_handler_attractive = csr_block_attractive->handler.get();
+void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id) {
+    CSRHandle<SPT, DENT>* data_handler = csr_block->handler.get();
+
 
     vector<int> sendcounts(grid->col_world_size, 0);
     vector<int> sdispls(grid->col_world_size, 0);
@@ -305,9 +305,16 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
             end_index = min(end_index, gRows);
         }
         for (int i = start_index; i < end_index; i++) {
-            if ((data_handler_repulsive->rowStart[i + 1] - data_handler_repulsive->rowStart[i]) > 0) {
-                int id = (i + iteration) % this->sp_local_receiver->gRows;
-                int target_proc = id / this->sp_local_receiver->proc_row_width;
+            if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
+                int id_shifted = (i + iteration) % this->sp_local_receiver->gRows;
+                int id = (i ) % this->sp_local_receiver->gRows;
+                int target_proc_shifted = id_shifted/ this->sp_local_receiver->proc_row_width;
+                int target_proc = id/ this->sp_local_receiver->proc_row_width;
+
+                if (target_proc_shifted != grid->rank_in_col) {
+                    #pragma omp atomic
+                    sendcounts[target_proc_shifted]++;
+                }
                 if (target_proc != grid->rank_in_col) {
                     #pragma omp atomic
                     sendcounts[target_proc]++;
@@ -315,25 +322,6 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
             }
         }
     }
-
-    int start_index = 0;
-    int end_index = this->sp_local_receiver->proc_row_width;
-    if (grid->rank_in_col == grid->col_world_size - 1) {
-       int end_index_l = this->sp_local_receiver->gRows-(grid->rank_in_col*this->sp_local_receiver->proc_row_width);
-       end_index = min(end_index, end_index_l);
-    }
-
-    #pragma omp parallel for
-             for (int j = 0; j < data_handler_attractive->col_idx.size(); j++) {
-                int id = data_handler_attractive->col_idx[j];
-                int target_proc = id / this->sp_local_receiver->proc_row_width;
-                if (target_proc != grid->rank_in_col) {
-                    #pragma omp atomic
-                    sendcounts[target_proc]++;
-       }
-    }
-
-
     int total_send_count = 0;
     int total_receive_count = 0;
     for (int proc = 0; proc < grid->col_world_size; proc++) {
@@ -345,8 +333,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
 
     unique_ptr<vector<SPT>> receivebuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
 
-    MPI_Alltoall(sendcounts.data(), 1, MPI_INT, receive_counts_cyclic->data(),
-                 1, MPI_INT, grid->col_world);
+    MPI_Alltoall(sendcounts.data(), 1, MPI_INT, receive_counts_cyclic->data(), 1, MPI_INT, grid->col_world);
     for (int i = 0; i < grid->col_world_size; i++) {
         sdispls[i] = (i > 0) ? sdispls[i - 1] + sendcounts[i - 1] : 0;
         (*rdispls_cyclic)[i] = (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1] : 0;
@@ -367,8 +354,16 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
         }
         for (int i = start_index; i < end_index; i++) {
             if ((data_handler_repulsive->rowStart[i + 1] - data_handler_repulsive->rowStart[i]) > 0) {
-                int id = (i + iteration) % this->sp_local_receiver->gRows;
+                int id_shifted = (i + iteration) % this->sp_local_receiver->gRows;
+                int id = (i ) % this->sp_local_receiver->gRows;
                 int target_proc = id / this->sp_local_receiver->proc_row_width;
+                int target_proc_shifted = id_shifted/ this->sp_local_receiver->proc_row_width;
+
+                if (target_proc_shifted != grid->rank_in_col) {
+                    #pragma omp atomic
+                    sendcounts[target_proc_shifted]++;
+                }
+
                 if (target_proc != grid->rank_in_col) {
                     int index = sdispls[target_proc] + current_offset[target_proc];
                     (*sendbuf_ids)[index] = id;
@@ -380,18 +375,6 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
         }
     }
 
-     #pragma omp parallel for
-     for (int j = 0; j < data_handler_attractive->col_idx.size(); j++) {
-                int id = data_handler_attractive->col_idx[j];
-                int target_proc = id / this->sp_local_receiver->proc_row_width;
-                if (target_proc != grid->rank_in_col) {
-                    int index = sdispls[target_proc] + current_offset[target_proc];
-                    (*sendbuf_ids)[index] = id;
-                    #pragma omp atomic
-                    current_offset[target_proc]++;
-                }
-
-}
 
     MPI_Alltoallv((*sendbuf_ids).data(), sendcounts.data(), sdispls.data(),
                   MPI_INT, (*receivebuf_ids).data(),
