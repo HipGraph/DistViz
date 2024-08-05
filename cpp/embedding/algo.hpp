@@ -243,7 +243,7 @@ public:
       for (int i = 0; i < this->sp_local_receiver->proc_row_width; i++) {
           for (uint64_t j = csr_handle->rowStart[i]; j < csr_handle->rowStart[i+1]; j++) {
               Tuple<DENT> tuple;
-              tuple.row = this->sp_local_native->col_idx[j];
+              tuple.row = csr_handle->col_idx[j];
               tuple.col = i;
               tuple.value = 1;
               (*communication_tuples)[j] = tuple;
