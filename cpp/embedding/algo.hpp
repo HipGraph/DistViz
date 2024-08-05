@@ -798,10 +798,6 @@ public:
 
       if (grid->col_world_size > 1) {
 
-        std::vector<SPT> row_offsets_trans;
-        std::vector<SPT> col_indices_trans;
-        std::vector<DENT> values_trans;
-
         unique_ptr<vector<Tuple<DENT>>> tuples = make_unique<vector<Tuple<DENT>>>((sp_local_native)->coords->size());
 
         for(int i=0;i<sp_local_native->coords->size();i++) {
@@ -833,9 +829,9 @@ public:
         CSRLocal<SPT, DENT> *csr_block = shared_sparseMat.get()->csr_local_data.get();
         CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
-        row_offsets_trans = csr_handle->rowStart;
-        col_indices_trans =  csr_handle->col_idx;
-        values_trans = csr_handle->values;
+        std::vector<SPT> &row_offsets_trans = csr_handle->rowStart;
+       std::vector<SPT>& col_indices_trans =  csr_handle->col_idx;
+        std::vector<DENT> &values_trans = csr_handle->values;
 
         std::vector<Eigen::Triplet<DENT>> triplets;
         for (int i = 0; i < numRows; ++i) {
@@ -865,11 +861,12 @@ public:
 
         Eigen::SparseMatrix<DENT> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
 
-        Eigen::SparseMatrix<DENT> tempMatrix =
-           csrMatrix + csrTransposeMatrix - prodMatrix;
+        Eigen::SparseMatrix<DENT> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
         int rows = tempMatrix.rows();
         int cols = tempMatrix.cols();
         int nnz = tempMatrix.nonZeros();
+
+        cout<<"total nnz apply set op"<<nnz<<endl;
           //
         col_indices.resize(nnz);
         values.resize(nnz);
@@ -944,7 +941,7 @@ public:
 
 
       FileWriter<SPT,DENT,2> fileWriter;
-      fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_new_.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
+      fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_new.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
     }
   }
 };
