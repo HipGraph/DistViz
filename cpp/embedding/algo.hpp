@@ -808,7 +808,7 @@ public:
           tp_new.value=tp.value;
           (*tuples)[i]=tp_new;
         }
-
+        cout<<"total transpose coords size"<<tuples.size()<<endl;
         std::vector<SPT> final_row_offsets(numRows + 1, 0);
         std::vector<SPT> final_col_indices;
         std::vector<DENT> final_values;
@@ -833,7 +833,7 @@ public:
        std::vector<SPT>& col_indices_trans =  csr_handle->col_idx;
         std::vector<DENT> &values_trans = csr_handle->values;
 
-        cout<<"total transpose nnz"<<col_indices_trans.size()<<endl;
+        cout<<" total nnz "<< col_indices.size()<<"total transpose nnz"<<col_indices_trans.size()<<endl;
         std::vector<Eigen::Triplet<DENT>> triplets;
         for (int i = 0; i < numRows; ++i) {
           int start = row_offsets[i];
