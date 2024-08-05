@@ -302,8 +302,8 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
     int total_send_count = 0;
     int total_receive_count = 0;
     if((iteration==0) or shift){
-    sendcounts = vector<int> (grid->col_world_size, 0);
-    sdispls = vector<int> (grid->col_world_size, 0);
+    sendcounts = make_shared<vector<int>> (grid->col_world_size, 0);
+    sdispls = make_shared<vector<int>> (grid->col_world_size, 0);
     //unique_ptr<vector<int>> receive_counts_cyclic = unique_ptr<vector<int>>(new vector<int>(grid->col_world_size, 0));
    // unique_ptr<vector<int>> rdispls_cyclic = unique_ptr<vector<int>>(new vector<int>(grid->col_world_size, 0));
     receive_counts_cyclic = make_shared<vector<int>>(grid->col_world_size, 0);
@@ -323,7 +323,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
                 int target_proc = id/ this->sp_local_receiver->proc_row_width;
                 if (target_proc != grid->rank_in_col) {
                     #pragma omp atomic
-                    sendcounts[target_proc]++;
+                    (*sendcounts)[target_proc]++;
                 }
             }
         }
@@ -340,7 +340,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
 
     MPI_Alltoall(sendcounts.data(), 1, MPI_INT, receive_counts_cyclic->data(), 1, MPI_INT, grid->col_world);
     for (int i = 0; i < grid->col_world_size; i++) {
-        sdispls[i] = (i > 0) ? sdispls[i - 1] + sendcounts[i - 1] : 0;
+        (*sdispls)[i] = (i > 0) ? (*sdispls)[i - 1] + sendcounts[i - 1] : 0;
         (*rdispls_cyclic)[i] = (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1] : 0;
         total_receive_count += (*receive_counts_cyclic)[i];
     }
@@ -362,7 +362,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
                 int id = shift?(i+iteration ) % this->sp_local_receiver->gRows: i% this->sp_local_receiver->gRows;
                 int target_proc = id / this->sp_local_receiver->proc_row_width;
                 if (target_proc != grid->rank_in_col) {
-                    int index = sdispls[target_proc] + current_offset[target_proc];
+                    int index = (*sdispls)[target_proc] + current_offset[target_proc];
                     (*sendbuf_ids)[index] = id;
                     #pragma omp atomic
                     current_offset[target_proc]++;
@@ -373,7 +373,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
     }
 
 
-    MPI_Alltoallv((*sendbuf_ids).data(), sendcounts.data(), sdispls.data(),
+    MPI_Alltoallv((*sendbuf_ids).data(), (*sendcounts).data(), (*sdispls).data(),
                   MPI_INT, (*receivebuf_ids).data(),
                   receive_counts_cyclic->data(), rdispls_cyclic->data(),
                   MPI_INT, grid->col_world);
@@ -405,7 +405,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
 
     MPI_Alltoallv((*sendbuf_data).data(), receive_counts_cyclic->data(), rdispls_cyclic->data(),
                   DENSETUPLE, receivebuf_data->data(),
-                  sendcounts.data(), sdispls.data(),
+                  (*sendcounts).data(), (*sdispls).data(),
                   DENSETUPLE, grid->col_world);
 
 
