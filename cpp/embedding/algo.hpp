@@ -250,8 +250,6 @@ public:
           }
       }
 
-      (*communication_tuples).insert((*communication_tuples).begin(),(*negative_tuples).begin(),(*negative_tuples).end());
-
 
     uint64_t gRows = static_cast<uint64_t>(this->sp_local_receiver->gRows);
     uint64_t gCOls =
@@ -329,9 +327,10 @@ public:
               negative_samples_ids.get(), repulsive_force_scaling_factor);
         } else {
           CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
-            CSRLocal<SPT, DENT> *comm_block_csr = communication_csr->csr_local_data.get();
+          CSRLocal<SPT, DENT> *comm_block_csr = communication_csr->csr_local_data.get();
            auto t = start_clock();
-          full_comm.get()->transfer_data(comm_block_csr, i,j);
+          full_comm.get()->transfer_data(comm_block_csr, i,j, true);
+          full_comm.get()->transfer_data(csr_block_negative, i,j,false);
           stop_clock_and_add(t, "Embedding Communication Time");
           this->execute_pull_model_computations(
               sendbuf_ptr.get(), update_ptr.get(), i, j,

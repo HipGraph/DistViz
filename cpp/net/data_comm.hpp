@@ -285,7 +285,7 @@ public:
   }
 
 
-void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id) {
+void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id, bool shift=true) {
     CSRHandle<SPT, DENT>* data_handler = csr_block->handler.get();
 
 
@@ -306,15 +306,8 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id)
         }
         for (int i = start_index; i < end_index; i++) {
             if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
-                int id_shifted = (i + iteration) % this->sp_local_receiver->gRows;
-                int id = (i ) % this->sp_local_receiver->gRows;
-                int target_proc_shifted = id_shifted/ this->sp_local_receiver->proc_row_width;
+                int id = shift?(i+iteration ) % this->sp_local_receiver->gRows:(i ) % this->sp_local_receiver->gRows;
                 int target_proc = id/ this->sp_local_receiver->proc_row_width;
-
-                if (target_proc_shifted != grid->rank_in_col) {
-                    #pragma omp atomic
-                    sendcounts[target_proc_shifted]++;
-                }
                 if (target_proc != grid->rank_in_col) {
                     #pragma omp atomic
                     sendcounts[target_proc]++;
@@ -354,16 +347,8 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id)
         }
         for (int i = start_index; i < end_index; i++) {
             if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
-                int id_shifted = (i + iteration) % this->sp_local_receiver->gRows;
-                int id = (i ) % this->sp_local_receiver->gRows;
+                int id = shift?(i+iteration ) % this->sp_local_receiver->gRows: i% this->sp_local_receiver->gRows;
                 int target_proc = id / this->sp_local_receiver->proc_row_width;
-                int target_proc_shifted = id_shifted/ this->sp_local_receiver->proc_row_width;
-
-                if (target_proc_shifted != grid->rank_in_col) {
-                    #pragma omp atomic
-                    sendcounts[target_proc_shifted]++;
-                }
-
                 if (target_proc != grid->rank_in_col) {
                     int index = sdispls[target_proc] + current_offset[target_proc];
                     (*sendbuf_ids)[index] = id;
