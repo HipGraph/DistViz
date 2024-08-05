@@ -258,6 +258,7 @@ public:
           proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
 
     negative_csr.get()->initialize_CSR_blocks(true);
+    communication_csr.get()->initialize_CSR_blocks(true);
     cout<<" rank "<<grid->rank_in_col<<" negative initialization completed "<<endl;
     stop_clock_and_add(t, "Iteration Total Time");
 
