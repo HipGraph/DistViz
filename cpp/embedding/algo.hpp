@@ -215,6 +215,8 @@ public:
     int total_tuples = max_nnz * sp_local_receiver->proc_row_width;
     unique_ptr<vector<Tuple<DENT>>> negative_tuples = make_unique<vector<Tuple<DENT>>>(total_tuples);
 
+    unique_ptr<vector<Tuple<DENT>>> communication_tuples = make_unique<vector<Tuple<DENT>>>(sp_local_native->coords->size());
+
     //ofstream fout;
    // fout.open("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/negatives.txt", std::ios_base::app);
 
@@ -237,9 +239,17 @@ public:
       }
     }
 
-      unique_ptr<vector<Tuple<DENT>>> communication_tuples = make_unique<vector<Tuple<DENT>>>();
+      #pragma omp parallel for schedule(static)
+      for (int i = 0; i < this->sp_local_receiver->proc_row_width; i++) {
+          for (uint64_t j = this->sp_local_native->rowStart[i]; j < this->sp_local_native->rowStart[i+1]; j++) {
+              Tuple<DENT> tuple;
+              tuple.row = this->sp_local_native->col_idx[j];
+              tuple.col = i;
+              tuple.value = 1;
+              (*communication_tuples)[j] = tuple;
+          }
+      }
 
-      (*communication_tuples).insert((*communication_tuples).begin(),sp_local_native->coords->begin(),sp_local_native->coords->end());
       (*communication_tuples).insert((*communication_tuples).begin(),(*negative_tuples).begin(),(*negative_tuples).end());
 
 
