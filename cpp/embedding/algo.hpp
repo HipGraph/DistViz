@@ -906,7 +906,7 @@ public:
 
 
       } else {
-        int transNumRows = transpose_row_offsets.size() - 1;
+      //  int transNumRows = transpose_row_offsets.size() - 1;
 //
 //        // Prepare triplet list to avoid locking overhead
         std::vector<Eigen::Triplet<DENT>> triplets;
