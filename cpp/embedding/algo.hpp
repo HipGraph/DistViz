@@ -178,7 +178,7 @@ public:
 
       calculate_membership_strength(csr_handle);
       cout<<" rank "<<grid->rank_in_col << " calculate_membership_strength completed " << endl;
-      apply_set_operations(true, 1.0, full_comm.get());
+      apply_set_operations(true, 1.0, repulsive_comm.get());
       cout<<" rank "<<grid->rank_in_col << " apply_set_operations completed " << endl;
       make_epochs_per_sample(csr_handle, iterations, ns);
     }

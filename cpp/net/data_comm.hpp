@@ -330,7 +330,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
     }
 
     for (int proc = 0; proc < grid->col_world_size; proc++) {
-        total_send_count += sendcounts[proc];
+        total_send_count += (*sendcounts)[proc];
     }
 
   //  unique_ptr<vector<SPT>> sendbuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
@@ -338,9 +338,9 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
 
   //  unique_ptr<vector<SPT>> receivebuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
 
-    MPI_Alltoall(sendcounts.data(), 1, MPI_INT, receive_counts_cyclic->data(), 1, MPI_INT, grid->col_world);
+    MPI_Alltoall((*sendcounts).data(), 1, MPI_INT, receive_counts_cyclic->data(), 1, MPI_INT, grid->col_world);
     for (int i = 0; i < grid->col_world_size; i++) {
-        (*sdispls)[i] = (i > 0) ? (*sdispls)[i - 1] + sendcounts[i - 1] : 0;
+        (*sdispls)[i] = (i > 0) ? (*sdispls)[i - 1] + (*sendcounts)[i - 1] : 0;
         (*rdispls_cyclic)[i] = (i > 0) ? (*rdispls_cyclic)[i - 1] + (*receive_counts_cyclic)[i - 1] : 0;
         total_receive_count += (*receive_counts_cyclic)[i];
     }
@@ -385,7 +385,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
 
     for (int i = 0; i < grid->col_world_size; i++) {
         total_receive_count += (*receive_counts_cyclic)[i];
-        total_send_count += sendcounts[i];
+        total_send_count += (*sendcounts)[i];
     }
 
     sendbuf_data->resize(total_receive_count);
