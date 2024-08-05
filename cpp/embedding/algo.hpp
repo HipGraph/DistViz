@@ -319,7 +319,7 @@ public:
      //         prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
      //          alpha, j, batch_size, considering_batch_size, i,
       //        negative_samples_ids.get(), repulsive_force_scaling_factor);
-      //  }
+        }
         this->update_data_matrix_rowptr(
             prevCoordinates_ptr.get(), j, batch_size);
         alpha = lr * (1.0 - (float(i) / float(iterations)));
