@@ -215,7 +215,7 @@ public:
     int total_tuples = max_nnz * sp_local_receiver->proc_row_width;
     unique_ptr<vector<Tuple<DENT>>> negative_tuples = make_unique<vector<Tuple<DENT>>>(total_tuples);
 
-    unique_ptr<vector<Tuple<DENT>>> communication_tuples = make_unique<vector<Tuple<DENT>>>(sp_local_native->coords->size());
+    unique_ptr<vector<Tuple<DENT>>> communication_tuples = make_unique<vector<Tuple<DENT>>>(csr_handle->col_idx.size());
 
     //ofstream fout;
    // fout.open("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/negatives.txt", std::ios_base::app);
