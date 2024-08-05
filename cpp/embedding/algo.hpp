@@ -833,6 +833,7 @@ public:
        std::vector<SPT>& col_indices_trans =  csr_handle->col_idx;
         std::vector<DENT> &values_trans = csr_handle->values;
 
+        cout<<"total transpose nnz"<<col_indices_trans.size()<<endl;
         std::vector<Eigen::Triplet<DENT>> triplets;
         for (int i = 0; i < numRows; ++i) {
           int start = row_offsets[i];
