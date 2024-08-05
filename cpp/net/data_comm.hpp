@@ -510,8 +510,8 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
     for (int i = 0; i < this->grid->col_world_size; i++) {
       auto base_index = (*rdispls_cyclic)[i];
       auto count = (*receive_counts_cyclic)[i];
-      (*rdispls_cyclic)[i]=0;
-      (*receive_counts_cyclic)[i]=0;
+ //     (*rdispls_cyclic)[i]=0;
+ //     (*receive_counts_cyclic)[i]=0;
       for (auto j = base_index; j < base_index + count; j++) {
         DataTuple<DENT, embedding_dim> t = (*receivebuf)[j];
         (this->dense_local)->insert_cache(i, t.col, batch_id, iteration, t.value, temp);
