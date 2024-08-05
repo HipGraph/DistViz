@@ -802,7 +802,7 @@ public:
         std::vector<SPT> col_indices_trans;
         std::vector<DENT> values_trans;
 
-        unique_ptr<vector<Tuple<float>>> tuples = make_unique<vector<Tuple<float>>>((sp_local_native)->coords.size());
+        unique_ptr<vector<Tuple<float>>> tuples = make_unique<vector<Tuple<float>>>((sp_local_native)->coords->size());
 
         for(int i=0;i<sp_local_native->coords->size();i++) {
           Tuple<DENT> tp= (*sp_local_native->coords)[i];
