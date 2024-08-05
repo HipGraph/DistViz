@@ -802,7 +802,7 @@ public:
         std::vector<SPT> col_indices_trans;
         std::vector<DENT> values_trans;
 
-        unique_ptr<vector<Tuple<float>>> tuples = make_unique<vector<Tuple<float>>>((sp_local_native)->coords->size());
+        unique_ptr<vector<Tuple<DENT>>> tuples = make_unique<vector<Tuple<DENT>>>((sp_local_native)->coords->size());
 
         for(int i=0;i<sp_local_native->coords->size();i++) {
           Tuple<DENT> tp= (*sp_local_native->coords)[i];
@@ -821,17 +821,17 @@ public:
      //                                            false);
 
 
-        auto shared_sparseMat = make_shared<SpMat<int,float>>(grid,tuples.get(), sp_local_receiver->gRows,sp_local_receiver->gCols,  sp_local_receiver->gNNz, sp_local_receiver->proc_row_width,
+        auto shared_sparseMat = make_shared<SpMat<SPT,DENT>>(grid,tuples.get(), sp_local_receiver->gRows,sp_local_receiver->gCols,  sp_local_receiver->gNNz, sp_local_receiver->proc_row_width,
                                                                            sp_local_receiver->proc_row_width, sp_local_receiver->proc_row_width, false, false);
 
         auto partitioner = unique_ptr<GlobalAdjacency1DPartitioner>(new GlobalAdjacency1DPartitioner(grid));
         cout<<" rank  start partitioning data"<<grid->rank_in_col<<endl;
 
-        partitioner.get()->partition_data<int,float>(shared_sparseMat.get());
+        partitioner.get()->partition_data<SPT,DENT>(shared_sparseMat.get());
         shared_sparseMat.get()->initialize_CSR_blocks();
 
-        CSRLocal<int, float> *csr_block = shared_sparseMat.get()->csr_local_data.get();
-        CSRHandle<int, float> *csr_handle = csr_block->handler.get();
+        CSRLocal<SPT, DENT> *csr_block = shared_sparseMat.get()->csr_local_data.get();
+        CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
 
         row_offsets_trans = csr_handle->rowStart;
         col_indices_trans =  csr_handle->col_idx;
@@ -943,8 +943,8 @@ public:
       }
 
 
-//      FileWriter<SPT,DENT> fileWriter;
-//      fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
+      FileWriter<SPT,DENT> fileWriter;
+      fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_new_.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
     }
   }
 };
