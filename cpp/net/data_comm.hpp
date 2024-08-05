@@ -37,6 +37,8 @@ private:
   shared_ptr<vector<unordered_set<uint64_t>>> send_col_ids_list;
   shared_ptr<unordered_map<uint64_t, unordered_map<int,bool>>> send_indices_to_proc_map;
   shared_ptr<unordered_map<uint64_t, unordered_map<int,bool>>> receive_indices_to_proc_map;
+  unique_ptr<vector<SPT>> sendbuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
+  unique_ptr<vector<SPT>> receivebuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
 
   int batch_id;
 
@@ -75,15 +77,24 @@ public:
     this->batch_id = batch_id;
     this->alpha = alpha;
 
+
+
   }
 
   ~DataComm() {}
 
-  void onboard_data() {
+  void onboard_data(hipgraph::distviz::embedding::SpMat<SPT,DENT> communication_csr=nullptr) {
 
     int total_send_count = 0;
     // processing chunks
     // calculating receiving data cols
+    if (communication_csr){
+
+
+
+
+
+}else{
 
     if (alpha==0) {
       // This represents the case for pulling
@@ -124,6 +135,7 @@ public:
         (*receivecounts)[i] = (*receive_col_ids_list)[i].size();
         (*sendcounts)[i] = (*send_col_ids_list)[i].size();
     }
+}
   }
 
  inline void transfer_data(std::vector<DataTuple<DENT, embedding_dim>> *sendbuf_cyclic,
@@ -287,10 +299,11 @@ public:
 
 void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id, bool shift=true) {
     CSRHandle<SPT, DENT>* data_handler = csr_block->handler.get();
-
-
-    vector<int> sendcounts(grid->col_world_size, 0);
-    vector<int> sdispls(grid->col_world_size, 0);
+    int total_send_count = 0;
+    int total_receive_count = 0;
+    if((iteration==0) or shift){
+    sendcounts = vector<int> (grid->col_world_size, 0);
+    sdispls = vector<int> (grid->col_world_size, 0);
     //unique_ptr<vector<int>> receive_counts_cyclic = unique_ptr<vector<int>>(new vector<int>(grid->col_world_size, 0));
    // unique_ptr<vector<int>> rdispls_cyclic = unique_ptr<vector<int>>(new vector<int>(grid->col_world_size, 0));
     receive_counts_cyclic = make_shared<vector<int>>(grid->col_world_size, 0);
@@ -315,16 +328,15 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
             }
         }
     }
-    int total_send_count = 0;
-    int total_receive_count = 0;
+
     for (int proc = 0; proc < grid->col_world_size; proc++) {
         total_send_count += sendcounts[proc];
     }
 
-    unique_ptr<vector<SPT>> sendbuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
+  //  unique_ptr<vector<SPT>> sendbuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
     sendbuf_ids->resize(total_send_count);
 
-    unique_ptr<vector<SPT>> receivebuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
+  //  unique_ptr<vector<SPT>> receivebuf_ids = unique_ptr<vector<SPT>>(new vector<SPT>());
 
     MPI_Alltoall(sendcounts.data(), 1, MPI_INT, receive_counts_cyclic->data(), 1, MPI_INT, grid->col_world);
     for (int i = 0; i < grid->col_world_size; i++) {
@@ -365,8 +377,16 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
                   MPI_INT, (*receivebuf_ids).data(),
                   receive_counts_cyclic->data(), rdispls_cyclic->data(),
                   MPI_INT, grid->col_world);
+
+    }
+
     unique_ptr<vector<DataTuple<DENT, embedding_dim>>> sendbuf_data =
         unique_ptr<vector<DataTuple<DENT, embedding_dim>>>(new vector<DataTuple<DENT, embedding_dim>>());
+
+    for (int i = 0; i < grid->col_world_size; i++) {
+        total_receive_count += (*receive_counts_cyclic)[i];
+        total_send_count += sendcounts[i];
+    }
 
     sendbuf_data->resize(total_receive_count);
 
@@ -387,6 +407,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id,
                   DENSETUPLE, receivebuf_data->data(),
                   sendcounts.data(), sdispls.data(),
                   DENSETUPLE, grid->col_world);
+
 
     MPI_Request dumy;
 

@@ -135,9 +135,12 @@ public:
 
     // This communicator is being used for negative updates and in alpha > 0 to
     // fetch initial embeddings
-    auto full_comm = unique_ptr<DataComm<SPT, DENT, embedding_dim>>(
+    auto repulsive_comm = unique_ptr<DataComm<SPT, DENT, embedding_dim>>(
         new DataComm<SPT, DENT, embedding_dim>(
             sp_local_receiver, sp_local_sender, dense_local, grid, -1, alpha));
+      auto atttractive_comm = unique_ptr<DataComm<SPT, DENT, embedding_dim>>(
+          new DataComm<SPT, DENT, embedding_dim>(
+              sp_local_receiver, sp_local_sender, dense_local, grid, -1, alpha));
     //    full_comm.get()->onboard_data();
 
     cout << " rank " << grid->rank_in_col << " onboard data sucessfully for initial iteration" << batches << endl;
@@ -151,17 +154,6 @@ public:
     unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>> sendbuf_ptr =
         unique_ptr<std::vector<DataTuple<DENT, embedding_dim>>>(
             new vector<DataTuple<DENT, embedding_dim>>());
-
-    for (int i = 0; i < batches; i++) {
-      auto communicator = unique_ptr<DataComm<SPT, DENT, embedding_dim>>(
-          new DataComm<SPT, DENT, embedding_dim>(
-              sp_local_receiver, sp_local_sender, dense_local, grid, i, alpha));
-      data_comm_cache.insert(std::make_pair(i, std::move(communicator)));
-    //  data_comm_cache[i].get()->onboard_data();
-    }
-
-    cout << " rank " << grid->rank_in_col << " onboard_data completed "
-         << batches << endl;
 
     //    DENT *prevCoordinates = static_cast<DENT *>(::operator
     //    new(sizeof(DENT[batch_size * embedding_dim])));
@@ -285,23 +277,6 @@ public:
             make_unique<vector<SPT>>(considering_batch_size, 0);
 
         CSRHandle<SPT, DENT> *csr_handle = csr_block->handler.get();
-
-        // negative sample generation
-//        if (i > 0 and i % ns_generation_skip_factor == 0) {
-//          negative_tuples->clear();
-//          negative_tuples->resize(total_tuples);
-//          std::mt19937_64 gen1(rd());
-//          for (int i = 0; i < this->sp_local_receiver->proc_row_width; i++) {
-//            (*negative_samples_ids)[i] = vector<SPT>(max_nnz);
-//            for (uint64_t j = 0; j < max_nnz; j++) {
-//              (*negative_samples_ids)[i][j] = distribution(gen1);
-//              if (grid->col_world_size > 1) {
-//                negative_csr->csr_local_data->handler->values[i * max_nnz + j] =
-//                    (*negative_samples_ids)[i][j];
-//              }
-//            }
-//          }
-//        }
         for (int k = 0; k < batch_size; k++) {
           int IDIM = k * embedding_dim;
           for (int d = 0; d < embedding_dim; d++) {
@@ -329,8 +304,8 @@ public:
           CSRLocal<SPT, DENT> *csr_block_negative = negative_csr->csr_local_data.get();
           CSRLocal<SPT, DENT> *comm_block_csr = communication_csr->csr_local_data.get();
            auto t = start_clock();
-          full_comm.get()->transfer_data(comm_block_csr, i,j, true);
-          full_comm.get()->transfer_data(csr_block_negative, i,j,false);
+          atttractive_comm.get()->transfer_data(comm_block_csr, i,j, true);
+          repulsive_comm.get()->transfer_data(csr_block_negative, i,j,false);
           stop_clock_and_add(t, "Embedding Communication Time");
           this->execute_pull_model_computations(
               sendbuf_ptr.get(), update_ptr.get(), i, j,
