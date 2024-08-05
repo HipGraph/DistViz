@@ -353,7 +353,7 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block,  int iteration, int batch_id)
             end_index = min(end_index, gRows);
         }
         for (int i = start_index; i < end_index; i++) {
-            if ((data_handler_repulsive->rowStart[i + 1] - data_handler_repulsive->rowStart[i]) > 0) {
+            if ((data_handler->rowStart[i + 1] - data_handler->rowStart[i]) > 0) {
                 int id_shifted = (i + iteration) % this->sp_local_receiver->gRows;
                 int id = (i ) % this->sp_local_receiver->gRows;
                 int target_proc = id / this->sp_local_receiver->proc_row_width;
