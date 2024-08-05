@@ -808,7 +808,7 @@ public:
           tp_new.value=tp.value;
           (*tuples)[i]=tp_new;
         }
-        cout<<"total transpose coords size"<<tuples.size()<<endl;
+        cout<<"total transpose coords size"<<tuples->size()<<endl;
         std::vector<SPT> final_row_offsets(numRows + 1, 0);
         std::vector<SPT> final_col_indices;
         std::vector<DENT> final_values;
