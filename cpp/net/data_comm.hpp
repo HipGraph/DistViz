@@ -263,15 +263,15 @@ public:
 
     receivebuf_ptr.get()->resize(total_receive_count);
 
+
     for (int j = 0; j < send_col_ids_list.size(); j++) {
       int local_key =
           send_col_ids_list[j] -
           (grid->rank_in_col) * (this->sp_local_receiver)->proc_row_width;
       std::array<DENT, embedding_dim> val_arr =
           (this->dense_local)->fetch_local_data(local_key);
-        int index = j;
-        (*sendbuf)[index].col = send_col_ids_list[j];
-        (*sendbuf)[index].value = val_arr;
+        (*sendbuf)[j].col = send_col_ids_list[j];
+        (*sendbuf)[j].value = val_arr;
     }
 
     auto t = start_clock();
@@ -324,16 +324,15 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
     }
 
     #pragma omp parallel for
-    for (int i = start_index; i < end_index; i++) {
-             for (int j = data_handler_attractive->rowStart[i]; j < data_handler_attractive->rowStart[i + 1]; j++) {
+             for (int j = 0; j < data_handler_attractive->col_idx.size(); j++) {
                 int id = data_handler_attractive->col_idx[j];
                 int target_proc = id / this->sp_local_receiver->proc_row_width;
                 if (target_proc != grid->rank_in_col) {
                     #pragma omp atomic
                     sendcounts[target_proc]++;
-                }
-            }
+       }
     }
+
 
     int total_send_count = 0;
     int total_receive_count = 0;
@@ -381,9 +380,8 @@ void transfer_data(CSRLocal<SPT, DENT> *csr_block_repulsive, CSRLocal<SPT, DENT>
         }
     }
 
-#pragma omp parallel for
-for (int i = start_index; i < end_index; i++) {
-     for (int j = data_handler_attractive->rowStart[i]; j < data_handler_attractive->rowStart[i + 1]; j++) {
+     #pragma omp parallel for
+     for (int j = 0; j < data_handler_attractive->col_idx.size(); j++) {
                 int id = data_handler_attractive->col_idx[j];
                 int target_proc = id / this->sp_local_receiver->proc_row_width;
                 if (target_proc != grid->rank_in_col) {
@@ -392,7 +390,7 @@ for (int i = start_index; i < end_index; i++) {
                     #pragma omp atomic
                     current_offset[target_proc]++;
                 }
-     }
+
 }
 
     MPI_Alltoallv((*sendbuf_ids).data(), sendcounts.data(), sdispls.data(),
