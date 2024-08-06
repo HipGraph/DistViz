@@ -849,7 +849,7 @@ public:
         csrMatrix.makeCompressed();
 
         std::vector<Eigen::Triplet<DENT>> tripletes_transpose;
-        for (int i = 0; i < numRows; ++i) {
+        for (int i = 0; i < row_offsets_trans.size()-1; ++i) {
           int start = row_offsets_trans[i];
           int end = row_offsets_trans[i + 1];
           for (int j = start; j < end; ++j) {
@@ -857,7 +857,7 @@ public:
           }
         }
 
-        Eigen::SparseMatrix<DENT> csrTransposeMatrix(numRows, sp_local_receiver->gRows);
+        Eigen::SparseMatrix<DENT> csrTransposeMatrix(row_offsets_trans.size()-1, sp_local_receiver->gRows);
         csrTransposeMatrix.setFromTriplets(tripletes_transpose.begin(), tripletes_transpose.end());
         csrTransposeMatrix.makeCompressed();
         cout<<"total nnz csrTranspose"<<csrTransposeMatrix.nonZeros()<<endl;
