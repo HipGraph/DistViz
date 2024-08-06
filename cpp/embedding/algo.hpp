@@ -943,8 +943,8 @@ public:
       }
 
 
-      FileWriter<SPT,DENT,2> fileWriter;
-      fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_new.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
+   //   FileWriter<SPT,DENT,2> fileWriter;
+    //  fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_new.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
     }
   }
 };
