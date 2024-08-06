@@ -797,19 +797,6 @@ public:
       int numRows = row_offsets.size() - 1;
 
       if (grid->col_world_size > 1) {
- //       std::vector<Eigen::Triplet<DENT>> triplets;
- //       for (int i = 0; i < numRows; ++i) {
- //         int start = row_offsets[i];
- //         int end = row_offsets[i + 1];
- //         for (int j = start; j < end; ++j) {
-  //          triplets.emplace_back(i, col_indices[j], values[j]);
-  //        }
-  //      }
-
-   //     Eigen::SparseMatrix<DENT> csrMatrix(numRows, sp_local_receiver->gRows);
-   //     csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
-  ///      csrMatrix.makeCompressed();
-
         unique_ptr<vector<Tuple<DENT>>> tuples = make_unique<vector<Tuple<DENT>>>(row_offsets[row_offsets.size()-1]);
 
         for(int i=0;i<row_offsets.size()-1;i++){
@@ -825,10 +812,6 @@ public:
         std::vector<SPT> final_row_offsets(numRows + 1, 0);
         std::vector<SPT> final_col_indices;
         std::vector<DENT> final_values;
-    //    shared_ptr<vector<Tuple<float>>> nn_values = make_shared<vector<Tuple<float>>>();
-     //   FileReader<int, float,2>::parallel_read_MM("/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_single.mtx", nn_values.get(),
-     //                                            false);
-
 
         auto shared_sparseMat = make_shared<SpMat<SPT,DENT>>(grid,tuples.get(), sp_local_receiver->gRows,sp_local_receiver->gCols,  sp_local_receiver->gNNz, sp_local_receiver->proc_row_width,
                                                                            sp_local_receiver->proc_row_width, sp_local_receiver->proc_row_width, false, false);
@@ -849,34 +832,6 @@ public:
         cout<<" total nnz "<< col_indices.size()<<"total transpose nnz"<<col_indices_trans.size()<<endl;
 
         std::vector<Eigen::Triplet<DENT>> tripletes_transpose;
-  //      for (int i = 0; i < row_offsets_trans.size()-1;i++) {
-  //        for(int j= row_offsets_trans[i];j<row_offsets_trans[i + 1];j++){
-  //          tripletes_transpose.emplace_back(i, col_indices_trans[j], values_trans[j]);
-  //      }
-  //      }
-
-    //    Eigen::SparseMatrix<DENT> csrTransposeMatrix(row_offsets_trans.size()-1, sp_local_receiver->gRows);
-    //    csrTransposeMatrix.setFromTriplets(tripletes_transpose.begin(), tripletes_transpose.end());
-    //    csrTransposeMatrix.makeCompressed();
-    //    cout<<"total nnz csrTranspose"<<csrTransposeMatrix.nonZeros()<<endl;
-
-    //    Eigen::SparseMatrix<DENT> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
-
-     //   Eigen::SparseMatrix<DENT> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
-    //    int rows = tempMatrix.rows();
-    //    int cols = tempMatrix.cols();
-      //  int nnz = tempMatrix.nonZeros();
-
-     //   cout<<" rank "<<grid->rank_in_col<<" total nnz apply set op "<<nnz<<endl;
-          //
-   //    col_indices.resize(nnz);
-   //     values.resize(nnz);
-    //    std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
-    //    std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz,col_indices.begin());
-    //    std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz,values.begin());
-
-
-
         for (int i = 0; i < numRows; i++) {
           unordered_map<SPT, DENT> multi_map;
           map<SPT, DENT> result_map;
@@ -920,7 +875,7 @@ public:
             triplets.emplace_back(i, col_indices[j], values[j]);
           }
         }
-//
+
         Eigen::SparseMatrix<DENT> csrMatrix(numRows, sp_local_receiver->gRows);
         csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
         csrMatrix.makeCompressed();
@@ -942,9 +897,6 @@ public:
                     values.begin());
       }
 
-
-   //   FileWriter<SPT,DENT,2> fileWriter;
-    //  fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/transpose_new.txt",row_offsets,col_indices,values,sp_local_receiver->proc_row_width);
     }
   }
 };
