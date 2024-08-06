@@ -849,7 +849,7 @@ public:
         cout<<" total nnz "<< col_indices.size()<<"total transpose nnz"<<col_indices_trans.size()<<endl;
 
         std::vector<Eigen::Triplet<DENT>> tripletes_transpose;
-        for (int i = 0; i < row_offsets_trans.size()-1; ++i) {
+        for (int i = 0; i < row_offsets_trans.size()-1;i++) {
           for(int j= row_offsets_trans[i];j<row_offsets_trans[i + 1];j++){
             tripletes_transpose.emplace_back(i, col_indices_trans[j], values_trans[j]);
         }
