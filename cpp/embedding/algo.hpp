@@ -867,7 +867,7 @@ public:
     //    int cols = tempMatrix.cols();
       //  int nnz = tempMatrix.nonZeros();
 
-        cout<<" rank "<<grid->rank_in_col<<" total nnz apply set op "<<nnz<<endl;
+     //   cout<<" rank "<<grid->rank_in_col<<" total nnz apply set op "<<nnz<<endl;
           //
    //    col_indices.resize(nnz);
    //     values.resize(nnz);
@@ -904,6 +904,8 @@ public:
         row_offsets = final_row_offsets;
         col_indices = final_col_indices;
         values = final_values;
+
+        cout<<" rank "<<grid->rank_in_col<<" total nnz apply set op "<<col_indices.size()<<endl;
 
       } else {
       //  int transNumRows = transpose_row_offsets.size() - 1;
