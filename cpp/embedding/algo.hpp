@@ -797,18 +797,18 @@ public:
       int numRows = row_offsets.size() - 1;
 
       if (grid->col_world_size > 1) {
-        std::vector<Eigen::Triplet<DENT>> triplets;
-        for (int i = 0; i < numRows; ++i) {
-          int start = row_offsets[i];
-          int end = row_offsets[i + 1];
-          for (int j = start; j < end; ++j) {
-            triplets.emplace_back(i, col_indices[j], values[j]);
-          }
-        }
+ //       std::vector<Eigen::Triplet<DENT>> triplets;
+ //       for (int i = 0; i < numRows; ++i) {
+ //         int start = row_offsets[i];
+ //         int end = row_offsets[i + 1];
+ //         for (int j = start; j < end; ++j) {
+  //          triplets.emplace_back(i, col_indices[j], values[j]);
+  //        }
+  //      }
 
-        Eigen::SparseMatrix<DENT> csrMatrix(numRows, sp_local_receiver->gRows);
-        csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
-        csrMatrix.makeCompressed();
+   //     Eigen::SparseMatrix<DENT> csrMatrix(numRows, sp_local_receiver->gRows);
+   //     csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
+  ///      csrMatrix.makeCompressed();
 
         unique_ptr<vector<Tuple<DENT>>> tuples = make_unique<vector<Tuple<DENT>>>(row_offsets[row_offsets.size()-1]);
 
@@ -849,58 +849,61 @@ public:
         cout<<" total nnz "<< col_indices.size()<<"total transpose nnz"<<col_indices_trans.size()<<endl;
 
         std::vector<Eigen::Triplet<DENT>> tripletes_transpose;
-        for (int i = 0; i < row_offsets_trans.size()-1;i++) {
-          for(int j= row_offsets_trans[i];j<row_offsets_trans[i + 1];j++){
-            tripletes_transpose.emplace_back(i, col_indices_trans[j], values_trans[j]);
-        }
-        }
+  //      for (int i = 0; i < row_offsets_trans.size()-1;i++) {
+  //        for(int j= row_offsets_trans[i];j<row_offsets_trans[i + 1];j++){
+  //          tripletes_transpose.emplace_back(i, col_indices_trans[j], values_trans[j]);
+  //      }
+  //      }
 
-        Eigen::SparseMatrix<DENT> csrTransposeMatrix(row_offsets_trans.size()-1, sp_local_receiver->gRows);
-        csrTransposeMatrix.setFromTriplets(tripletes_transpose.begin(), tripletes_transpose.end());
-        csrTransposeMatrix.makeCompressed();
-        cout<<"total nnz csrTranspose"<<csrTransposeMatrix.nonZeros()<<endl;
+    //    Eigen::SparseMatrix<DENT> csrTransposeMatrix(row_offsets_trans.size()-1, sp_local_receiver->gRows);
+    //    csrTransposeMatrix.setFromTriplets(tripletes_transpose.begin(), tripletes_transpose.end());
+    //    csrTransposeMatrix.makeCompressed();
+    //    cout<<"total nnz csrTranspose"<<csrTransposeMatrix.nonZeros()<<endl;
 
-        Eigen::SparseMatrix<DENT> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
+    //    Eigen::SparseMatrix<DENT> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
 
-        Eigen::SparseMatrix<DENT> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
-        int rows = tempMatrix.rows();
-        int cols = tempMatrix.cols();
-        int nnz = tempMatrix.nonZeros();
+     //   Eigen::SparseMatrix<DENT> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
+    //    int rows = tempMatrix.rows();
+    //    int cols = tempMatrix.cols();
+      //  int nnz = tempMatrix.nonZeros();
 
         cout<<" rank "<<grid->rank_in_col<<" total nnz apply set op "<<nnz<<endl;
           //
-        col_indices.resize(nnz);
-        values.resize(nnz);
-        std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
-        std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz,col_indices.begin());
-        std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz,values.begin());
+   //    col_indices.resize(nnz);
+   //     values.resize(nnz);
+    //    std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
+    //    std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz,col_indices.begin());
+    //    std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz,values.begin());
 
 
 
-  //      for (int i = 0; i < numRows; i++) {
-  //        unordered_map<SPT, DENT> multi_map;
-  //        map<SPT, DENT> result_map;
-  //        for (int j = row_offsets_trans[i]; j < row_offsets_trans[i + 1];j++) {
-  //          multi_map[col_indices_trans[j]] = values_trans[j];
-  //          result_map[col_indices_trans[j]] = values_trans[j];
-  ///        }
+        for (int i = 0; i < numRows; i++) {
+          unordered_map<SPT, DENT> multi_map;
+          map<SPT, DENT> result_map;
+          for (int j = row_offsets_trans[i]; j < row_offsets_trans[i + 1];j++) {
+            multi_map[col_indices_trans[j]] = values_trans[j];
+            result_map[col_indices_trans[j]] = values_trans[j];
+          }
 //
-   //       for (int j = row_offsets[i]; j < row_offsets[i + 1]; j++) {
-    //        if (multi_map.count(col_indices[j]) > 0) {
-    //          multi_map[col_indices[j]] *= values[j];
-    //          result_map[col_indices[j]] += values[j];
-    //          result_map[col_indices[j]] -= multi_map[col_indices[j]];
-    //        } else {
-    //          result_map[col_indices[j]] = values[j];
-     //       }
-      //    }
-   //      final_row_offsets[i + 1] = final_row_offsets[i] + result_map.size();
-     //    for (auto it = result_map.begin(); it != result_map.end(); it++) {
-      //      final_col_indices.push_back(it->first);
-      //      final_values.push_back(it->second);
-      //    }
-     // }
+          for (int j = row_offsets[i]; j < row_offsets[i + 1]; j++) {
+            if (multi_map.count(col_indices[j]) > 0) {
+              multi_map[col_indices[j]] *= values[j];
+              result_map[col_indices[j]] += values[j];
+             result_map[col_indices[j]] -= multi_map[col_indices[j]];
+            } else {
+              result_map[col_indices[j]] = values[j];
+            }
+         }
+         final_row_offsets[i + 1] = final_row_offsets[i] + result_map.size();
+         for (auto it = result_map.begin(); it != result_map.end(); it++) {
+            final_col_indices.push_back(it->first);
+            final_values.push_back(it->second);
+          }
+      }
 
+        row_offsets = final_row_offsets;
+        col_indices = final_col_indices;
+        values = final_values;
 
       } else {
       //  int transNumRows = transpose_row_offsets.size() - 1;
