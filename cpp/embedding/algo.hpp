@@ -803,7 +803,7 @@ public:
         for(int i=0;i<row_offsets.size()-1;i++){
           for(int j=row_offsets[i];j<row_offsets[i+1];j++){
           Tuple<DENT> tp_new;
-          tp_new.row= col_indices;
+          tp_new.row= col_indices[j];
           tp_new.col= i+ grid->rank_in_col*this->sp_local_receiver->proc_row_width;
           tp_new.value=values[j];
           (*tuples)[i]=tp_new;
