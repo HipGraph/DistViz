@@ -868,7 +868,7 @@ public:
         int cols = tempMatrix.cols();
         int nnz = tempMatrix.nonZeros();
 
-        cout<<"total nnz apply set op"<<nnz<<endl;
+        cout<<" rank "<<grid->rank_in_col<<" total nnz apply set op "<<nnz<<endl;
           //
         col_indices.resize(nnz);
         values.resize(nnz);
