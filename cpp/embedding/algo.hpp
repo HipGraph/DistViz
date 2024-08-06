@@ -806,7 +806,7 @@ public:
           tp_new.row= col_indices[j];
           tp_new.col= i+ grid->rank_in_col*this->sp_local_receiver->proc_row_width;
           tp_new.value=values[j];
-          (*tuples)[i]=tp_new;
+          (*tuples)[j]=tp_new;
         }
         }
         cout<<"total transpose coords size"<<tuples->size()<<endl;
