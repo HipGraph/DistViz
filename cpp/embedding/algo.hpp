@@ -857,7 +857,7 @@ public:
         }
 
         Eigen::SparseMatrix<DENT> csrTransposeMatrix(numRows, sp_local_receiver->gRows);
-        csrMatrix.setFromTriplets(tripletes_transpose.begin(), tripletes_transpose.end());
+        csrTransposeMatrix.setFromTriplets(tripletes_transpose.begin(), tripletes_transpose.end());
         csrTransposeMatrix.makeCompressed();
 
         Eigen::SparseMatrix<DENT> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
@@ -921,10 +921,8 @@ public:
         csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
         csrMatrix.makeCompressed();
         Eigen::SparseMatrix<DENT> csrTransposeMatrix = csrMatrix.transpose();
-        Eigen::SparseMatrix<DENT> prodMatrix =
-            csrMatrix.cwiseProduct(csrTransposeMatrix);
-        Eigen::SparseMatrix<DENT> tempMatrix =
-                    csrMatrix + csrTransposeMatrix - prodMatrix;
+        Eigen::SparseMatrix<DENT> prodMatrix = csrMatrix.cwiseProduct(csrTransposeMatrix);
+        Eigen::SparseMatrix<DENT> tempMatrix = csrMatrix + csrTransposeMatrix - prodMatrix;
           int rows = tempMatrix.rows();
           int cols = tempMatrix.cols();
           int nnz = tempMatrix.nonZeros();
