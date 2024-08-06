@@ -797,6 +797,18 @@ public:
       int numRows = row_offsets.size() - 1;
 
       if (grid->col_world_size > 1) {
+        std::vector<Eigen::Triplet<DENT>> triplets;
+        for (int i = 0; i < numRows; ++i) {
+          int start = row_offsets[i];
+          int end = row_offsets[i + 1];
+          for (int j = start; j < end; ++j) {
+            triplets.emplace_back(i, col_indices[j], values[j]);
+          }
+        }
+
+        Eigen::SparseMatrix<DENT> csrMatrix(numRows, sp_local_receiver->gRows);
+        csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
+        csrMatrix.makeCompressed();
 
         unique_ptr<vector<Tuple<DENT>>> tuples = make_unique<vector<Tuple<DENT>>>(row_offsets[row_offsets.size()-1]);
 
@@ -835,26 +847,12 @@ public:
         std::vector<DENT> &values_trans = csr_handle->values;
 
         cout<<" total nnz "<< col_indices.size()<<"total transpose nnz"<<col_indices_trans.size()<<endl;
-        std::vector<Eigen::Triplet<DENT>> triplets;
-        for (int i = 0; i < numRows; ++i) {
-          int start = row_offsets[i];
-          int end = row_offsets[i + 1];
-          for (int j = start; j < end; ++j) {
-            triplets.emplace_back(i, col_indices[j], values[j]);
-          }
-        }
-
-        Eigen::SparseMatrix<DENT> csrMatrix(numRows, sp_local_receiver->gRows);
-        csrMatrix.setFromTriplets(triplets.begin(), triplets.end());
-        csrMatrix.makeCompressed();
 
         std::vector<Eigen::Triplet<DENT>> tripletes_transpose;
         for (int i = 0; i < row_offsets_trans.size()-1; ++i) {
-          int start = row_offsets_trans[i];
-          int end = row_offsets_trans[i + 1];
-          for (int j = start; j < end; ++j) {
+          for(int j= row_offsets_trans[i];j<row_offsets_trans[i + 1];j++){
             tripletes_transpose.emplace_back(i, col_indices_trans[j], values_trans[j]);
-          }
+        }
         }
 
         Eigen::SparseMatrix<DENT> csrTransposeMatrix(row_offsets_trans.size()-1, sp_local_receiver->gRows);
@@ -873,7 +871,6 @@ public:
           //
         col_indices.resize(nnz);
         values.resize(nnz);
-          //
         std::copy(tempMatrix.outerIndexPtr(), tempMatrix.outerIndexPtr() + rows + 1, row_offsets.begin());
         std::copy(tempMatrix.innerIndexPtr(), tempMatrix.innerIndexPtr() + nnz,col_indices.begin());
         std::copy(tempMatrix.valuePtr(), tempMatrix.valuePtr() + nnz,values.begin());
