@@ -798,15 +798,16 @@ public:
 
       if (grid->col_world_size > 1) {
 
-        unique_ptr<vector<Tuple<DENT>>> tuples = make_unique<vector<Tuple<DENT>>>((sp_local_native)->coords->size());
+        unique_ptr<vector<Tuple<DENT>>> tuples = make_unique<vector<Tuple<DENT>>>(row_offsets[row_offsets.size()-1]);
 
-        for(int i=0;i<sp_local_native->coords->size();i++) {
-          Tuple<DENT> tp= (*sp_local_native->coords)[i];
+        for(int i=0;i<row_offsets.size()-1;i++){
+          for(int j=row_offsets[i];j<row_offsets[i+1];j++){
           Tuple<DENT> tp_new;
-          tp_new.row= tp.col;
-          tp_new.col= tp.row+ grid->rank_in_col*this->sp_local_receiver->proc_row_width;
-          tp_new.value=tp.value;
+          tp_new.row= col_indices;
+          tp_new.col= i+ grid->rank_in_col*this->sp_local_receiver->proc_row_width;
+          tp_new.value=values[j];
           (*tuples)[i]=tp_new;
+        }
         }
         cout<<"total transpose coords size"<<tuples->size()<<endl;
         std::vector<SPT> final_row_offsets(numRows + 1, 0);
