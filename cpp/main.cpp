@@ -262,7 +262,7 @@ int main(int argc, char *argv[]) {
             } else {
                 data_matrix = Eigen::MatrixXf((*data_matrix_ptr)[0].size(),
                                               (*data_matrix_ptr).size());
-#pragma omp parallel for schedule(static)
+                #pragma omp parallel for schedule(static)
                 for (int i = 0; i < (*data_matrix_ptr).size(); ++i) {
                     for (int j = 0; j < (*data_matrix_ptr)[0].size(); ++j) {
                         data_matrix(j, i) = (*data_matrix_ptr)[i][j];
