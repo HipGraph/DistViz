@@ -1290,12 +1290,13 @@ class Mrpt {
       Eigen::MatrixXf distances(X.cols(),k);
       int vote_threshold = 1;
       int max_leaf_size = n_samples / (1 << depth) + 1;
+        Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
       int elected_size = n_trees * max_leaf_size;
-      #pragma omp parallel for
+      #pragma omp parallel for schedule (static)
       for(int i=0;i<index_to_tree_leaf_match.size();++i){
         int n_elected = 0;
         Eigen::VectorXi elected(elected_size);
-//        Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
+
         Eigen::VectorXi neighbour(k);
         Eigen::VectorXf distance(k);
         if (vote_threshold <= 0 || vote_threshold > n_trees) {
@@ -1309,9 +1310,11 @@ class Mrpt {
           if (tree_leaves[n_tree].size()==n_samples) {
             for (int j = leaf_begin; j < leaf_end; ++j) {
               int idx = indices[j];
-//              if (++votes_vec(idx) == vote_threshold) {
-//                elected(n_elected++) = idx;
-//              }
+              #pragma omp atomic
+              ++votes_vec(idx);
+              if (votes_vec(idx) == vote_threshold) {
+                elected(n_elected++) = idx;
+              }
             }
           }
         }
