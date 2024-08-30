@@ -1294,8 +1294,8 @@ class Mrpt {
       #pragma omp parallel for
       for(int i=0;i<index_to_tree_leaf_match.size();++i){
         int n_elected = 0;
-//        Eigen::VectorXi elected(elected_size);
-//        Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
+        Eigen::VectorXi elected(elected_size);
+        Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
 //        Eigen::VectorXi neighbour(k);
 //        Eigen::VectorXf distance(k);
 //        if (vote_threshold <= 0 || vote_threshold > n_trees) {
