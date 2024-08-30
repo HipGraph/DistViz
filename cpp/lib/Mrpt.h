@@ -1296,34 +1296,34 @@ class Mrpt {
         int n_elected = 0;
         Eigen::VectorXi elected(elected_size);
 //        Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
-//        Eigen::VectorXi neighbour(k);
-//        Eigen::VectorXf distance(k);
-//        if (vote_threshold <= 0 || vote_threshold > n_trees) {
-//          throw std::out_of_range(
-//              "vote_threshold must belong to the set {1, ... , n_trees}.");
-//        }
-//        for(int n_tree=0;n_tree<index_to_tree_leaf_match[i].size();++n_tree){
-//          int leaf_begin = leaf_first_indices[index_to_tree_leaf_match[i][n_tree]];
-//          int leaf_end = leaf_first_indices[index_to_tree_leaf_match[i][n_tree] + 1];
-//          const std::vector<int> &indices = tree_leaves[n_tree];
-//          if (tree_leaves[n_tree].size()==n_samples) {
-//            for (int j = leaf_begin; j < leaf_end; ++j) {
-//              int idx = indices[j];
+        Eigen::VectorXi neighbour(k);
+        Eigen::VectorXf distance(k);
+        if (vote_threshold <= 0 || vote_threshold > n_trees) {
+          throw std::out_of_range(
+              "vote_threshold must belong to the set {1, ... , n_trees}.");
+        }
+        for(int n_tree=0;n_tree<index_to_tree_leaf_match[i].size();++n_tree){
+          int leaf_begin = leaf_first_indices[index_to_tree_leaf_match[i][n_tree]];
+          int leaf_end = leaf_first_indices[index_to_tree_leaf_match[i][n_tree] + 1];
+          const std::vector<int> &indices = tree_leaves[n_tree];
+          if (tree_leaves[n_tree].size()==n_samples) {
+            for (int j = leaf_begin; j < leaf_end; ++j) {
+              int idx = indices[j];
 //              if (++votes_vec(idx) == vote_threshold) {
 //                elected(n_elected++) = idx;
 //              }
-//            }
-//          }
-//        }
-//
-//        const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
-//        exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
-//        neighbours.row(i)=neighbour;
-//        distances.row(i)=distance;
+            }
+          }
+        }
+
+        const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
+        exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
+        neighbours.row(i)=neighbour;
+        distances.row(i)=distance;
       }
 
       cout<<" query voting completed "<<endl;
-#pragma omp parallel for
+      #pragma omp parallel for
       for(int i=0;i<X.cols()*k;i++){
         int node_index = i/k;
         int nn_index = i%k;
