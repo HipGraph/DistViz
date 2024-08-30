@@ -1291,7 +1291,7 @@ class Mrpt {
       int vote_threshold = 1;
       int max_leaf_size = n_samples / (1 << depth) + 1;
       int elected_size = n_trees * max_leaf_size;
-#pragma omp parallel for schedule(static)
+      #pragma omp parallel for
       for(int i=0;i<index_to_tree_leaf_match.size();++i){
         int n_elected = 0;
         Eigen::VectorXi elected(elected_size);
@@ -1323,7 +1323,7 @@ class Mrpt {
       }
 
       cout<<" query voting completed "<<endl;
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for
       for(int i=0;i<X.cols()*k;i++){
         int node_index = i/k;
         int nn_index = i%k;
