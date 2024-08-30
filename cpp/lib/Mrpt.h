@@ -1294,14 +1294,14 @@ class Mrpt {
       #pragma omp parallel for
       for(int i=0;i<index_to_tree_leaf_match.size();++i){
         int n_elected = 0;
-        Eigen::VectorXi elected(elected_size);
-        Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
-        Eigen::VectorXi neighbour(k);
-        Eigen::VectorXf distance(k);
-        if (vote_threshold <= 0 || vote_threshold > n_trees) {
-          throw std::out_of_range(
-              "vote_threshold must belong to the set {1, ... , n_trees}.");
-        }
+//        Eigen::VectorXi elected(elected_size);
+//        Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
+//        Eigen::VectorXi neighbour(k);
+//        Eigen::VectorXf distance(k);
+//        if (vote_threshold <= 0 || vote_threshold > n_trees) {
+//          throw std::out_of_range(
+//              "vote_threshold must belong to the set {1, ... , n_trees}.");
+//        }
 //        for(int n_tree=0;n_tree<index_to_tree_leaf_match[i].size();++n_tree){
 //          int leaf_begin = leaf_first_indices[index_to_tree_leaf_match[i][n_tree]];
 //          int leaf_end = leaf_first_indices[index_to_tree_leaf_match[i][n_tree] + 1];
