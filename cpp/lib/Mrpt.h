@@ -1322,6 +1322,7 @@ class Mrpt {
         distances.row(i)=distance;
       }
 
+      cout<<" query voting completed "<<endl;
 #pragma omp parallel for schedule(static)
       for(int i=0;i<X.cols()*k;i++){
         int node_index = i/k;
