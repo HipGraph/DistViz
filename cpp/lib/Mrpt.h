@@ -1292,7 +1292,7 @@ class Mrpt {
       int max_leaf_size = n_samples / (1 << depth) + 1;
       int elected_size = n_trees * max_leaf_size;
 #pragma omp parallel for schedule(static)
-      for(int i=0;i<index_to_tree_leaf_match.size();i++){
+      for(int i=0;i<index_to_tree_leaf_match.size();++i){
         int n_elected = 0;
         Eigen::VectorXi elected(elected_size);
         Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
@@ -1317,7 +1317,7 @@ class Mrpt {
         }
 
         const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
-        exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
+//        exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
         neighbours.row(i)=neighbour;
         distances.row(i)=distance;
       }
