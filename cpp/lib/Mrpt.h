@@ -1318,8 +1318,8 @@ class Mrpt {
             }
           }
         }
-
-        const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
+        Eigen::VectorXf q = X.col(i)
+//        const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
         exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
         neighbours.row(i)=neighbour;
         distances.row(i)=distance;
@@ -1334,7 +1334,6 @@ class Mrpt {
         edge.row = node_index;
         edge.col =   neighbours(node_index,nn_index);
         edge.value = distances(node_index,nn_index);
-        cout<<edge.row<<":"<<distances(node_index,nn_index)<<endl;
         (*output_knng)[i]  = edge;
       }
     }
