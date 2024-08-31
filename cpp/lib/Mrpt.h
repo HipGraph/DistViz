@@ -1313,13 +1313,15 @@ class Mrpt {
               #pragma omp atomic
               ++votes_vec(idx);
               if (votes_vec(idx) == vote_threshold) {
-                elected(n_elected++) = idx;
+                  #pragma omp atomic
+                  n_elected++;
+                  elected(n_elected) = idx;
               }
             }
           }
         }
-        Eigen::VectorXf q = X.col(i);
-//        const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
+        Eigen::VectorXf q_vec = X.col(i);
+        const Eigen::Map<const Eigen::VectorXf> q(q_vec.data(), q_vec.size());
         exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
         neighbours.row(i)=neighbour;
         distances.row(i)=distance;
