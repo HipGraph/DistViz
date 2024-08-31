@@ -1058,6 +1058,7 @@ class Mrpt {
 
       if (tree_level == depth) {
         const std::vector<int> &indices = tree_leaves[n_tree];
+        #pragma omp parallel for schedule (static)
         for(int leaf_i=0;leaf_i<leaf_first_indices.size()-1;leaf_i++){
           int leaf_begin = leaf_first_indices[leaf_i];
           int leaf_end = leaf_first_indices[leaf_i+1];
