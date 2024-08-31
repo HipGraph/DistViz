@@ -1288,7 +1288,7 @@ class Mrpt {
     void build_knng_graph(std::vector<hipgraph::distviz::common::Tuple<float>> *output_knng){
       Eigen::MatrixXi neighbours(X.cols(),k);
       Eigen::MatrixXf distances(X.cols(),k);
-      int vote_threshold = 1;
+      int vote_threshold = n_trees;
       int max_leaf_size = n_samples / (1 << depth) + 1;
         Eigen::VectorXi votes_vec = Eigen::VectorXi::Zero(n_samples);
       int elected_size = n_trees * max_leaf_size;
@@ -1319,6 +1319,7 @@ class Mrpt {
           }
         }
 
+        std::cout << "Size of elected: " << elected.size() << std::endl;
         const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
         exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
         neighbours.row(i)=neighbour;
