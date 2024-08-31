@@ -1057,15 +1057,15 @@ class Mrpt {
       int idx_right = idx_left + 1;
 
       if (tree_level == depth) {
-//        const std::vector<int> &indices = tree_leaves[n_tree];
-//        for(int leaf_i=0;leaf_i<leaf_first_indices.size()-1;leaf_i++){
-//          int leaf_begin = leaf_first_indices[leaf_i];
-//          int leaf_end = leaf_first_indices[leaf_i+1];
-//          for (int j = leaf_begin; j < leaf_end; ++j) {
-//            int idx = indices[j];
-//            index_to_tree_leaf_match[idx][n_tree] = leaf_i;
-//          }
-//        }
+        const std::vector<int> &indices = tree_leaves[n_tree];
+        for(int leaf_i=0;leaf_i<leaf_first_indices.size()-1;leaf_i++){
+          int leaf_begin = leaf_first_indices[leaf_i];
+          int leaf_end = leaf_first_indices[leaf_i+1];
+          for (int j = leaf_begin; j < leaf_end; ++j) {
+            int idx = indices[j];
+            index_to_tree_leaf_match[idx][n_tree] = leaf_i;
+          }
+        }
         return;
       }
       std::nth_element(begin, begin + n / 2, end,
@@ -1320,8 +1320,7 @@ class Mrpt {
             }
           }
         }
-        Eigen::VectorXf q_vec = X.col(i);
-        const Eigen::Map<const Eigen::VectorXf> q(q_vec.data(), q_vec.size());
+        const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
         exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
         neighbours.row(i)=neighbour;
         distances.row(i)=distance;
@@ -1336,6 +1335,7 @@ class Mrpt {
         edge.row = node_index;
         edge.col =   neighbours(node_index,nn_index);
         edge.value = distances(node_index,nn_index);
+
         (*output_knng)[i]  = edge;
       }
     }
