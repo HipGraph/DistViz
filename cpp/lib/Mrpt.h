@@ -139,7 +139,7 @@ class Mrpt {
 
        }
         cout<<" total trees completed "<<n_trees<<endl;
-#pragma omp parallel for collapse(3)
+        #pragma omp parallel for collapse(2)
         for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
         for(int leaf_i=0;leaf_i<leaf_first_indices.size()-1;leaf_i++){
             for (int j = leaf_first_indices[leaf_i]; j < leaf_first_indices[leaf_i+1]; ++j) {
