@@ -1058,15 +1058,6 @@ class Mrpt {
       int idx_right = idx_left + 1;
 
       if (tree_level == depth) {
-//        cout<<"tree completed "<<n_tree<<endl;
-//        const std::vector<int> &indices = tree_leaves[n_tree];
-//        for(int leaf_i=0;leaf_i<leaf_first_indices.size()-1;leaf_i++){
-//            #pragma omp parallel for
-//            for (int j = leaf_first_indices[leaf_i]; j < leaf_first_indices[leaf_i+1]; ++j) {
-//                int idx = indices[j];
-//                index_to_tree_leaf_match[idx][n_tree] = leaf_i;
-//          }
-//        }
         return;
       }
       std::nth_element(begin, begin + n / 2, end,
@@ -1088,6 +1079,18 @@ class Mrpt {
 
       grow_subtree(begin, mid, tree_level + 1, idx_left, n_tree, tree_projections);
       grow_subtree(mid, end, tree_level + 1, idx_right, n_tree, tree_projections);
+
+      if (tree_level==0){
+          cout<<"tree completed "<<n_tree<<endl;
+          const std::vector<int> &indices = tree_leaves[n_tree];
+#pragma omp parallel for collapse(2)
+          for(int leaf_i=0;leaf_i<leaf_first_indices.size()-1;leaf_i++){
+              for (int j = leaf_first_indices[leaf_i]; j < leaf_first_indices[leaf_i+1]; ++j) {
+                  int idx = indices[j];
+                  index_to_tree_leaf_match[idx][n_tree] = leaf_i;
+              }
+          }
+      }
     }
 
     /**
