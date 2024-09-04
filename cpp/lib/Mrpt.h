@@ -120,6 +120,7 @@ class Mrpt {
       index_to_tree_leaf_match = std::vector<std::vector<int>>(n_samples,std::vector<int>(n_trees));
       count_first_leaf_indices_all(leaf_first_indices_all, n_samples, depth);
       leaf_first_indices = leaf_first_indices_all[depth];
+        cout<<" total trees "<<n_trees<<endl;
 
       #pragma omp parallel for
       for (int n_tree = 0; n_tree < n_trees; ++n_tree) {
