@@ -1057,10 +1057,9 @@ class Mrpt {
       int idx_right = idx_left + 1;
 
       if (tree_level == depth) {
-        cout<<"tree completed "<<n_tree<<endl;
+//        cout<<"tree completed "<<n_tree<<endl;
         const std::vector<int> &indices = tree_leaves[n_tree];
         for(int leaf_i=0;leaf_i<leaf_first_indices.size()-1;leaf_i++){
-            #pragma omp parallel for schedule (static)
             for (int j = leaf_first_indices[leaf_i]; j < leaf_first_indices[leaf_i+1]; ++j) {
                 int idx = indices[j];
                 if (idx%1000000==0){
