@@ -1324,13 +1324,13 @@ class Mrpt {
           }
         }
         const Eigen::Map<const Eigen::VectorXf> q(X.col(i).data(), X.col(i).size());
-        exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
+//        exact_knn(q,k, elected, n_elected, neighbour.data(), distance.data());
         neighbours.row(i)=neighbour;
         distances.row(i)=distance;
       }
 
       cout<<" query voting completed "<<endl;
-//      #pragma omp parallel for
+      #pragma omp parallel for
       for(int i=0;i<X.cols()*k;i++){
         int node_index = i/k;
         int nn_index = i%k;
