@@ -1061,8 +1061,11 @@ class Mrpt {
         for(int leaf_i=0;leaf_i<leaf_first_indices.size()-1;leaf_i++){
             #pragma omp parallel for schedule (static)
             for (int j = leaf_first_indices[leaf_i]; j < leaf_first_indices[leaf_i+1]; ++j) {
-            int idx = indices[j];
-            index_to_tree_leaf_match[idx][n_tree] = leaf_i;
+                int idx = indices[j];
+                if (idx%1000000==0){
+                    index_to_tree_leaf_match[idx][n_tree] = leaf_i;
+                }
+
           }
         }
         return;
