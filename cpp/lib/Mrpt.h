@@ -1291,7 +1291,7 @@ class Mrpt {
     void build_knng_graph(std::vector<hipgraph::distviz::common::Tuple<float>> *output_knng){
       Eigen::MatrixXi neighbours(X.cols(),k);
       Eigen::MatrixXf distances(X.cols(),k);
-      int vote_threshold = n_trees;
+      int vote_threshold = 1;
       int max_leaf_size = n_samples / (1 << depth) + 1;
 
       int elected_size = n_trees * max_leaf_size;
@@ -1319,6 +1319,7 @@ class Mrpt {
 //                  #pragma omp atomic
                   n_elected++;
                   elected(n_elected) = idx;
+                  break;
               }
             }
           }
