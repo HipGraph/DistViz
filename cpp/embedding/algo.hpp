@@ -249,7 +249,7 @@ namespace hipgraph::distviz::embedding {
 
             negative_csr.get()->initialize_CSR_blocks(true);
             communication_csr.get()->initialize_CSR_blocks(true);
-
+            cout<<" rank "<<grid->rank_in_col<<" starting iterations "<<endl;
             for (int i = 0; i < iterations; i++) {
                 DENT batch_error = 0;
                 // Generate three random numbers
