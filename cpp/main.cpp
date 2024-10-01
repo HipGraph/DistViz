@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
             FileReader<uint64_t, float, 2>::read_fbin(
                     input_path, data_matrix_ptr.get(), data_set_size, dimension,
                     grid.get()->rank_in_col, grid.get()->col_world_size, file_offset);
-            fileWriter.parallel_write_2D("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024",data_matrix_ptr.get());
+            fileWriter.parallel_write_2D("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024/data.txt",data_matrix_ptr.get());
             return 0;
 
         }
