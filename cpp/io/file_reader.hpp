@@ -234,7 +234,7 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 
   file.seekg(start_idx * 4 * dim+offset, std::ios::beg);
   file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
-  const double scaleParameter = 100;
+  const double scaleParameter = 1000;
   cout<<" rank  "<<rank<<"  data reading  completed"<<endl;
 
   for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
