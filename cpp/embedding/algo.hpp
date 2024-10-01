@@ -220,7 +220,7 @@ namespace hipgraph::distviz::embedding {
                     (*negative_tuples)[i * max_nnz + j] = tuple;
                 }
             }
-
+            cout<<" rank "<<grid->rank_in_col<<" before tuple  initialization "<<endl;
 #pragma omp parallel for schedule(static)
             for (int i = 0; i < this->sp_local_receiver->proc_row_width; i++) {
                 for (uint64_t j = csr_handle->rowStart[i]; j < csr_handle->rowStart[i + 1]; j++) {
