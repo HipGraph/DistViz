@@ -194,6 +194,9 @@ int main(int argc, char *argv[]) {
     //original datamatrix for sparse data
     Eigen::SparseMatrix<float, Eigen::RowMajor> sparse_matrix;
 
+
+    FileWriter<int, float, embedding_dimension> fileWriter;
+
     auto t = start_clock();
     if (file_format == 0) {
         FileReader<int, float, 2>::ubyte_read(
@@ -214,6 +217,9 @@ int main(int argc, char *argv[]) {
             FileReader<uint64_t, float, 2>::read_fbin(
                     input_path, data_matrix_ptr.get(), data_set_size, dimension,
                     grid.get()->rank_in_col, grid.get()->col_world_size, file_offset);
+            fileWriter.parallel_write_2D("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024",data_matrix_ptr.get());
+            return 0;
+
         }
     } else if (file_format == 3) {
         skip_knng = true;
@@ -312,7 +318,7 @@ int main(int argc, char *argv[]) {
     stop_clock_and_add(t, "Embedding Total Time");
 
     t = start_clock();
-    FileWriter<int, float, embedding_dimension> fileWriter;
+
     fileWriter.parallel_write(output_path + "/embedding.txt", dense_mat.get()->nCoordinates, localARows,
                               embedding_dimension);
     stop_clock_and_add(t, "IO Time");
