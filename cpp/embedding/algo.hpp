@@ -247,6 +247,7 @@ namespace hipgraph::distviz::embedding {
                     grid, communication_tuples.get(), gRows, gCOls, total_tup, last_batch_size,
                     proc_row_width, this->sp_local_receiver->proc_row_width, false, false);
 
+            cout<<" rank "<<grid->rank_in_col<<" before negatice csr initialization "<<endl;
             negative_csr.get()->initialize_CSR_blocks(true);
             communication_csr.get()->initialize_CSR_blocks(true);
             cout<<" rank "<<grid->rank_in_col<<" starting iterations "<<endl;
