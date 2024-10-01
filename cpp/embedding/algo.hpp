@@ -194,7 +194,7 @@ namespace hipgraph::distviz::embedding {
             int max_nnz = average_degree * 50;
 
             std::mt19937_64 gen(seed);
-//    gen.seed(seed);
+
 
             int subset_start = sp_local_receiver->proc_row_width * grid->rank_in_col * max_nnz;
             gen.discard(subset_start);
@@ -208,6 +208,7 @@ namespace hipgraph::distviz::embedding {
             unique_ptr < vector < Tuple<DENT>>> communication_tuples = make_unique < vector <
                                                                        Tuple<DENT>>>(csr_handle->col_idx.size());
 
+            cout<<" rank "<<grid->rank_in_col<<" before negative tuple  initialization "<<endl;
            #pragma omp parallel for schedule(static)
             for (int i = 0; i < this->sp_local_receiver->proc_row_width; i++) {
                 (*negative_samples_ids)[i] = vector<SPT>(max_nnz);
@@ -220,7 +221,7 @@ namespace hipgraph::distviz::embedding {
                     (*negative_tuples)[i * max_nnz + j] = tuple;
                 }
             }
-            cout<<" rank "<<grid->rank_in_col<<" before tuple  initialization "<<endl;
+            cout<<" rank "<<grid->rank_in_col<<" before communication_tuples  initialization "<<endl;
 #pragma omp parallel for schedule(static)
             for (int i = 0; i < this->sp_local_receiver->proc_row_width; i++) {
                 for (uint64_t j = csr_handle->rowStart[i]; j < csr_handle->rowStart[i + 1]; j++) {
