@@ -96,6 +96,9 @@ public:
 
       int* receive = this->receive_random_seeds();
       // build global sparse random project matrix for all trees
+
+      cout<<" rank "<<grid->rank_in_col<<" seed "<<receive[0]<<endl;
+
       VALUE_TYPE *B = mathOp_ptr.get()->build_sparse_projection_matrix(
           this->data_dimension, global_tree_depth , density,
           receive[0]);
