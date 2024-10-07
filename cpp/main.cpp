@@ -172,6 +172,7 @@ int main(int argc, char *argv[]) {
         density = 1.0 / sqrt(dimension);
     }
 
+    cout<<" density "<<density<<endl;
     int rank, size;
 
     MPI_Init(&argc, &argv);
