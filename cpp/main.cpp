@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[p], "-tree-depth-ratio") == 0) {
             tree_depth_ratio = stof(argv[p + 1]);
         } else if (strcmp(argv[p], "-density") == 0) {
-            density = atoi(argv[p + 1]);
+            density = strtod(argv[p+1], NULL);
         } else if (strcmp(argv[p], "-nn") == 0) {
             nn = atoi(argv[p + 1]);
         } else if (strcmp(argv[p], "-locality") == 0) {
