@@ -37,7 +37,8 @@ class MathOp {
     uint64_t size = rows * cols;
     A = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * size);
 
-    std::mt19937 gen (seed);
+    std::mt19937 gen1 (seed);
+      std::mt19937 gen2 (seed);
     std::uniform_real_distribution<float> uni_dist (0, 1);
     std::normal_distribution<float> norm_dist (0, 1);
 
@@ -47,14 +48,14 @@ class MathOp {
       for (int i = 0; i < cols; ++i)
       {
         // take value at uniformly at random and check value is greater than density.If so make that entry empty.
-        if (uni_dist (gen) > density)
+        if (uni_dist (gen1) > density)
         {
           A[i + j * cols] = 0.0;
         }
         else
         {
           // normal distribution for generate projection matrix.
-          A[i + j * cols] = (VALUE_TYPE) norm_dist (gen);
+          A[i + j * cols] = (VALUE_TYPE) norm_dist (gen2);
         }
       }
     }
