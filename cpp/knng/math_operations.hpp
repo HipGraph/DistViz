@@ -31,7 +31,7 @@ class MathOp {
     return result;
   }
 
-  VALUE_TYPE *build_sparse_local_random_matrix(int rows, int cols,float density, int seed){
+  VALUE_TYPE *build_sparse_local_random_matrix(int rows, int cols,float density, uint64_t seed){
 
     VALUE_TYPE *A;
     uint64_t size = rows * cols;
@@ -62,7 +62,7 @@ class MathOp {
     return A;
   }
 
-  VALUE_TYPE *build_sparse_projection_matrix(int total_dimension, int levels,float density, int seed){
+  VALUE_TYPE *build_sparse_projection_matrix(int total_dimension, int levels,float density, uint64_t seed){
 
     VALUE_TYPE *local_sparse_matrix = this->build_sparse_local_random_matrix (total_dimension, levels, density, seed);
 

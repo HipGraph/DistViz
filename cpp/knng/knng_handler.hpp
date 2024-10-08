@@ -37,18 +37,19 @@ private:
   int my_leaf_start_index;
   int my_leaf_end_index;
 
-  int *receive_random_seeds() {
-    int* receive = new int[grid->col_world_size]();
+    uint64_t *receive_random_seeds() {
+      uint64_t* receive = new uint64_t[grid->col_world_size]();
     if (grid->rank_in_col== 0) {
+        std::random_device rd;
+        uint64_t seed = rd();
       for (int i = 0; i < grid->col_world_size; i++)
       {
-        std::random_device rd;
-        int seed = rd();
+
         receive[i] = seed;
       }
-      MPI_Bcast(receive, grid->col_world_size, MPI_INT, grid->rank_in_col, grid->col_world);
+      MPI_Bcast(receive, grid->col_world_size, MPI_UINT64_T, grid->rank_in_col, grid->col_world);
     } else {
-      MPI_Bcast(receive, grid->col_world_size, MPI_INT, NULL, grid->col_world);
+      MPI_Bcast(receive, grid->col_world_size, MPI_UINT64_T, NULL, grid->col_world);
     }
     return receive;
   }
@@ -94,7 +95,7 @@ public:
       shared_ptr<vector<set<INDEX_TYPE>>> process_to_index_set_ptr = make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
       shared_ptr<vector<set<INDEX_TYPE>>> remote_index_distribution =  make_shared<vector<set<INDEX_TYPE>>>(grid->col_world_size);
 
-      int* receive = this->receive_random_seeds();
+      uint64_t * receive = this->receive_random_seeds();
       // build global sparse random project matrix for all trees
 
       cout<<" rank "<<grid->rank_in_col<<" seed "<<receive[0]<<" density "<<density<<endl;
