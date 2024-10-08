@@ -116,8 +116,8 @@ public:
            << endl;
 
         FileWriter<int, float, 2> fileWriter;
-        fileWriter.parallel_write<float>("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024/projected.txt", B, this->local_data_set_size,
-                                         global_tree_depth);
+        fileWriter.parallel_write<float>("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024/row.txt", row_data_array, this->local_data_set_size,
+                                         this->data_dimension);
 
       // creating DRPTGlobal class
       GlobalTreeHandler<INDEX_TYPE, VALUE_TYPE> drpt_global = GlobalTreeHandler<INDEX_TYPE, VALUE_TYPE>(
