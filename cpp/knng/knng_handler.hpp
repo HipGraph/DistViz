@@ -112,8 +112,8 @@ public:
       cout << " rank " << grid->rank_in_col << " projected matrix created"
            << endl;
         FileWriter<int, float, 2> fileWriter;
-        fileWriter.parallel_write("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024/projected.txt", P, this->local_data_set_size,
-                                  global_tree_depth);
+        fileWriter.parallel_write("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024/B.txt", B, this->local_data_set_size,
+                                  this->data_dimension);
 
       // creating DRPTGlobal class
       GlobalTreeHandler<INDEX_TYPE, VALUE_TYPE> drpt_global = GlobalTreeHandler<INDEX_TYPE, VALUE_TYPE>(
