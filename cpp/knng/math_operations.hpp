@@ -38,7 +38,7 @@ class MathOp {
     A = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * size);
 
     std::mt19937 gen1 (seed);
-      std::mt19937 gen2 (seed);
+    std::mt19937 gen2 (seed);
     std::uniform_real_distribution<float> uni_dist (0, 1);
     std::normal_distribution<float> norm_dist (0, 1);
 
