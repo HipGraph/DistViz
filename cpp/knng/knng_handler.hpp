@@ -103,6 +103,10 @@ public:
       VALUE_TYPE *B = mathOp_ptr.get()->build_sparse_projection_matrix(
           this->data_dimension, global_tree_depth , density,
           receive[0]);
+
+        FileWriter<int, float, 2> fileWriter;
+        fileWriter.parallel_write<float>("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024/B.txt", B, this->local_data_set_size,
+                                         this->data_dimension);
       cout << " rank " << grid->rank_in_col
            << "build_sparse_projection_matrix completed" << endl;
       // get the matrix projection
@@ -112,9 +116,7 @@ public:
           global_tree_depth, this->local_data_set_size, 1.0);
       cout << " rank " << grid->rank_in_col << " projected matrix created"
            << endl;
-        FileWriter<int, float, 2> fileWriter;
-        fileWriter.parallel_write<float>("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024/B.txt", B, this->local_data_set_size,
-                                  this->data_dimension);
+
 
       // creating DRPTGlobal class
       GlobalTreeHandler<INDEX_TYPE, VALUE_TYPE> drpt_global = GlobalTreeHandler<INDEX_TYPE, VALUE_TYPE>(
