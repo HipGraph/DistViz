@@ -61,7 +61,7 @@ class MathOp {
                 value = norm_dist(gen2);
             } while (value < lower_bound || value > upper_bound);  // Reject values outside bounds
 
-            A[i + j * cols] = (VALUE_TYPE)value;
+            A[i + j * cols] = value;
         }
       }
     }
