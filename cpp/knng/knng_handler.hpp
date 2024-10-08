@@ -106,7 +106,7 @@ public:
 
         FileWriter<int, float, 2> fileWriter;
         fileWriter.parallel_write<float>("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024/B.txt", B, this->local_data_set_size,
-                                         this->data_dimension);
+                                         global_tree_depth);
       cout << " rank " << grid->rank_in_col
            << "build_sparse_projection_matrix completed" << endl;
       // get the matrix projection
