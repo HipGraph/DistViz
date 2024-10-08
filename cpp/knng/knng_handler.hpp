@@ -113,7 +113,7 @@ public:
       cout << " rank " << grid->rank_in_col << " projected matrix created"
            << endl;
         FileWriter<int, float, 2> fileWriter;
-        fileWriter.parallel_write("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024/B.txt", B, this->local_data_set_size,
+        fileWriter.parallel_write<float>("/pscratch/sd/i/isjarana/benchmarking/inputs/laborflow/1024/B.txt", B, this->local_data_set_size,
                                   this->data_dimension);
 
       // creating DRPTGlobal class
