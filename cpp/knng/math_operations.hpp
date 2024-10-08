@@ -41,7 +41,8 @@ class MathOp {
     std::mt19937 gen2 (seed);
     std::uniform_real_distribution<float> uni_dist (0, 1);
     std::normal_distribution<float> norm_dist (0, 1);
-
+    float lower_bound = -2;  // For example, -2.0
+    float upper_bound = 2;
     //follow row major order
     for (int j = 0; j < rows; ++j)
     {
@@ -55,7 +56,12 @@ class MathOp {
         else
         {
           // normal distribution for generate projection matrix.
-          A[i + j * cols] = (VALUE_TYPE) norm_dist (gen2);
+            float value;
+            do {
+                value = norm_dist(gen2);
+            } while (value < lower_bound || value > upper_bound);  // Reject values outside bounds
+
+            A[i + j * cols] = (VALUE_TYPE)value;
         }
       }
     }
