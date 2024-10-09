@@ -234,14 +234,14 @@ static void  read_fbin(string filename, ValueType2DVector<VALUE_TYPE>* datamatri
 
   file.seekg(start_idx * 4 * dim+offset, std::ios::beg);
   file.read(reinterpret_cast<char*>(data.data()), sizeof(float) * chunk_size * dim);
-  const double scaleParameter = 1000;
+  const float scaleParameter = 10;
   cout<<" rank  "<<rank<<"  data reading  completed"<<endl;
 
   for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
     std::vector<float> vec(dim);
     std::copy(data.begin() + i * dim, data.begin() + (i + 1) * dim, vec.begin());
     std::transform(vec.begin(), vec.end(), vec.begin(),
-                   [scaleParameter](double value) { return value * scaleParameter; });
+                   [scaleParameter](float value) { return value * scaleParameter; });
 
     (*datamatrix)[i]=vec;
   }
