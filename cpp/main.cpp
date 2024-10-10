@@ -320,8 +320,8 @@ int main(int argc, char *argv[]) {
 
     t = start_clock();
 
-//    fileWriter.parallel_write(output_path + "/embedding.txt", dense_mat.get()->nCoordinates, localARows,
-//                              embedding_dimension);
+    fileWriter.parallel_write(output_path + "/embedding.txt", dense_mat.get()->nCoordinates, localARows,
+                              embedding_dimension);
     stop_clock_and_add(t, "IO Time");
 
     ofstream fout;
