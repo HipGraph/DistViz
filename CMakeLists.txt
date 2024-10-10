@@ -42,6 +42,9 @@ find_package(OpenMP REQUIRED)
 include_directories($ENV{COMBLAS_ROOT}/install/include)
 link_directories($ENV{COMBLAS_ROOT}/install/lib)
 
+
+include_directories($ENV{PCG_ROOT}/include)
+
 message("CMAKE_BINARY_PATH ${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 

@@ -30,6 +30,7 @@
 #include <mkl.h>
 #include <mkl_spblas.h>
 #include "partitioner.hpp"
+#include <pcg_random.hpp>
 
 using namespace std;
 using namespace hipgraph::distviz::common;
