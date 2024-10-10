@@ -199,6 +199,7 @@ namespace hipgraph::distviz::embedding {
             int subset_start = sp_local_receiver->proc_row_width * grid->rank_in_col * max_nnz;
             gen.discard(subset_start);
             cout<<" rank "<<grid->rank_in_col<<" gen discarded "<<endl;
+            MPI_Barrier(grid->col_world);
             unique_ptr < vector < vector < SPT>>> negative_samples_ids =
                                                           make_unique < vector < vector < SPT>>>(last_batch_size);
             cout<<" rank "<<grid->rank_in_col<<"  negative_samples_ids "<<endl;
