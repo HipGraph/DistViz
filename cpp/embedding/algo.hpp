@@ -196,7 +196,7 @@ namespace hipgraph::distviz::embedding {
             std::mt19937_64 gen(seed);
 
             cout<<" rank "<<grid->rank_in_col<<" before gen discarded "<<endl;
-            int subset_start = sp_local_receiver->proc_row_width * grid->rank_in_col * max_nnz;
+            uint64_t subset_start = sp_local_receiver->proc_row_width * grid->rank_in_col * max_nnz;
             gen.discard(subset_start);
             MPI_Barrier(grid->col_world);
             cout<<" rank "<<grid->rank_in_col<<" gen discarded "<<endl;
