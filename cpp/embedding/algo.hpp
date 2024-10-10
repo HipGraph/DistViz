@@ -194,11 +194,11 @@ namespace hipgraph::distviz::embedding {
 
             int max_nnz = average_degree * 50;
 
-            std::mt19937_64 gen(seed);
+            pcg64 rng(seed);
 
             cout<<" rank "<<grid->rank_in_col<<" before gen discarded "<<endl;
             uint64_t subset_start = sp_local_receiver->proc_row_width * grid->rank_in_col * max_nnz;
-            gen.discard(subset_start);
+            rng.advance(subset_start);
             MPI_Barrier(grid->col_world);
             cout<<" rank "<<grid->rank_in_col<<" gen discarded "<<endl;
 
