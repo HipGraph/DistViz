@@ -296,19 +296,19 @@ namespace hipgraph::distviz::embedding {
                         auto t = start_clock();
                         atttractive_comm.get()->transfer_data(comm_block_csr, i, j, false);
                         repulsive_comm.get()->transfer_data(csr_block_negative, i, j, true);
-                        stop_clock_and_add(t, "Embedding Communication Time");
+//                        stop_clock_and_add(t, "Embedding Communication Time");
                         this->execute_pull_model_computations(
                                 sendbuf_ptr.get(), update_ptr.get(), i, j,
                                 atttractive_comm.get(), csr_block, batch_size,
                                 considering_batch_size, alpha, prevCoordinates_ptr.get(), 1, true,
                                 0, false, knng_graph_ptr.get());
-                        generate_negative_samples(negative_samples_ptr_count.get(),
-                                                  csr_handle, i, j, batch_size,
-                                                  considering_batch_size, seed, max_nnz);
-                        this->calc_t_dist_replus_rowptr(
-                                prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
-                                alpha, j, batch_size, considering_batch_size, i,
-                                negative_samples_ids.get(), repulsive_force_scaling_factor);
+//                        generate_negative_samples(negative_samples_ptr_count.get(),
+//                                                  csr_handle, i, j, batch_size,
+//                                                  considering_batch_size, seed, max_nnz);
+//                        this->calc_t_dist_replus_rowptr(
+//                                prevCoordinates_ptr.get(), negative_samples_ptr_count.get(),
+//                                alpha, j, batch_size, considering_batch_size, i,
+//                                negative_samples_ids.get(), repulsive_force_scaling_factor);
                     }
                     this->update_data_matrix_rowptr(
                             prevCoordinates_ptr.get(), j, batch_size);
