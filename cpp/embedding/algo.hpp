@@ -216,7 +216,7 @@ namespace hipgraph::distviz::embedding {
             for (int i = 0; i < this->sp_local_receiver->proc_row_width; i++) {
                 (*negative_samples_ids)[i] = vector<SPT>(max_nnz);
                 for (uint64_t j = 0; j < max_nnz; j++) {
-                    (*negative_samples_ids)[i][j] = distribution(gen);
+                    (*negative_samples_ids)[i][j] = distribution(rng);
                     Tuple<DENT> tuple;
                     tuple.row = (*negative_samples_ids)[i][j];
                     tuple.col = i;
