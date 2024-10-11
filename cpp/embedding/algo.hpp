@@ -296,7 +296,7 @@ namespace hipgraph::distviz::embedding {
                         auto t = start_clock();
                         atttractive_comm.get()->transfer_data(comm_block_csr, i, j, false);
                         repulsive_comm.get()->transfer_data(csr_block_negative, i, j, true);
-//                        stop_clock_and_add(t, "Embedding Communication Time");
+                        stop_clock_and_add(t, "Embedding Communication Time");
                         this->execute_pull_model_computations(
                                 sendbuf_ptr.get(), update_ptr.get(), i, j,
                                 atttractive_comm.get(), csr_block, batch_size,
