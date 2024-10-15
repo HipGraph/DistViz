@@ -91,7 +91,7 @@ public:
    // fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr_native.txt",row_offsets,col_indices,values,shared_sparseMat_receiver.get()->proc_row_width);
    // fileWriter.parallel_write_csr(grid,"/global/homes/i/isjarana/distviz_executions/perf_comparison/DistViz/MNIST/csr_sender.txt",row_offsets_send,col_indices_send,values_send,shared_sparseMat_receiver.get()->proc_row_width,true);
     unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>
-
+     MPI_Barrier(grid->col_world);
         embedding_algo = unique_ptr<EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>>(
                 new EmbeddingAlgo<INDEX_TYPE, VALUE_TYPE, dimension>(
                     shared_sparseMat.get(), shared_sparseMat_receiver.get(),
