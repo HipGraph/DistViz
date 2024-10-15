@@ -308,7 +308,7 @@ int main(int argc, char *argv[]) {
 
     auto gNNZ = data_set_size * (nn - 1);
     std::cout << "start generating embedding " << rank << " rows " << localARows << " gNNZ " << gNNZ << std::endl;
-
+     MPI_Barrier(grid->col_world);
     embedding_handler->generate_embedding(knng_graph_ptr.get(), dense_mat.get(),
                                           data_set_size, data_set_size, gNNZ,
                                           batch_size, iterations, lr, nsamples, alpha, beta,
