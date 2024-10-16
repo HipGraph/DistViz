@@ -91,9 +91,10 @@ public:
       cout<<" rank "<<process_3D_grid->rank_in_col<<" pre process completed "<<endl;
       // Broadcast the number of nonzeros that each processor is going to
       // receive
+        MPI_Barrier(process_3D_grid->col_world);
       MPI_Alltoall(sendcounts.data(), 1, MPI_INT, recvcounts.data(), 1, MPI_INT,
                    process_3D_grid->col_world);
-        MPI_Barrier(process_3D_grid->col_world);
+
         cout<<"passing barrier 2 at partition_data"<<endl;
 
       vector<int> recvoffsets;
