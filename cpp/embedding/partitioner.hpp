@@ -56,7 +56,8 @@ public:
 
       vector<Tuple<VALUE_TYPE>>* coords = sp_mat->coords;
 
-
+      MPI_Barrier(process_3D_grid->col_world);
+      cout<<"passing barrier 1 at partition_data"<<endl;
 
 #pragma omp parallel for
       for (int i = 0; i < (*coords).size(); i++) {
