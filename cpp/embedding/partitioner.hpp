@@ -56,8 +56,7 @@ public:
 
       vector<Tuple<VALUE_TYPE>>* coords = sp_mat->coords;
 
-      MPI_Barrier(process_3D_grid->col_world);
-      cout<<"passing barrier 1 at partition_data"<<endl;
+
 
 #pragma omp parallel for
       for (int i = 0; i < (*coords).size(); i++) {
@@ -94,6 +93,8 @@ public:
       // receive
       MPI_Alltoall(sendcounts.data(), 1, MPI_INT, recvcounts.data(), 1, MPI_INT,
                    process_3D_grid->col_world);
+        MPI_Barrier(process_3D_grid->col_world);
+        cout<<"passing barrier 2 at partition_data"<<endl;
 
       vector<int> recvoffsets;
       prefix_sum(recvcounts, recvoffsets);
