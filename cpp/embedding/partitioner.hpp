@@ -61,15 +61,14 @@ public:
 
 #pragma omp parallel for
       for (int i = 0; i < (*coords).size(); i++) {
-        int owner = get_owner_Process((*coords)[i].row, (*coords)[i].col,
-                                      sp_mat->proc_row_width,
-                                      sp_mat->proc_col_width,
-                                      sp_mat->gCols,sp_mat->col_partitioned);
-        if (owner<0 or owner >= world_size){
-            cout<<"out of bound owner "<<owner<<" for "<<(*coords)[i].row<<" : "<<(*coords)[i].col<<endl;
-        }
+          int owner = get_owner_Process((*coords)[i].row, (*coords)[i].col,
+                                        sp_mat->proc_row_width,
+                                        sp_mat->proc_col_width,
+                                        sp_mat->gCols, sp_mat->col_partitioned);
+          if (owner < 0 or owner >= world_size) {
 #pragma omp atomic update
-        sendcounts[owner]++;
+              sendcounts[owner]++;
+          }
       }
         cout<<"passing barrier 2 at partition_data"<<endl;
         MPI_Barrier(process_3D_grid->col_world);
