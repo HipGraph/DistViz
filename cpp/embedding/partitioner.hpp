@@ -65,7 +65,7 @@ public:
                                         sp_mat->proc_row_width,
                                         sp_mat->proc_col_width,
                                         sp_mat->gCols, sp_mat->col_partitioned);
-          if (owner < 0 or owner >= world_size) {
+          if (owner >= 0 and owner < world_size) {
 #pragma omp atomic update
               sendcounts[owner]++;
           }
@@ -81,8 +81,8 @@ public:
                                       sp_mat->proc_row_width,
                                       sp_mat->proc_col_width,
                                       sp_mat->gCols,sp_mat->col_partitioned);
-          if (owner < 0 or owner >= world_size) {
-        int idx;
+          if (owner >= 0 and owner < world_size){
+              int idx;
 #pragma omp atomic capture
         idx = bufindices[owner]++;
         sendbuf[idx].row = (*coords)[i].row;
