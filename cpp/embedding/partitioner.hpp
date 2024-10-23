@@ -81,16 +81,14 @@ public:
                                       sp_mat->proc_row_width,
                                       sp_mat->proc_col_width,
                                       sp_mat->gCols,sp_mat->col_partitioned);
-
+          if (owner < 0 or owner >= world_size) {
         int idx;
 #pragma omp atomic capture
         idx = bufindices[owner]++;
-
-        //        sendbuf[idx].row = transpose ? coords[i].col : coords[i].row;
-        //        sendbuf[idx].col = transpose ? coords[i].row : coords[i].col;
         sendbuf[idx].row = (*coords)[i].row;
         sendbuf[idx].col = (*coords)[i].col;
         sendbuf[idx].value = (*coords)[i].value;
+      }
       }
 
       cout<<" rank "<<process_3D_grid->rank_in_col<<" pre process completed "<<endl;
