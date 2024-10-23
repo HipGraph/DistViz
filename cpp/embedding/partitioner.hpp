@@ -65,10 +65,10 @@ public:
                                         sp_mat->proc_row_width,
                                         sp_mat->proc_col_width,
                                         sp_mat->gCols, sp_mat->col_partitioned);
-          if (owner >= 0 and owner < world_size) {
+
 #pragma omp atomic update
               sendcounts[owner]++;
-          }
+
       }
         cout<<"passing barrier 2 at partition_data"<<endl;
         MPI_Barrier(process_3D_grid->col_world);
@@ -81,14 +81,15 @@ public:
                                       sp_mat->proc_row_width,
                                       sp_mat->proc_col_width,
                                       sp_mat->gCols,sp_mat->col_partitioned);
-          if (owner >= 0 and owner < world_size){
+
               int idx;
 #pragma omp atomic capture
         idx = bufindices[owner]++;
+
         sendbuf[idx].row = (*coords)[i].row;
         sendbuf[idx].col = (*coords)[i].col;
         sendbuf[idx].value = (*coords)[i].value;
-      }
+
       }
 
       cout<<" rank "<<process_3D_grid->rank_in_col<<" pre process completed "<<endl;

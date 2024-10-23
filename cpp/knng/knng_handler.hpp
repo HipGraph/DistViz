@@ -251,7 +251,9 @@ public:
           tuple.row = edge_node.src_index;
           tuple.col = edge_node.dst_index;
           tuple.value = edge_node.distance;
-          (*output_knng).push_back(tuple);
+          if (edge_node.src_index>=0 and edge_node.src_index<global_data_set_size and edge_node.dst_index>=0 and edge_node.dst_index<global_data_set_size) {
+              (*output_knng).push_back(tuple);
+          }
         }
       }
     }
