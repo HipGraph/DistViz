@@ -56,7 +56,8 @@ public:
 
       vector<Tuple<VALUE_TYPE>>* coords = sp_mat->coords;
 
-
+        cout<<"passing barrier 1 at partition_data"<<endl;
+        MPI_Barrier(process_3D_grid->col_world);
 
 #pragma omp parallel for
       for (int i = 0; i < (*coords).size(); i++) {
@@ -67,7 +68,7 @@ public:
 #pragma omp atomic update
         sendcounts[owner]++;
       }
-        cout<<"passing barrier 1 at partition_data"<<endl;
+        cout<<"passing barrier 2 at partition_data"<<endl;
         MPI_Barrier(process_3D_grid->col_world);
       prefix_sum(sendcounts, offsets);
       bufindices = offsets;
