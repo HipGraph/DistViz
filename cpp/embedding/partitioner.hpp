@@ -59,13 +59,13 @@ public:
         cout<<"passing barrier 1 at partition_data"<<endl;
         MPI_Barrier(process_3D_grid->col_world);
 
-#pragma omp parallel for
+//#pragma omp parallel for
       for (int i = 0; i < (*coords).size(); i++) {
         int owner = get_owner_Process((*coords)[i].row, (*coords)[i].col,
                                       sp_mat->proc_row_width,
                                       sp_mat->proc_col_width,
                                       sp_mat->gCols,sp_mat->col_partitioned);
-#pragma omp atomic update
+//#pragma omp atomic update
         sendcounts[owner]++;
       }
         cout<<"passing barrier 2 at partition_data"<<endl;
