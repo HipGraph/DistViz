@@ -79,6 +79,7 @@ public:
     cout<<" rank "<<grid->rank_in_col<<" CSR  shared_sparseMat_sender initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
 
     shared_sparseMat_receiver.get()->initialize_CSR_blocks();
+      cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat_receiver initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
 
       CSRLocal<INDEX_TYPE, VALUE_TYPE> *csr_block_sender = shared_sparseMat_sender.get()->csr_local_data.get();
       CSRHandle<INDEX_TYPE, VALUE_TYPE> *csr_handle_sender = csr_block_sender->handler.get();
