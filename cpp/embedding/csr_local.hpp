@@ -86,6 +86,7 @@ namespace hipgraph::distviz::embedding {
                         }
                     }
                 } else {
+                    cout<<" executing non transpose csr conversion "<<endl;
                     int expected_col = 0;
                     int current_row_value = 0;
                     set <INDEX_TYPE> dups;

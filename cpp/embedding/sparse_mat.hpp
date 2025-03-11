@@ -94,9 +94,9 @@ public:
                                    coords_ptr, (*coords).size(), transpose);
     } else {
       // This is used to find receiving indices and computations
+
       csr_local_data =
-          make_unique<CSRLocal<INDEX_TYPE,VALUE_TYPE>>(proc_row_width, gCols, (*coords).size(),
-                                   coords_ptr, (*coords).size(), transpose);
+          make_unique<CSRLocal<INDEX_TYPE,VALUE_TYPE>>(proc_row_width, gCols, (*coords).size(), coords_ptr, (*coords).size(), transpose);
     }
   }
 
