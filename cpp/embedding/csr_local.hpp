@@ -95,7 +95,7 @@ namespace hipgraph::distviz::embedding {
                         if (dups.insert(coords[i].col).second) {
                             if (expected_col == coords[i].col) {
                                 if (index >= handler.get()->rowStart.size()){
-                                    cout<<" index and rowStart mismatch "<< index<<" "<<handler.get()->rowStart.size() <<endl;
+                                    cout<<" index and rowStart mismatch "<<coords[i].col<<" "<< index<<" "<<handler.get()->rowStart.size() <<endl;
                                 }
                                 (handler.get())->rowStart[index] = current_row_value;
                                 index++;
