@@ -62,7 +62,7 @@ public:
 #pragma omp parallel for
       for (int i = 0; i < (*coords).size(); i++) {
           if ((*coords)[i].col>= sp_mat->gCols){
-              cout<<"invalid col value found"<<my_rank<<" "<<(*coords)[i].col<<" transpose "<<sp_mat->transpise<< endl;
+              cout<<"invalid col value found"<<my_rank<<" "<<(*coords)[i].col<<" transpose "<<sp_mat->transpose<< endl;
           }
           int owner = get_owner_Process((*coords)[i].row, (*coords)[i].col,
                                         sp_mat->proc_row_width,
