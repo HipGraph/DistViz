@@ -94,12 +94,12 @@ namespace hipgraph::distviz::embedding {
                     for (INDEX_TYPE i = 0; i < num_coords; i++) {
                         if (dups.insert(coords[i].col).second) {
                             if (expected_col == coords[i].col) {
-                                (handler.get())->rowStart[index] = current_row_value;
+//                                (handler.get())->rowStart[index] = current_row_value;
                                 index++;
                                 expected_col++;
                             } else if (expected_col < coords[i].col) {
                                 while (expected_col <= coords[i].col) {
-                                    (handler.get())->rowStart[index] = current_row_value;
+//                                    (handler.get())->rowStart[index] = current_row_value;
                                     index++;
                                     expected_col++;
                                 }
@@ -111,7 +111,7 @@ namespace hipgraph::distviz::embedding {
                     }
                     if (expected_col <= this->cols) {
                         while (expected_col <= this->cols) {
-                            (handler.get())->rowStart[index] = current_row_value;
+//                            (handler.get())->rowStart[index] = current_row_value;
                             index++;
                             expected_col++;
                         }
