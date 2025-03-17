@@ -103,7 +103,7 @@ namespace hipgraph::distviz::embedding {
                             } else if (expected_col < coords[i].col) {
                                 while (expected_col <= coords[i].col) {
                                     if (index >= handler.get()->rowStart.size()){
-                                        cout<<" index and rowStart mismatch "<< index<<" "<<handler.get()->rowStart.size() <<endl;
+                                        cout<<" index and rowStart mismatch "<<coords[i].col<<" "<< index<<" "<<handler.get()->rowStart.size() <<endl;
                                     }
                                     (handler.get())->rowStart[index] = current_row_value;
                                     index++;
@@ -118,7 +118,7 @@ namespace hipgraph::distviz::embedding {
                     if (expected_col <= this->cols) {
                         while (expected_col <= this->cols) {
                             if (index >= handler.get()->rowStart.size()){
-                                cout<<" index and rowStart mismatch "<< index<<" "<<handler.get()->rowStart.size() <<endl;
+                                cout<<" index and rowStart mismatch "<<coords[i].col<<" "<< index<<" "<<handler.get()->rowStart.size() <<endl;
                             }
                             (handler.get())->rowStart[index] = current_row_value;
                             index++;
