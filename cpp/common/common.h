@@ -177,11 +177,47 @@ std::unordered_set<uint64_t> random_select(const std::unordered_set<uint64_t>& o
 
 
 
-template <typename T> struct Tuple {
-  int64_t row;
-  int64_t col;
-  T value;
+template <typename T>
+struct Tuple {
+    int64_t row;
+    int64_t col;
+    T value;
+
+    // Default Constructor
+    Tuple() = default;
+
+    // Parameterized Constructor
+    Tuple(int64_t r, int64_t c, T v) : row(r), col(c), value(v) {}
+
+    // Copy Constructor
+    Tuple(const Tuple<T>& other)
+            : row(other.row), col(other.col), value(other.value) {}
+
+    // Copy Assignment Operator
+    Tuple<T>& operator=(const Tuple<T>& other) {
+        if (this != &other) {
+            row = other.row;
+            col = other.col;
+            value = other.value;
+        }
+        return *this;
+    }
+
+    // Move Constructor
+    Tuple(Tuple<T>&& other) noexcept
+            : row(other.row), col(other.col), value(std::move(other.value)) {}
+
+    // Move Assignment Operator
+    Tuple<T>& operator=(Tuple<T>&& other) noexcept {
+        if (this != &other) {
+            row = other.row;
+            col = other.col;
+            value = std::move(other.value);
+        }
+        return *this;
+    }
 };
+
 
 template <typename T> struct CSR {
   int64_t row;
