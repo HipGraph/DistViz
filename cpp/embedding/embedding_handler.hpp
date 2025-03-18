@@ -42,7 +42,7 @@ public:
     auto shared_sparseMat = make_shared<SpMat<INDEX_TYPE,VALUE_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,localARows, localBRows, false, false);
 
       auto shared_sparseMat_receiver = make_shared<SpMat<INDEX_TYPE,VALUE_TYPE>>(grid,shared_sparseMat_receiver_coords.get(), gRows,gCols, gNNZ, batch_size,
-                                                                                 localARows, localBRows, false, false);
+                                                                                 localARows, localBRows, true, false);
 
 
     auto shared_sparseMat_sender = make_shared<SpMat<INDEX_TYPE,VALUE_TYPE>>(grid,shared_sparseMat_sender_coords.get(), gRows,gCols, gNNZ, batch_size,
@@ -75,7 +75,7 @@ public:
 
 
       cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat_receiver initialization started "<<shared_sparseMat.get()->coords->size()<<endl;
-      shared_sparseMat_receiver.get()->initialize_CSR_blocks();
+//      shared_sparseMat_receiver.get()->initialize_CSR_blocks();
       cout<<" rank "<<grid->rank_in_col<<" CSR shared_sparseMat_receiver initialization completed "<<shared_sparseMat.get()->coords->size()<<endl;
 
     shared_sparseMat_sender.get()->initialize_CSR_blocks();
