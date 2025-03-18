@@ -26,18 +26,17 @@ public:
   void generate_embedding(vector<Tuple<VALUE_TYPE>>* input_graph,DenseMat<INDEX_TYPE, VALUE_TYPE, dimension>* dense_output,
                           uint64_t gRows, uint64_t gCols, uint64_t gNNZ, int batch_size,
                           int iterations, float lr, int nsamples, float alpha,float beta,
-                          bool col_major=false, bool sync_comm=false, double drop_out_error_threshold=0, int ns_generation_skip_factor=100, int repulsive_force_scaling_factor=2){
+                          bool col_major=false, bool sync_comm=false, double drop_out_error_threshold=0,
+                          int ns_generation_skip_factor=100, int repulsive_force_scaling_factor=2){
 
-    auto localBRows = divide_and_round_up(gCols,
-                                          grid->col_world_size);
-    auto localARows = divide_and_round_up(gRows,
-                                          grid->col_world_size);
+    auto localBRows = divide_and_round_up(gCols,grid->col_world_size);
+    auto localARows = divide_and_round_up(gRows,grid->col_world_size);
 
 
     FileWriter<int,float,2> fileWriter;
 
-    vector<Tuple<VALUE_TYPE>>* shared_sparseMat_receiver_coords = new vector<Tuple<VALUE_TYPE>>(*input_graph);
-    vector<Tuple<VALUE_TYPE>>* shared_sparseMat_sender_coords = new vector<Tuple<VALUE_TYPE>>(*input_graph);
+    auto shared_sparseMat_receiver_coords = std::make_shared<std::vector<Tuple<VALUE_TYPE>>>(*input_graph);
+    auto shared_sparseMat_sender_coords = std::make_shared<std::vector<Tuple<VALUE_TYPE>>>(*input_graph);
 
 
     auto shared_sparseMat = make_shared<SpMat<INDEX_TYPE,VALUE_TYPE>>(grid,input_graph, gRows,gCols, gNNZ, batch_size,
@@ -105,10 +104,6 @@ public:
     embedding_algo.get()->algo_force2_vec_ns(iterations, batch_size, nsamples, lr,drop_out_error_threshold,ns_generation_skip_factor,repulsive_force_scaling_factor);
 
   }
-
-
-
-
 
   };
 }
