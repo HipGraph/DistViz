@@ -81,9 +81,9 @@ public:
         (*coords)[i].col %= proc_col_width;
       } else {
         (*coords)[i].row %= proc_row_width;
-        if ((*coords)[i].col>= this->gCols) {
-            cout<<" rank "<<this->grid->rank_in_col<<" col index outdated  "<<(*coords)[i].col<<endl;
-        }
+//        if ((*coords)[i].col>= this->gCols) {
+//            cout<<" rank "<<this->grid->rank_in_col<<" col index outdated  "<<(*coords)[i].col<<endl;
+//        }
       }
     }
 
