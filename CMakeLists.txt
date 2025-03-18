@@ -44,6 +44,7 @@ link_directories($ENV{COMBLAS_ROOT}/install/lib)
 
 
 include_directories($ENV{PCG_ROOT}/include)
+include_directories($ENV{EIGEN_ROOT})
 
 message("CMAKE_BINARY_PATH ${CMAKE_BINARY_DIR}")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
