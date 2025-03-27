@@ -104,7 +104,7 @@ community version >= 1.0.0
 4. Run the python script [run_visualization.py](./test/visualization/run_visualization.py) (in the visualization directory) to generate the visualization of the KNNG:
 ```bash
 cd visualization
-python3 -u ./run_visualization.py ../output/knng.mtx 1 ../output/embedding.txt 2 ../data/cora/cora.nodes.labels cora_viz
+python3 -u ./run_visualization.py ../output/knng.mtx 1 ../output/embedding.txt 2 ../data/cora/cora.nodes.labels cora_knng_embedding
 ```
 > Note: [cora.nodes.labels](./test/data/cora/cora.nodes.labels) represents the actual node lables of the dataset.
 6. After running the script, check if a PDF file with the visualization has been generated.
