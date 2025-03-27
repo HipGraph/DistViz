@@ -40,11 +40,17 @@
 build/
 **/bin/
 
-#idea created files
+# idea created files
 .idea/
 ./java/.idea/
 ./cpp/.idea/
 *.iml
+
+# VSCode settings and workspace files
+.vscode/
+
+# Python virtual environment
+venv/
 
 # Custom
 cmake-build-debug-*/*
@@ -52,3 +58,7 @@ cpp/build/*
 cpp/CMakeFiles/*
 *.DS*
 .DS_Store
+*.log
+perf_output
+test/output/
+test/visualization/*.pdf
