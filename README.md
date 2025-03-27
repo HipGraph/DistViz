@@ -69,7 +69,7 @@ mkdir output
 sbatch run_distviz.sh
 ```
   - This script will run the DRPT algorithm on the Cora dataset located in [test/data/cora](./test/data/cora) and generates the KNNG and its embeddings.
-  - Here, the K value is set to 10, and the workload is distributed among 4 processors.
+  - Here, the K value is set to 10, and the workload is distributed among 2 processors.
 3. Once the job completes:
     - Check the output log file (`%j.log`) for progress and any errors.
     - Verify that the KNNG output file (`knng.txt`) appears in your specified output directory.
