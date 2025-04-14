@@ -299,33 +299,59 @@ static void read_ubin(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
 }
 
 static void  read_txt(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
-                     INDEX_TYPE no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=8) {
+                     INDEX_TYPE no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=0) {
   std::ifstream infile(filename); // Open the file for reading
   std::vector<std::vector<VALUE_TYPE>> data; // Vector to hold the loaded data
 
-  if (infile) {
-    std::string line;
-    while (std::getline(infile, line)) {
-      std::vector<VALUE_TYPE> row;
-      std::istringstream iss(line);
-      VALUE_TYPE value;
 
-      // Read each value (label followed by features)
-      while (iss >> value) {
-        row.push_back(value);
-      }
+    if (!infile.is_open()) {
+        // Handle file opening error
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+    std::cout << "Rank " << rank << " opened file " << filename << std::endl;
+
+    INDEX_TYPE chunk_size = no_of_datapoints / world_size;
+    INDEX_TYPE start_idx = rank * chunk_size;
+    INDEX_TYPE end_index = 0;
+
+    if (rank < world_size - 1) {
+        end_index = (rank + 1) * chunk_size - 1;
+    } else if (rank == world_size - 1) {
+        end_index = std::min((rank + 1) * chunk_size - 1, no_of_datapoints - 1);
+        chunk_size = no_of_datapoints - rank * chunk_size;
+    }
+
+    if (chunk_size == -1) {
+        chunk_size = no_of_datapoints - start_idx;
+    }
+
+    std::cout << "Rank " << rank << " selected chunk size " << chunk_size << " starting " << start_idx << std::endl;
+
+    // Skip lines up to start_idx
+     std::string line;
+    for (INDEX_TYPE i = 0; i < start_idx + offset && std::getline(infile, line); ++i);
+
+    for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
+        if (std::getline(infile, line)) {
+            std::vector<VALUE_TYPE> row;
+            std::istringstream iss(line);
+            VALUE_TYPE value;
+
+            // Read each value (label followed by features)
+            while (iss >> value) {
+                row.push_back(value);
+            }
+            data.push_back(row);
+        }
 
       // Add the row (data vector) to the data vector
-      data.push_back(row);
+
     }
     datamatrix->resize(data.size());
     for(int i=0;i<data.size();i++){
       (*datamatrix)[i]=data[i];
     }
-
-  } else {
-    std::cerr << "Error opening file: " << filename << std::endl;
-  }
 }
 
 
