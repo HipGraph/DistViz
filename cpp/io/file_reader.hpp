@@ -342,10 +342,11 @@ static void  read_txt(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
             while (iss >> value) {
                 row.push_back(value);
             }
+            data.push_back(row);
         }
 
       // Add the row (data vector) to the data vector
-      data.push_back(row);
+
     }
     datamatrix->resize(data.size());
     for(int i=0;i<data.size();i++){
