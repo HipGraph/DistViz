@@ -299,7 +299,7 @@ static void read_ubin(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
 }
 
 static void  read_txt(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix,
-                     INDEX_TYPE no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=8) {
+                     INDEX_TYPE no_of_datapoints,int dim, int rank, int world_size, INDEX_TYPE offset=0) {
   std::ifstream infile(filename); // Open the file for reading
   std::vector<std::vector<VALUE_TYPE>> data; // Vector to hold the loaded data
 
@@ -332,15 +332,17 @@ static void  read_txt(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
      std::string line;
     for (INDEX_TYPE i = 0; i < start_idx + offset && std::getline(infile, line); ++i);
 
-    while (std::getline(infile, line)) {
-      std::vector<VALUE_TYPE> row;
-      std::istringstream iss(line);
-      VALUE_TYPE value;
+    for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
+        if (std::getline(file, line)) {
+            std::vector<VALUE_TYPE> row;
+            std::istringstream iss(line);
+            VALUE_TYPE value;
 
-      // Read each value (label followed by features)
-      while (iss >> value) {
-        row.push_back(value);
-      }
+            // Read each value (label followed by features)
+            while (iss >> value) {
+                row.push_back(value);
+            }
+        }
 
       // Add the row (data vector) to the data vector
       data.push_back(row);
