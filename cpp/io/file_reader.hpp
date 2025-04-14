@@ -333,7 +333,7 @@ static void  read_txt(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
     for (INDEX_TYPE i = 0; i < start_idx + offset && std::getline(infile, line); ++i);
 
     for (INDEX_TYPE i = 0; i < chunk_size; ++i) {
-        if (std::getline(file, line)) {
+        if (std::getline(infile, line)) {
             std::vector<VALUE_TYPE> row;
             std::istringstream iss(line);
             VALUE_TYPE value;
