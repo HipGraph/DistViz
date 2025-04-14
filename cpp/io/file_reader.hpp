@@ -329,7 +329,7 @@ static void  read_txt(string filename, ValueType2DVector<VALUE_TYPE>* datamatrix
     std::cout << "Rank " << rank << " selected chunk size " << chunk_size << " starting " << start_idx << std::endl;
 
     // Skip lines up to start_idx
-    // std::string line;
+     std::string line;
     for (INDEX_TYPE i = 0; i < start_idx + offset && std::getline(infile, line); ++i);
 
     while (std::getline(infile, line)) {
