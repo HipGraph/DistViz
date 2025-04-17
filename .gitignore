@@ -62,3 +62,4 @@ cpp/CMakeFiles/*
 perf_output
 test/output/
 test/visualization/*.pdf
+test/data/MNIST/train-images-idx3-ubyte
