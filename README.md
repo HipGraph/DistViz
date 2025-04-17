@@ -66,7 +66,7 @@ PenDigits is a smaller (compared to MNIST) dataset consisting of handwritten dig
 
 > Note: Since the PenDigits dataset  is relatively small in size, it is already included in [test/data](./test/data/) folder.
 
-### 1.1 Build the KNNG and Generate Embeddings
+#### 1.1 Build the KNNG and Generate Embeddings
 1. Navigate into the [test](./test) folder.
 ```bash
 cd test
@@ -132,7 +132,7 @@ MNIST is a widely used dataset which consists of a set of handwritten digits.
 
 > Note: Since the MNIST dataset is relatively large in size, it is not included in the repository.
 
-### 2.0 Download the Dataset
+#### 2.0 Download the Dataset
 1. Navigate into the [test](./test) folder.
 ```bash
 cd test
@@ -140,7 +140,7 @@ cd test
 2. Download and extract the MNIST dataset (`train-images.idx3-ubyte` dataset) into the [test/data/MNIST](./test/data/MNIST/) folder by using the following url.
     - https://www.kaggle.com/datasets/hojjatk/mnist-dataset?select=train-images.idx3-ubyte
 
-### 2.1 Build the KNNG and Generate Embeddings
+#### 2.1 Build the KNNG and Generate Embeddings
 
 1. Before running the framework, make sure that you have a directory to store the outputs. If not, create a folder as follows.
 ```bash
