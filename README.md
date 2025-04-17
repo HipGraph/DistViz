@@ -100,7 +100,7 @@ sbatch run_distviz_on_pendigits.sh
 python3 --version
 ```
 2. Next create and activate a python virtual environment to keep dependencies organized:
-```
+```bash
 pip install venv
 python3 -m venv venv
 source venv/bin/activate
